@@ -494,8 +494,9 @@ export const useTemplateStore = create<EditorState>()(
 
         // Save sections to backend
         saveSections: async () => {
-            const { templateId, editorMode, flattenSections } = get();
+            const { templateId, editorMode, flattenSections, template } = get();
             const sections = flattenSections();
+            const globalCustomCss = template?.global_custom_css ?? "";
 
             set({ saving: true });
 
@@ -503,6 +504,7 @@ export const useTemplateStore = create<EditorState>()(
                 const response = await templateEditorService.saveSections(
                     templateId,
                     sections,
+                    globalCustomCss,
                     editorMode,
                 );
 

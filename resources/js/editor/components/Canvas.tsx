@@ -5,6 +5,7 @@ import SectionWrapper from "./SectionWrapper";
 export default function Canvas() {
     const {
         sections,
+        template,
         currentViewport,
         setSelectedSection,
         addSection,
@@ -48,6 +49,10 @@ export default function Canvas() {
                         isOver ? "bg-yellow-50" : ""
                     }`}
                 >
+                    {template?.global_custom_css ? (
+                        <style>{template.global_custom_css}</style>
+                    ) : null}
+
                     {sections.length === 0 ? (
                         <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-400">
                             <svg

@@ -36,6 +36,7 @@ class InvitationEditorController extends Controller
                 'id' => $page->id,
                 'name' => $page->title,
                 'slug' => $page->slug,
+                'global_custom_css' => data_get($page->meta_data, 'global_custom_css', ''),
                 'is_active' => $page->published_status === 'published',
                 'published_status' => $page->published_status,
                 'event_date' => optional($page->event_date)->toDateTimeString(),
@@ -50,6 +51,7 @@ class InvitationEditorController extends Controller
 
         $request->validate([
             'page_id' => 'required|exists:invitation_pages,id',
+            'global_custom_css' => 'nullable|string',
             'sections' => 'present|array',
             'sections.*.id' => 'required|string',
             'sections.*.parent_id' => 'nullable|string',
@@ -61,6 +63,7 @@ class InvitationEditorController extends Controller
         ]);
 
         $pageId = (int) $request->page_id;
+        $globalCustomCss = $request->global_custom_css;
         $sections = $request->sections ?? [];
 
         $nonTempIds = collect($sections)
@@ -74,7 +77,12 @@ class InvitationEditorController extends Controller
             ]);
         }
 
-        $savedSections = DB::transaction(function () use ($pageId, $sections, $nonTempIds) {
+        $savedSections = DB::transaction(function () use ($pageId, $sections, $nonTempIds, $globalCustomCss) {
+            $page = InvitationPage::findOrFail($pageId);
+            $metaData = $page->meta_data ?? [];
+            $metaData['global_custom_css'] = $globalCustomCss;
+            $page->update(['meta_data' => $metaData]);
+
             $existingSections = InvitationSection::where('page_id', $pageId)
                 ->get()
                 ->keyBy(fn($section) => (string) $section->id);

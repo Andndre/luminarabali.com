@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +10,9 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -50,8 +53,15 @@
         }
     </style>
 
+    @if (!empty(data_get($page->meta_data, 'global_custom_css')))
+        <style>
+            {!! data_get($page->meta_data, 'global_custom_css') !!}
+        </style>
+    @endif
+
     @stack('rsvp_styles')
 </head>
+
 <body class="bg-white">
     <!-- Invitation Content -->
     <main>
@@ -59,13 +69,14 @@
     </main>
 
     <!-- Footer -->
-    @if($page->template)
-    <footer class="py-8 text-center text-gray-600 text-sm">
-        <p>Created with love using Luminara Photobooth</p>
-        <p class="mt-1">
-            <a href="https://luminaraphotobooth.com" class="text-yellow-600 hover:text-yellow-700">Create your invitation</a>
-        </p>
-    </footer>
+    @if ($page->template)
+        <footer class="py-8 text-center text-sm text-gray-600">
+            <p>Created with love using Luminara Photobooth</p>
+            <p class="mt-1">
+                <a href="https://luminaraphotobooth.com" class="text-yellow-600 hover:text-yellow-700">Create your
+                    invitation</a>
+            </p>
+        </footer>
     @endif
 
     <!-- SweetAlert2 for notifications -->
@@ -73,4 +84,5 @@
 
     @stack('scripts')
 </body>
+
 </html>

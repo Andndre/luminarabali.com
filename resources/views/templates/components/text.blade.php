@@ -11,6 +11,7 @@
     $lineHeight = $props['line_height'] ?? 1.5;
     $letterSpacing = $props['letter_spacing'] ?? 0;
     $elementId = $props['element_id'] ?? null;
+    $customClass = $props['custom_class'] ?? '';
     $customCss = $props['custom_css'] ?? '';
 
     // Font family mapping
@@ -51,31 +52,38 @@
 
 <section class="text-block-{{ $section->id ?? 'default' }}">
     @if ($tag === 'h1')
-        <h1 @if ($elementId) id="{{ $elementId }}" @endif style="{{ $inlineStyle }}">
+        <h1 @if ($elementId) id="{{ $elementId }}" @endif
+            @if ($customClass) class="{{ $customClass }}" @endif style="{{ $inlineStyle }}">
             {!! $content !!}
         </h1>
     @elseif($tag === 'h2')
-        <h2 @if ($elementId) id="{{ $elementId }}" @endif style="{{ $inlineStyle }}">
+        <h2 @if ($elementId) id="{{ $elementId }}" @endif
+            @if ($customClass) class="{{ $customClass }}" @endif style="{{ $inlineStyle }}">
             {!! $content !!}
         </h2>
     @elseif($tag === 'h3')
-        <h3 @if ($elementId) id="{{ $elementId }}" @endif style="{{ $inlineStyle }}">
+        <h3 @if ($elementId) id="{{ $elementId }}" @endif
+            @if ($customClass) class="{{ $customClass }}" @endif style="{{ $inlineStyle }}">
             {!! $content !!}
         </h3>
     @elseif($tag === 'h4')
-        <h4 @if ($elementId) id="{{ $elementId }}" @endif style="{{ $inlineStyle }}">
+        <h4 @if ($elementId) id="{{ $elementId }}" @endif
+            @if ($customClass) class="{{ $customClass }}" @endif style="{{ $inlineStyle }}">
             {!! $content !!}
         </h4>
     @elseif($tag === 'h5')
-        <h5 @if ($elementId) id="{{ $elementId }}" @endif style="{{ $inlineStyle }}">
+        <h5 @if ($elementId) id="{{ $elementId }}" @endif
+            @if ($customClass) class="{{ $customClass }}" @endif style="{{ $inlineStyle }}">
             {!! $content !!}
         </h5>
     @elseif($tag === 'h6')
-        <h6 @if ($elementId) id="{{ $elementId }}" @endif style="{{ $inlineStyle }}">
+        <h6 @if ($elementId) id="{{ $elementId }}" @endif
+            @if ($customClass) class="{{ $customClass }}" @endif style="{{ $inlineStyle }}">
             {!! $content !!}
         </h6>
     @else
-        <p @if ($elementId) id="{{ $elementId }}" @endif style="{{ $inlineStyle }}">
+        <p @if ($elementId) id="{{ $elementId }}" @endif
+            @if ($customClass) class="{{ $customClass }}" @endif style="{{ $inlineStyle }}">
             {!! $content !!}
         </p>
     @endif

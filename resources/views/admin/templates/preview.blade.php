@@ -52,6 +52,12 @@
             background: #c9a227;
         }
     </style>
+
+    @if (!empty($template->global_custom_css))
+        <style>
+            {!! $template->global_custom_css !!}
+        </style>
+    @endif
 </head>
 
 <body class="bg-white">
@@ -60,7 +66,6 @@
         Preview Mode - Template: {{ $template->name }}
     </div>
 
-    <!-- Preview Content -->
     @php
         $sortedSections = $template->sections->sortBy('order_index')->values();
         $sectionsByParent = [];
@@ -76,7 +81,7 @@
                 ->sortBy('order_index')
                 ->values();
             $viewPath = "templates.components.{$section->section_type}";
-            $filePath = str_replace('.', '/', $viewPath); // Convert dots to slashes for filesystem path
+            $filePath = str_replace('.', '/', $viewPath);
 
             if (!file_exists(resource_path("views/{$filePath}.blade.php"))) {
                 return '<div class="bg-red-100 p-4 text-center text-red-700">Component not found: ' .

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\InvitationTemplate;
 use App\Models\InvitationSection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -56,6 +57,7 @@ class TemplateEditorController extends Controller
 
         $rules = [
             'template_id' => 'required|exists:invitation_templates,id',
+            'global_custom_css' => 'nullable|string',
             'sections' => 'present|array',
         ];
 
@@ -85,10 +87,18 @@ class TemplateEditorController extends Controller
             ]);
         }
 
-        $savedSections = DB::transaction(function () use ($templateId, $sections, $nonTempIds) {
+        $globalCustomCss = $request->global_custom_css;
+
+        $savedSections = DB::transaction(function () use ($templateId, $sections, $nonTempIds, $globalCustomCss) {
             $existingSections = InvitationSection::where('template_id', $templateId)
                 ->get()
                 ->keyBy(fn($section) => (string) $section->id);
+
+            if (Schema::hasColumn('invitation_templates', 'global_custom_css')) {
+                InvitationTemplate::where('id', $templateId)->update([
+                    'global_custom_css' => $globalCustomCss,
+                ]);
+            }
 
             if ($nonTempIds->count() > 0) {
                 $missingIds = $nonTempIds->diff($existingSections->keys());

@@ -478,6 +478,11 @@ export const componentSchemas: Record<string, ComponentSchema> = {
                         label: "Element ID",
                         default: "",
                     },
+                    custom_class: {
+                        type: "text",
+                        label: "Custom Class",
+                        default: "",
+                    },
                     custom_css: {
                         type: "textarea",
                         label: "Custom CSS",
@@ -551,6 +556,26 @@ export const componentSchemas: Record<string, ComponentSchema> = {
                         max: 100,
                         default: 16,
                         unit: "px",
+                    },
+                },
+            },
+            advanced: {
+                label: "Advanced",
+                fields: {
+                    element_id: {
+                        type: "text",
+                        label: "Element ID",
+                        default: "",
+                    },
+                    custom_class: {
+                        type: "text",
+                        label: "Custom Class",
+                        default: "",
+                    },
+                    custom_css: {
+                        type: "textarea",
+                        label: "Custom CSS",
+                        default: "",
                     },
                 },
             },
@@ -632,6 +657,11 @@ export const componentSchemas: Record<string, ComponentSchema> = {
                         label: "Element ID",
                         default: "",
                     },
+                    custom_class: {
+                        type: "text",
+                        label: "Custom Class",
+                        default: "",
+                    },
                     custom_css: {
                         type: "textarea",
                         label: "Custom CSS",
@@ -706,6 +736,11 @@ export const componentSchemas: Record<string, ComponentSchema> = {
                         label: "Element ID",
                         default: "",
                     },
+                    custom_class: {
+                        type: "text",
+                        label: "Custom Class",
+                        default: "",
+                    },
                     custom_css: {
                         type: "textarea",
                         label: "Custom CSS",
@@ -740,6 +775,16 @@ export const componentSchemas: Record<string, ComponentSchema> = {
                     element_id: {
                         type: "text",
                         label: "Element ID",
+                        default: "",
+                    },
+                    custom_class: {
+                        type: "text",
+                        label: "Custom Class",
+                        default: "",
+                    },
+                    custom_css: {
+                        type: "textarea",
+                        label: "Custom CSS",
                         default: "",
                     },
                 },

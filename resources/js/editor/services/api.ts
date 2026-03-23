@@ -33,12 +33,21 @@ class TemplateEditorService {
     async saveSections(
         resourceId: number,
         sections: any[],
+        globalCustomCss: string,
         mode: EditorMode,
     ): Promise<SaveSectionResponse> {
         const payload: SaveSectionRequest =
             mode === "invitation"
-                ? { page_id: resourceId, sections }
-                : { template_id: resourceId, sections };
+                ? {
+                      page_id: resourceId,
+                      global_custom_css: globalCustomCss,
+                      sections,
+                  }
+                : {
+                      template_id: resourceId,
+                      global_custom_css: globalCustomCss,
+                      sections,
+                  };
 
         const endpoint =
             mode === "invitation"

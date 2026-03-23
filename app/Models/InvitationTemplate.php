@@ -12,6 +12,7 @@ class InvitationTemplate extends Model
         'thumbnail',
         'description',
         'category',
+        'global_custom_css',
         'is_active',
         'created_by'
     ];

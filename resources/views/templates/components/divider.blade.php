@@ -9,6 +9,7 @@
     $marginTop = $props['margin_top'] ?? 24;
     $marginBottom = $props['margin_bottom'] ?? 24;
     $elementId = $props['element_id'] ?? null;
+    $customClass = $props['custom_class'] ?? '';
     $customCss = $props['custom_css'] ?? '';
 @endphp
 
@@ -18,6 +19,7 @@
         <div class="container mx-auto px-4">
             <div class="flex justify-center">
                 <div @if ($elementId) id="{{ $elementId }}" @endif
+                    @if ($customClass) class="{{ $customClass }}" @endif
                     style="height: {{ $height }}px; width: {{ $width }}%; background-color: {{ $color }}; border-bottom: {{ $lineStyle }} 0 transparent; {{ $customCss }}">
                 </div>
             </div>
@@ -25,6 +27,7 @@
     </section>
 @else
     <section @if ($elementId) id="{{ $elementId }}" @endif
+        @if ($customClass) class="{{ $customClass }}" @endif
         style="height: {{ $height }}px; {{ $customCss }}">
     </section>
 @endif

@@ -12,9 +12,12 @@ export default function PropertiesPanel() {
         selectedSection,
         currentTab,
         setCurrentTab,
+        setTemplate,
+        setHasUnsavedChanges,
         updateSection,
     } = useTemplateStore();
     const [localProps, setLocalProps] = useState<Record<string, any>>({});
+    const [globalCustomCss, setGlobalCustomCss] = useState("");
 
     const schema = selectedSection
         ? componentSchemas[selectedSection.section_type]
@@ -29,11 +32,26 @@ export default function PropertiesPanel() {
         }
     }, [selectedSection]);
 
+    useEffect(() => {
+        setGlobalCustomCss(template?.global_custom_css || "");
+    }, [template]);
+
     const handlePropChange = (key: string, value: any) => {
         const newProps = { ...localProps, [key]: value };
         setLocalProps(newProps);
         if (selectedSection) {
             updateSection(selectedSection.id, { props: newProps });
+        }
+    };
+
+    const handleGlobalCustomCssChange = (value: string) => {
+        setGlobalCustomCss(value);
+        if (template) {
+            setTemplate({
+                ...template,
+                global_custom_css: value,
+            });
+            setHasUnsavedChanges(true);
         }
     };
 
@@ -131,6 +149,27 @@ export default function PropertiesPanel() {
                             Click on canvas background or select a
                             section/element to see its properties.
                         </p>
+
+                        <div className="border rounded-lg p-3 bg-gray-50">
+                            <label className="block text-sm font-medium text-gray-900 mb-2">
+                                Global Custom CSS
+                            </label>
+                            <textarea
+                                value={globalCustomCss}
+                                onChange={(e) =>
+                                    handleGlobalCustomCssChange(e.target.value)
+                                }
+                                rows={8}
+                                placeholder={
+                                    "Contoh:\n.text-highlight { color: #f59e0b; }\n#hero-title { letter-spacing: 2px; }"
+                                }
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-y"
+                            />
+                            <p className="mt-2 text-xs text-gray-500">
+                                Applied to all sections/elements in preview and
+                                public invitation.
+                            </p>
+                        </div>
 
                         <div className="border-t pt-4 mt-4">
                             <h4 className="text-sm font-medium text-gray-900 mb-3">

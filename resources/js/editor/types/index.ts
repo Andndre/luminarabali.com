@@ -88,6 +88,7 @@ export interface Template {
     thumbnail?: string;
     description?: string;
     category?: string;
+    global_custom_css?: string;
     is_active: boolean;
     created_by?: number;
     published_status?: "draft" | "published" | "archived";
@@ -103,6 +104,7 @@ export interface TemplateData {
 export interface SaveSectionRequest {
     template_id?: number;
     page_id?: number;
+    global_custom_css?: string;
     sections: TemplateSection[];
 }
 

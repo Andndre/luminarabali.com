@@ -36,9 +36,7 @@ export default function ElementWrapper({ element, parent }: Props) {
             ref={drag as any}
             data-element-id={element.id}
             className={`element-wrapper relative p-2 mb-2 transition cursor-pointer group ${
-                isSelected
-                    ? "ring-2 ring-yellow-500"
-                    : ""
+                isSelected ? "ring-2 ring-yellow-500" : ""
             } ${isDragging ? "opacity-50" : ""}`}
             onClick={handleClick}
         >
@@ -86,16 +84,36 @@ export default function ElementWrapper({ element, parent }: Props) {
 function renderElementContent(section: TemplateSection): string {
     const props = section.props || {};
     const type = section.section_type;
+    const elementId = props.element_id
+        ? ` id="${escapeAttr(String(props.element_id))}"`
+        : "";
+    const customClass = props.custom_class
+        ? ` ${escapeAttr(String(props.custom_class))}`
+        : "";
+    const customCss = props.custom_css ? String(props.custom_css) : "";
 
     switch (type) {
         case "text":
             const content = props.content || "Tulis teks anda di sini...";
-            const tag = props.tag || "p";
+            const allowedTags = ["h1", "h2", "h3", "h4", "h5", "h6", "p"];
+            const tag = allowedTags.includes(props.tag) ? props.tag : "p";
             const align = props.align || "left";
             const color = props.color || "#000000";
             const fontSize = props.font_size || 16;
-            const marginBottom = props.margin_bottom || 16;
-            return `<${tag} style="text-align: ${align}; color: ${color}; font-size: ${fontSize}px; margin-bottom: ${marginBottom}px;">${escapeHtml(
+            const marginBottom = props.margin_bottom ?? 0;
+            const fontFamily = props.font_family || "lato";
+            const lineHeight = props.line_height ?? 1.5;
+            const letterSpacing = props.letter_spacing ?? 0;
+            const fontFamilyMap: Record<string, string> = {
+                lato: "'Lato', sans-serif",
+                montserrat: "'Montserrat', sans-serif",
+                "playfair-display": "'Playfair Display', serif",
+                "great-vibes": "'Great Vibes', cursive",
+                "open-sans": "'Open Sans', sans-serif",
+            };
+            const fontFamilyValue =
+                fontFamilyMap[fontFamily] || "'Lato', sans-serif";
+            return `<${tag}${elementId} class="${customClass.trim()}" style="font-family: ${fontFamilyValue}; text-align: ${align}; color: ${color}; font-size: ${fontSize}px; margin-bottom: ${marginBottom}px; line-height: ${lineHeight}; letter-spacing: ${letterSpacing}px; ${customCss}">${escapeHtml(
                 content,
             )}</${tag}>`;
 
@@ -103,11 +121,12 @@ function renderElementContent(section: TemplateSection): string {
             const src = props.src || "https://via.placeholder.com/300x200";
             const alt = props.alt || "";
             const width = props.width || 100;
-            const borderRadius = props.borderRadius || 0;
-            const imgMarginBottom = props.margin_bottom || 16;
-            return `<img src="${src}" alt="${escapeHtml(
+            const borderRadius = props.border_radius ?? 0;
+            const imgMarginBottom = props.margin_bottom ?? 0;
+            const imgMarginTop = props.margin_top ?? 0;
+            return `<img${elementId} class="inline-block ${customClass.trim()}" src="${src}" alt="${escapeHtml(
                 alt,
-            )}" style="width: ${width}%; border-radius: ${borderRadius}px; margin-bottom: ${imgMarginBottom}px;" />`;
+            )}" style="width: ${width}%; border-radius: ${borderRadius}px; margin-top: ${imgMarginTop}px; margin-bottom: ${imgMarginBottom}px; ${customCss}" />`;
 
         case "button":
             const text = props.text || "Click Me";
@@ -115,6 +134,9 @@ function renderElementContent(section: TemplateSection): string {
             const variant = props.variant || "primary";
             const size = props.size || "medium";
             const btnAlign = props.align || "center";
+            const backgroundColor = props.background_color || "#d4af37";
+            const textColor = props.text_color || "#ffffff";
+            const borderRadiusBtn = props.border_radius ?? 8;
             const buttonStyles: Record<string, string> = {
                 primary:
                     "background-color: #000; color: #fff; padding: 10px 20px;",
@@ -130,20 +152,20 @@ function renderElementContent(section: TemplateSection): string {
             };
             return `<div style="text-align: ${btnAlign};"><a href="${escapeHtml(
                 url,
-            )}" style="${buttonStyles[variant]} ${sizeStyles[size]} text-decoration: none; display: inline-block; border-radius: 4px;">${escapeHtml(
+            )}"${elementId} class="${customClass.trim()}" style="${buttonStyles[variant]} ${sizeStyles[size]} background-color: ${backgroundColor}; color: ${textColor}; text-decoration: none; display: inline-block; border-radius: ${borderRadiusBtn}px; ${customCss}">${escapeHtml(
                 text,
             )}</a></div>`;
 
         case "divider":
             const height = props.height || 1;
             const dividerColor = props.color || "#e5e7eb";
-            const marginTop = props.margin_top || 24;
-            const divMarginBottom = props.margin_bottom || 24;
-            return `<hr style="height: ${height}px; background-color: ${dividerColor}; border: none; margin-top: ${marginTop}px; margin-bottom: ${divMarginBottom}px;" />`;
+            const marginTop = props.margin_top ?? 24;
+            const divMarginBottom = props.margin_bottom ?? 24;
+            return `<div${elementId} class="${customClass.trim()}" style="height: ${height}px; background-color: ${dividerColor}; border: none; margin-top: ${marginTop}px; margin-bottom: ${divMarginBottom}px; ${customCss}"></div>`;
 
         case "spacer":
             const spacerHeight = props.height || 50;
-            return `<div style="height: ${spacerHeight}px; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center;"><span class="text-xs text-gray-400">Spacer: ${spacerHeight}px</span></div>`;
+            return `<div${elementId} class="${customClass.trim()}" style="height: ${spacerHeight}px; ${customCss}"></div>`;
 
         default:
             return `<p class="text-gray-500">${section.section_type}</p>`;
@@ -154,4 +176,8 @@ function escapeHtml(text: string): string {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+}
+
+function escapeAttr(text: string): string {
+    return text.replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }

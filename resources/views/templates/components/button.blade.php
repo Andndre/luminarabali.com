@@ -13,6 +13,7 @@
     $marginTop = $props['margin_top'] ?? 0;
     $marginBottom = $props['margin_bottom'] ?? 24;
     $elementId = $props['element_id'] ?? null;
+    $customClass = $props['custom_class'] ?? '';
     $customCss = $props['custom_css'] ?? '';
 @endphp
 
@@ -36,7 +37,7 @@
     <div class="container mx-auto px-4">
         <div class="text-{{ $alignment }}">
             <a @if ($elementId) id="{{ $elementId }}" @endif href="{{ $url }}"
-                class="{{ $sizeClasses[$size] ?? $sizeClasses['medium'] }} inline-block rounded-lg font-semibold transition"
+                class="{{ $sizeClasses[$size] ?? $sizeClasses['medium'] }} {{ $customClass }} inline-block rounded-lg font-semibold transition"
                 style="background-color: {{ $backgroundColor }}; color: {{ $textColor }}; border-radius: {{ $borderRadius }}px; {{ $customCss }}">
                 {{ $text }}
             </a>
