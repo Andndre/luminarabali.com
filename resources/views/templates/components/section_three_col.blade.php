@@ -10,8 +10,27 @@
     $backgroundColor = $props['background_color'] ?? '#ffffff';
     $marginTop = $props['margin_top'] ?? 0;
     $marginBottom = $props['margin_bottom'] ?? 0;
+    $marginLeft = $props['margin_left'] ?? 0;
+    $marginRight = $props['margin_right'] ?? 0;
+    $marginLeftMode = $props['margin_left_mode'] ?? 'px';
+    $marginRightMode = $props['margin_right_mode'] ?? 'px';
+    $borderWidth = $props['border_width'] ?? 0;
+    $borderColor = $props['border_color'] ?? '#e5e7eb';
+    $borderRadius = $props['border_radius'] ?? 0;
+    $shadow = $props['shadow'] ?? 'none';
     $verticalAlign = $props['vertical_align'] ?? 'top';
     $alignItems = $verticalAlign === 'center' ? 'center' : ($verticalAlign === 'bottom' ? 'flex-end' : 'flex-start');
+
+    $shadowMap = [
+        'none' => 'none',
+        'sm' => '0 1px 2px rgba(0,0,0,0.08)',
+        'md' => '0 8px 24px rgba(0,0,0,0.12)',
+        'lg' => '0 14px 34px rgba(0,0,0,0.16)',
+    ];
+    $boxShadow = $shadowMap[$shadow] ?? 'none';
+
+    $marginLeftValue = $marginLeftMode === 'auto' ? 'auto' : $marginLeft . 'px';
+    $marginRightValue = $marginRightMode === 'auto' ? 'auto' : $marginRight . 'px';
 
     // Map elements to columns by props.column_index (editor source of truth), fallback to order_index
     $column1Elements = collect($elements)->filter(function ($element) {
@@ -32,13 +51,16 @@
     padding-left: {{ $paddingLeft }}px;
     padding-right: {{ $paddingRight }}px;
     max-width: {{ $maxWidth }}px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: {{ $marginLeftValue }};
+    margin-right: {{ $marginRightValue }};
     margin-top: {{ $marginTop }}px;
     margin-bottom: {{ $marginBottom }}px;
-    background-color: {{ $backgroundColor }};; align-items: {{ $alignItems }}
+    background-color: {{ $backgroundColor }};
+    border: {{ $borderWidth }}px solid {{ $borderColor }};
+    border-radius: {{ $borderRadius }}px;
+    box-shadow: {{ $boxShadow }};
 ">
-    <div class="flex" style="gap: {{ $columnGap }}px">
+    <div class="flex" style="gap: {{ $columnGap }}px; align-items: {{ $alignItems }}">
         <!-- Column 1 -->
         <div style="width: 33.33%">
             @foreach ($column1Elements as $element)

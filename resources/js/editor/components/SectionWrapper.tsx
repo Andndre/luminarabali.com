@@ -38,6 +38,34 @@ export default function SectionWrapper({ section }: Props) {
         } else {
             style.marginBottom = 0;
         }
+        const marginLeftMode = props.margin_left_mode || "px";
+        const marginRightMode = props.margin_right_mode || "px";
+
+        style.marginLeft =
+            marginLeftMode === "auto" ? "auto" : `${props.margin_left ?? 0}px`;
+        style.marginRight =
+            marginRightMode === "auto"
+                ? "auto"
+                : `${props.margin_right ?? 0}px`;
+
+        const borderWidth = props.border_width ?? 0;
+        if (borderWidth > 0) {
+            style.border = `${borderWidth}px solid ${props.border_color || "#e5e7eb"}`;
+        }
+
+        if ((props.border_radius ?? 0) > 0) {
+            style.borderRadius = `${props.border_radius}px`;
+        }
+
+        const shadowMap: Record<string, string> = {
+            sm: "0 1px 2px rgba(0, 0, 0, 0.08)",
+            md: "0 8px 24px rgba(0, 0, 0, 0.12)",
+            lg: "0 14px 34px rgba(0, 0, 0, 0.16)",
+        };
+
+        if (props.shadow && props.shadow !== "none") {
+            style.boxShadow = shadowMap[props.shadow] || shadowMap.md;
+        }
 
         return style;
     };

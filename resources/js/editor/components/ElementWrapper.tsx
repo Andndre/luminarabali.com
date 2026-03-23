@@ -91,6 +91,11 @@ function renderElementContent(section: TemplateSection): string {
         ? ` ${escapeAttr(String(props.custom_class))}`
         : "";
     const customCss = props.custom_css ? String(props.custom_css) : "";
+    const shadowMap: Record<string, string> = {
+        sm: "0 1px 2px rgba(0, 0, 0, 0.08)",
+        md: "0 8px 24px rgba(0, 0, 0, 0.12)",
+        lg: "0 14px 34px rgba(0, 0, 0, 0.16)",
+    };
 
     switch (type) {
         case "text":
@@ -122,11 +127,17 @@ function renderElementContent(section: TemplateSection): string {
             const alt = props.alt || "";
             const width = props.width || 100;
             const borderRadius = props.border_radius ?? 0;
+            const borderWidth = props.border_width ?? 0;
+            const borderColor = props.border_color || "#e5e7eb";
             const imgMarginBottom = props.margin_bottom ?? 0;
             const imgMarginTop = props.margin_top ?? 0;
+            const shadowCss =
+                props.shadow && props.shadow !== "none"
+                    ? `box-shadow: ${shadowMap[props.shadow] || shadowMap.md};`
+                    : "";
             return `<img${elementId} class="inline-block ${customClass.trim()}" src="${src}" alt="${escapeHtml(
                 alt,
-            )}" style="width: ${width}%; border-radius: ${borderRadius}px; margin-top: ${imgMarginTop}px; margin-bottom: ${imgMarginBottom}px; ${customCss}" />`;
+            )}" style="width: ${width}%; border-radius: ${borderRadius}px; border: ${borderWidth}px solid ${borderColor}; margin-top: ${imgMarginTop}px; margin-bottom: ${imgMarginBottom}px; ${shadowCss} ${customCss}" />`;
 
         case "button":
             const text = props.text || "Click Me";
@@ -137,6 +148,12 @@ function renderElementContent(section: TemplateSection): string {
             const backgroundColor = props.background_color || "#d4af37";
             const textColor = props.text_color || "#ffffff";
             const borderRadiusBtn = props.border_radius ?? 8;
+            const btnBorderWidth = props.border_width ?? 0;
+            const btnBorderColor = props.border_color || backgroundColor;
+            const btnShadowCss =
+                props.shadow && props.shadow !== "none"
+                    ? `box-shadow: ${shadowMap[props.shadow] || shadowMap.md};`
+                    : "";
             const buttonStyles: Record<string, string> = {
                 primary:
                     "background-color: #000; color: #fff; padding: 10px 20px;",
@@ -152,7 +169,7 @@ function renderElementContent(section: TemplateSection): string {
             };
             return `<div style="text-align: ${btnAlign};"><a href="${escapeHtml(
                 url,
-            )}"${elementId} class="${customClass.trim()}" style="${buttonStyles[variant]} ${sizeStyles[size]} background-color: ${backgroundColor}; color: ${textColor}; text-decoration: none; display: inline-block; border-radius: ${borderRadiusBtn}px; ${customCss}">${escapeHtml(
+            )}"${elementId} class="${customClass.trim()}" style="${buttonStyles[variant]} ${sizeStyles[size]} background-color: ${backgroundColor}; color: ${textColor}; text-decoration: none; display: inline-block; border-radius: ${borderRadiusBtn}px; border: ${btnBorderWidth}px solid ${btnBorderColor}; ${btnShadowCss} ${customCss}">${escapeHtml(
                 text,
             )}</a></div>`;
 
