@@ -43,68 +43,95 @@
         <div class="components-sidebar bg-white">
             <div class="p-4 border-b sticky top-0 bg-white z-10">
                 <h2 class="font-semibold text-gray-900">Components</h2>
-                <p class="text-xs text-gray-500 mt-1">Click to add</p>
+                <p class="text-xs text-gray-500 mt-1">Sections contain elements</p>
             </div>
             <div class="p-3 space-y-2">
-                <template x-for="(category, categoryKey) in componentCategories" :key="categoryKey">
-                    <div x-data="{ open: categoryKey === 'basic' }" class="border border-gray-200 rounded-lg overflow-hidden">
-                        <!-- Category Header -->
-                        <button @click="open = !open"
-                                class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition">
-                            <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path x-show="categoryKey === 'basic'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-                                    <path x-show="categoryKey === 'countdown'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    <path x-show="categoryKey === 'rsvp'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    <path x-show="categoryKey === 'media'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    <path x-show="categoryKey === 'elements'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                                </svg>
-                                <span class="font-medium text-sm text-gray-900" x-text="category.name"></span>
-                                <span class="text-xs text-gray-500" x-text="'(' + category.components.length + ')'"></span>
-                            </div>
-                            <svg class="w-4 h-4 text-gray-600 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                <!-- Sections Category -->
+                <div x-data="{ open: true }" class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button @click="open = !open"
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
                             </svg>
-                        </button>
-
-                        <!-- Category Items -->
-                        <div x-show="open"
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 -translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             x-transition:leave="transition ease-in duration-150"
-                             x-transition:leave-start="opacity-100 translate-y-0"
-                             x-transition:leave-end="opacity-0 -translate-y-2"
-                             class="p-2 space-y-1">
-                            <template x-for="componentType in category.components" :key="componentType">
-                                <div x-show="window.componentSchemas[componentType]"
-                                     class="component-item flex items-center gap-3 p-2 rounded-lg hover:bg-yellow-50 cursor-pointer transition"
-                                     @click="window.templateEditorAddComponent(componentType)">
-                                    <div class="w-8 h-8 rounded bg-yellow-50 flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <!-- Icons for different components -->
-                                            <path x-show="componentType === 'hero'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                            <path x-show="componentType === 'text'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
-                                            <path x-show="componentType.includes('countdown')" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            <path x-show="componentType.includes('rsvp')" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                            <path x-show="componentType === 'image'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                            <path x-show="componentType === 'video'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                            <path x-show="componentType === 'gallery'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                            <path x-show="componentType === 'map'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                            <path x-show="componentType === 'music'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-                                            <path x-show="componentType === 'button'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
-                                            <path x-show="componentType === 'divider'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-                                        </svg>
-                                    </div>
-                                    <div class="min-w-0 flex-1">
-                                        <p class="font-medium text-sm text-gray-900 truncate" x-text="window.componentSchemas[componentType]?.name"></p>
-                                        <p class="text-xs text-gray-500 truncate" x-text="componentType"></p>
-                                    </div>
-                                </div>
-                            </template>
+                            <span class="font-medium text-sm text-gray-900">Sections</span>
                         </div>
+                        <svg class="w-4 h-4 text-gray-600 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div x-show="open"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         class="p-2 space-y-1">
+                        <template x-for="(schema, type) in window.componentSchemas" :key="type">
+                            <div x-show="schema.type === 'section'"
+                                 draggable="true"
+                                 class="component-item flex items-center gap-3 p-2 rounded-lg hover:bg-yellow-50 border border-transparent hover:border-yellow-400 cursor-grab active:cursor-grabbing transition"
+                                 @click="window.templateEditorAddComponent(type)"
+                                 @dragstart="window.templateEditorDragStart(type, 'section', $event)">
+                                <div class="w-8 h-8 rounded bg-yellow-50 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path x-show="type === 'section_one_col'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/>
+                                        <path x-show="type === 'section_two_col'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7"/>
+                                        <path x-show="type === 'section_three_col'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2m0 0V7a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="font-medium text-sm text-gray-900 truncate" x-text="schema.name"></p>
+                                </div>
+                            </div>
+                        </template>
                     </div>
-                </template>
+                </div>
+
+                <!-- Elements Category -->
+                <div x-data="{ open: true }" class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button @click="open = !open"
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+                            </svg>
+                            <span class="font-medium text-sm text-gray-900">Elements</span>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-600 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div x-show="open"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         class="p-2 space-y-1">
+                        <template x-for="(schema, type) in window.componentSchemas" :key="type">
+                            <div x-show="schema.type === 'element'"
+                                 draggable="true"
+                                 class="component-item flex items-center gap-3 p-2 rounded-lg hover:bg-yellow-50 border border-transparent hover:border-yellow-400 cursor-grab active:cursor-grabbing transition"
+                                 @click="window.templateEditorAddComponent(type, selectedSection?.id)"
+                                 @dragstart="window.templateEditorDragStart(type, 'element', $event)">
+                                <div class="w-8 h-8 rounded bg-yellow-50 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path x-show="type === 'text'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+                                        <path x-show="type === 'image'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="font-medium text-sm text-gray-900 truncate" x-text="schema.name"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -115,20 +142,22 @@
                 <p class="mt-4 text-gray-600">Loading editor...</p>
             </div>
 
-            <div x-show="!loading && sections.length === 0" class="empty-canvas">
-                <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                </svg>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Start Building</h3>
-                <p class="text-gray-500 mb-4">Drag components from the sidebar or click to add</p>
-            </div>
+            <!-- Canvas - Always visible (no empty state per user request) -->
+            <div id="editor-canvas" x-show="!loading"
+                 @click.self="selectTemplate()"
+                 @dragover.prevent="isDraggingOver = true; $event.dataTransfer.dropEffect = 'copy'"
+                 @dragleave="isDraggingOver = false"
+                 @drop="onCanvasDrop($event); isDraggingOver = false"
+                 :class="['viewport-' + currentViewport, { 'drag-over': isDraggingOver }]"
+                 class="bg-white min-h-screen p-4 transition-colors duration-200">
 
-            <div id="editor-canvas" x-show="!loading && sections.length > 0"
-                 :class="'viewport-' + currentViewport">
+                <!-- Render nested sections (top-level only, children rendered inline) -->
                 <template x-for="(section, index) in sections" :key="section.id">
                     <div class="section-wrapper"
+                         :data-section-id="section.id"
                          :class="{ 'selected': selectedSection?.id === section.id }"
                          @click="selectSection(section)">
+
                         <!-- Section actions -->
                         <div class="section-actions">
                             <button @click.stop="moveSection(index, -1)"
@@ -163,56 +192,169 @@
                             </button>
                         </div>
 
-                        <!-- Section preview - Live rendering -->
-                        <div class="section-preview bg-white border border-gray-200 rounded-lg overflow-hidden">
-                            <!-- Render component based on type -->
-                            <template x-if="section.section_type === 'text'">
-                                <div class="p-6">
-                                    <template x-if="section.props?.tag === 'h1'">
-                                        <h1 class="text-4xl font-bold" :class="'text-' + (section.props?.align || 'left')" style="font-family: 'Playfair Display', serif;" x-html="section.props?.content || 'Tulis teks anda di sini...'"></h1>
+                        <!-- Section preview - Live rendering with nested children support -->
+                        <div class="section-preview bg-white border-2 rounded-lg overflow-hidden"
+                             :style="getSectionStyle(section)">
+
+                            <!-- SECTION TYPE: Container (section_one_col, section_two_col, section_three_col) -->
+                            <template x-if="componentSchemas[section.section_type]?.type === 'section'">
+                                <!-- Render section container with children -->
+                                <div :style="getSectionContainerStyle(section)" class="section-container">
+                                    <!-- Section label when in editor -->
+                                    <div class="text-xs text-gray-400 mb-2 flex items-center gap-2" x-show="selectedSection?.id === section.id">
+                                        <span x-text="componentSchemas[section.section_type]?.name"></span>
+                                        <span class="text-gray-300">|</span>
+                                        <span class="text-gray-400">Drop elements here</span>
+                                    </div>
+
+                                    <!-- Render children based on section type -->
+                                    <!-- 1 Column Section -->
+                                    <template x-if="section.section_type === 'section_one_col'">
+                                        <div class="section-drop-zone min-h-[50px] p-2"
+                                             data-column-index="0"
+                                             :class="{ 'bg-yellow-50 border-2 border-dashed border-yellow-300': selectedSection?.id === section.id && section.children?.length === 0 }">
+                                            <template x-for="(element, elemIndex) in (section.children || [])" :key="element.id">
+                                                <div class="element-wrapper relative border border-gray-200 rounded p-2 mb-2 hover:border-yellow-400"
+                                                     :data-element-id="element.id"
+                                                     :class="{ 'selected': selectedSection?.id === element.id }"
+                                                     @click.stop="selectSection(element)">
+                                                    <!-- Render element content -->
+                                                    <div x-html="renderElement(element)"></div>
+
+                                                    <!-- Element actions when selected -->
+                                                    <div class="absolute top-1 right-1 flex gap-1 opacity-0 hover:opacity-100"
+                                                         :class="{ 'opacity-100': selectedSection?.id === element.id }">
+                                                        <button @click.stop="confirmDeleteElement(element, section)"
+                                                                class="p-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                                                                title="Delete">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </template>
-                                    <template x-if="section.props?.tag === 'h2'">
-                                        <h2 class="text-3xl font-bold" :class="'text-' + (section.props?.align || 'left')" style="font-family: 'Playfair Display', serif;" x-html="section.props?.content || 'Tulis teks anda di sini...'"></h2>
+
+                                    <!-- 2 Column Section -->
+                                    <template x-if="section.section_type === 'section_two_col'">
+                                        <div class="grid gap-2"
+                                             :style="{ gridTemplateColumns: getSectionColumnRatio(section) }">
+                                            <template x-for="(colIndex) in 2" :key="colIndex">
+                                                <div class="section-drop-zone min-h-[50px] p-2 border border-dashed border-gray-200 rounded"
+                                                     :data-column-index="colIndex"
+                                                     :class="{ 'bg-yellow-50 border-yellow-300': selectedSection?.id === section.id }">
+                                                    <template x-for="(element, elemIndex) in (section.children || [])" :key="element.id">
+                                                        <div x-show="element.order_index === colIndex"
+                                                             class="element-wrapper relative border border-gray-200 rounded p-2 mb-2 hover:border-yellow-400"
+                                                             :data-element-id="element.id"
+                                                             :class="{ 'selected': selectedSection?.id === element.id }"
+                                                             @click.stop="selectSection(element)">
+                                                            <div x-html="renderElement(element)"></div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </template>
-                                    <template x-if="section.props?.tag === 'h3'">
-                                        <h3 class="text-2xl font-semibold" :class="'text-' + (section.props?.align || 'left')" style="font-family: 'Playfair Display', serif;" x-html="section.props?.content || 'Tulis teks anda di sini...'"></h3>
-                                    </template>
-                                    <template x-if="section.props?.tag === 'h4'">
-                                        <h4 class="text-xl font-semibold" :class="'text-' + (section.props?.align || 'left')" x-html="section.props?.content || 'Tulis teks anda di sini...'"></h4>
-                                    </template>
-                                    <template x-if="section.props?.tag === 'h5'">
-                                        <h5 class="text-lg font-medium" :class="'text-' + (section.props?.align || 'left')" x-html="section.props?.content || 'Tulis teks anda di sini...'"></h5>
-                                    </template>
-                                    <template x-if="section.props?.tag === 'h6'">
-                                        <h6 class="text-base font-medium" :class="'text-' + (section.props?.align || 'left')" x-html="section.props?.content || 'Tulis teks anda di sini...'"></h6>
-                                    </template>
-                                    <template x-if="!section.props?.tag || section.props?.tag === 'p'">
-                                        <p class="text-base leading-relaxed" :class="'text-' + (section.props?.align || 'left')" x-html="section.props?.content || 'Tulis teks anda di sini...'"></p>
+
+                                    <!-- 3 Column Section -->
+                                    <template x-if="section.section_type === 'section_three_col'">
+                                        <div class="grid gap-2" style="grid-template-columns: repeat(3, 1fr);">
+                                            <template x-for="(colIndex) in 3" :key="colIndex">
+                                                <div class="section-drop-zone min-h-[50px] p-2 border border-dashed border-gray-200 rounded"
+                                                     :data-column-index="colIndex"
+                                                     :class="{ 'bg-yellow-50 border-yellow-300': selectedSection?.id === section.id }">
+                                                    <template x-for="(element, elemIndex) in (section.children || [])" :key="element.id">
+                                                        <div x-show="element.order_index === colIndex"
+                                                             class="element-wrapper relative border border-gray-200 rounded p-2 mb-2 hover:border-yellow-400"
+                                                             :data-element-id="element.id"
+                                                             :class="{ 'selected': selectedSection?.id === element.id }"
+                                                             @click.stop="selectSection(element)">
+                                                            <div x-html="renderElement(element)"></div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </template>
                                 </div>
                             </template>
-                            <template x-if="section.section_type !== 'text'">
+
+                            <!-- ELEMENT TYPE: Direct render (text, image, etc.) -->
+                            <template x-if="componentSchemas[section.section_type]?.type === 'element'">
+                                <div class="p-6">
+                                    <div x-html="renderElement(section)"></div>
+                                </div>
+                            </template>
+
+                            <!-- Unknown type fallback -->
+                            <template x-if="!componentSchemas[section.section_type]">
                                 <div class="p-4 text-center text-gray-500">
-                                    <p class="font-medium" x-text="componentSchemas[section.section_type]?.name || section.section_type"></p>
+                                    <p class="font-medium" x-text="section.section_type"></p>
+                                    <p class="text-sm">(Unknown component type)</p>
                                 </div>
                             </template>
                         </div>
                     </div>
                 </template>
+
+                <!-- Empty state hint when canvas is completely empty -->
+                <div x-show="sections.length === 0"
+                     class="flex flex-col items-center justify-center min-h-[400px] text-gray-400">
+                    <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0h6"/>
+                    </svg>
+                    <p class="text-lg font-medium">Canvas is ready</p>
+                    <p class="text-sm">Click Sections or Elements in the sidebar to add components</p>
+                </div>
             </div>
         </div>
 
         <!-- Right - Properties Panel -->
         <div class="properties-panel bg-white">
-            <div x-show="!selectedSection" class="p-6 text-center text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                </svg>
-                <p>Select a section to edit its properties</p>
+            <!-- STATE 1: No Selection → Template Properties -->
+            <div x-show="!selectedSection" class="p-6">
+                <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+                    </svg>
+                    Template Settings
+                </h3>
+                <div class="space-y-4">
+                    <p class="text-sm text-gray-500">Click on canvas background or select a section/element to see its properties.</p>
+
+                    <div class="border-t pt-4 mt-4">
+                        <h4 class="text-sm font-medium text-gray-900 mb-3">Template Information</h4>
+                        <div class="text-sm text-gray-600">
+                            <p><strong>Name:</strong> <span x-text="templateData?.name || '-'"></span></p>
+                            <p><strong>Status:</strong>
+                                <span x-show="templateData?.is_active" class="text-green-600">Active</span>
+                                <span x-show="!templateData?.is_active" class="text-gray-500">Draft</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            <!-- STATE 2 & 3: Section or Element Selected -->
             <div x-show="selectedSection">
-                <!-- Tabs -->
+                <!-- Header with type indicator -->
+                <div class="px-4 py-3 border-b bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-gray-900" x-text="componentSchemas[selectedSection?.section_type]?.name"></h3>
+                        <span class="text-xs px-2 py-1 rounded"
+                              :class="{
+                                'bg-blue-100 text-blue-700': componentSchemas[selectedSection?.section_type]?.type === 'section',
+                                'bg-green-100 text-green-700': componentSchemas[selectedSection?.section_type]?.type === 'element'
+                              }"
+                              x-text="componentSchemas[selectedSection?.section_type]?.type === 'section' ? 'Section' : 'Element'">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Tabs (if component has tabs defined, otherwise show Settings) -->
                 <div class="flex border-b sticky top-0 bg-white z-10">
                     <template x-for="tab in (componentSchemas[selectedSection?.section_type]?.tabs || ['Settings'])" :key="tab">
                         <button @click="currentTab = tab"
@@ -225,8 +367,6 @@
 
                 <!-- Properties -->
                 <div class="p-4">
-                    <h3 class="font-semibold text-gray-900 mb-4" x-text="componentSchemas[selectedSection?.section_type]?.name"></h3>
-
                     <!-- Dynamic properties based on schema -->
                     <div class="space-y-4">
                         <template x-for="(field, fieldKey) in componentSchemas[selectedSection?.section_type]?.fields" :key="fieldKey">
@@ -268,21 +408,88 @@
                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
                                 </template>
 
+                                <!-- Slider -->
+                                <template x-if="field.type === 'slider'">
+                                    <div class="space-y-2">
+                                        <input type="range"
+                                               :min="field.min || 0"
+                                               :max="field.max || 100"
+                                               :value="selectedSection?.props?.[fieldKey] || field.default || 0"
+                                               @input="updateProp(fieldKey, parseInt($event.target.value))"
+                                               class="w-full">
+                                        <div class="flex justify-between text-xs text-gray-500">
+                                            <span x-text="(selectedSection?.props?.[fieldKey] || field.default || 0) + (field.unit || '')"></span>
+                                            <span x-text="(field.max || 100) + (field.unit || '')"></span>
+                                        </div>
+                                    </div>
+                                </template>
+
                                 <!-- Color picker -->
                                 <template x-if="field.type === 'color'">
-                                    <input type="color"
-                                           :value="selectedSection?.props?.[fieldKey] || '#000000'"
-                                           @input="updateProp(fieldKey, $event.target.value)"
-                                           class="w-full h-10 px-1 py-1 border border-gray-300 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <input type="color"
+                                               :value="selectedSection?.props?.[fieldKey] || field.default || '#000000'"
+                                               @input="updateProp(fieldKey, $event.target.value)"
+                                               class="w-12 h-10 px-1 py-1 border border-gray-300 rounded-lg cursor-pointer">
+                                        <input type="text"
+                                               :value="selectedSection?.props?.[fieldKey] || field.default || '#000000'"
+                                               @input="updateProp(fieldKey, $event.target.value)"
+                                               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono">
+                                    </div>
                                 </template>
                             </div>
                         </template>
+
+                        <!-- No properties message -->
+                        <div x-show="!componentSchemas[selectedSection?.section_type]?.fields" class="text-sm text-gray-500 text-center py-4">
+                            No properties available for this component type.
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+    /* Drag & Drop Visual Feedback */
+    #editor-canvas.drag-over {
+        background-color: #fefce8 !important; /* yellow-50 */
+        border: 2px dashed #d4af37 !important;
+    }
+
+    /* Section drop zone highlighting */
+    .section-drop-zone {
+        min-height: 60px;
+        transition: all 0.2s ease;
+    }
+
+    .section-drop-zone.drag-over-element {
+        background-color: #fefce8;
+        border: 2px dashed #d4af37;
+    }
+
+    /* Component item being dragged */
+    .component-item:active {
+        opacity: 0.5;
+    }
+
+    /* Section wrapper hover state */
+    .section-wrapper:hover .section-actions {
+        opacity: 1;
+    }
+
+    .section-wrapper .section-actions {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .section-wrapper.selected .section-actions {
+        opacity: 1;
+    }
+</style>
+@endpush
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="{{ asset('js/admin/template-editor.js') }}"></script>

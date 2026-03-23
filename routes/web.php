@@ -67,6 +67,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('/templates/{id}/duplicate', [\App\Http\Controllers\Admin\TemplateController::class, 'duplicate'])->name('admin.templates.duplicate');
     Route::get('/templates/test', function () { return view('admin.templates.test'); })->name('admin.templates.test');
     Route::get('/templates/{id}/editor', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'editor'])->name('admin.templates.editor');
+    Route::get('/templates/{id}/editor-react', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'editorReact'])->name('admin.templates.editor-react');
     Route::get('/templates/{id}/preview', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'preview'])->name('admin.templates.preview');
     Route::post('/templates/{id}/publish', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'publish'])->name('admin.templates.publish');
 

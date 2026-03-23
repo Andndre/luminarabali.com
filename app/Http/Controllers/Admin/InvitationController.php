@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\InvitationPage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class InvitationController extends Controller
@@ -74,19 +75,31 @@ class InvitationController extends Controller
             'created_by' => $currentUserId,
         ]);
 
-        // Duplicate sections from template if selected
+        // Duplicate sections from template as a snapshot starter
         if ($request->template_id) {
             $template = \App\Models\InvitationTemplate::find($request->template_id);
             if ($template && $template->sections()->count() > 0) {
-                foreach ($template->sections as $section) {
-                    $invitation->sections()->create([
-                        'section_type' => $section->section_type,
-                        'order_index' => $section->order_index,
-                        'props' => $section->props,
-                        'custom_css' => $section->custom_css,
-                        'is_visible' => $section->is_visible,
-                    ]);
-                }
+                DB::transaction(function () use ($template, $invitation) {
+                    $idMapping = [];
+                    $templateSections = $template->sections()
+                        ->orderBy('order_index')
+                        ->get();
+
+                    foreach ($templateSections as $section) {
+                        $newSection = $invitation->sections()->create([
+                            'parent_id' => $section->parent_id
+                                ? ($idMapping[(int) $section->parent_id] ?? null)
+                                : null,
+                            'section_type' => $section->section_type,
+                            'order_index' => $section->order_index,
+                            'props' => $section->props,
+                            'custom_css' => $section->custom_css,
+                            'is_visible' => $section->is_visible,
+                        ]);
+
+                        $idMapping[$section->id] = $newSection->id;
+                    }
+                });
             }
         }
 
