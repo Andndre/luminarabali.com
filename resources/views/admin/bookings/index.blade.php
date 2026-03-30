@@ -430,7 +430,7 @@
                     </div>
                 </div>
                 <div class="block md:hidden">
-                    {{ $bookings->links('pagination.tailwind') }}
+                    {{ $bookings->links() }}
                 </div>
             </div>
             <div class="hidden md:block">
