@@ -330,24 +330,101 @@ class BookingController extends Controller
     {
         $sort = $request->query('sort', 'created_at');
         $direction = $request->query('direction', 'desc');
+        $filter = $request->query('filter', 'semua');
+        $search = $request->query('search', '');
+        $division = $request->query('division', 'semua');
 
-        // Allow only specific columns for sorting to prevent SQL injection
-        if (!in_array($sort, ['event_date', 'created_at'])) {
+        if (!in_array($sort, ['event_date', 'created_at', 'customer_name', 'price_total'])) {
             $sort = 'created_at';
         }
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'desc';
+        }
 
-        $query = Booking::orderBy($sort, $direction);
+        $query = Booking::query();
 
-        // Division Filter
+        // Division scoping
         $userAuth = Auth::user()->id;
         $user = User::find($userAuth);
         if ($user->division !== 'super_admin') {
             $query->where('business_unit', $user->division);
+            $division = $user->division;
         }
 
-        $bookings = $query->paginate(10)->withQueryString();
+        // Search
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%{$search}%")
+                  ->orWhere('customer_phone', 'like', "%{$search}%")
+                  ->orWhere('event_location', 'like', "%{$search}%");
+            });
+        }
 
-        return view('admin.bookings.index', compact('bookings'));
+        // Division filter (only for super_admin)
+        if ($user->division === 'super_admin' && $division !== 'semua') {
+            $query->where('business_unit', $division);
+        }
+
+        // Smart date / status filters
+        $today = now()->format('Y-m-d');
+        switch ($filter) {
+            case 'hari_ini':
+                $query->where('event_date', $today);
+                break;
+            case 'besok':
+                $query->where('event_date', now()->addDay()->format('Y-m-d'));
+                break;
+            case 'minggu_ini':
+                $query->whereBetween('event_date', [now()->startOfWeek()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')]);
+                break;
+            case 'bulan_ini':
+                $query->whereBetween('event_date', [now()->startOfMonth()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')]);
+                break;
+            case 'pending':
+                $query->where('status', Booking::STATUS_PENDING);
+                break;
+            case 'dp':
+                $query->where('status', Booking::STATUS_DP_DIBAYAR);
+                break;
+            case 'lunas':
+                $query->where('status', Booking::STATUS_LUNAS);
+                break;
+            case 'dibatalkan':
+                $query->where('status', Booking::STATUS_DIBATALKAN);
+                break;
+            case 'belum_lunas':
+                $query->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_DP_DIBAYAR]);
+                break;
+            case 'mendatang':
+                $query->where('event_date', '>=', $today)
+                      ->where('status', '!=', Booking::STATUS_DIBATALKAN);
+                break;
+            // 'semua' — no filter
+        }
+
+        // Stats for filter badges (scoped to same division rules)
+        $statsQuery = Booking::query();
+        if ($user->division !== 'super_admin') {
+            $statsQuery->where('business_unit', $user->division);
+        } elseif ($division !== 'semua') {
+            $statsQuery->where('business_unit', $division);
+        }
+
+        $stats = [
+            'semua'        => (clone $statsQuery)->where('status', '!=', Booking::STATUS_DIBATALKAN)->count(),
+            'hari_ini'     => (clone $statsQuery)->where('event_date', $today)->count(),
+            'besok'        => (clone $statsQuery)->where('event_date', now()->addDay()->format('Y-m-d'))->count(),
+            'mendatang'    => (clone $statsQuery)->where('event_date', '>=', $today)->where('status', '!=', Booking::STATUS_DIBATALKAN)->count(),
+            'pending'      => (clone $statsQuery)->where('status', Booking::STATUS_PENDING)->count(),
+            'belum_lunas'  => (clone $statsQuery)->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_DP_DIBAYAR])->count(),
+            'lunas'        => (clone $statsQuery)->where('status', Booking::STATUS_LUNAS)->count(),
+            'dibatalkan'   => (clone $statsQuery)->where('status', Booking::STATUS_DIBATALKAN)->count(),
+        ];
+
+        $query->orderBy($sort, $direction);
+        $bookings = $query->paginate(15)->withQueryString();
+
+        return view('admin.bookings.index', compact('bookings', 'stats', 'filter', 'search', 'division', 'sort', 'direction'));
     }
 
     // Admin: Create Booking Form
