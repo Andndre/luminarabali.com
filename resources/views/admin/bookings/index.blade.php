@@ -218,7 +218,7 @@
                                         </span>
                                     @elseif(!$isPast)
                                         <span class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
-                                            {{ $booking->event_date->diffInDays(now()) }} hari lagi
+                                            {{ round($booking->event_date->diffInDays(now())) }} hari lagi
                                         </span>
                                     @endif
                                 </div>
