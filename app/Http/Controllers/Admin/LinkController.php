@@ -69,7 +69,9 @@ class LinkController extends Controller
 
     public function edit(Link $link)
     {
-        if (auth()->user()->division !== 'super_admin' && auth()->user()->division !== $link->business_unit) {
+        $userAuth = Auth::user()->id;
+        $user = User::find($userAuth);
+        if ($user->division !== 'super_admin' && $user->division !== $link->business_unit) {
             abort(403);
         }
 
@@ -78,7 +80,10 @@ class LinkController extends Controller
 
     public function update(Request $request, Link $link)
     {
-        if (auth()->user()->division !== 'super_admin' && auth()->user()->division !== $link->business_unit) {
+        $userAuth = Auth::user()->id;
+        $user = User::find($userAuth);
+
+        if ($user->division !== 'super_admin' && $user->division !== $link->business_unit) {
             abort(403);
         }
 
@@ -105,9 +110,6 @@ class LinkController extends Controller
             $data['thumbnail'] = $request->file('thumbnail')->store('links', 'public');
         }
 
-        $userAuth = Auth::user()->id;
-        $user = User::find($userAuth);
-
         if ($user->division === 'super_admin' && $request->has('business_unit')) {
             $data['business_unit'] = $request->business_unit;
         }
@@ -121,7 +123,10 @@ class LinkController extends Controller
 
     public function destroy(Link $link)
     {
-        if (auth()->user()->division !== 'super_admin' && auth()->user()->division !== $link->business_unit) {
+        $userAuth = Auth::user()->id;
+        $user = User::find($userAuth);
+
+        if ($user->division !== 'super_admin' && $user->division !== $link->business_unit) {
             abort(403);
         }
 
