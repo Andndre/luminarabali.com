@@ -454,7 +454,9 @@ class BookingController extends Controller
             'event_time' => 'required',
             'duration_hours' => 'required|integer|min:1',
             'package_type' => 'required|string',
-            'price_total' => 'required|numeric'
+            'price_total' => 'required|numeric',
+            'link_drive' => 'nullable|url',
+            'thumbnail' => 'nullable|image|max:2048'
         ]);
 
         $package = \App\Models\Package::where('type', $request->package_type)->firstOrFail();
@@ -463,6 +465,12 @@ class BookingController extends Controller
         $userAuth = Auth::user()->id;
         $user = User::find($userAuth);
         $businessUnit = ($user->division === 'super_admin') ? $package->business_unit : $user->division;
+
+        // Handle Thumbnail Upload
+        $thumbnailPath = null;
+        if ($request->hasFile('thumbnail')) {
+            $thumbnailPath = $request->file('thumbnail')->store('bookings/thumbnails', 'public');
+        }
 
         $booking = Booking::create([
             'customer_name' => $request->customer_name,
@@ -478,6 +486,8 @@ class BookingController extends Controller
             'event_location' => $request->event_location ?? '-',
             'payment_type' => 'MANUAL_ADMIN',
             'notes' => $request->notes,
+            'link_drive' => $request->link_drive,
+            'thumbnail' => $thumbnailPath,
         ]);
 
         // Auto-create Invoice for Admin Booking
@@ -536,12 +546,24 @@ class BookingController extends Controller
             'duration_hours' => 'required|integer|min:1',
             'package_type' => 'required|string',
             'status' => 'required|in:PENDING,DP_DIBAYAR,LUNAS,DIBATALKAN',
-            'price_total' => 'required|numeric'
+            'price_total' => 'required|numeric',
+            'link_drive' => 'nullable|url',
+            'thumbnail' => 'nullable|image|max:2048'
         ]);
 
         // Find package name based on type
         $package = \App\Models\Package::where('type', $request->package_type)->first();
         $packageName = $package ? $package->name : $booking->package_name;
+
+        // Handle Thumbnail Upload
+        $thumbnailPath = $booking->thumbnail;
+        if ($request->hasFile('thumbnail')) {
+            // Delete old thumbnail
+            if ($booking->thumbnail) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($booking->thumbnail);
+            }
+            $thumbnailPath = $request->file('thumbnail')->store('bookings/thumbnails', 'public');
+        }
 
         $booking->update([
             'customer_name' => $request->customer_name,
@@ -554,6 +576,8 @@ class BookingController extends Controller
             'status' => $request->status,
             'price_total' => $request->price_total,
             'notes' => $request->notes,
+            'link_drive' => $request->link_drive,
+            'thumbnail' => $thumbnailPath,
         ]);
 
         return redirect()->route('admin.bookings.index')->with('success', 'Data booking berhasil diperbarui.');
@@ -565,6 +589,9 @@ class BookingController extends Controller
         $booking = Booking::findOrFail($id);
         if ($booking->payment_proof) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($booking->payment_proof);
+        }
+        if ($booking->thumbnail) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($booking->thumbnail);
         }
         $booking->delete();
         return back()->with('success', 'Booking berhasil dihapus.');
