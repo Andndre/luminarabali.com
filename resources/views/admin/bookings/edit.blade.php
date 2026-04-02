@@ -7,7 +7,7 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden max-w-4xl">
-        <form action="{{ route('admin.bookings.update', $booking->id) }}" method="POST" class="p-4 md:p-8 space-y-6">
+        <form action="{{ route('admin.bookings.update', $booking->id) }}" method="POST" enctype="multipart/form-data" class="p-4 md:p-8 space-y-6">
             @csrf
             @method('PUT')
             
@@ -67,6 +67,29 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Total Harga (Rp)</label>
                             <input type="number" name="price_total" value="{{ old('price_total', $booking->price_total) }}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Info -->
+                <div class="md:col-span-2 border-b pb-4 mb-2">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Media & Link</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Link Google Drive</label>
+                            <input type="url" name="link_drive" value="{{ old('link_drive', $booking->link_drive) }}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" placeholder="https://drive.google.com/...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Thumbnail (Gambar)</label>
+                            
+                            @if($booking->thumbnail)
+                                <div class="mb-2">
+                                    <img src="{{ asset('storage/' . $booking->thumbnail) }}" alt="Current Thumbnail" class="w-32 h-32 object-cover rounded shadow-sm border">
+                                </div>
+                            @endif
+
+                            <input type="file" name="thumbnail" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" accept="image/*">
+                            <p class="text-xs text-gray-500 mt-1">Biarkan kosong jika tidak ingin mengubah thumbnail.</p>
                         </div>
                     </div>
                 </div>
