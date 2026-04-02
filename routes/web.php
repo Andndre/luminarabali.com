@@ -79,6 +79,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Media Library Routes
     Route::get('/assets', [\App\Http\Controllers\Admin\InvitationAssetController::class, 'indexView'])->name('admin.assets.index');
 
+    // Links Management Routes
+    Route::resource('links', \App\Http\Controllers\Admin\LinkController::class)->names('admin.links');
+
     // API Routes for Visual Editor
     Route::prefix('api')->name('api.')->group(function () {
         // Templates API
