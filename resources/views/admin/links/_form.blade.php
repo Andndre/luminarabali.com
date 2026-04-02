@@ -31,6 +31,20 @@
             @enderror
         </div>
 
+        @if(auth()->user()->division === 'super_admin')
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Division</label>
+            <select name="business_unit"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 @error('business_unit') border-red-500 @enderror">
+                <option value="photobooth" {{ old('business_unit', $link?->business_unit) === 'photobooth' ? 'selected' : '' }}>Photobooth</option>
+                <option value="visual" {{ old('business_unit', $link?->business_unit) === 'visual' ? 'selected' : '' }}>Visual</option>
+            </select>
+            @error('business_unit')
+                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+            @enderror
+        </div>
+        @endif
+
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Thumbnail</label>
             <input type="file" name="thumbnail" id="thumbnailInput"

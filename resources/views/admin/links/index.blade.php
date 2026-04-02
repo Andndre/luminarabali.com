@@ -25,6 +25,9 @@
                         <th class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400">Thumbnail</th>
                         <th class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400">Judul</th>
                         <th class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400">URL</th>
+                        @if(auth()->user()->division === 'super_admin')
+                        <th class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400">Division</th>
+                        @endif
                         <th class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400">Order</th>
                         <th class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
                         <th class="px-5 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-gray-400">Aksi</th>
@@ -54,6 +57,13 @@
                                     {{ Str::limit($link->url, 35) }}
                                 </a>
                             </td>
+                            @if(auth()->user()->division === 'super_admin')
+                            <td class="whitespace-nowrap px-5 py-3.5">
+                                <span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-gray-600">
+                                    {{ $link->business_unit }}
+                                </span>
+                            </td>
+                            @endif
                             <td class="whitespace-nowrap px-5 py-3.5">
                                 <span class="text-sm font-medium text-gray-700">{{ $link->order }}</span>
                             </td>
@@ -96,7 +106,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-16 text-center">
+                            <td colspan="{{ auth()->user()->division === 'super_admin' ? 8 : 7 }}" class="py-16 text-center">
                                 <div class="flex flex-col items-center gap-3">
                                     <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-50">
                                         <svg class="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
