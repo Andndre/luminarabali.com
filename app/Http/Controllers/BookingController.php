@@ -222,26 +222,7 @@ class BookingController extends Controller
                 'customer_phone' => $booking->customer_phone,
                 'customer_email' => $booking->customer_email,
                 'subtotal' => $booking->price_total,
-                'grand_total' => $balanceDue, // Invoice total usually reflects what is to be paid? No, grand_total is total price + tax - discount.
-                // Wait, InvoiceController::show uses: 'grand_total' => $booking->price_total - ($booking->dp_amount ?? 0)
-                // That seems wrong. Grand Total should be the Total Amount of the transaction. Balance Due is what is left.
-                // However, I must follow the convention used in InvoiceController::show to be consistent.
-                // In InvoiceController::show:
-                // 'subtotal' => $booking->price_total,
-                // 'grand_total' => $booking->price_total - ($booking->dp_amount ?? 0),
-                // 'balance_due' => $booking->price_total - ($booking->dp_amount ?? 0),
-                // This implies Grand Total IS the Balance Due in the initial creation logic if DP is deducted?
-                // Let's look at edit.blade.php javascript:
-                // grand_total = afterDiscount + tax_amount
-                // balance_due = grand_total - dp_amount
-                // So Grand Total SHOULD be the full amount.
-                // The logic in InvoiceController::show might be slightly off or I misread it.
-                // "grand_total" => $booking->price_total - ...
-                // If I have a 1M booking, DP 200k.
-                // Subtotal: 1M. Grand Total: 1M. DP: 200k. Balance: 800k.
-                // Let's use THAT logic which is standard.
-                // So:
-                'grand_total' => $booking->price_total, // Assuming no tax/discount initially
+                'grand_total' => $balanceDue,
                 'dp_amount' => $dpAmount,
                 'balance_due' => $balanceDue,
                 'status' => $balanceDue <= 0 ? 'PAID' : ($dpAmount > 0 ? 'PARTIAL' : 'UNPAID'),
@@ -456,7 +437,7 @@ class BookingController extends Controller
             'package_type' => 'required|string',
             'price_total' => 'required|numeric',
             'link_drive' => 'nullable|url',
-            'thumbnail' => 'nullable|image|max:2048'
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
         $package = \App\Models\Package::where('type', $request->package_type)->firstOrFail();
@@ -548,7 +529,7 @@ class BookingController extends Controller
             'status' => 'required|in:PENDING,DP_DIBAYAR,LUNAS,DIBATALKAN',
             'price_total' => 'required|numeric',
             'link_drive' => 'nullable|url',
-            'thumbnail' => 'nullable|image|max:2048'
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
         // Find package name based on type
