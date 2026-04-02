@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('thumbnail')->nullable();
             $table->integer('order')->default(0);
             $table->boolean('is_active')->default(true);
+            $table->string('business_unit')->default('photobooth');
             $table->timestamps();
         });
     }

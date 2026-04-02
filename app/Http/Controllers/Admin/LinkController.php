@@ -4,14 +4,24 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Link;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class LinkController extends Controller
 {
     public function index()
     {
-        $links = Link::orderBy('order', 'asc')->paginate(10);
+        $userAuth = Auth::user()->id;
+        $user = User::find($userAuth);
+        $query = Link::orderBy('order', 'asc');
+
+        if ($user->division !== 'super_admin') {
+            $query->where('business_unit', $user->division);
+        }
+
+        $links = $query->paginate(10);
         return view('admin.links.index', compact('links'));
     }
 
@@ -28,7 +38,15 @@ class LinkController extends Controller
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
+            'business_unit' => 'nullable|in:photobooth,visual',
         ]);
+
+        $userAuth = Auth::user()->id;
+        $user = User::find($userAuth);
+
+        $businessUnit = ($user->division === 'super_admin')
+            ? ($request->business_unit ?? 'photobooth')
+            : $user->division;
 
         $thumbnailPath = null;
         if ($request->hasFile('thumbnail')) {
@@ -41,6 +59,7 @@ class LinkController extends Controller
             'thumbnail' => $thumbnailPath,
             'order' => $validated['order'] ?? 0,
             'is_active' => $request->boolean('is_active'),
+            'business_unit' => $businessUnit,
         ]);
 
         return redirect()
@@ -50,17 +69,26 @@ class LinkController extends Controller
 
     public function edit(Link $link)
     {
+        if (auth()->user()->division !== 'super_admin' && auth()->user()->division !== $link->business_unit) {
+            abort(403);
+        }
+
         return view('admin.links.edit', compact('link'));
     }
 
     public function update(Request $request, Link $link)
     {
+        if (auth()->user()->division !== 'super_admin' && auth()->user()->division !== $link->business_unit) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'url' => 'required|url|max:500',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
+            'business_unit' => 'nullable|in:photobooth,visual',
         ]);
 
         $data = [
@@ -77,6 +105,13 @@ class LinkController extends Controller
             $data['thumbnail'] = $request->file('thumbnail')->store('links', 'public');
         }
 
+        $userAuth = Auth::user()->id;
+        $user = User::find($userAuth);
+
+        if ($user->division === 'super_admin' && $request->has('business_unit')) {
+            $data['business_unit'] = $request->business_unit;
+        }
+
         $link->update($data);
 
         return redirect()
@@ -86,6 +121,10 @@ class LinkController extends Controller
 
     public function destroy(Link $link)
     {
+        if (auth()->user()->division !== 'super_admin' && auth()->user()->division !== $link->business_unit) {
+            abort(403);
+        }
+
         if ($link->thumbnail) {
             Storage::disk('public')->delete($link->thumbnail);
         }

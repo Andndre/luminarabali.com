@@ -12,6 +12,7 @@ class Link extends Model
         'thumbnail',
         'order',
         'is_active',
+        'business_unit',
     ];
 
     protected $casts = [
