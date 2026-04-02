@@ -539,11 +539,10 @@ class BookingController extends Controller
         // Handle Thumbnail Upload
         $thumbnailPath = $booking->thumbnail;
         if ($request->hasFile('thumbnail')) {
-            // Delete old thumbnail
+            $thumbnailPath = $request->file('thumbnail')->store('bookings/thumbnails', 'public');
             if ($booking->thumbnail) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($booking->thumbnail);
             }
-            $thumbnailPath = $request->file('thumbnail')->store('bookings/thumbnails', 'public');
         }
 
         $booking->update([
