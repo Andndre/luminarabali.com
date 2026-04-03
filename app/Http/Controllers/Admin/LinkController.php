@@ -42,6 +42,10 @@ class LinkController extends Controller
             'business_unit' => 'nullable|in:photobooth,visual',
         ]);
 
+        if ($validated['icon'] === '') {
+            $validated['icon'] = null;
+        }
+
         $userAuth = Auth::user()->id;
         $user = User::find($userAuth);
 
@@ -99,10 +103,14 @@ class LinkController extends Controller
             'business_unit' => 'nullable|in:photobooth,visual',
         ]);
 
+        if ($validated['icon'] === '') {
+            $validated['icon'] = null;
+        }
+
         $data = [
             'title' => $validated['title'],
             'url' => $validated['url'],
-            'icon' => $validated['icon'] ?? null,
+            'icon' => $validated['icon'],
             'order' => $validated['order'] ?? 0,
             'is_active' => $request->boolean('is_active'),
         ];
