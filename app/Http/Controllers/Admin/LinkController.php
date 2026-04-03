@@ -11,18 +11,30 @@ use Illuminate\Support\Facades\Storage;
 
 class LinkController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $userAuth = Auth::user()->id;
         $user = User::find($userAuth);
-        $query = Link::orderBy('order', 'asc');
+        $query = Link::query();
 
-        if ($user->division !== 'super_admin') {
+        $divisionFilter = $request->get('division');
+        if ($divisionFilter) {
+            $query->where('business_unit', $divisionFilter);
+        } elseif ($user->division !== 'super_admin') {
             $query->where('business_unit', $user->division);
         }
 
-        $links = $query->paginate(10);
-        return view('admin.links.index', compact('links'));
+        $query->orderBy('order', 'asc');
+
+        // Disable pagination when filtered by division so all links are available for drag & drop
+        if ($divisionFilter) {
+            $links = $query->get();
+            $paginated = null;
+        } else {
+            $links = $paginated = $query->paginate(10);
+        }
+
+        return view('admin.links.index', compact('links', 'divisionFilter', 'paginated'));
     }
 
     public function create()
@@ -37,7 +49,6 @@ class LinkController extends Controller
             'url' => 'required|url|max:500',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'icon' => 'nullable|string|max:100',
-            'order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
             'business_unit' => 'nullable|in:photobooth,visual',
         ]);
@@ -58,12 +69,14 @@ class LinkController extends Controller
             $thumbnailPath = $request->file('thumbnail')->store('links', 'public');
         }
 
+        $maxOrder = Link::where('business_unit', $businessUnit)->max('order') ?? -1;
+
         Link::create([
             'title' => $validated['title'],
             'url' => $validated['url'],
             'thumbnail' => $thumbnailPath,
             'icon' => $validated['icon'] ?? null,
-            'order' => $validated['order'] ?? 0,
+            'order' => $maxOrder + 1,
             'is_active' => $request->boolean('is_active'),
             'business_unit' => $businessUnit,
         ]);
@@ -98,7 +111,6 @@ class LinkController extends Controller
             'url' => 'required|url|max:500',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'icon' => 'nullable|string|max:100',
-            'order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
             'business_unit' => 'nullable|in:photobooth,visual',
         ]);
@@ -111,7 +123,6 @@ class LinkController extends Controller
             'title' => $validated['title'],
             'url' => $validated['url'],
             'icon' => $validated['icon'],
-            'order' => $validated['order'] ?? 0,
             'is_active' => $request->boolean('is_active'),
         ];
 
@@ -122,8 +133,10 @@ class LinkController extends Controller
             $data['thumbnail'] = $request->file('thumbnail')->store('links', 'public');
         }
 
-        if ($user->division === 'super_admin' && $request->has('business_unit')) {
+        if ($user->division === 'super_admin' && $request->has('business_unit') && $request->business_unit !== $link->business_unit) {
             $data['business_unit'] = $request->business_unit;
+            $maxOrder = Link::where('business_unit', $request->business_unit)->max('order') ?? -1;
+            $data['order'] = $maxOrder + 1;
         }
 
         $link->update($data);
@@ -150,5 +163,28 @@ class LinkController extends Controller
         return redirect()
             ->route('admin.links.index')
             ->with('success', 'Link berhasil dihapus.');
+    }
+
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'order' => 'required|array',
+            'order.*' => 'integer|exists:links,id',
+        ]);
+
+        $user = User::find(Auth::user()->id);
+        $division = $user->division;
+
+        foreach ($request->order as $index => $linkId) {
+            $link = Link::find($linkId);
+
+            if ($division !== 'super_admin' && $link->business_unit !== $division) {
+                continue;
+            }
+
+            $link->update(['order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }
