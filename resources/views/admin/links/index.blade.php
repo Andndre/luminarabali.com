@@ -262,7 +262,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script>
-        window.linksData = {!! json_encode($links->map(fn($l) => ['id' => $l->id, 'title' => $l->title, 'thumbnail' => $l->thumbnail, 'icon' => $l->icon, 'url' => $l->url, 'order' => $l->order, 'is_active' => $l->is_active, 'business_unit' => $l->business_unit])->values()) !!};
+        window.linksData = {!! json_encode($links->map(fn($l) => ['id' => $l->id, 'title' => $l->title, 'thumbnail' => $l->thumbnail, 'icon' => $l->icon, 'url' => $l->url, 'order' => $l->order, 'is_active' => $l->is_active, 'business_unit' => $l->business_unit])->values(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
         window.linksReorderUrl = "{{ route('admin.links.reorder') }}";
     </script>
     <script>
