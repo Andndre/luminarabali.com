@@ -91,7 +91,7 @@
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-700" x-text="selectedIcon ? selectedIcon.charAt(0).toUpperCase() + selectedIcon.slice(1) : 'Tidak ada icon'"></p>
-                <p class="text-xs text-gray-400" x-show="!selectedIcon">Thumbnail akan digunakan jika tidak ada icon</p>
+                <p class="text-xs text-gray-400" x-show="!selectedIcon && !selectedThumbnail">Thumbnail akan selalu digunakan jika tersedia; icon hanya digunakan jika thumbnail tidak ada.</p>
                 <button type="button" @click="selectedIcon = null" x-show="selectedIcon" x-transition class="text-xs text-red-500 hover:text-red-700">Hapus icon</button>
             </div>
         </div>
@@ -158,6 +158,9 @@
         return {
             thumbnailPreview: null,
             selectedIcon: '{{ old('icon', $link?->icon ?? '') }}',
+            get selectedThumbnail() {
+                return this.thumbnailPreview || '{{ $link?->thumbnail }}';
+            },
 
             previewThumbnail() {
                 const input = document.getElementById('thumbnailInput');
