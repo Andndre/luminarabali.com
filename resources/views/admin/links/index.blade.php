@@ -314,7 +314,21 @@
                             'Accept': 'application/json',
                         },
                         body: JSON.stringify({ order: this.links.map(function (l) { return l.id; }) }),
-                    }).then(function () { window.location.reload(); });
+                    })
+                    .then(function (response) {
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            (response.json().catch(function () { return response.text(); }))
+                                .then(function (data) {
+                                    var msg = data && data.message ? data.message : 'Gagal menyimpan urutan.';
+                                    Swal.fire({ title: 'Error', text: msg, icon: 'error' });
+                                });
+                        }
+                    })
+                    .catch(function (err) {
+                        Swal.fire({ title: 'Error', text: 'Tidak dapat menyimpan urutan.', icon: 'error' });
+                    });
                 }
             };
         };
