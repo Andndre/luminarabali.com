@@ -2,6 +2,12 @@
     $isEdit = isset($link) && $link !== null;
     $route = $isEdit ? route('admin.links.update', $link->id) : route('admin.links.store');
     $method = $isEdit ? 'PUT' : 'POST';
+
+    $iconOptions = [
+        'instagram', 'whatsapp', 'tiktok', 'youtube', 'facebook',
+        'twitter', 'website', 'email', 'phone', 'shop',
+        'location', 'telegram', 'linkedin', 'youtube-music', 'shopee',
+    ];
 @endphp
 
 <form action="{{ $route }}" method="POST" enctype="multipart/form-data" class="space-y-6" x-data="linkForm()">
@@ -67,6 +73,44 @@
         </div>
     </div>
 
+    {{-- Icon Picker --}}
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+        <input type="hidden" name="icon" :value="selectedIcon">
+
+        <div class="mb-3 flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-white border border-gray-200 shrink-0 overflow-hidden">
+                <template x-if="selectedIcon">
+                    <img :src="'/images/icons/' + selectedIcon + '.svg'" class="h-6 w-6 text-gray-700" alt="">
+                </template>
+                <template x-if="!selectedIcon">
+                    <svg class="h-6 w-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                    </svg>
+                </template>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-700" x-text="selectedIcon ? selectedIcon.charAt(0).toUpperCase() + selectedIcon.slice(1) : 'Tidak ada icon'"></p>
+                <p class="text-xs text-gray-400" x-show="!selectedIcon">Thumbnail akan digunakan jika tidak ada icon</p>
+                <button type="button" @click="selectedIcon = null" x-show="selectedIcon" x-transition class="text-xs text-red-500 hover:text-red-700">Hapus icon</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-6 gap-2 rounded-lg border border-gray-200 bg-white p-3 max-h-48 overflow-y-auto">
+            @foreach($iconOptions as $key)
+                <button type="button"
+                    @click="selectedIcon = selectedIcon === '{{ $key }}' ? null : '{{ $key }}'"
+                    :class="selectedIcon === '{{ $key }}' ? 'ring-2 ring-yellow-500 bg-yellow-50' : 'hover:bg-gray-50'"
+                    class="flex aspect-square items-center justify-center rounded-lg border border-gray-200 transition-all p-2"
+                    title="{{ ucfirst(str_replace('-', ' ', $key)) }}">
+                    <img src="{{ asset('images/icons/' . $key . '.svg') }}"
+                        class="h-5 w-5 text-gray-700" alt="{{ $key }}">
+                </button>
+            @endforeach
+        </div>
+        <p class="mt-1 text-xs text-gray-400">Klik icon untuk memilih. Thumbnail akan digunakan sebagai prioritas jika ada.</p>
+    </div>
+
     <div class="flex items-start gap-3">
         <input type="checkbox" name="is_active" id="is_active" value="1"
             {{ old('is_active', $link?->is_active ?? true) ? 'checked' : '' }}
@@ -113,6 +157,7 @@
     function linkForm() {
         return {
             thumbnailPreview: null,
+            selectedIcon: '{{ old('icon', $link?->icon ?? '') }}',
 
             previewThumbnail() {
                 const input = document.getElementById('thumbnailInput');

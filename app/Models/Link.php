@@ -10,6 +10,7 @@ class Link extends Model
         'title',
         'url',
         'thumbnail',
+        'icon',
         'order',
         'is_active',
         'business_unit',

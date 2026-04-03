@@ -36,6 +36,7 @@ class LinkController extends Controller
             'title' => 'required|string|max:255',
             'url' => 'required|url|max:500',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'icon' => 'nullable|string|max:100',
             'order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
             'business_unit' => 'nullable|in:photobooth,visual',
@@ -57,6 +58,7 @@ class LinkController extends Controller
             'title' => $validated['title'],
             'url' => $validated['url'],
             'thumbnail' => $thumbnailPath,
+            'icon' => $validated['icon'] ?? null,
             'order' => $validated['order'] ?? 0,
             'is_active' => $request->boolean('is_active'),
             'business_unit' => $businessUnit,
@@ -91,6 +93,7 @@ class LinkController extends Controller
             'title' => 'required|string|max:255',
             'url' => 'required|url|max:500',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'icon' => 'nullable|string|max:100',
             'order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
             'business_unit' => 'nullable|in:photobooth,visual',
@@ -99,6 +102,7 @@ class LinkController extends Controller
         $data = [
             'title' => $validated['title'],
             'url' => $validated['url'],
+            'icon' => $validated['icon'] ?? null,
             'order' => $validated['order'] ?? 0,
             'is_active' => $request->boolean('is_active'),
         ];
