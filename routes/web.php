@@ -81,6 +81,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     // Links Management Routes
     Route::resource('links', \App\Http\Controllers\Admin\LinkController::class)->names('admin.links');
+    Route::post('links/reorder', [\App\Http\Controllers\Admin\LinkController::class, 'reorder'])->name('admin.links.reorder');
 
     // API Routes for Visual Editor
     Route::prefix('api')->name('api.')->group(function () {
