@@ -41,6 +41,9 @@
                                 @if($link->thumbnail)
                                     <img src="{{ asset('storage/' . $link->thumbnail) }}" alt="{{ $link->title }}"
                                         class="h-10 w-10 rounded-lg object-cover border border-gray-200">
+                                @elseif($link->icon)
+                                    <img src="{{ asset('images/icons/' . $link->icon . '.svg') }}"
+                                        class="h-5 w-5 text-gray-700" alt="{{ $link->title }}">
                                 @else
                                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 border border-gray-200">
                                         <svg class="h-5 w-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,6 +137,9 @@
                             @if($link->thumbnail)
                                 <img src="{{ asset('storage/' . $link->thumbnail) }}" alt="{{ $link->title }}"
                                     class="h-10 w-10 rounded-lg object-cover border border-gray-200 shrink-0">
+                            @elseif($link->icon)
+                                <img src="{{ asset('images/icons/' . $link->icon . '.svg') }}"
+                                    class="h-5 w-5 text-gray-700 shrink-0" alt="{{ $link->title }}">
                             @else
                                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 border border-gray-200 shrink-0">
                                     <svg class="h-5 w-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
