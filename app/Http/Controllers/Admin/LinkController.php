@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\Storage;
 
 class LinkController extends Controller
 {
+    /**
+     * Display a paginated list of links, filtered by the authenticated user's division.
+     * Super admins may filter by division via the `division` query parameter.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         $userAuth = Auth::user()->id;
@@ -37,11 +44,22 @@ class LinkController extends Controller
         return view('admin.links.index', compact('links', 'divisionFilter', 'paginated'));
     }
 
+    /**
+     * Show the form for creating a new link.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         return view('admin.links.create');
     }
 
+    /**
+     * Store a newly created link.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -86,6 +104,12 @@ class LinkController extends Controller
             ->with('success', 'Link berhasil ditambahkan.');
     }
 
+    /**
+     * Show the form for editing the specified link.
+     *
+     * @param  \App\Models\Link  $link
+     * @return \Illuminate\View\View|\Illuminate\Http\Response
+     */
     public function edit(Link $link)
     {
         $userAuth = Auth::user()->id;
@@ -97,6 +121,13 @@ class LinkController extends Controller
         return view('admin.links.edit', compact('link'));
     }
 
+    /**
+     * Update the specified link.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Link  $link
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     */
     public function update(Request $request, Link $link)
     {
         $userAuth = Auth::user()->id;
@@ -146,6 +177,12 @@ class LinkController extends Controller
             ->with('success', 'Link berhasil diperbarui.');
     }
 
+    /**
+     * Delete the specified link.
+     *
+     * @param  \App\Models\Link  $link
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     */
     public function destroy(Link $link)
     {
         $userAuth = Auth::user()->id;
@@ -165,6 +202,12 @@ class LinkController extends Controller
             ->with('success', 'Link berhasil dihapus.');
     }
 
+    /**
+     * Reorder links based on the provided array of link IDs.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function reorder(Request $request)
     {
         $request->validate([
