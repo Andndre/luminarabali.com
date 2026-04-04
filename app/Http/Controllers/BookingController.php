@@ -552,13 +552,10 @@ class BookingController extends Controller
             $booking->business_unit = $package->business_unit;
         }
 
-        // Handle Thumbnail Upload
+        // Handle Thumbnail Upload — store new file first, delete old only after DB update succeeds
         $thumbnailPath = $booking->thumbnail;
+        $oldThumbnail = null;
         if ($request->hasFile('thumbnail')) {
-            if ($booking->thumbnail) {
-                Storage::disk('public')->delete($booking->thumbnail);
-            }
-
             $imageFile = $request->file('thumbnail');
             $filename = time() . '_' . uniqid() . '.webp';
             $thumbnailPath = 'bookings/thumbnails/' . $filename;
@@ -569,6 +566,10 @@ class BookingController extends Controller
             }
             $encoded = $image->toWebp(quality: 80);
             Storage::disk('public')->put($thumbnailPath, (string) $encoded);
+
+            if ($booking->thumbnail) {
+                $oldThumbnail = $booking->thumbnail;
+            }
         }
 
         $booking->update([
@@ -586,6 +587,11 @@ class BookingController extends Controller
             'thumbnail' => $thumbnailPath,
             'business_unit' => $package?->business_unit ?? $booking->business_unit,
         ]);
+
+        // Delete old thumbnail only after DB update succeeded
+        if ($oldThumbnail) {
+            Storage::disk('public')->delete($oldThumbnail);
+        }
 
         return redirect()->route('admin.bookings.index')->with('success', 'Data booking berhasil diperbarui.');
     }

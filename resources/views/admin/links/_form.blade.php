@@ -56,7 +56,7 @@
             <input type="file" name="thumbnail" id="thumbnailInput"
                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 @error('thumbnail') border-red-500 @enderror"
                 accept="image/*" @change="previewThumbnail()">
-            <p class="mt-1 text-xs text-gray-400">Format: JPG, PNG. Maks: 5MB. Gambar akan dikonversi otomatis ke format WebP.</p>
+            <p class="mt-1 text-xs text-gray-400">Format: JPG, PNG, WEBP. Maks: 5MB. Gambar akan dikonversi otomatis ke format WebP.</p>
             @error('thumbnail')
                 <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
             @enderror
