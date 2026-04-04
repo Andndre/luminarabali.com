@@ -68,6 +68,7 @@ class LinkController extends Controller
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'icon' => 'nullable|string|max:100',
             'is_active' => 'nullable|boolean',
+            'is_pinned' => 'nullable|boolean',
             'business_unit' => 'nullable|in:photobooth,visual',
         ]);
 
@@ -96,6 +97,7 @@ class LinkController extends Controller
             'icon' => $validated['icon'] ?? null,
             'order' => $maxOrder + 1,
             'is_active' => $request->boolean('is_active'),
+            'is_pinned' => $request->boolean('is_pinned'),
             'business_unit' => $businessUnit,
         ]);
 
@@ -143,18 +145,20 @@ class LinkController extends Controller
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'icon' => 'nullable|string|max:100',
             'is_active' => 'nullable|boolean',
+            'is_pinned' => 'nullable|boolean',
             'business_unit' => 'nullable|in:photobooth,visual',
         ]);
 
-        if ($validated['icon'] === '') {
+        if (isset($validated['icon']) && $validated['icon'] === '') {
             $validated['icon'] = null;
         }
 
         $data = [
             'title' => $validated['title'],
             'url' => $validated['url'],
-            'icon' => $validated['icon'],
+            'icon' => $validated['icon'] ?? null,
             'is_active' => $request->boolean('is_active'),
+            'is_pinned' => $request->boolean('is_pinned'),
         ];
 
         if ($request->hasFile('thumbnail')) {

@@ -112,6 +112,16 @@
         </div>
     </div>
 
+    <div class="flex items-start gap-3">
+        <input type="checkbox" name="is_pinned" id="is_pinned" value="1"
+            {{ old('is_pinned', $link?->is_pinned ?? false) ? 'checked' : '' }}
+            class="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500">
+        <div>
+            <label for="is_pinned" class="text-sm font-medium text-gray-700">Pin link ini</label>
+            <p class="text-xs text-gray-400">Link akan ditampilkan sebagai icon di strip atas halaman publik, sekaligus tetap muncul di daftar link.</p>
+        </div>
+    </div>
+
     {{-- Thumbnail Preview --}}
     <div class="rounded-xl border border-gray-100 bg-gray-50 p-4" x-show="thumbnailPreview || '{{ $link?->thumbnail }}'">
         <p class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">Preview Thumbnail</p>
