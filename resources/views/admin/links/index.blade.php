@@ -46,6 +46,7 @@
                         <th class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400">Division</th>
                         @endif
                         <th class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
+                        <th class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400">Pin</th>
                         <th class="px-5 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-gray-400">Aksi</th>
                     </tr>
                 </thead>
@@ -110,6 +111,25 @@
                                     </button>
                                 </form>
                             </td>
+                            {{-- Pin toggle --}}
+                            <td class="whitespace-nowrap px-5 py-3.5">
+                                <form :action="'{{ route('admin.links.index') }}/' + link.id" method="POST">
+                                    @csrf @method('PUT')
+                                    <input type="hidden" name="title" :value="link.title">
+                                    <input type="hidden" name="url" :value="link.url">
+                                    <input type="hidden" name="is_active" :value="link.is_active ? '1' : '0'">
+                                    <input type="hidden" name="is_pinned" :value="link.is_pinned ? '0' : '1'">
+                                    <input type="hidden" name="business_unit" :value="link.business_unit">
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition"
+                                            :class="link.is_pinned ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'">
+                                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z"/>
+                                        </svg>
+                                        <span x-text="link.is_pinned ? 'Pinned' : 'Pin'"></span>
+                                    </button>
+                                </form>
+                            </td>
                             {{-- Actions --}}
                             <td class="px-5 py-3.5 text-right">
                                 <div class="flex items-center justify-end gap-1 opacity-70 transition group-hover:opacity-100">
@@ -135,7 +155,7 @@
                     {{-- Empty state --}}
                     <template x-if="links.length === 0">
                         <tr>
-                            <td colspan="{{ auth()->user()->division === 'super_admin' ? 8 : 7 }}" class="py-16 text-center">
+                            <td colspan="{{ auth()->user()->division === 'super_admin' ? 9 : 8 }}" class="py-16 text-center">
                                 <div class="flex flex-col items-center gap-3">
                                     <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-50">
                                         <svg class="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,6 +210,10 @@
                             <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold"
                                   :class="link.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'"
                                   x-text="link.is_active ? 'Aktif' : 'Nonaktif'"></span>
+                            <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold"
+                                  :class="link.is_pinned ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-gray-400'"
+                                  x-text="link.is_pinned ? 'Pinned' : ''"
+                                  x-show="link.is_pinned"></span>
                         </div>
                         <div class="flex items-center justify-between border-t border-gray-50 pt-2">
                             <span class="text-xs text-gray-400" x-text="'Order: ' + (idx + 1)"></span>
@@ -262,7 +286,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script>
-        window.linksData = {!! json_encode($links->map(fn($l) => ['id' => $l->id, 'title' => $l->title, 'thumbnail' => $l->thumbnail, 'icon' => $l->icon, 'url' => $l->url, 'order' => $l->order, 'is_active' => $l->is_active, 'business_unit' => $l->business_unit])->values(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
+        window.linksData = {!! json_encode($links->map(fn($l) => ['id' => $l->id, 'title' => $l->title, 'thumbnail' => $l->thumbnail, 'icon' => $l->icon, 'url' => $l->url, 'order' => $l->order, 'is_active' => $l->is_active, 'is_pinned' => $l->is_pinned, 'business_unit' => $l->business_unit])->values(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
         window.linksReorderUrl = "{{ route('admin.links.reorder') }}";
     </script>
     <script>
