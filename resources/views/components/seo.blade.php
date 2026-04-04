@@ -32,7 +32,7 @@
 @else
     <meta name="robots" content="index, follow">
 @endif
-<meta name="author" content="Luminara Group Bali">
+<meta name="author" content="Luminara Bali">
 
 <!-- Canonical URL -->
 @if ($canonical)
@@ -45,7 +45,7 @@
 <meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ $description }}">
 <meta property="og:image" content="{{ asset($og_image) }}">
-<meta property="og:site_name" content="Luminara Group Bali">
+<meta property="og:site_name" content="Luminara Bali">
 <meta property="og:locale" content="id_ID">
 
 <!-- Twitter -->
