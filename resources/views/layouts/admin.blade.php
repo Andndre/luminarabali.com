@@ -13,7 +13,9 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        /* Scrollbar untuk sidebar */
+        /* Scrollbar untuk sidebar - Firefox */
+        #sidebar nav { scrollbar-width: thin; scrollbar-color: #4B5563 transparent; }
+        /* Scrollbar untuk sidebar - WebKit */
         #sidebar nav::-webkit-scrollbar { width: 4px; }
         #sidebar nav::-webkit-scrollbar-track { background: transparent; }
         #sidebar nav::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 4px; }
