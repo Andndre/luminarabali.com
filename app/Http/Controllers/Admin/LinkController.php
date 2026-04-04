@@ -156,7 +156,7 @@ class LinkController extends Controller
         $data = [
             'title' => $validated['title'],
             'url' => $validated['url'],
-            'icon' => $validated['icon'] ?? null,
+            'icon' => $validated['icon'] ?? $link->icon,
             'is_active' => $request->boolean('is_active'),
             'is_pinned' => $request->boolean('is_pinned'),
         ];
