@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luminara Visual - Premium Wedding & Event Documentation</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <x-seo
+        title="Luminara Visual Bali - Premium Wedding, Graduation & Event Photography & Videography"
+        description="Luminara Visual Bali hadir dengan layanan dokumentasi pernikahan, graduation, dan acara spesial dengan gaya cinematic dan sinematik yang premium."
+        keywords="wedding photography bali, wedding videography bali, graduation photography, event documentation bali, cinematik wedding, dokumentasi pernikahan bali"
+        og_image="/images/Logo Luminara Visual-BLACK-TPR.png"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
     <style>

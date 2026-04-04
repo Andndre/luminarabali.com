@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pembayaran Gagal</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <x-seo
+        title="Pembayaran Gagal - Luminara Photobooth"
+        description="Maaf, pembayaran Anda tidak dapat diproses. Silakan coba kembali atau hubungi tim kami."
+        og_image="/images/Logo Luminara Visual-BLACK-TPR.png"
+        :noindex="true"
+    />
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

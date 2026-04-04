@@ -4,7 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Harga - Luminara Photobooth</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <x-seo
+        title="Daftar Harga Photobooth Bali 2026 - Luminara Photobooth"
+        description="Lihat daftar harga photobooth dan 360 video booth untuk berbagai paket acara di Bali. Harga transparan, kualitas premium, booking mudah."
+        keywords="harga photobooth bali, harga 360 video booth, sewa photobooth bali, paket photobooth pernikahan, daftar harga photobooth"
+        og_image="/images/Logo Luminara Visual-BLACK-TPR.png"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap"

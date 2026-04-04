@@ -1,2 +1,11 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /booking/
+Disallow: /payment_finish/
+Disallow: /payment_failed/
+
+User-agent: Googlebot
+Allow: /
+
+Sitemap: {{ url('/sitemap.xml') }}
