@@ -10,6 +10,8 @@ use App\Models\InvoiceItem;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Laravel\Facades\Image;
 
 class BookingController extends Controller
 {
@@ -437,7 +439,7 @@ class BookingController extends Controller
             'package_type' => 'required|string',
             'price_total' => 'required|numeric',
             'link_drive' => 'nullable|url',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120'
         ]);
 
         $package = \App\Models\Package::where('type', $request->package_type)->firstOrFail();
@@ -450,7 +452,16 @@ class BookingController extends Controller
         // Handle Thumbnail Upload
         $thumbnailPath = null;
         if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('bookings/thumbnails', 'public');
+            $imageFile = $request->file('thumbnail');
+            $filename = time() . '_' . uniqid() . '.webp';
+            $thumbnailPath = 'bookings/thumbnails/' . $filename;
+
+            $image = Image::read($imageFile);
+            if ($image->width() > 1920) {
+                $image->scale(width: 1920);
+            }
+            $encoded = $image->toWebp(quality: 80);
+            Storage::disk('public')->put($thumbnailPath, (string) $encoded);
         }
 
         $booking = Booking::create([
@@ -529,7 +540,7 @@ class BookingController extends Controller
             'status' => 'required|in:PENDING,DP_DIBAYAR,LUNAS,DIBATALKAN',
             'price_total' => 'required|numeric',
             'link_drive' => 'nullable|url',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120'
         ]);
 
         // Find package name based on type
@@ -544,10 +555,20 @@ class BookingController extends Controller
         // Handle Thumbnail Upload
         $thumbnailPath = $booking->thumbnail;
         if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('bookings/thumbnails', 'public');
             if ($booking->thumbnail) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($booking->thumbnail);
+                Storage::disk('public')->delete($booking->thumbnail);
             }
+
+            $imageFile = $request->file('thumbnail');
+            $filename = time() . '_' . uniqid() . '.webp';
+            $thumbnailPath = 'bookings/thumbnails/' . $filename;
+
+            $image = Image::read($imageFile);
+            if ($image->width() > 1920) {
+                $image->scale(width: 1920);
+            }
+            $encoded = $image->toWebp(quality: 80);
+            Storage::disk('public')->put($thumbnailPath, (string) $encoded);
         }
 
         $booking->update([

@@ -89,7 +89,7 @@
                             @endif
 
                             <input type="file" name="thumbnail" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" accept="image/*">
-                            <p class="text-xs text-gray-500 mt-1">Biarkan kosong jika tidak ingin mengubah thumbnail.</p>
+                            <p class="text-xs text-gray-500 mt-1">Biarkan kosong jika tidak ingin mengubah thumbnail. Format: JPG, PNG, WEBP. Maks: 5MB. Gambar akan dikonversi otomatis ke format WebP.</p>
                         </div>
                     </div>
                 </div>
