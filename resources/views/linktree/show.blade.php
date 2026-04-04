@@ -4,7 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luminara {{ $division === 'LuminaraPhotobooth' ? 'Photobooth' : 'Visual' }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <x-seo
+        title="Luminara {{ ucfirst(str_replace('Luminara', '', $division)) }}"
+        description="Temukan semua link resmi Luminara {{ str_replace('Luminara', '', $division) }} - Photobooth dan Visual Documentation untuk acara spesial Anda."
+        keywords="luminara {{ strtolower(str_replace('Luminara', '', $division)) }}, linktree luminara, {{ strtolower(str_replace('Luminara', '', $division)) }} bali"
+        og_image="/images/Logo Luminara Visual-BLACK-TPR.png"
+    />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         .bg-maroon {

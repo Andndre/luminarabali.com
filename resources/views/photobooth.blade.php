@@ -4,7 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luminara Photobooth - Abadikan Momen Berharga Selamanya</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <x-seo
+        title="Luminara Photobooth Bali - Foto Booth, 360 Video, & Cetak Instan untuk Acara Anda"
+        description="Luminara Photobooth Bali menyediakan layanan foto booth, 360 video booth, dan cetak instan berkualitas tinggi untuk pernikahan, graduation, dan berbagai acara spesial."
+        keywords="photobooth bali, 360 video booth bali, foto booth cetak instan, photobooth untuk pernikahan, photobooth graduation bali"
+        og_image="/images/Logo Luminara Visual-BLACK-TPR.png"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap"

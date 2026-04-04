@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luminara Group - Premium Documentation & Photobooth</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <x-seo
+        title="Luminara Group - Premium Wedding & Event Documentation & Photobooth Bali"
+        description="Luminara Group menyediakan layanan Photobooth dan Visual Documentation premium untuk pernikahan, graduation, dan acara spesial lainnya di Bali."
+        keywords="luminara, photobooth bali, wedding photography bali, event documentation, 360 video booth, graduation photobooth"
+        og_image="/images/Logo Luminara Visual-BLACK-TPR.png"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>

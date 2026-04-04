@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricelist - Luminara Visual</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <x-seo
+        title="Pricelist Wedding & Event Photography Bali 2026 - Luminara Visual"
+        description="Paket lengkap dokumentasi pernikahan dan acara di Bali. Photography, videography, dan paket kombinasi. Harga transparan dan sesuai budget."
+        keywords="harga wedding photography bali, pricelist wedding bali, paket dokumentasi pernikahan, photography videography bali"
+        og_image="/images/Logo Luminara Visual-BLACK-TPR.png"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
     <style>

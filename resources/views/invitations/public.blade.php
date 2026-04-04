@@ -4,8 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <title>{{ $page->title ?? 'Wedding Invitation' }}</title>
-    <meta name="description" content="{{ $page->groom_name ?? '' }} & {{ $page->bride_name ?? '' }}">
+    <meta name="description" content="{{ $page->meta_description ?? ($page->groom_name . ' & ' . $page->bride_name . ' - Undangan Pernikahan Digital') }}">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="{{ $page->groom_name ?? '' }} & {{ $page->bride_name ?? '' }}">
+
+    {{-- Open Graph / Facebook --}}
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request()->url() }}">
+    <meta property="og:title" content="{{ $page->title ?? 'Wedding Invitation' }}">
+    <meta property="og:description" content="{{ $page->meta_description ?? ($page->groom_name . ' & ' . $page->bride_name . ' - Undangan Pernikahan Digital') }}">
+    <meta property="og:image" content="{{ $page->og_image ?? asset('/images/Logo Luminara Visual-BLACK-TPR.png') }}">
+    <meta property="og:site_name" content="Luminara Group Bali">
+    <meta property="og:locale" content="id_ID">
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $page->title ?? 'Wedding Invitation' }}">
+    <meta name="twitter:description" content="{{ $page->meta_description ?? ($page->groom_name . ' & ' . $page->bride_name . ' - Undangan Pernikahan Digital') }}">
+    <meta name="twitter:image" content="{{ $page->og_image ?? asset('/images/Logo Luminara Visual-BLACK-TPR.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
