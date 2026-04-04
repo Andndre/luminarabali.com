@@ -80,6 +80,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Thumbnail (Gambar)</label>
                             <input type="file" name="thumbnail" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" accept="image/*">
+                            <p class="mt-1 text-xs text-gray-400">Format: JPG, PNG, WEBP. Maks: 5MB. Gambar akan dikonversi otomatis ke format WebP.</p>
                         </div>
                     </div>
                 </div>

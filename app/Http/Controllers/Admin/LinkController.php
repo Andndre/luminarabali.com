@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Laravel\Facades\Image;
 
 class LinkController extends Controller
 {
@@ -65,7 +66,7 @@ class LinkController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'url' => 'required|url|max:500',
-            'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'icon' => 'nullable|string|max:100',
             'is_active' => 'nullable|boolean',
             'is_pinned' => 'nullable|boolean',
@@ -85,7 +86,16 @@ class LinkController extends Controller
 
         $thumbnailPath = null;
         if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('links', 'public');
+            $imageFile = $request->file('thumbnail');
+            $filename = time() . '_' . uniqid() . '.webp';
+            $thumbnailPath = 'links/' . $filename;
+
+            $image = Image::read($imageFile);
+            if ($image->width() > 1920) {
+                $image->scale(width: 1920);
+            }
+            $encoded = $image->toWebp(quality: 80);
+            Storage::disk('public')->put($thumbnailPath, (string) $encoded);
         }
 
         $maxOrder = Link::where('business_unit', $businessUnit)->max('order') ?? -1;
@@ -142,7 +152,7 @@ class LinkController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'url' => 'required|url|max:500',
-            'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'icon' => 'nullable|string|max:100',
             'is_active' => 'nullable|boolean',
             'is_pinned' => 'nullable|boolean',
@@ -165,7 +175,19 @@ class LinkController extends Controller
             if ($link->thumbnail) {
                 Storage::disk('public')->delete($link->thumbnail);
             }
-            $data['thumbnail'] = $request->file('thumbnail')->store('links', 'public');
+
+            $imageFile = $request->file('thumbnail');
+            $filename = time() . '_' . uniqid() . '.webp';
+            $thumbnailPath = 'links/' . $filename;
+
+            $image = Image::read($imageFile);
+            if ($image->width() > 1920) {
+                $image->scale(width: 1920);
+            }
+            $encoded = $image->toWebp(quality: 80);
+            Storage::disk('public')->put($thumbnailPath, (string) $encoded);
+
+            $data['thumbnail'] = $thumbnailPath;
         }
 
         if ($user->division === 'super_admin' && $request->has('business_unit') && $request->business_unit !== $link->business_unit) {
