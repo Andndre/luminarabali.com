@@ -61,7 +61,7 @@
                         $invoice->booking && $invoice->booking->business_unit == 'visual' ? 'Visual' : 'Photobooth';
                 @endphp
                 <div class="mb-4 flex items-center gap-3">
-                    <img src="/images/Logo Luminara Visual-BLACK-TPR.png" alt="Luminara" class="h-12">
+                    <img src="/images/logo.png" alt="Luminara" class="h-12">
                     <div class="border-l-2 border-gray-300 pl-3">
                         <h2 class="text-xl font-bold leading-tight text-gray-900">Luminara</h2>
                         <p class="text-xs font-bold uppercase tracking-widest text-gray-500">{{ $unitName }}</p>

@@ -5,12 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <x-seo
-        title="Luminara Photobooth Bali - Foto Booth, 360 Video, & Cetak Instan untuk Acara Anda"
+    <x-seo title="Luminara Photobooth Bali - Foto Booth, 360 Video, & Cetak Instan untuk Acara Anda"
         description="Luminara Photobooth Bali menyediakan layanan foto booth, 360 video booth, dan cetak instan berkualitas tinggi untuk pernikahan, graduation, dan berbagai acara spesial."
         keywords="photobooth bali, 360 video booth bali, foto booth cetak instan, photobooth untuk pernikahan, photobooth graduation bali"
-        og_image="/images/Logo Luminara Visual-BLACK-TPR.png"
-    />
+        og_image="/images/logo.png" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap"
@@ -43,7 +41,7 @@
             background-attachment: fixed;
             transition: background-image 1s ease-in-out;
         }
-        
+
         @media (max-width: 768px) {
             .hero-bg {
                 background-attachment: scroll;
@@ -120,9 +118,10 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between">
                 <div class="flex flex-shrink-0 items-center gap-3">
-                    <img id="nav-logo" src="/images/Logo Luminara Visual-WHITE-TPR.png" alt="Luminara Logo" class="h-8 md:h-10 w-auto drop-shadow-md transition-all duration-300">
+                    <img id="nav-logo" src="/images/Logo Luminara Visual-WHITE-TPR.png" alt="Luminara Logo"
+                        class="h-8 w-auto drop-shadow-md transition-all duration-300 md:h-10">
                     <span
-                        class="nav-item font-serif text-xl md:text-2xl font-bold tracking-wide transition-colors duration-300">Luminara</span>
+                        class="nav-item font-serif text-xl font-bold tracking-wide transition-colors duration-300 md:text-2xl">Luminara</span>
                 </div>
 
                 <div class="hidden items-center space-x-8 md:flex">
@@ -139,7 +138,7 @@
                 </div>
 
                 <div class="flex items-center md:hidden">
-                    <button id="mobile-menu-btn" class="nav-item focus:outline-none p-2" aria-label="Toggle menu">
+                    <button id="mobile-menu-btn" class="nav-item p-2 focus:outline-none" aria-label="Toggle menu">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16"></path>
@@ -150,48 +149,60 @@
         </div>
 
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-xl transition-all duration-300 absolute w-full left-0 top-full">
-             <div class="px-4 pt-4 pb-6 space-y-3">
-                <a href="#home" class="block py-2 px-3 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-luminara-gold rounded-lg transition">BERANDA</a>
-                <a href="#features" class="block py-2 px-3 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-luminara-gold rounded-lg transition">KEUNGGULAN</a>
-                <a href="#pricing" class="block py-2 px-3 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-luminara-gold rounded-lg transition">HARGA</a>
-                <a href="{{ route('booking.create') }}" class="block w-full mt-4 text-center bg-luminara-gold text-white font-bold py-3 rounded-full hover:bg-yellow-600 transition shadow-md uppercase text-sm tracking-wide">
+        <div id="mobile-menu"
+            class="absolute left-0 top-full hidden w-full border-t border-gray-100 bg-white shadow-xl transition-all duration-300 md:hidden">
+            <div class="space-y-3 px-4 pb-6 pt-4">
+                <a href="#home"
+                    class="hover:text-luminara-gold block rounded-lg px-3 py-2 text-base font-medium text-gray-900 transition hover:bg-gray-50">BERANDA</a>
+                <a href="#features"
+                    class="hover:text-luminara-gold block rounded-lg px-3 py-2 text-base font-medium text-gray-900 transition hover:bg-gray-50">KEUNGGULAN</a>
+                <a href="#pricing"
+                    class="hover:text-luminara-gold block rounded-lg px-3 py-2 text-base font-medium text-gray-900 transition hover:bg-gray-50">HARGA</a>
+                <a href="{{ route('booking.create') }}"
+                    class="bg-luminara-gold mt-4 block w-full rounded-full py-3 text-center text-sm font-bold uppercase tracking-wide text-white shadow-md transition hover:bg-yellow-600">
                     Booking Sekarang
                 </a>
-             </div>
+            </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="relative flex h-screen items-center justify-center px-4 text-center overflow-hidden">
+    <section id="home" class="relative flex h-screen items-center justify-center overflow-hidden px-4 text-center">
         <!-- Background Layers for Crossfade -->
-        <div id="hero-bg-1" class="absolute inset-0 z-0 bg-cover bg-center bg-fixed transition-opacity duration-[1500ms] opacity-100"></div>
-        <div id="hero-bg-2" class="absolute inset-0 z-0 bg-cover bg-center bg-fixed transition-opacity duration-[1500ms] opacity-0"></div>
-        
-        <div class="z-10 mx-auto max-w-5xl text-white opacity-0 px-4" style="animation: fadeInUp 1s ease-out forwards;">
-            <p class="text-luminara-gold mb-3 md:mb-4 font-serif text-lg md:text-xl italic tracking-wider">Pengalaman Event Premium</p>
-            <h1 class="mb-6 md:mb-8 font-serif text-4xl sm:text-5xl md:text-8xl font-bold leading-tight tracking-tight drop-shadow-lg">
+        <div id="hero-bg-1"
+            class="absolute inset-0 z-0 bg-cover bg-fixed bg-center opacity-100 transition-opacity duration-[1500ms]">
+        </div>
+        <div id="hero-bg-2"
+            class="absolute inset-0 z-0 bg-cover bg-fixed bg-center opacity-0 transition-opacity duration-[1500ms]">
+        </div>
+
+        <div class="z-10 mx-auto max-w-5xl px-4 text-white opacity-0" style="animation: fadeInUp 1s ease-out forwards;">
+            <p class="text-luminara-gold mb-3 font-serif text-lg italic tracking-wider md:mb-4 md:text-xl">Pengalaman
+                Event Premium</p>
+            <h1
+                class="mb-6 font-serif text-4xl font-bold leading-tight tracking-tight drop-shadow-lg sm:text-5xl md:mb-8 md:text-8xl">
                 Abadikan Momen <br> <span class="text-white">Berharga</span>
             </h1>
             <p
-                class="mx-auto mb-8 md:mb-12 max-w-2xl text-base sm:text-lg md:text-xl font-light leading-relaxed text-gray-200 drop-shadow-md px-2">
-                Layanan Photobooth & 360° Videobooth terbaik di Bali. <br class="hidden md:block">Tangkap setiap senyuman, setiap gerakan, setiap momen.
+                class="mx-auto mb-8 max-w-2xl px-2 text-base font-light leading-relaxed text-gray-200 drop-shadow-md sm:text-lg md:mb-12 md:text-xl">
+                Layanan Photobooth & 360° Videobooth terbaik di Bali. <br class="hidden md:block">Tangkap setiap
+                senyuman, setiap gerakan, setiap momen.
             </p>
-            <div class="flex flex-col justify-center gap-4 sm:flex-row w-full sm:w-auto px-4 sm:px-0">
+            <div class="flex w-full flex-col justify-center gap-4 px-4 sm:w-auto sm:flex-row sm:px-0">
                 <a href="{{ route('booking.create') }}?unit=photobooth"
-                    class="bg-luminara-gold group rounded-full px-8 md:px-10 py-3 md:py-4 text-base md:text-lg font-semibold text-white shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all duration-300 hover:bg-white hover:text-black hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] w-full sm:w-auto">
+                    class="bg-luminara-gold group w-full rounded-full px-8 py-3 text-base font-semibold text-white shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all duration-300 hover:bg-white hover:text-black hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] sm:w-auto md:px-10 md:py-4 md:text-lg">
                     Pesan Tanggal
                     <span class="ml-2 inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
                 </a>
                 <a href="#pricing"
-                    class="rounded-full border border-white/30 bg-white/10 px-8 md:px-10 py-3 md:py-4 text-base md:text-lg font-semibold text-white backdrop-blur-sm transition duration-300 hover:bg-white/20 w-full sm:w-auto">
+                    class="w-full rounded-full border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white backdrop-blur-sm transition duration-300 hover:bg-white/20 sm:w-auto md:px-10 md:py-4 md:text-lg">
                     Lihat Paket
                 </a>
             </div>
         </div>
 
         <div class="absolute bottom-8 left-1/2 -translate-x-1/2 transform animate-bounce">
-            <a href="#features" class="text-white/70 transition hover:text-white p-2">
+            <a href="#features" class="p-2 text-white/70 transition hover:text-white">
                 <svg class="h-6 w-6 md:h-8 md:w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                         d="M19 13l-7 7-7-7m14-8l-7 7-7-7"></path>
@@ -203,14 +214,15 @@
     <!-- Features Section -->
     <section id="features" class="bg-white py-16 md:py-24">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="mb-12 md:mb-20 text-center">
-                <h2 class="mb-4 font-serif text-3xl md:text-4xl font-bold">Standar Luminara</h2>
+            <div class="mb-12 text-center md:mb-20">
+                <h2 class="mb-4 font-serif text-3xl font-bold md:text-4xl">Standar Luminara</h2>
                 <div class="bg-luminara-gold mx-auto h-1 w-24"></div>
-                <p class="mx-auto mt-4 max-w-2xl text-gray-600 text-sm md:text-base">Kami menggunakan peralatan profesional untuk memastikan
+                <p class="mx-auto mt-4 max-w-2xl text-sm text-gray-600 md:text-base">Kami menggunakan peralatan
+                    profesional untuk memastikan
                     kualitas visual terbaik untuk acara Anda.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-4">
                 <div
                     class="group rounded-xl border border-transparent bg-gray-50 p-6 text-center transition hover:border-gray-200 hover:shadow-lg">
                     <div
@@ -455,7 +467,8 @@
 
             <div class="mt-16 text-center">
                 <a href="{{ route('pricelist') }}" class="group inline-flex flex-col items-center">
-                    <div class="inline-flex items-center gap-3 rounded-xl border-2 border-luminara-gold bg-white px-8 py-3.5 text-base font-bold text-luminara-gold shadow-lg transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-luminara-gold group-hover:text-white group-hover:shadow-luminara-gold/30">
+                    <div
+                        class="border-luminara-gold text-luminara-gold group-hover:bg-luminara-gold group-hover:shadow-luminara-gold/30 inline-flex items-center gap-3 rounded-xl border-2 bg-white px-8 py-3.5 text-base font-bold shadow-lg transition-all duration-300 group-hover:-translate-y-1 group-hover:text-white">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
@@ -468,7 +481,7 @@
                                 d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                         </svg>
                     </div>
-                    <p class="mt-3 text-xs font-medium text-gray-400 transition-colors group-hover:text-luminara-gold">
+                    <p class="group-hover:text-luminara-gold mt-3 text-xs font-medium text-gray-400 transition-colors">
                         Klik untuk melihat detail durasi 2 jam hingga 12 jam
                     </p>
                 </a>
@@ -498,7 +511,7 @@
             <div class="mb-12 grid grid-cols-1 gap-12 md:grid-cols-3">
                 <div>
                     <div class="mb-4 flex items-center gap-2">
-                        <img src="/images/Logo Luminara Visual-BLACK-TPR.png" alt="Luminara" class="h-8">
+                        <img src="/images/logo.png" alt="Luminara" class="h-8">
                         <span class="font-serif text-xl font-bold">Luminara</span>
                     </div>
                     <p class="text-gray-500">
@@ -543,7 +556,7 @@
             if (window.scrollY > 50 || !mobileMenu.classList.contains('hidden')) {
                 navbar.classList.remove('nav-transparent');
                 navbar.classList.add('nav-scrolled');
-                navLogo.src = "/images/Logo Luminara Visual-BLACK-TPR.png";
+                navLogo.src = "/images/logo.png";
             } else {
                 navbar.classList.add('nav-transparent');
                 navbar.classList.remove('nav-scrolled');
@@ -573,13 +586,13 @@
         const heroImages = @json($heroImages ?? []);
         const bg1 = document.getElementById('hero-bg-1');
         const bg2 = document.getElementById('hero-bg-2');
-        
+
         if (heroImages.length > 0) {
             let currentIndex = 0;
             let activeBg = bg1;
-            
+
             const gradient = 'linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4))';
-            
+
             // Set initial image
             bg1.style.backgroundImage = `${gradient}, url('${heroImages[0]}')`;
 
@@ -588,25 +601,26 @@
                     currentIndex = (currentIndex + 1) % heroImages.length;
                     const nextImage = heroImages[currentIndex];
                     const nextBg = activeBg === bg1 ? bg2 : bg1;
-                    
+
                     // Preload and switch
                     const img = new Image();
                     img.src = nextImage;
                     img.onload = () => {
                         nextBg.style.backgroundImage = `${gradient}, url('${nextImage}')`;
-                        
+
                         // Fade transition
                         activeBg.classList.add('opacity-0');
                         activeBg.classList.remove('opacity-100');
                         nextBg.classList.add('opacity-100');
                         nextBg.classList.remove('opacity-0');
-                        
+
                         activeBg = nextBg;
                     };
                 }, 5000);
             }
         } else {
-            bg1.style.backgroundImage = `linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')`;
+            bg1.style.backgroundImage =
+                `linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')`;
         }
     </script>
 </body>
