@@ -43,8 +43,8 @@ class LinktreeController extends Controller
                     ];
                 });
 
-            $todayBookingLinks = $bookings->filter(fn($b) => $b->event_date === $today);
-            $olderBookingLinks = $bookings->filter(fn($b) => $b->event_date < $today);
+            $todayBookingLinks = $bookings->filter(fn($b) => $b->event_date->toDateString() === $today);
+            $olderBookingLinks = $bookings->filter(fn($b) => $b->event_date->toDateString() < $today);
         }
 
         return view('linktree.show', [

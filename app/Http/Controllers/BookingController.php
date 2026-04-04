@@ -536,6 +536,11 @@ class BookingController extends Controller
         $package = \App\Models\Package::where('type', $request->package_type)->first();
         $packageName = $package ? $package->name : $booking->package_name;
 
+        // Update business_unit if package changed
+        if ($package) {
+            $booking->business_unit = $package->business_unit;
+        }
+
         // Handle Thumbnail Upload
         $thumbnailPath = $booking->thumbnail;
         if ($request->hasFile('thumbnail')) {
@@ -558,6 +563,7 @@ class BookingController extends Controller
             'notes' => $request->notes,
             'link_drive' => $request->link_drive,
             'thumbnail' => $thumbnailPath,
+            'business_unit' => $package?->business_unit ?? $booking->business_unit,
         ]);
 
         return redirect()->route('admin.bookings.index')->with('success', 'Data booking berhasil diperbarui.');
