@@ -119,3 +119,6 @@ Route::get('/payment-failed', function () {
 // Public Invitation Routes
 Route::get('/invitation/{slug}', [\App\Http\Controllers\InvitationViewController::class, 'show'])->name('invitation.show');
 Route::post('/invitation/{slug}/rsvp', [\App\Http\Controllers\InvitationViewController::class, 'rsvp'])->name('invitation.rsvp');
+
+// Public Linktree Routes
+Route::get('/linkto/{division}', [\App\Http\Controllers\LinktreeController::class, 'show'])->name('linktree.show');
