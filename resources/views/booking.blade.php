@@ -5,13 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <x-seo
-        title="Booking Photobooth - Luminara Photobooth Bali"
+    <x-seo title="Booking Photobooth - Luminara Photobooth Bali"
         description="Booking photobooth dan 360 video booth untuk acara Anda di Bali. Proses mudah, pembayaran aman via Midtrans, dan konfirmasi cepat."
         keywords="booking photobooth bali, sewa photobooth, pesan photobooth online, booking 360 video booth"
-        og_image="/images/Logo Luminara Visual-BLACK-TPR.png"
-        :noindex="true"
-    />
+        og_image="/images/logo.png" :noindex="true" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap"
@@ -95,12 +92,13 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between md:h-20">
                 <a href="{{ route('home') }}" class="flex items-center gap-2">
-                    <img src="/images/Logo Luminara Visual-BLACK-TPR.png" alt="Luminara Logo" class="h-8 w-auto md:h-10">
+                    <img src="/images/logo.png" alt="Luminara Logo" class="h-8 w-auto md:h-10">
                     <span class="font-serif text-xl font-bold tracking-tight text-gray-900 md:text-2xl">Luminara</span>
                 </a>
                 <a href="{{ route('home') }}"
                     class="hover:text-luminara-gold flex items-center gap-1 text-xs font-medium text-gray-500 md:text-sm">
-                    <span>&larr;</span> <span class="hidden sm:inline">Kembali ke Beranda</span><span class="sm:hidden">Beranda</span>
+                    <span>&larr;</span> <span class="hidden sm:inline">Kembali ke Beranda</span><span
+                        class="sm:hidden">Beranda</span>
                 </a>
             </div>
         </div>
@@ -167,25 +165,28 @@
                                     <label class="mb-2 block text-sm font-medium text-gray-700">Tipe Paket</label>
                                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
 
-                                        @foreach($packages as $pkg)
-                                        <label class="group relative cursor-pointer">
-                                            <input type="radio" name="package_type_select" value="{{ $pkg->type }}"
-                                                class="peer sr-only" required
-                                                onchange="updatePackage('{{ $pkg->name }}', '{{ $pkg->type }}', {{ $pkg->base_price }})">
-                                            <div
-                                                class="hover:border-luminara-gold peer-checked:border-luminara-gold flex h-full flex-col justify-between rounded-xl border-2 border-gray-200 p-4 text-center transition peer-checked:bg-yellow-50">
-                                                @if(str_contains(strtolower($pkg->name), 'combo'))
-                                                    <div class="bg-luminara-gold absolute right-0 top-0 rounded-bl-lg px-2 py-0.5 text-[10px] font-bold text-white">BEST VALUE</div>
-                                                @endif
-                                                <div>
-                                                    <div class="font-bold text-gray-900">{{ $pkg->name }}</div>
-                                                    <div class="mt-1 text-xs text-gray-500">{{ Str::limit($pkg->description, 50) }}</div>
-                                                </div>
+                                        @foreach ($packages as $pkg)
+                                            <label class="group relative cursor-pointer">
+                                                <input type="radio" name="package_type_select"
+                                                    value="{{ $pkg->type }}" class="peer sr-only" required
+                                                    onchange="updatePackage('{{ $pkg->name }}', '{{ $pkg->type }}', {{ $pkg->base_price }})">
                                                 <div
-                                                    class="text-luminara-gold mt-2 rounded bg-yellow-100/50 py-1.5 text-xs font-bold">
-                                                    Rp {{ number_format($pkg->base_price/1000, 0) }}k / 2 jam</div>
-                                            </div>
-                                        </label>
+                                                    class="hover:border-luminara-gold peer-checked:border-luminara-gold flex h-full flex-col justify-between rounded-xl border-2 border-gray-200 p-4 text-center transition peer-checked:bg-yellow-50">
+                                                    @if (str_contains(strtolower($pkg->name), 'combo'))
+                                                        <div
+                                                            class="bg-luminara-gold absolute right-0 top-0 rounded-bl-lg px-2 py-0.5 text-[10px] font-bold text-white">
+                                                            BEST VALUE</div>
+                                                    @endif
+                                                    <div>
+                                                        <div class="font-bold text-gray-900">{{ $pkg->name }}</div>
+                                                        <div class="mt-1 text-xs text-gray-500">
+                                                            {{ Str::limit($pkg->description, 50) }}</div>
+                                                    </div>
+                                                    <div
+                                                        class="text-luminara-gold mt-2 rounded bg-yellow-100/50 py-1.5 text-xs font-bold">
+                                                        Rp {{ number_format($pkg->base_price / 1000, 0) }}k / 2 jam</div>
+                                                </div>
+                                            </label>
                                         @endforeach
 
                                     </div>
@@ -348,28 +349,41 @@
                             </div>
 
                             <div class="mb-6">
-                                <label class="mb-2 block text-sm font-medium text-gray-700">Jumlah Uang DP / Pelunasan</label>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Jumlah Uang DP /
+                                    Pelunasan</label>
                                 <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 font-bold text-gray-500">Rp</span>
+                                    <span
+                                        class="absolute inset-y-0 left-0 flex items-center pl-3 font-bold text-gray-500">Rp</span>
                                     <input type="text" id="display_dp"
-                                        class="w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-10 text-sm font-bold text-gray-900 md:text-base focus:ring-luminara-gold focus:border-luminara-gold"
-                                        placeholder="0" oninput="formatRupiah(this, 'dp_amount'); checkPaymentStatus()">
+                                        class="focus:ring-luminara-gold focus:border-luminara-gold w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-10 text-sm font-bold text-gray-900 md:text-base"
+                                        placeholder="0"
+                                        oninput="formatRupiah(this, 'dp_amount'); checkPaymentStatus()">
                                     <input type="hidden" name="dp_amount" id="dp_amount" value="0">
 
                                     <!-- Green Checkmark Indicator -->
-                                    <div id="payment-check" class="hidden absolute inset-y-0 right-0 items-center pr-3 text-green-500">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    <div id="payment-check"
+                                        class="absolute inset-y-0 right-0 hidden items-center pr-3 text-green-500">
+                                        <svg class="h-6 w-6" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
                                     </div>
                                 </div>
-                                <p class="text-[10px] text-gray-500 mt-1" id="payment-status-text">Masukkan jumlah yang ditransfer (DP Minimal 500rb atau Pelunasan).</p>
+                                <p class="mt-1 text-[10px] text-gray-500" id="payment-status-text">Masukkan jumlah
+                                    yang ditransfer (DP Minimal 500rb atau Pelunasan).</p>
                             </div>
 
                             <div class="space-y-2">
-                                <label class="block text-sm font-medium text-gray-700">Upload Bukti Transfer DP <span class="text-gray-400 font-normal">(Opsional)</span></label>
-                                <div class="relative group">
-                                    <input type="file" name="payment_proof" id="payment_proof" accept="image/*" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-luminara-gold focus:border-luminara-gold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-luminara-gold hover:file:bg-yellow-100">
+                                <label class="block text-sm font-medium text-gray-700">Upload Bukti Transfer DP <span
+                                        class="font-normal text-gray-400">(Opsional)</span></label>
+                                <div class="group relative">
+                                    <input type="file" name="payment_proof" id="payment_proof" accept="image/*"
+                                        class="focus:ring-luminara-gold focus:border-luminara-gold file:text-luminara-gold w-full rounded-xl border border-gray-300 px-4 py-3 file:mr-4 file:rounded-full file:border-0 file:bg-yellow-50 file:px-4 file:py-2 file:text-sm file:font-semibold hover:file:bg-yellow-100">
                                 </div>
-                                <p class="text-[10px] md:text-xs text-gray-500">Format: JPG, PNG. Maksimal 5MB. <br> <span class="text-luminara-gold">Tips:</span> Upload sekarang untuk mempercepat verifikasi jadwal.</p>
+                                <p class="text-[10px] text-gray-500 md:text-xs">Format: JPG, PNG. Maksimal 5MB. <br>
+                                    <span class="text-luminara-gold">Tips:</span> Upload sekarang untuk mempercepat
+                                    verifikasi jadwal.</p>
                             </div>
                         </div>
 
@@ -378,7 +392,8 @@
                                 class="bg-luminara-gold w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-yellow-600">
                                 Konfirmasi
                             </button>
-                            <div id="package-error" class="hidden mt-2 text-center text-sm text-red-600 font-bold animate-bounce">
+                            <div id="package-error"
+                                class="mt-2 hidden animate-bounce text-center text-sm font-bold text-red-600">
                                 Silakan pilih salah satu paket terlebih dahulu!
                             </div>
                             <p class="mt-4 text-center text-xs text-gray-500">
@@ -421,16 +436,16 @@
 
         // Build packages object from Backend
         const availablePackages = {
-            @foreach($packages as $pkg)
-            '{{ $pkg->type }}': {
-                name: '{{ $pkg->name }}',
-                base: {{ $pkg->base_price }},
-                prices: {
-                    @foreach($pkg->prices as $price)
-                        {{ $price->duration_hours }}: {{ $price->price }},
-                    @endforeach
-                }
-            },
+            @foreach ($packages as $pkg)
+                '{{ $pkg->type }}': {
+                    name: '{{ $pkg->name }}',
+                    base: {{ $pkg->base_price }},
+                    prices: {
+                        @foreach ($pkg->prices as $price)
+                            {{ $price->duration_hours }}: {{ $price->price }},
+                        @endforeach
+                    }
+                },
             @endforeach
         };
 
@@ -442,7 +457,9 @@
             if (!packageName) {
                 const errorDiv = document.getElementById('package-error');
                 errorDiv.classList.remove('hidden');
-                document.querySelector('h2').scrollIntoView({ behavior: 'smooth' }); // Scroll to Package section
+                document.querySelector('h2').scrollIntoView({
+                    behavior: 'smooth'
+                }); // Scroll to Package section
                 return;
             }
 
@@ -553,7 +570,7 @@
             document.getElementById('package_type').value = type;
 
             // Get base price from object to be safe, though passed in param
-            if(availablePackages[type]) {
+            if (availablePackages[type]) {
                 basePrice = availablePackages[type].base;
             } else {
                 basePrice = price;
@@ -570,7 +587,7 @@
             select.innerHTML = ''; // Clear options
 
             if (availablePackages[type] && availablePackages[type].prices) {
-                const durations = Object.keys(availablePackages[type].prices).map(Number).sort((a,b) => a-b);
+                const durations = Object.keys(availablePackages[type].prices).map(Number).sort((a, b) => a - b);
 
                 durations.forEach(hours => {
                     const option = document.createElement('option');
@@ -599,7 +616,8 @@
             const type = document.getElementById('package_type').value;
             let total = 0;
 
-            if (type && availablePackages[type] && availablePackages[type].prices && availablePackages[type].prices[duration]) {
+            if (type && availablePackages[type] && availablePackages[type].prices && availablePackages[type].prices[
+                    duration]) {
                 // Exact match from DB
                 total = availablePackages[type].prices[duration];
             } else {
@@ -683,7 +701,8 @@
                 disable: [
                     function(date) {
                         // Check if date is blocked or full (Using local date components to avoid UTC shift)
-                        const offsetDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+                        const offsetDate = new Date(date.getTime() - (date.getTimezoneOffset() *
+                            60000));
                         const dateStr = offsetDate.toISOString().slice(0, 10);
 
                         const data = availabilityData.find(item => item.date === dateStr);
@@ -695,7 +714,8 @@
                 ],
                 onDayCreate: function(dObj, dStr, fp, dayElem) {
                     const date = dayElem.dateObj;
-                    const offsetDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+                    const offsetDate = new Date(date.getTime() - (date.getTimezoneOffset() *
+                    60000));
                     const dateStr = offsetDate.toISOString().slice(0, 10);
 
                     const data = availabilityData.find(item => item.date === dateStr);
