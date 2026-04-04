@@ -18,7 +18,7 @@
     <meta property="og:description"
         content="{{ $page->meta_description ?? $page->groom_name . ' & ' . $page->bride_name . ' - Undangan Pernikahan Digital' }}">
     <meta property="og:image" content="{{ $page->og_image ?? asset('/images/logo.png') }}">
-    <meta property="og:site_name" content="Luminara Group Bali">
+    <meta property="og:site_name" content="Luminara Bali Bali">
     <meta property="og:locale" content="id_ID">
 
     {{-- Twitter Card --}}

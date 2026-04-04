@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <x-seo title="Luminara Group - Premium Wedding & Event Documentation & Photobooth Bali"
-        description="Luminara Group menyediakan layanan Photobooth dan Visual Documentation premium untuk pernikahan, graduation, dan acara spesial lainnya di Bali."
+    <x-seo title="Luminara Bali - Premium Wedding & Event Documentation & Photobooth Bali"
+        description="Luminara Bali menyediakan layanan Photobooth dan Visual Documentation premium untuk pernikahan, graduation, dan acara spesial lainnya di Bali."
         keywords="luminara, photobooth bali, wedding photography bali, event documentation, 360 video booth, graduation photobooth"
         og_image="/images/logo.png" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,8 +42,7 @@
 
     <!-- Central Logo -->
     <div class="absolute left-1/2 top-8 z-30 w-32 -translate-x-1/2 mix-blend-difference md:w-40">
-        <img src="/images/Logo Luminara Visual-WHITE-TPR.png" alt="Luminara Group"
-            class="h-auto w-full drop-shadow-2xl">
+        <img src="/images/Logo Luminara Visual-WHITE-TPR.png" alt="Luminara Bali" class="h-auto w-full drop-shadow-2xl">
     </div>
 
     <main class="split-bg flex min-h-screen flex-col lg:flex-row">
@@ -100,7 +99,7 @@
     </main>
 
     <footer class="pointer-events-none fixed bottom-4 z-20 w-full text-center">
-        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">© {{ date('Y') }} Luminara Group
+        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">© {{ date('Y') }} Luminara Bali
             Bali</p>
     </footer>
 
