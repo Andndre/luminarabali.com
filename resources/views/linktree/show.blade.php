@@ -180,21 +180,21 @@
                 <a href="{{ $link->url }}" target="_blank" rel="noopener noreferrer"
                     class="block overflow-hidden rounded-2xl bg-white shadow-sm transition-transform duration-200 hover:scale-[1.02] hover:shadow-md">
 
-                    @if ($link->thumbnail)
-                        <div class="relative h-36 w-full overflow-hidden bg-gray-100">
-                            <img src="{{ asset('storage/' . $link->thumbnail) }}" alt="{{ $link->title }}"
-                                class="h-full w-full object-cover">
-                        </div>
-                    @endif
-
                     <div class="flex items-center gap-3 p-3">
-                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-pink-50">
-                            <svg class="h-5 w-5 text-pink-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                            </svg>
-                        </div>
+                        @if ($link->thumbnail)
+                            <div class="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                                <img src="{{ asset('storage/' . $link->thumbnail) }}" alt="{{ $link->title }}"
+                                    class="h-full w-full object-cover">
+                            </div>
+                        @else
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-pink-50">
+                                <svg class="h-5 w-5 text-pink-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                            </div>
+                        @endif
 
                         <div class="min-w-0 flex-1">
                             <div class="truncate text-sm font-semibold text-gray-900">{{ $link->title }}</div>
