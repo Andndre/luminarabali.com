@@ -35,7 +35,9 @@ class LinktreeController extends Controller
                 ->get()
                 ->map(function ($booking) {
                     return (object) [
-                        'title' => $booking->customer_name,
+                        'title' => $booking->event_type && $booking->event_type !== '-'
+                            ? $booking->event_type
+                            : $booking->customer_name,
                         'url' => $booking->link_drive,
                         'thumbnail' => $booking->thumbnail ?? null,
                         'type' => 'booking',

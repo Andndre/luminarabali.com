@@ -476,6 +476,7 @@ class BookingController extends Controller
             'status' => 'PENDING', // Default to pending, admin can update later
             'business_unit' => $businessUnit,
             'event_location' => $request->event_location ?? '-',
+            'event_type' => $request->event_type ?? '-',
             'payment_type' => 'MANUAL_ADMIN',
             'notes' => $request->notes,
             'link_drive' => $request->link_drive,
@@ -583,6 +584,7 @@ class BookingController extends Controller
             'status' => $request->status,
             'price_total' => $request->price_total,
             'notes' => $request->notes,
+            'event_type' => $request->event_type ?? $booking->event_type,
             'link_drive' => $request->link_drive,
             'thumbnail' => $thumbnailPath,
             'business_unit' => $package?->business_unit ?? $booking->business_unit,

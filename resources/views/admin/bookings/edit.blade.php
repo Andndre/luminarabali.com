@@ -43,6 +43,10 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Durasi (Jam)</label>
                             <input type="number" name="duration_hours" value="{{ old('duration_hours', $booking->duration_hours) }}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" required min="1">
                         </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Acara</label>
+                            <input type="text" name="event_type" value="{{ old('event_type', $booking->event_type) }}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" placeholder="Contoh: Pernikahan Budi & Ani">
+                        </div>
                     </div>
                 </div>
 
