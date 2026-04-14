@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
     <style>
+        [x-cloak] { display: none !important; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         /* Scrollbar untuk sidebar - Firefox */
         #sidebar nav { scrollbar-width: thin; scrollbar-color: #4B5563 transparent; }

@@ -295,6 +295,10 @@ class BookingController extends Controller
             ->whereIn('status', [Booking::STATUS_LUNAS, Booking::STATUS_DP_DIBAYAR])
             ->sum('price_total');
 
+        $totalRevenue = (clone $bookingQuery)
+            ->whereIn('status', [Booking::STATUS_LUNAS, Booking::STATUS_DP_DIBAYAR])
+            ->sum('price_total');
+
         $pendingCount = (clone $bookingQuery)->where('status', Booking::STATUS_PENDING)->count();
 
         // Upcoming Events (Next 7 Days)
@@ -305,7 +309,7 @@ class BookingController extends Controller
             ->orderBy('event_time', 'asc')
             ->get();
 
-        return view('admin.dashboard', compact('totalBookings', 'revenue', 'pendingCount', 'upcomingEvents'));
+        return view('admin.dashboard', compact('totalBookings', 'revenue', 'totalRevenue', 'pendingCount', 'upcomingEvents'));
     }
 
     // Admin: List Bookings

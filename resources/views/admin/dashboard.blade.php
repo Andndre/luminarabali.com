@@ -7,7 +7,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div class="flex items-center justify-between mb-4">
                 <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
@@ -27,7 +27,7 @@
                 <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Estimasi Pendapatan</span>
             </div>
             <h3 class="text-3xl font-bold text-gray-900">Rp {{ number_format($revenue, 0, ',', '.') }}</h3>
-            <p class="text-sm text-gray-500 mt-1">Bulan Ini (Status: Lunas/DP)</p>
+            <p class="text-sm text-gray-500 mt-1">Bulan Ini &mdash; Total Harga Booking (Lunas/DP)</p>
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -39,6 +39,26 @@
             </div>
             <h3 class="text-3xl font-bold text-gray-900">{{ $pendingCount }}</h3>
             <p class="text-sm text-gray-500 mt-1">Status PENDING</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100" x-data="{ visible: false }">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-purple-50 text-purple-600 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Penghasilan</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <h3 class="text-3xl font-bold text-gray-900">
+                    <span x-show="visible" x-cloak>Rp {{ number_format($totalRevenue, 0, ',', '.') }}</span>
+                    <span x-show="!visible" x-cloak>Rp ••••••••</span>
+                </h3>
+                <button @click="visible = !visible" class="text-gray-400 hover:text-gray-600 transition cursor-pointer shrink-0" :title="visible ? 'Sembunyikan' : 'Tampilkan'">
+                    <svg x-show="!visible" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    <svg x-show="visible" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">Semua Waktu (Lunas/DP)</p>
         </div>
     </div>
 
