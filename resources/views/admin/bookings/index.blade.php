@@ -470,6 +470,44 @@
 
             {{-- Mobile cards --}}
             <div class="block divide-y divide-gray-100 md:hidden">
+                {{-- Mobile: Sorting Controls --}}
+                <div class="flex items-center justify-between gap-2 bg-gray-50 px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-gray-500">Urutkan:</span>
+                        <select
+                            onchange="window.location.href=this.value"
+                            class="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-black">
+                            <option
+                                value="{{ route('admin.bookings.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'created_at', 'direction' => $sort === 'created_at' && $direction === 'asc' ? 'desc' : 'asc'])) }}"
+                                {{ $sort === 'created_at' ? 'selected' : '' }}>
+                                Tanggal Booking {{ $sort === 'created_at' ? ($direction === 'asc' ? '↑' : '↓') : '' }}
+                            </option>
+                            <option
+                                value="{{ route('admin.bookings.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'event_date', 'direction' => $sort === 'event_date' && $direction === 'asc' ? 'desc' : 'asc'])) }}"
+                                {{ $sort === 'event_date' ? 'selected' : '' }}>
+                                Tanggal Event {{ $sort === 'event_date' ? ($direction === 'asc' ? '↑' : '↓') : '' }}
+                            </option>
+                            <option
+                                value="{{ route('admin.bookings.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'price_total', 'direction' => $sort === 'price_total' && $direction === 'asc' ? 'desc' : 'asc'])) }}"
+                                {{ $sort === 'price_total' ? 'selected' : '' }}>
+                                Total Harga {{ $sort === 'price_total' ? ($direction === 'asc' ? '↑' : '↓') : '' }}
+                            </option>
+                        </select>
+                    </div>
+                    <a href="{{ route('admin.bookings.index', array_merge(request()->except('direction'), ['direction' => $direction === 'asc' ? 'desc' : 'asc'])) }}"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-100"
+                        title="{{ $direction === 'asc' ? 'Urutkan Terbalik' : 'Urutkan Normal' }}">
+                        @if ($direction === 'asc')
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                            </svg>
+                        @else
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"/>
+                            </svg>
+                        @endif
+                    </a>
+                </div>
                 @forelse($bookings as $booking)
                     <div class="space-y-3 p-4">
                         <div class="flex items-start justify-between">
