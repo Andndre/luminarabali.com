@@ -183,6 +183,13 @@ class InvoiceController extends Controller
             'status' => $request->balance_due <= 0 ? 'PAID' : ($request->dp_amount > 0 ? 'PARTIAL' : 'UNPAID'),
         ]);
 
+        // Sync price_total to booking so dashboard revenue stays accurate
+        if ($invoice->booking) {
+            $invoice->booking->update([
+                'price_total' => $invoice->grand_total,
+            ]);
+        }
+
         // Sync Items
         $invoice->items()->delete();
         
