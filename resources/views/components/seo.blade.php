@@ -18,7 +18,7 @@
     'keywords' => 'photobooth bali, wedding photography bali, event documentation, 360 video booth',
     'og_image' => '/images/logo.png',
     'og_type' => 'website',
-    'canonical' => '',
+    'canonical' => request()->url(),
     'noindex' => false,
 ])
 

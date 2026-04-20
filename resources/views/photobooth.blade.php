@@ -5,10 +5,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <x-seo title="Luminara Photobooth Bali - Foto Booth, 360 Video, & Cetak Instan untuk Acara Anda"
-        description="Luminara Photobooth Bali menyediakan layanan foto booth, 360 video booth, dan cetak instan berkualitas tinggi untuk pernikahan, graduation, dan berbagai acara spesial."
-        keywords="photobooth bali, 360 video booth bali, foto booth cetak instan, photobooth untuk pernikahan, photobooth graduation bali"
+    <x-seo title="Jasa Photobooth di Bali - Video 360 & Photobooth Print | Luminara"
+        description="Luminara menyediakan jasa photobooth di Bali dengan layanan Video 360, Photobooth Print (cetak instan), dan paket event dengan gratis transport area Bali. Cocok untuk wedding, ulang tahun, dan acara kampus."
+        keywords="photobooth di bali, jasa photobooth di bali, photobooth, video 360, photobooth print, photobooth free transport"
         og_image="/images/logo.png" />
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "Service",
+                    "@id": "https://luminarabali.com/photobooth#service",
+                    "name": "Jasa Photobooth di Bali",
+                    "url": "https://luminarabali.com/photobooth",
+                    "serviceType": "Photobooth",
+                    "description": "Layanan Photobooth Print, Video 360, dan paket event dengan gratis transport area Bali.",
+                    "provider": {
+                        "@type": "LocalBusiness",
+                        "@id": "https://luminarabali.com/#business",
+                        "name": "Luminara Bali"
+                    },
+                    "areaServed": {
+                        "@type": "AdministrativeArea",
+                        "name": "Bali"
+                    },
+                    "hasOfferCatalog": {
+                        "@type": "OfferCatalog",
+                        "name": "Paket Photobooth",
+                        "itemListElement": [
+                            {
+                                "@type": "Offer",
+                                "itemOffered": {
+                                    "@type": "Service",
+                                    "name": "Photobooth Print Unlimited"
+                                }
+                            },
+                            {
+                                "@type": "Offer",
+                                "itemOffered": {
+                                    "@type": "Service",
+                                    "name": "Video 360 Unlimited"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "@type": "FAQPage",
+                    "@id": "https://luminarabali.com/photobooth#faq",
+                    "mainEntity": [
+                        {
+                            "@type": "Question",
+                            "name": "Apakah tersedia layanan Photobooth Print?",
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": "Ya, tersedia paket Photobooth Print dengan cetak instan sesuai jenis paket yang dipilih."
+                            }
+                        },
+                        {
+                            "@type": "Question",
+                            "name": "Apakah ada layanan Video 360?",
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": "Ya, tersedia layanan Video 360 untuk acara wedding, corporate, ulang tahun, dan event kampus."
+                            }
+                        },
+                        {
+                            "@type": "Question",
+                            "name": "Apakah tersedia free transport di Bali?",
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": "Untuk paket tertentu tersedia gratis transport area Bali sesuai ketentuan paket."
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap"

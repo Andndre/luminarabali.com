@@ -5,10 +5,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <x-seo title="Luminara Bali - Premium Wedding & Event Documentation & Photobooth Bali"
-        description="Luminara Bali menyediakan layanan Photobooth dan Visual Documentation premium untuk pernikahan, graduation, dan acara spesial lainnya di Bali."
-        keywords="luminara, photobooth bali, wedding photography bali, event documentation, 360 video booth, graduation photobooth"
+    <x-seo title="Luminara Bali - Photobooth di Bali, Video 360, dan Foto Wisuda"
+        description="Luminara Bali menyediakan layanan photobooth di Bali, video 360, photobooth print, dan dokumentasi visual untuk wedding, wisuda, dan berbagai acara spesial."
+        keywords="photobooth di bali, photobooth, jasa photobooth di bali, video 360, photobooth print, foto wisuda"
         og_image="/images/logo.png" />
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "LocalBusiness",
+                    "@id": "https://luminarabali.com/#business",
+                    "name": "Luminara Bali",
+                    "url": "https://luminarabali.com",
+                    "image": "https://luminarabali.com/images/logo.png",
+                    "description": "Jasa photobooth dan dokumentasi visual untuk wedding, wisuda, dan event di Bali.",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Bali",
+                        "addressCountry": "ID"
+                    },
+                    "areaServed": {
+                        "@type": "AdministrativeArea",
+                        "name": "Bali"
+                    },
+                    "knowsAbout": [
+                        "Photobooth di Bali",
+                        "Video 360",
+                        "Photobooth Print",
+                        "Foto Wisuda"
+                    ]
+                },
+                {
+                    "@type": "WebSite",
+                    "@id": "https://luminarabali.com/#website",
+                    "url": "https://luminarabali.com",
+                    "name": "Luminara Bali",
+                    "inLanguage": "id-ID",
+                    "publisher": {
+                        "@id": "https://luminarabali.com/#business"
+                    }
+                }
+            ]
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap"

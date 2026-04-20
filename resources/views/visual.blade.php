@@ -5,10 +5,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <x-seo title="Luminara Visual Bali - Premium Wedding, Graduation & Event Photography & Videography"
-        description="Luminara Visual Bali hadir dengan layanan dokumentasi pernikahan, graduation, dan acara spesial dengan gaya cinematic dan sinematik yang premium."
-        keywords="wedding photography bali, wedding videography bali, graduation photography, event documentation bali, cinematik wedding, dokumentasi pernikahan bali"
+    <x-seo title="Luminara Visual Bali - Foto Wisuda, Wedding, dan Event Documentation"
+        description="Luminara Visual Bali melayani foto wisuda, dokumentasi pernikahan, dan event photography videography dengan hasil cinematic untuk area Bali."
+        keywords="foto wisuda, foto wisuda bali, wedding photography bali, wedding videography bali, event documentation bali, dokumentasi pernikahan bali"
         og_image="/images/logo.png" />
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            "@id": "https://luminarabali.com/visual#service",
+            "name": "Jasa Foto Wisuda dan Dokumentasi Visual di Bali",
+            "url": "https://luminarabali.com/visual",
+            "serviceType": "Photography and Videography",
+            "description": "Layanan foto wisuda, wedding photography, dan event documentation dengan gaya cinematic di Bali.",
+            "provider": {
+                "@type": "LocalBusiness",
+                "@id": "https://luminarabali.com/#business",
+                "name": "Luminara Bali"
+            },
+            "areaServed": {
+                "@type": "AdministrativeArea",
+                "name": "Bali"
+            },
+            "hasOfferCatalog": {
+                "@type": "OfferCatalog",
+                "name": "Layanan Visual",
+                "itemListElement": [
+                    {
+                        "@type": "Offer",
+                        "itemOffered": {
+                            "@type": "Service",
+                            "name": "Foto Wisuda"
+                        }
+                    },
+                    {
+                        "@type": "Offer",
+                        "itemOffered": {
+                            "@type": "Service",
+                            "name": "Wedding Documentation"
+                        }
+                    }
+                ]
+            }
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
