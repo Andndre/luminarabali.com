@@ -154,12 +154,16 @@
                                 @switch($invoice->status)
                                     @case('LUNAS')
                                         <span class="rounded bg-green-100 px-2 py-1 text-xs font-bold text-green-700">LUNAS</span>
-                                        @break
+                                    @break
+
                                     @case('DP_BAYAR')
-                                        <span class="rounded bg-blue-100 px-2 py-1 text-xs font-bold text-blue-700">DP DIBayar</span>
-                                        @break
+                                        <span class="rounded bg-blue-100 px-2 py-1 text-xs font-bold text-blue-700">DP
+                                            DIBayar</span>
+                                    @break
+
                                     @default
-                                        <span class="rounded bg-yellow-50 px-2 py-1 text-xs font-bold text-yellow-700">PENDING</span>
+                                        <span
+                                            class="rounded bg-yellow-50 px-2 py-1 text-xs font-bold text-yellow-700">PENDING</span>
                                 @endswitch
                             </td>
                             <td class="px-6 py-4">
@@ -171,7 +175,8 @@
                                             <button type="button" onclick="confirmMarkDp(this)"
                                                 class="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"
                                                 title="Tandai DP Dibayar">
-                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
                                                     </path>
@@ -180,13 +185,14 @@
                                         </form>
                                     @endif
                                     @if ($invoice->status !== 'LUNAS')
-                                        <form action="{{ route('admin.invoices.markAsPaid', $invoice->id) }}" method="POST"
-                                            class="mark-paid-form">
+                                        <form action="{{ route('admin.invoices.markAsPaid', $invoice->id) }}"
+                                            method="POST" class="mark-paid-form">
                                             @csrf
                                             <button type="button" onclick="confirmMarkPaid(this)"
                                                 class="rounded-lg p-2 text-green-600 transition hover:bg-green-50"
                                                 title="Tandai Lunas">
-                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
                                                     </path>
@@ -228,218 +234,225 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                                Belum ada invoice yang dibuat.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Mobile Card View -->
-        <div class="block divide-y divide-gray-100 md:hidden">
-            <div class="flex items-center justify-between gap-2 bg-gray-50 px-4 py-3">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold text-gray-500">Urutkan:</span>
-                    <select onchange="window.location.href=this.value"
-                        class="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-black">
-                        <option
-                            value="{{ route('admin.invoices.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'invoice_date', 'direction' => $sort === 'invoice_date' && $direction === 'asc' ? 'desc' : 'asc'])) }}"
-                            {{ $sort === 'invoice_date' ? 'selected' : '' }}>
-                            Tanggal Invoice {{ $sort === 'invoice_date' ? ($direction === 'asc' ? '↑' : '↓') : '' }}
-                        </option>
-                        <option
-                            value="{{ route('admin.invoices.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'created_at', 'direction' => $sort === 'created_at' && $direction === 'asc' ? 'desc' : 'asc'])) }}"
-                            {{ $sort === 'created_at' ? 'selected' : '' }}>
-                            Tanggal Buat {{ $sort === 'created_at' ? ($direction === 'asc' ? '↑' : '↓') : '' }}
-                        </option>
-                        <option
-                            value="{{ route('admin.invoices.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'grand_total', 'direction' => $sort === 'grand_total' && $direction === 'asc' ? 'desc' : 'asc'])) }}"
-                            {{ $sort === 'grand_total' ? 'selected' : '' }}>
-                            Total {{ $sort === 'grand_total' ? ($direction === 'asc' ? '↑' : '↓') : '' }}
-                        </option>
-                    </select>
-                </div>
-                <a href="{{ route('admin.invoices.index', array_merge(request()->except('direction'), ['direction' => $direction === 'asc' ? 'desc' : 'asc'])) }}"
-                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-100"
-                    title="{{ $direction === 'asc' ? 'Urutkan Terbalik' : 'Urutkan Normal' }}">
-                    @if ($direction === 'asc')
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                        </svg>
-                    @else
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
-                        </svg>
-                    @endif
-                </a>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                    Belum ada invoice yang dibuat.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            @forelse($invoices as $invoice)
-                @php
-                    $normalizedGrandTotal =
-                        (float) $invoice->subtotal - (float) $invoice->discount_amount + (float) $invoice->tax_amount;
-                    $normalizedBalanceDue = $normalizedGrandTotal - (float) $invoice->dp_amount;
-                @endphp
-                <div class="space-y-3 p-4">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <div class="mb-1 font-mono text-xs font-bold text-blue-600">
-                                {{ $invoice->invoice_number }}
-                                @if ($invoice->booking)
-                                    <span
-                                        class="ml-1 font-sans uppercase text-gray-400">({{ $invoice->booking->business_unit }})</span>
-                                @endif
-                            </div>
-                            <h3 class="font-bold text-gray-900">{{ $invoice->customer_name }}</h3>
-                            <div class="text-xs text-gray-500">{{ $invoice->customer_phone }}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="mb-1 text-xs text-gray-500">{{ $invoice->invoice_date->format('d/m/y') }}</div>
-                            @switch($invoice->status)
-                                @case('LUNAS')
-                                    <span class="inline-block rounded bg-green-100 px-2 py-1 text-[10px] font-bold text-green-700">LUNAS</span>
-                                    @break
-                                @case('DP_BAYAR')
-                                    <span class="inline-block rounded bg-blue-100 px-2 py-1 text-[10px] font-bold text-blue-700">DP DIBayar</span>
-                                    @break
-                                @default
-                                    <span class="inline-block rounded bg-yellow-50 px-2 py-1 text-[10px] font-bold text-yellow-700">PENDING</span>
-                            @endswitch
-                        </div>
-                    </div>
 
-                    <div class="flex items-center justify-between border-t border-gray-50 pt-2">
-                        <div class="font-bold text-gray-900">
-                            Rp {{ number_format($normalizedGrandTotal, 0, ',', '.') }}
+            <!-- Mobile Card View -->
+            <div class="block divide-y divide-gray-100 md:hidden">
+                <div class="flex items-center justify-between gap-2 bg-gray-50 px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-gray-500">Urutkan:</span>
+                        <select onchange="window.location.href=this.value"
+                            class="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-black">
+                            <option
+                                value="{{ route('admin.invoices.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'invoice_date', 'direction' => $sort === 'invoice_date' && $direction === 'asc' ? 'desc' : 'asc'])) }}"
+                                {{ $sort === 'invoice_date' ? 'selected' : '' }}>
+                                Tanggal Invoice {{ $sort === 'invoice_date' ? ($direction === 'asc' ? '↑' : '↓') : '' }}
+                            </option>
+                            <option
+                                value="{{ route('admin.invoices.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'created_at', 'direction' => $sort === 'created_at' && $direction === 'asc' ? 'desc' : 'asc'])) }}"
+                                {{ $sort === 'created_at' ? 'selected' : '' }}>
+                                Tanggal Buat {{ $sort === 'created_at' ? ($direction === 'asc' ? '↑' : '↓') : '' }}
+                            </option>
+                            <option
+                                value="{{ route('admin.invoices.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'grand_total', 'direction' => $sort === 'grand_total' && $direction === 'asc' ? 'desc' : 'asc'])) }}"
+                                {{ $sort === 'grand_total' ? 'selected' : '' }}>
+                                Total {{ $sort === 'grand_total' ? ($direction === 'asc' ? '↑' : '↓') : '' }}
+                            </option>
+                        </select>
+                    </div>
+                    <a href="{{ route('admin.invoices.index', array_merge(request()->except('direction'), ['direction' => $direction === 'asc' ? 'desc' : 'asc'])) }}"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-100"
+                        title="{{ $direction === 'asc' ? 'Urutkan Terbalik' : 'Urutkan Normal' }}">
+                        @if ($direction === 'asc')
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                            </svg>
+                        @else
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                            </svg>
+                        @endif
+                    </a>
+                </div>
+                @forelse($invoices as $invoice)
+                    @php
+                        $normalizedGrandTotal =
+                            (float) $invoice->subtotal -
+                            (float) $invoice->discount_amount +
+                            (float) $invoice->tax_amount;
+                        $normalizedBalanceDue = $normalizedGrandTotal - (float) $invoice->dp_amount;
+                    @endphp
+                    <div class="space-y-3 p-4">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="mb-1 font-mono text-xs font-bold text-blue-600">
+                                    {{ $invoice->invoice_number }}
+                                    @if ($invoice->booking)
+                                        <span
+                                            class="ml-1 font-sans uppercase text-gray-400">({{ $invoice->booking->business_unit }})</span>
+                                    @endif
+                                </div>
+                                <h3 class="font-bold text-gray-900">{{ $invoice->customer_name }}</h3>
+                                <div class="text-xs text-gray-500">{{ $invoice->customer_phone }}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="mb-1 text-xs text-gray-500">{{ $invoice->invoice_date->format('d/m/y') }}</div>
+                                @switch($invoice->status)
+                                    @case('LUNAS')
+                                        <span
+                                            class="inline-block rounded bg-green-100 px-2 py-1 text-[10px] font-bold text-green-700">LUNAS</span>
+                                    @break
+
+                                    @case('DP_BAYAR')
+                                        <span class="inline-block rounded bg-blue-100 px-2 py-1 text-[10px] font-bold text-blue-700">DP
+                                            DIBAYAR</span>
+                                    @break
+
+                                    @default
+                                        <span
+                                            class="inline-block rounded bg-yellow-50 px-2 py-1 text-[10px] font-bold text-yellow-700">PENDING</span>
+                                @endswitch
+                            </div>
                         </div>
-                        <div class="flex gap-2">
-                            @if ($invoice->status === 'PENDING')
-                                <form action="{{ route('admin.invoices.markAsDp', $invoice->id) }}" method="POST"
-                                    class="mark-dp-form">
-                                    @csrf
-                                    <button type="button" onclick="confirmMarkDp(this)"
-                                        class="rounded bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100"
-                                        title="Tandai DP Dibayar">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
-                                            </path>
-                                        </svg>
-                                    </button>
-                                </form>
-                            @endif
-                            @if ($invoice->status !== 'LUNAS')
-                                <form action="{{ route('admin.invoices.markAsPaid', $invoice->id) }}" method="POST"
-                                    class="mark-paid-form">
-                                    @csrf
-                                    <button type="button" onclick="confirmMarkPaid(this)"
-                                        class="rounded bg-green-50 p-1.5 text-green-600 hover:bg-green-100"
-                                        title="Tandai Lunas">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
-                                            </path>
-                                        </svg>
-                                    </button>
-                                </form>
-                            @endif
-                            <a href="{{ route('admin.invoices.edit', $invoice->id) }}"
-                                class="rounded bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                    </path>
-                                </svg>
-                            </a>
-                            <a href="{{ route('admin.invoices.print', $invoice->id) }}?print=1" target="_blank"
-                                class="rounded bg-gray-100 p-1.5 text-gray-600 hover:bg-gray-200">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                                    </path>
-                                </svg>
-                            </a>
-                            <form action="{{ route('admin.invoices.destroy', $invoice->id) }}" method="POST"
-                                class="delete-form">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" onclick="confirmDelete(this)"
-                                    class="rounded bg-red-50 p-1.5 text-red-600 hover:bg-red-100">
+
+                        <div class="flex items-center justify-between border-t border-gray-50 pt-2">
+                            <div class="font-bold text-gray-900">
+                                Rp {{ number_format($normalizedGrandTotal, 0, ',', '.') }}
+                            </div>
+                            <div class="flex gap-2">
+                                @if ($invoice->status === 'PENDING')
+                                    <form action="{{ route('admin.invoices.markAsDp', $invoice->id) }}" method="POST"
+                                        class="mark-dp-form">
+                                        @csrf
+                                        <button type="button" onclick="confirmMarkDp(this)"
+                                            class="rounded bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100"
+                                            title="Tandai DP Dibayar">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                @endif
+                                @if ($invoice->status !== 'LUNAS')
+                                    <form action="{{ route('admin.invoices.markAsPaid', $invoice->id) }}" method="POST"
+                                        class="mark-paid-form">
+                                        @csrf
+                                        <button type="button" onclick="confirmMarkPaid(this)"
+                                            class="rounded bg-green-50 p-1.5 text-green-600 hover:bg-green-100"
+                                            title="Tandai Lunas">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                @endif
+                                <a href="{{ route('admin.invoices.edit', $invoice->id) }}"
+                                    class="rounded bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                                         </path>
                                     </svg>
-                                </button>
-                            </form>
+                                </a>
+                                <a href="{{ route('admin.invoices.print', $invoice->id) }}?print=1" target="_blank"
+                                    class="rounded bg-gray-100 p-1.5 text-gray-600 hover:bg-gray-200">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                                        </path>
+                                    </svg>
+                                </a>
+                                <form action="{{ route('admin.invoices.destroy', $invoice->id) }}" method="POST"
+                                    class="delete-form">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" onclick="confirmDelete(this)"
+                                        class="rounded bg-red-50 p-1.5 text-red-600 hover:bg-red-100">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
+                    @empty
+                        <div class="p-8 text-center text-gray-500">Belum ada invoice.</div>
+                    @endforelse
                 </div>
-            @empty
-                <div class="p-8 text-center text-gray-500">Belum ada invoice.</div>
-            @endforelse
-        </div>
 
-        <div class="border-t border-gray-100 px-6 py-4">
-            {{ $invoices->links() }}
-        </div>
-    </div>
+                <div class="border-t border-gray-100 px-6 py-4">
+                    {{ $invoices->links() }}
+                </div>
+            </div>
 
-    <script>
-        function confirmDelete(button) {
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Invoice yang dihapus tidak dapat dikembalikan!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    button.closest('form').submit();
+            <script>
+                function confirmDelete(button) {
+                    Swal.fire({
+                        title: 'Apakah Anda yakin?',
+                        text: "Invoice yang dihapus tidak dapat dikembalikan!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            button.closest('form').submit();
+                        }
+                    })
                 }
-            })
-        }
 
-        function confirmMarkDp(button) {
-            Swal.fire({
-                title: 'Tandai DP Dibayar?',
-                text: "Invoice akan ditandai DP Dibayar.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#2563eb',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, DP Dibayar!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    button.closest('form').submit();
+                function confirmMarkDp(button) {
+                    Swal.fire({
+                        title: 'Tandai DP Dibayar?',
+                        text: "Invoice akan ditandai DP Dibayar.",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#2563eb',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Ya, DP Dibayar!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            button.closest('form').submit();
+                        }
+                    })
                 }
-            })
-        }
 
-        function confirmMarkPaid(button) {
-            Swal.fire({
-                title: 'Tandai Lunas?',
-                text: "Invoice akan ditandai lunas. Jumlah DP akan diset ke total invoice.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#16a34a',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Lunas!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    button.closest('form').submit();
+                function confirmMarkPaid(button) {
+                    Swal.fire({
+                        title: 'Tandai Lunas?',
+                        text: "Invoice akan ditandai lunas. Jumlah DP akan diset ke total invoice.",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#16a34a',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Ya, Lunas!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            button.closest('form').submit();
+                        }
+                    })
                 }
-            })
-        }
-    </script>
-@endsection
+            </script>
+        @endsection
