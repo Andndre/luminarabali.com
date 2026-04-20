@@ -9,16 +9,28 @@ use App\Models\InvoiceItem;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class InvoiceController extends Controller
 {
     // List Invoices
-    public function index()
+    public function index(Request $request)
     {
+        $sort = $request->query('sort', 'invoice_date');
+        $direction = $request->query('direction', 'desc');
+        $filter = $request->query('filter', 'semua');
+        $search = $request->query('search', '');
+
+        if (!in_array($sort, ['invoice_date', 'created_at', 'customer_name', 'grand_total'])) {
+            $sort = 'invoice_date';
+        }
+
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'desc';
+        }
+
         $userAuth = Auth::user()->id;
         $user = User::find($userAuth);
-        $query = Invoice::with('booking')->latest('invoice_date');
+        $query = Invoice::with('booking');
 
         if ($user->division !== 'super_admin') {
             // Filter invoices where the associated booking belongs to the division
@@ -43,8 +55,45 @@ class InvoiceController extends Controller
             // I will skip division filter for manual invoices (booking_id null) for now, or filter if I can.
         }
 
-        $invoices = $query->paginate(10);
-        return view('admin.invoices.index', compact('invoices'));
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                    ->orWhere('customer_name', 'like', "%{$search}%")
+                    ->orWhere('customer_phone', 'like', "%{$search}%");
+            });
+        }
+
+        $today = now()->toDateString();
+        switch ($filter) {
+            case 'hari_ini':
+                $query->whereDate('invoice_date', $today);
+                break;
+            case 'bulan_ini':
+                $query->whereYear('invoice_date', now()->year)
+                    ->whereMonth('invoice_date', now()->month);
+                break;
+            case 'lunas':
+                $query->where('status', 'PAID');
+                break;
+            case 'partial':
+                $query->where('status', 'PARTIAL');
+                break;
+            case 'unpaid':
+                $query->where('status', 'UNPAID');
+                break;
+            default:
+                break;
+        }
+
+        if ($sort === 'grand_total') {
+            // Sort by normalized grand total to stay consistent with UI display.
+            $query->orderByRaw('(subtotal - discount_amount + tax_amount) ' . $direction);
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+
+        $invoices = $query->paginate(10)->withQueryString();
+        return view('admin.invoices.index', compact('invoices', 'sort', 'direction', 'filter', 'search'));
     }
 
     // Show Create Form
