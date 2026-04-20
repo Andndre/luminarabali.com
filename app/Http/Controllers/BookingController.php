@@ -586,11 +586,12 @@ class BookingController extends Controller
             Storage::disk('public')->delete($oldThumbnail);
         }
 
-        // Sync grand_total to invoice so finance page stays accurate
+        // Sync booking data to invoice
         if ($booking->invoice) {
             $booking->invoice->update([
                 'grand_total' => $booking->price_total,
                 'balance_due' => max(0, $booking->price_total - $booking->invoice->dp_amount),
+                'status' => $booking->status,
             ]);
         }
 
@@ -620,6 +621,11 @@ class BookingController extends Controller
         ]);
 
         $booking->update(['status' => $request->status]);
+
+        // Sync status to invoice
+        if ($booking->invoice) {
+            $booking->invoice->update(['status' => $request->status]);
+        }
 
         return back()->with('success', 'Status updated.');
     }
