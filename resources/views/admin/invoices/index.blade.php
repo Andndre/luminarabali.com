@@ -164,6 +164,21 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-2">
+                                    @if ($invoice->status === 'PENDING')
+                                        <form action="{{ route('admin.invoices.markAsDp', $invoice->id) }}" method="POST"
+                                            class="mark-dp-form">
+                                            @csrf
+                                            <button type="button" onclick="confirmMarkDp(this)"
+                                                class="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"
+                                                title="Tandai DP Dibayar">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                                                    </path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @endif
                                     @if ($invoice->status !== 'LUNAS')
                                         <form action="{{ route('admin.invoices.markAsPaid', $invoice->id) }}" method="POST"
                                             class="mark-paid-form">
@@ -303,7 +318,22 @@
                             Rp {{ number_format($normalizedGrandTotal, 0, ',', '.') }}
                         </div>
                         <div class="flex gap-2">
-                            @if ($normalizedBalanceDue > 0)
+                            @if ($invoice->status === 'PENDING')
+                                <form action="{{ route('admin.invoices.markAsDp', $invoice->id) }}" method="POST"
+                                    class="mark-dp-form">
+                                    @csrf
+                                    <button type="button" onclick="confirmMarkDp(this)"
+                                        class="rounded bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100"
+                                        title="Tandai DP Dibayar">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            @endif
+                            @if ($invoice->status !== 'LUNAS')
                                 <form action="{{ route('admin.invoices.markAsPaid', $invoice->id) }}" method="POST"
                                     class="mark-paid-form">
                                     @csrf
@@ -370,6 +400,23 @@
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    button.closest('form').submit();
+                }
+            })
+        }
+
+        function confirmMarkDp(button) {
+            Swal.fire({
+                title: 'Tandai DP Dibayar?',
+                text: "Invoice akan ditandai DP Dibayar.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, DP Dibayar!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {

@@ -44,6 +44,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/invoices/{invoice}', [\App\Http\Controllers\Admin\InvoiceController::class, 'update'])->name('admin.invoices.update');
     Route::get('/invoices/{invoice}/print', [\App\Http\Controllers\Admin\InvoiceController::class, 'print'])->name('admin.invoices.print');
     Route::post('/invoices/{invoice}/mark-as-paid', [\App\Http\Controllers\Admin\InvoiceController::class, 'markAsPaid'])->name('admin.invoices.markAsPaid');
+    Route::post('/invoices/{invoice}/mark-as-dp', [\App\Http\Controllers\Admin\InvoiceController::class, 'markAsDp'])->name('admin.invoices.markAsDp');
 
     // Finance Route
     Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('admin.finance.index');

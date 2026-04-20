@@ -266,6 +266,19 @@ class InvoiceController extends Controller
         return view('admin.invoices.print', compact('invoice'));
     }
 
+    public function markAsDp(Invoice $invoice)
+    {
+        $invoice->update([
+            'status' => Invoice::STATUS_DP_BAYAR,
+        ]);
+
+        if ($invoice->booking) {
+            $invoice->booking->update(['status' => Booking::STATUS_DP_BAYAR]);
+        }
+
+        return back()->with('success', 'Invoice berhasil ditandai DP Dibayar.');
+    }
+
     public function markAsPaid(Invoice $invoice)
     {
         $invoice->update([
