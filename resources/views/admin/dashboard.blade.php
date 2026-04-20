@@ -90,7 +90,7 @@
                             <td class="py-4 px-4">
                                 @if($event->status == 'LUNAS')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">LUNAS</span>
-                                @elseif($event->status == 'DP_DIBAYAR')
+                                @elseif($event->status == 'DP_BAYAR')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">DP</span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{{ $event->status }}</span>
@@ -117,7 +117,7 @@
                         <div>
                             @if($event->status == 'LUNAS')
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">LUNAS</span>
-                            @elseif($event->status == 'DP_DIBAYAR')
+                            @elseif($event->status == 'DP_BAYAR')
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">DP</span>
                             @else
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-800">{{ $event->status }}</span>

@@ -20,8 +20,8 @@
                         'semua' => 'Semua',
                         'hari_ini' => 'Hari Ini',
                         'bulan_ini' => 'Bulan Ini',
-                        'unpaid' => 'Belum Lunas',
-                        'partial' => 'Partial',
+                        'pending' => 'Pending',
+                        'dp_bayar' => 'DP Dibayar',
                         'lunas' => 'Lunas',
                     ];
                 @endphp
@@ -151,20 +151,20 @@
                                 Rp {{ number_format($normalizedGrandTotal, 0, ',', '.') }}
                             </td>
                             <td class="px-6 py-4">
-                                @if ($normalizedBalanceDue <= 0)
-                                    <span
-                                        class="rounded bg-green-100 px-2 py-1 text-xs font-bold text-green-700">LUNAS</span>
-                                @elseif($invoice->dp_amount > 0)
-                                    <span
-                                        class="rounded bg-yellow-100 px-2 py-1 text-xs font-bold text-yellow-700">PARTIAL</span>
-                                @else
-                                    <span
-                                        class="rounded bg-gray-100 px-2 py-1 text-xs font-bold text-gray-600">UNPAID</span>
-                                @endif
+                                @switch($invoice->status)
+                                    @case('LUNAS')
+                                        <span class="rounded bg-green-100 px-2 py-1 text-xs font-bold text-green-700">LUNAS</span>
+                                        @break
+                                    @case('DP_BAYAR')
+                                        <span class="rounded bg-yellow-100 px-2 py-1 text-xs font-bold text-yellow-700">DP DIBayar</span>
+                                        @break
+                                    @default
+                                        <span class="rounded bg-gray-100 px-2 py-1 text-xs font-bold text-gray-600">PENDING</span>
+                                @endswitch
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-2">
-                                    @if ($normalizedBalanceDue > 0)
+                                    @if ($invoice->status !== 'LUNAS')
                                         <form action="{{ route('admin.invoices.markAsPaid', $invoice->id) }}" method="POST"
                                             class="mark-paid-form">
                                             @csrf
@@ -285,16 +285,16 @@
                         </div>
                         <div class="text-right">
                             <div class="mb-1 text-xs text-gray-500">{{ $invoice->invoice_date->format('d/m/y') }}</div>
-                            @if ($normalizedBalanceDue <= 0)
-                                <span
-                                    class="inline-block rounded bg-green-100 px-2 py-1 text-[10px] font-bold text-green-700">LUNAS</span>
-                            @elseif($invoice->dp_amount > 0)
-                                <span
-                                    class="inline-block rounded bg-yellow-100 px-2 py-1 text-[10px] font-bold text-yellow-700">PARTIAL</span>
-                            @else
-                                <span
-                                    class="inline-block rounded bg-gray-100 px-2 py-1 text-[10px] font-bold text-gray-600">UNPAID</span>
-                            @endif
+                            @switch($invoice->status)
+                                @case('LUNAS')
+                                    <span class="inline-block rounded bg-green-100 px-2 py-1 text-[10px] font-bold text-green-700">LUNAS</span>
+                                    @break
+                                @case('DP_BAYAR')
+                                    <span class="inline-block rounded bg-yellow-100 px-2 py-1 text-[10px] font-bold text-yellow-700">DP DIBayar</span>
+                                    @break
+                                @default
+                                    <span class="inline-block rounded bg-gray-100 px-2 py-1 text-[10px] font-bold text-gray-600">PENDING</span>
+                            @endswitch
                         </div>
                     </div>
 

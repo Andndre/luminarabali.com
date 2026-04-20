@@ -117,7 +117,6 @@
                             'dp' => 'DP Dibayar',
                             'belum_lunas' => 'Belum Lunas',
                             'lunas' => 'Lunas',
-                            'dibatalkan' => 'Dibatalkan',
                         ];
                     @endphp
                     @foreach ($filters as $key => $label)
@@ -365,7 +364,7 @@
                                         @php
                                             $statusClass = match ($booking->status) {
                                                 'LUNAS' => 'bg-green-50 text-green-700 focus:ring-green-400',
-                                                'DP_DIBAYAR' => 'bg-blue-50 text-blue-700 focus:ring-blue-400',
+                                                'DP_BAYAR' => 'bg-blue-50 text-blue-700 focus:ring-blue-400',
                                                 'PENDING' => 'bg-yellow-50 text-yellow-700 focus:ring-yellow-400',
                                                 default => 'bg-gray-100 text-gray-600 focus:ring-gray-300',
                                             };
@@ -375,14 +374,11 @@
                                             class="{{ $statusClass }} cursor-pointer rounded-full border-0 px-3 py-1.5 text-xs font-bold focus:ring-2 focus:ring-offset-0">
                                             <option value="PENDING"
                                                 {{ $booking->status === 'PENDING' ? 'selected' : '' }}>Pending</option>
-                                            <option value="DP_DIBAYAR"
-                                                {{ $booking->status === 'DP_DIBAYAR' ? 'selected' : '' }}>DP Dibayar
+                                            <option value="DP_BAYAR"
+                                                {{ $booking->status === 'DP_BAYAR' ? 'selected' : '' }}>DP Dibayar
                                             </option>
                                             <option value="LUNAS" {{ $booking->status === 'LUNAS' ? 'selected' : '' }}>
                                                 Lunas</option>
-                                            <option value="DIBATALKAN"
-                                                {{ $booking->status === 'DIBATALKAN' ? 'selected' : '' }}>Dibatalkan
-                                            </option>
                                         </select>
                                     </form>
                                 </td>
@@ -527,12 +523,10 @@
                                     class="{{ $statusClass }} rounded-full border-0 px-2 py-1 text-[10px] font-bold">
                                     <option value="PENDING" {{ $booking->status === 'PENDING' ? 'selected' : '' }}>
                                         Pending</option>
-                                    <option value="DP_DIBAYAR" {{ $booking->status === 'DP_DIBAYAR' ? 'selected' : '' }}>
+                                    <option value="DP_BAYAR" {{ $booking->status === 'DP_BAYAR' ? 'selected' : '' }}>
                                         DP</option>
                                     <option value="LUNAS" {{ $booking->status === 'LUNAS' ? 'selected' : '' }}>Lunas
                                     </option>
-                                    <option value="DIBATALKAN" {{ $booking->status === 'DIBATALKAN' ? 'selected' : '' }}>
-                                        Batal</option>
                                 </select>
                             </form>
                         </div>
@@ -739,10 +733,8 @@
                                     <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold"
                                         :class="{
                                             'bg-green-50 text-green-700': selectedBooking.status === 'LUNAS',
-                                            'bg-blue-50 text-blue-700': selectedBooking.status === 'DP_DIBAYAR',
-                                            'bg-yellow-50 text-yellow-700': selectedBooking.status === 'PENDING',
-                                            'bg-gray-100 text-gray-600': selectedBooking.status === 'DIBATALKAN' || !
-                                                selectedBooking.status
+                                            'bg-blue-50 text-blue-700': selectedBooking.status === 'DP_BAYAR',
+                                            'bg-yellow-50 text-yellow-700': selectedBooking.status === 'PENDING'
                                         }"
                                         x-text="selectedBooking.status || 'PENDING'"></span>
                                 </div>

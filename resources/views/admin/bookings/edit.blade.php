@@ -105,9 +105,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Status Pembayaran</label>
                             <select name="status" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500">
                                 <option value="PENDING" {{ $booking->status == 'PENDING' ? 'selected' : '' }}>PENDING</option>
-                                <option value="DP_DIBAYAR" {{ $booking->status == 'DP_DIBAYAR' ? 'selected' : '' }}>DP DIBAYAR</option>
+                                <option value="DP_BAYAR" {{ $booking->status == 'DP_BAYAR' ? 'selected' : '' }}>DP DIBAYAR</option>
                                 <option value="LUNAS" {{ $booking->status == 'LUNAS' ? 'selected' : '' }}>LUNAS</option>
-                                <option value="DIBATALKAN" {{ $booking->status == 'DIBATALKAN' ? 'selected' : '' }}>DIBATALKAN</option>
                             </select>
                         </div>
                         <div>

@@ -44,9 +44,9 @@ class FinanceController extends Controller
             $totalRevenue += $paidAmount;
             $totalPotential += $invoice->balance_due;
 
-            if ($invoice->status === 'PAID' || $invoice->status === 'LUNAS') {
+            if ($invoice->status === \App\Models\Invoice::STATUS_LUNAS) {
                 $paidCount++;
-            } elseif ($invoice->status === 'PARTIAL' || $invoice->status === 'DP_DIBAYAR') {
+            } elseif ($invoice->status === \App\Models\Invoice::STATUS_DP_BAYAR) {
                 $partialCount++;
             }
         }

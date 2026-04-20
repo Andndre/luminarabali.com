@@ -24,9 +24,8 @@ class Booking extends Model
 
     // Enums for Status
     const STATUS_PENDING = 'PENDING';
-    const STATUS_DP_DIBAYAR = 'DP_DIBAYAR';
+    const STATUS_DP_BAYAR = 'DP_BAYAR';
     const STATUS_LUNAS = 'LUNAS';
-    const STATUS_DIBATALKAN = 'DIBATALKAN';
 
     public function invoice()
     {

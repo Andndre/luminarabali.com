@@ -153,8 +153,8 @@
                         </td>
                         <td class="px-6 py-4 text-center">
                             <span class="px-2 py-1 rounded-full text-xs font-bold 
-                                {{ $invoice->status == 'PAID' || $invoice->status == 'LUNAS' ? 'bg-green-100 text-green-800' : 
-                                  ($invoice->status == 'PARTIAL' || $invoice->status == 'DP_DIBAYAR' ? 'bg-blue-100 text-blue-800' : 
+                                {{ $invoice->status == 'LUNAS' ? 'bg-green-100 text-green-800' : 
+                                  ($invoice->status == 'DP_BAYAR' ? 'bg-blue-100 text-blue-800' : 
                                   'bg-gray-100 text-gray-800') }}">
                                 {{ $invoice->status }}
                             </span>
@@ -182,8 +182,8 @@
                     </div>
                     <div>
                         <span class="px-2 py-1 rounded-full text-[10px] font-bold 
-                            {{ $invoice->status == 'PAID' || $invoice->status == 'LUNAS' ? 'bg-green-100 text-green-800' : 
-                              ($invoice->status == 'PARTIAL' || $invoice->status == 'DP_DIBAYAR' ? 'bg-blue-100 text-blue-800' : 
+                            {{ $invoice->status == 'LUNAS' ? 'bg-green-100 text-green-800' : 
+                              ($invoice->status == 'DP_BAYAR' ? 'bg-blue-100 text-blue-800' : 
                               'bg-gray-100 text-gray-800') }}">
                             {{ $invoice->status }}
                         </span>

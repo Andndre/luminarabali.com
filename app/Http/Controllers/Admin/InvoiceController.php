@@ -73,13 +73,13 @@ class InvoiceController extends Controller
                     ->whereMonth('invoice_date', now()->month);
                 break;
             case 'lunas':
-                $query->where('status', 'PAID');
+                $query->where('status', Invoice::STATUS_LUNAS);
                 break;
-            case 'partial':
-                $query->where('status', 'PARTIAL');
+            case 'dp_bayar':
+                $query->where('status', Invoice::STATUS_DP_BAYAR);
                 break;
-            case 'unpaid':
-                $query->where('status', 'UNPAID');
+            case 'pending':
+                $query->where('status', Invoice::STATUS_PENDING);
                 break;
             default:
                 break;
@@ -128,7 +128,7 @@ class InvoiceController extends Controller
             'grand_total' => $request->grand_total,
             'dp_amount' => $request->dp_amount,
             'balance_due' => $request->balance_due,
-            'status' => $request->balance_due <= 0 ? 'PAID' : ($request->dp_amount > 0 ? 'PARTIAL' : 'UNPAID'),
+            'status' => $request->balance_due <= 0 ? Invoice::STATUS_LUNAS : ($request->dp_amount > 0 ? Invoice::STATUS_DP_BAYAR : Invoice::STATUS_PENDING),
         ]);
 
         // Update with formatted number
@@ -230,7 +230,7 @@ class InvoiceController extends Controller
             'dp_amount' => $request->dp_amount,
             'grand_total' => $request->grand_total,
             'balance_due' => $request->balance_due,
-            'status' => $request->balance_due <= 0 ? 'PAID' : ($request->dp_amount > 0 ? 'PARTIAL' : 'UNPAID'),
+            'status' => $request->balance_due <= 0 ? Invoice::STATUS_LUNAS : ($request->dp_amount > 0 ? Invoice::STATUS_DP_BAYAR : Invoice::STATUS_PENDING),
         ]);
 
         // Sync price_total to booking so dashboard revenue stays accurate
@@ -271,8 +271,12 @@ class InvoiceController extends Controller
         $invoice->update([
             'dp_amount' => $invoice->grand_total,
             'balance_due' => 0,
-            'status' => 'PAID',
+            'status' => Invoice::STATUS_LUNAS,
         ]);
+
+        if ($invoice->booking) {
+            $invoice->booking->update(['status' => Booking::STATUS_LUNAS]);
+        }
 
         return back()->with('success', 'Invoice berhasil ditandai Lunas.');
     }

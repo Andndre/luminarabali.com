@@ -116,7 +116,6 @@ class BookingController extends Controller
         // Get booking counts per date
         $bookings = Booking::select('event_date', DB::raw('count(*) as total'))
             ->whereBetween('event_date', [$start, $end])
-            ->where('status', '!=', Booking::STATUS_DIBATALKAN)
             ->groupBy('event_date')
             ->pluck('total', 'event_date')
             ->toArray();
@@ -156,9 +155,7 @@ class BookingController extends Controller
             return back()->withErrors(['event_date' => 'Tanggal ini tidak tersedia (Blocked).']);
         }
 
-        $count = Booking::where('event_date', $date)
-            ->where('status', '!=', Booking::STATUS_DIBATALKAN)
-            ->count();
+        $count = Booking::where('event_date', $date)->count();
 
         if ($count >= 4) {
             return back()->withErrors(['event_date' => 'Tanggal ini sudah penuh (Max 4 slot).']);
@@ -179,7 +176,7 @@ class BookingController extends Controller
                 $initialStatus = Booking::STATUS_LUNAS; // Or whatever status represents Paid
                 $statusPay = "LUNAS (Full Payment)";
             } else {
-                $initialStatus = Booking::STATUS_DP_DIBAYAR;
+                $initialStatus = Booking::STATUS_DP_BAYAR;
                 $statusPay = "DP (Down Payment)";
             }
 
@@ -228,7 +225,7 @@ class BookingController extends Controller
                 'grand_total' => $booking->price_total,
                 'dp_amount' => $dpAmount,
                 'balance_due' => $balanceDue,
-                'status' => $balanceDue <= 0 ? 'PAID' : ($dpAmount > 0 ? 'PARTIAL' : 'UNPAID'),
+                'status' => $balanceDue <= 0 ? Invoice::STATUS_LUNAS : ($dpAmount > 0 ? Invoice::STATUS_DP_BAYAR : Invoice::STATUS_PENDING),
             ]);
 
             InvoiceItem::create([
@@ -288,16 +285,14 @@ class BookingController extends Controller
             $bookingQuery->where('business_unit', $user->division);
         }
 
-        $totalBookings = (clone $bookingQuery)->whereBetween('event_date', [$startOfMonth, $endOfMonth])
-            ->where('status', '!=', Booking::STATUS_DIBATALKAN)
-            ->count();
+        $totalBookings = (clone $bookingQuery)->whereBetween('event_date', [$startOfMonth, $endOfMonth])->count();
 
         $revenue = (clone $bookingQuery)->whereBetween('event_date', [$startOfMonth, $endOfMonth])
-            ->whereIn('status', [Booking::STATUS_LUNAS, Booking::STATUS_DP_DIBAYAR])
+            ->whereIn('status', [Booking::STATUS_LUNAS, Booking::STATUS_DP_BAYAR])
             ->sum('price_total');
 
         $totalRevenue = (clone $bookingQuery)
-            ->whereIn('status', [Booking::STATUS_LUNAS, Booking::STATUS_DP_DIBAYAR])
+            ->whereIn('status', [Booking::STATUS_LUNAS, Booking::STATUS_DP_BAYAR])
             ->sum('price_total');
 
         $pendingCount = (clone $bookingQuery)->where('status', Booking::STATUS_PENDING)->count();
@@ -305,7 +300,6 @@ class BookingController extends Controller
         // Upcoming Events (Next 7 Days)
         $upcomingEvents = (clone $bookingQuery)->where('event_date', '>=', now()->format('Y-m-d'))
             ->where('event_date', '<=', now()->addDays(7)->format('Y-m-d'))
-            ->where('status', '!=', Booking::STATUS_DIBATALKAN)
             ->orderBy('event_date', 'asc')
             ->orderBy('event_time', 'asc')
             ->get();
@@ -372,20 +366,16 @@ class BookingController extends Controller
                 $query->where('status', Booking::STATUS_PENDING);
                 break;
             case 'dp':
-                $query->where('status', Booking::STATUS_DP_DIBAYAR);
+                $query->where('status', Booking::STATUS_DP_BAYAR);
                 break;
             case 'lunas':
                 $query->where('status', Booking::STATUS_LUNAS);
                 break;
-            case 'dibatalkan':
-                $query->where('status', Booking::STATUS_DIBATALKAN);
-                break;
             case 'belum_lunas':
-                $query->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_DP_DIBAYAR]);
+                $query->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_DP_BAYAR]);
                 break;
             case 'mendatang':
-                $query->where('event_date', '>=', $today)
-                    ->where('status', '!=', Booking::STATUS_DIBATALKAN);
+                $query->where('event_date', '>=', $today);
                 break;
                 // 'semua' — no filter
         }
@@ -399,14 +389,13 @@ class BookingController extends Controller
         }
 
         $stats = [
-            'semua'        => (clone $statsQuery)->where('status', '!=', Booking::STATUS_DIBATALKAN)->count(),
+            'semua'        => (clone $statsQuery)->count(),
             'hari_ini'     => (clone $statsQuery)->where('event_date', $today)->count(),
             'besok'        => (clone $statsQuery)->where('event_date', now()->addDay()->format('Y-m-d'))->count(),
-            'mendatang'    => (clone $statsQuery)->where('event_date', '>=', $today)->where('status', '!=', Booking::STATUS_DIBATALKAN)->count(),
+            'mendatang'    => (clone $statsQuery)->where('event_date', '>=', $today)->count(),
             'pending'      => (clone $statsQuery)->where('status', Booking::STATUS_PENDING)->count(),
-            'belum_lunas'  => (clone $statsQuery)->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_DP_DIBAYAR])->count(),
+            'belum_lunas'  => (clone $statsQuery)->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_DP_BAYAR])->count(),
             'lunas'        => (clone $statsQuery)->where('status', Booking::STATUS_LUNAS)->count(),
-            'dibatalkan'   => (clone $statsQuery)->where('status', Booking::STATUS_DIBATALKAN)->count(),
         ];
 
         $query->orderBy($sort, $direction);
@@ -505,7 +494,7 @@ class BookingController extends Controller
                 'grand_total' => $request->price_total,
                 'dp_amount' => $dpAmount,
                 'balance_due' => $balanceDue,
-                'status' => 'UNPAID',
+                'status' => Invoice::STATUS_PENDING,
             ]);
 
             InvoiceItem::create([
@@ -542,7 +531,7 @@ class BookingController extends Controller
             'event_time' => 'required',
             'duration_hours' => 'required|integer|min:1',
             'package_type' => 'required|string',
-            'status' => 'required|in:PENDING,DP_DIBAYAR,LUNAS,DIBATALKAN',
+            'status' => 'required|in:PENDING,DP_BAYAR,LUNAS',
             'price_total' => 'required|numeric',
             'link_drive' => 'nullable|url',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120'
@@ -629,7 +618,7 @@ class BookingController extends Controller
     {
         $booking = Booking::findOrFail($id);
         $request->validate([
-            'status' => 'required|in:PENDING,DP_DIBAYAR,LUNAS,DIBATALKAN'
+            'status' => 'required|in:PENDING,DP_BAYAR,LUNAS'
         ]);
 
         $booking->update(['status' => $request->status]);
