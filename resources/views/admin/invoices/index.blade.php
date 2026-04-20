@@ -156,10 +156,10 @@
                                         <span class="rounded bg-green-100 px-2 py-1 text-xs font-bold text-green-700">LUNAS</span>
                                         @break
                                     @case('DP_BAYAR')
-                                        <span class="rounded bg-yellow-100 px-2 py-1 text-xs font-bold text-yellow-700">DP DIBayar</span>
+                                        <span class="rounded bg-blue-100 px-2 py-1 text-xs font-bold text-blue-700">DP DIBayar</span>
                                         @break
                                     @default
-                                        <span class="rounded bg-gray-100 px-2 py-1 text-xs font-bold text-gray-600">PENDING</span>
+                                        <span class="rounded bg-yellow-50 px-2 py-1 text-xs font-bold text-yellow-700">PENDING</span>
                                 @endswitch
                             </td>
                             <td class="px-6 py-4">
@@ -305,10 +305,10 @@
                                     <span class="inline-block rounded bg-green-100 px-2 py-1 text-[10px] font-bold text-green-700">LUNAS</span>
                                     @break
                                 @case('DP_BAYAR')
-                                    <span class="inline-block rounded bg-yellow-100 px-2 py-1 text-[10px] font-bold text-yellow-700">DP DIBayar</span>
+                                    <span class="inline-block rounded bg-blue-100 px-2 py-1 text-[10px] font-bold text-blue-700">DP DIBayar</span>
                                     @break
                                 @default
-                                    <span class="inline-block rounded bg-gray-100 px-2 py-1 text-[10px] font-bold text-gray-600">PENDING</span>
+                                    <span class="inline-block rounded bg-yellow-50 px-2 py-1 text-[10px] font-bold text-yellow-700">PENDING</span>
                             @endswitch
                         </div>
                     </div>

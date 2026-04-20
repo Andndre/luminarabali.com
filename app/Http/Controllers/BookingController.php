@@ -391,10 +391,8 @@ class BookingController extends Controller
         $stats = [
             'semua'        => (clone $statsQuery)->count(),
             'hari_ini'     => (clone $statsQuery)->where('event_date', $today)->count(),
-            'besok'        => (clone $statsQuery)->where('event_date', now()->addDay()->format('Y-m-d'))->count(),
-            'mendatang'    => (clone $statsQuery)->where('event_date', '>=', $today)->count(),
             'pending'      => (clone $statsQuery)->where('status', Booking::STATUS_PENDING)->count(),
-            'belum_lunas'  => (clone $statsQuery)->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_DP_BAYAR])->count(),
+            'dp'           => (clone $statsQuery)->where('status', Booking::STATUS_DP_BAYAR)->count(),
             'lunas'        => (clone $statsQuery)->where('status', Booking::STATUS_LUNAS)->count(),
         ];
 

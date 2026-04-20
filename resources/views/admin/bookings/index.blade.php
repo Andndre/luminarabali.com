@@ -28,7 +28,7 @@
                 <div class="relative flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Hari Ini</p>
-                        <p class="mt-1 text-2xl font-bold text-gray-900">{{ $stats['hari_ini'] }}</p>
+                        <p class="mt-1 text-2xl font-bold text-gray-900">{{ $stats['hari_ini'] ?? 0 }}</p>
                     </div>
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 transition group-hover:scale-110">
@@ -40,19 +40,19 @@
                 </div>
             </a>
 
-            <a href="{{ route('admin.bookings.index', array_merge(request()->except('filter'), ['filter' => 'mendatang'])) }}"
-                class="group relative overflow-hidden rounded-xl border bg-white p-4 transition-all hover:border-blue-300 hover:shadow-md">
+            <a href="{{ route('admin.bookings.index', array_merge(request()->except('filter'), ['filter' => 'pending'])) }}"
+                class="group relative overflow-hidden rounded-xl border bg-white p-4 transition-all hover:border-yellow-300 hover:shadow-md">
                 <div
-                    class="bg-linear-to-r absolute inset-0 from-blue-50 to-transparent opacity-0 transition group-hover:opacity-100">
+                    class="bg-linear-to-r absolute inset-0 from-yellow-50 to-transparent opacity-0 transition group-hover:opacity-100">
                 </div>
                 <div class="relative flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Mendatang</p>
-                        <p class="mt-1 text-2xl font-bold text-gray-900">{{ $stats['mendatang'] }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Pending</p>
+                        <p class="mt-1 text-2xl font-bold text-yellow-600">{{ $stats['pending'] }}</p>
                     </div>
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 transition group-hover:scale-110">
-                        <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-50 transition group-hover:scale-110">
+                        <svg class="h-5 w-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -60,21 +60,21 @@
                 </div>
             </a>
 
-            <a href="{{ route('admin.bookings.index', array_merge(request()->except('filter'), ['filter' => 'belum_lunas'])) }}"
-                class="group relative overflow-hidden rounded-xl border bg-white p-4 transition-all hover:border-amber-300 hover:shadow-md">
+            <a href="{{ route('admin.bookings.index', array_merge(request()->except('filter'), ['filter' => 'dp'])) }}"
+                class="group relative overflow-hidden rounded-xl border bg-white p-4 transition-all hover:border-blue-300 hover:shadow-md">
                 <div
-                    class="bg-linear-to-r absolute inset-0 from-amber-50 to-transparent opacity-0 transition group-hover:opacity-100">
+                    class="bg-linear-to-r absolute inset-0 from-blue-50 to-transparent opacity-0 transition group-hover:opacity-100">
                 </div>
                 <div class="relative flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Belum Lunas</p>
-                        <p class="mt-1 text-2xl font-bold text-amber-600">{{ $stats['belum_lunas'] }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">DP Dibayar</p>
+                        <p class="mt-1 text-2xl font-bold text-blue-600">{{ $stats['dp'] }}</p>
                     </div>
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 transition group-hover:scale-110">
-                        <svg class="h-5 w-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 transition group-hover:scale-110">
+                        <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
                     </div>
                 </div>
@@ -115,7 +115,6 @@
                             'mendatang' => 'Mendatang',
                             'pending' => 'Pending',
                             'dp' => 'DP Dibayar',
-                            'belum_lunas' => 'Belum Lunas',
                             'lunas' => 'Lunas',
                         ];
                     @endphp
@@ -259,7 +258,7 @@
                             @php
                                 $statusClass = match ($booking->status) {
                                     'LUNAS' => 'bg-green-50 text-green-700',
-                                    'DP_BAYAR' => 'bg-blue-50 text-blue-700',
+                                    'DP_BAYAR' => 'bg-blue-100 text-blue-700',
                                     default => 'bg-yellow-50 text-yellow-700',
                                 };
                             @endphp
@@ -498,7 +497,7 @@
                     @php
                         $statusClass = match ($booking->status) {
                             'LUNAS' => 'bg-green-50 text-green-700',
-                            'DP_BAYAR' => 'bg-blue-50 text-blue-700',
+                            'DP_BAYAR' => 'bg-blue-100 text-blue-700',
                             default => 'bg-yellow-50 text-yellow-700',
                         };
                     @endphp
