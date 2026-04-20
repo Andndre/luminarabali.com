@@ -27,6 +27,12 @@
 <meta name="title" content="{{ $title }}">
 <meta name="description" content="{{ $description }}">
 <meta name="keywords" content="{{ $keywords }}">
+<link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="{{ asset('favicon-48x48.png') }}">
+<link rel="icon" type="image/png" sizes="192x192" href="{{ asset('favicon-192x192.png') }}">
+<link rel="icon" type="image/png" sizes="512x512" href="{{ asset('favicon-512x512.png') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+<link rel="manifest" href="{{ asset('site.webmanifest') }}">
 @if ($noindex)
     <meta name="robots" content="noindex, nofollow">
 @else

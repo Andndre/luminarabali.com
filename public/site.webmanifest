@@ -1,0 +1,21 @@
+{
+    "name": "Luminara Bali",
+    "short_name": "Luminara",
+    "description": "Luminara Bali - Photobooth, Video 360, dan layanan visual di Bali.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#0f0f0f",
+    "icons": [
+        {
+            "src": "/favicon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/favicon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
