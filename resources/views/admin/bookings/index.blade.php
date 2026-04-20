@@ -256,6 +256,13 @@
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @forelse($bookings as $booking)
+                            @php
+                                $statusClass = match ($booking->status) {
+                                    'LUNAS' => 'bg-green-50 text-green-700',
+                                    'DP_BAYAR' => 'bg-blue-50 text-blue-700',
+                                    default => 'bg-yellow-50 text-yellow-700',
+                                };
+                            @endphp
                             <tr class="group transition hover:bg-gray-50/70">
                                 {{-- Booking date --}}
                                 <td class="whitespace-nowrap px-5 py-3.5">
@@ -357,30 +364,13 @@
 
                                 {{-- Status --}}
                                 <td class="px-5 py-3.5">
-                                    <form action="{{ route('admin.bookings.update-status', $booking->id) }}"
-                                        method="POST" id="status-form-{{ $booking->id }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        @php
-                                            $statusClass = match ($booking->status) {
-                                                'LUNAS' => 'bg-green-50 text-green-700 focus:ring-green-400',
-                                                'DP_BAYAR' => 'bg-blue-50 text-blue-700 focus:ring-blue-400',
-                                                'PENDING' => 'bg-yellow-50 text-yellow-700 focus:ring-yellow-400',
-                                                default => 'bg-gray-100 text-gray-600 focus:ring-gray-300',
-                                            };
-                                        @endphp
-                                        <select name="status"
-                                            onchange="document.getElementById('status-form-{{ $booking->id }}').submit()"
-                                            class="{{ $statusClass }} cursor-pointer rounded-full border-0 px-3 py-1.5 text-xs font-bold focus:ring-2 focus:ring-offset-0">
-                                            <option value="PENDING"
-                                                {{ $booking->status === 'PENDING' ? 'selected' : '' }}>Pending</option>
-                                            <option value="DP_BAYAR"
-                                                {{ $booking->status === 'DP_BAYAR' ? 'selected' : '' }}>DP Dibayar
-                                            </option>
-                                            <option value="LUNAS" {{ $booking->status === 'LUNAS' ? 'selected' : '' }}>
-                                                Lunas</option>
-                                        </select>
-                                    </form>
+                                    <span class="{{ $statusClass }} rounded-full px-3 py-1.5 text-xs font-bold">
+                                        {{ match ($booking->status) {
+                                            'LUNAS' => 'Lunas',
+                                            'DP_BAYAR' => 'DP Dibayar',
+                                            default => 'Pending',
+                                        } }}
+                                    </span>
                                 </td>
 
                                 {{-- Actions --}}
@@ -505,6 +495,13 @@
                     </a>
                 </div>
                 @forelse($bookings as $booking)
+                    @php
+                        $statusClass = match ($booking->status) {
+                            'LUNAS' => 'bg-green-50 text-green-700',
+                            'DP_BAYAR' => 'bg-blue-50 text-blue-700',
+                            default => 'bg-yellow-50 text-yellow-700',
+                        };
+                    @endphp
                     <div class="space-y-3 p-4">
                         <div class="flex items-start justify-between">
                             <div class="min-w-0 flex-1">
@@ -515,20 +512,13 @@
                                         class="mt-1 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-gray-500">{{ $booking->business_unit }}</span>
                                 @endif
                             </div>
-                            <form action="{{ route('admin.bookings.update-status', $booking->id) }}" method="POST"
-                                id="sm-status-{{ $booking->id }}">
-                                @csrf @method('PATCH')
-                                <select name="status"
-                                    onchange="document.getElementById('sm-status-{{ $booking->id }}').submit()"
-                                    class="{{ $statusClass }} rounded-full border-0 px-2 py-1 text-[10px] font-bold">
-                                    <option value="PENDING" {{ $booking->status === 'PENDING' ? 'selected' : '' }}>
-                                        Pending</option>
-                                    <option value="DP_BAYAR" {{ $booking->status === 'DP_BAYAR' ? 'selected' : '' }}>
-                                        DP</option>
-                                    <option value="LUNAS" {{ $booking->status === 'LUNAS' ? 'selected' : '' }}>Lunas
-                                    </option>
-                                </select>
-                            </form>
+                            <span class="{{ $statusClass }} rounded-full px-2 py-1 text-[10px] font-bold">
+                                {{ match ($booking->status) {
+                                    'LUNAS' => 'Lunas',
+                                    'DP_BAYAR' => 'DP',
+                                    default => 'Pending',
+                                } }}
+                            </span>
                         </div>
                         <div class="grid grid-cols-2 gap-2 text-xs">
                             <div class="rounded-lg bg-gray-50 p-2">
