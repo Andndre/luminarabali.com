@@ -50,7 +50,7 @@ class BookingController extends Controller
             ->latest()
             ->limit(12)
             ->get()
-            ->map(function($gallery) {
+            ->map(function ($gallery) {
                 return [
                     'path' => asset('storage/' . $gallery->image_path),
                     'title' => $gallery->title ?? 'Visual Work'
@@ -66,8 +66,8 @@ class BookingController extends Controller
         $packages = \App\Models\Package::with(['prices' => function ($q) {
             $q->orderBy('duration_hours');
         }])->where('is_active', true)
-           ->where('business_unit', 'photobooth')
-           ->get();
+            ->where('business_unit', 'photobooth')
+            ->get();
 
         return view('pricelist_photobooth', compact('packages'));
     }
@@ -78,8 +78,8 @@ class BookingController extends Controller
         $packages = \App\Models\Package::with(['prices' => function ($q) {
             $q->orderBy('duration_hours');
         }])->where('is_active', true)
-           ->where('business_unit', 'visual')
-           ->get();
+            ->where('business_unit', 'visual')
+            ->get();
 
         return view('pricelist_visual', compact('packages'));
     }
@@ -224,7 +224,8 @@ class BookingController extends Controller
                 'customer_phone' => $booking->customer_phone,
                 'customer_email' => $booking->customer_email,
                 'subtotal' => $booking->price_total,
-                'grand_total' => $balanceDue,
+                // Grand total is the full billed amount; DP only affects balance_due.
+                'grand_total' => $booking->price_total,
                 'dp_amount' => $dpAmount,
                 'balance_due' => $balanceDue,
                 'status' => $balanceDue <= 0 ? 'PAID' : ($dpAmount > 0 ? 'PARTIAL' : 'UNPAID'),
@@ -342,8 +343,8 @@ class BookingController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%")
-                  ->orWhere('event_location', 'like', "%{$search}%");
+                    ->orWhere('customer_phone', 'like', "%{$search}%")
+                    ->orWhere('event_location', 'like', "%{$search}%");
             });
         }
 
@@ -384,9 +385,9 @@ class BookingController extends Controller
                 break;
             case 'mendatang':
                 $query->where('event_date', '>=', $today)
-                      ->where('status', '!=', Booking::STATUS_DIBATALKAN);
+                    ->where('status', '!=', Booking::STATUS_DIBATALKAN);
                 break;
-            // 'semua' — no filter
+                // 'semua' — no filter
         }
 
         // Stats for filter badges (scoped to same division rules)
@@ -500,7 +501,6 @@ class BookingController extends Controller
                 'invoice_date' => now(),
                 'customer_name' => $request->customer_name,
                 'customer_phone' => $request->customer_phone,
-                // 'customer_email' => ... admin form doesn't have email?
                 'subtotal' => $request->price_total,
                 'grand_total' => $request->price_total,
                 'dp_amount' => $dpAmount,

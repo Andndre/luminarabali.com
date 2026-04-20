@@ -53,6 +53,13 @@
 
     <div class="relative mx-auto w-[800px] rounded-lg bg-white p-12 shadow-lg print:w-full print:p-0 print:shadow-none">
 
+        @php
+            // Normalize display values for legacy invoices that may store inconsistent totals.
+            $normalizedGrandTotal =
+                (float) $invoice->subtotal - (float) $invoice->discount_amount + (float) $invoice->tax_amount;
+            $normalizedBalanceDue = $normalizedGrandTotal - (float) $invoice->dp_amount;
+        @endphp
+
         <!-- Header -->
         <div class="mb-8 flex flex-row items-start justify-between border-b pb-8">
             <div>
@@ -78,7 +85,7 @@
                 <p class="text-lg font-medium text-gray-600">#{{ $invoice->invoice_number }}</p>
                 <p class="mt-1 text-sm text-gray-500">Tanggal: {{ $invoice->invoice_date->format('d F Y') }}</p>
 
-                @if ($invoice->balance_due <= 0)
+                @if ($normalizedBalanceDue <= 0)
                     <div
                         class="mt-4 inline-block rounded border border-green-200 bg-green-100 px-4 py-1 text-sm font-bold uppercase tracking-wider text-green-700">
                         LUNAS
@@ -168,7 +175,7 @@
                     <tr class="border-t border-gray-300">
                         <td colspan="3" class="px-4 py-4 text-right text-lg font-bold text-gray-900">Grand Total</td>
                         <td class="px-4 py-4 text-right text-lg font-bold text-gray-900">Rp
-                            {{ number_format($invoice->grand_total, 0, ',', '.') }}</td>
+                            {{ number_format($normalizedGrandTotal, 0, ',', '.') }}</td>
                     </tr>
                     @if ($invoice->dp_amount > 0)
                         <tr>
@@ -179,7 +186,7 @@
                         <tr class="bg-yellow-50">
                             <td colspan="3" class="px-4 py-3 text-right font-bold text-yellow-800">Sisa Tagihan</td>
                             <td class="px-4 py-3 text-right text-lg font-bold text-red-600">Rp
-                                {{ number_format($invoice->balance_due, 0, ',', '.') }}</td>
+                                {{ number_format($normalizedBalanceDue, 0, ',', '.') }}</td>
                         </tr>
                     @endif
                 </tfoot>

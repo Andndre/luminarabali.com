@@ -31,7 +31,7 @@ class InvoiceController extends Controller
             // However, existing context implies Invoice belongs to a Booking.
             // For manual invoices, we'll try to link them or just show all for now if no booking.
             // BETTER: Filter by checking booking relation.
-            $query->whereHas('booking', function($q) use ($user) {
+            $query->whereHas('booking', function ($q) use ($user) {
                 $q->where('business_unit', $user->division);
             })->orWhereDoesntHave('booking'); // Show manual invoices to everyone or handle differently? 
             // Let's assume manual invoices are visible to all or just super_admin?
@@ -86,8 +86,8 @@ class InvoiceController extends Controller
         $invNumber = 'INV/' . now()->format('Y/m') . '/MAN-' . str_pad($invoice->id, 4, '0', STR_PAD_LEFT);
         $invoice->update(['invoice_number' => $invNumber]);
 
-        if($request->has('items')) {
-            foreach($request->items as $item) {
+        if ($request->has('items')) {
+            foreach ($request->items as $item) {
                 $invoice->items()->create([
                     'description' => $item['description'],
                     'quantity' => $item['quantity'],
@@ -114,7 +114,7 @@ class InvoiceController extends Controller
     public function show($id)
     {
         $booking = Booking::findOrFail($id);
-        
+
         $userAuth = Auth::user()->id;
         $user = User::find($userAuth);
         if ($user->division !== 'super_admin' && $booking->business_unit !== $user->division) {
@@ -127,7 +127,7 @@ class InvoiceController extends Controller
         if (!$invoice) {
             // Create initial invoice based on booking data
             $invNumber = 'INV/' . now()->format('Y/m') . '/' . str_pad($booking->id, 4, '0', STR_PAD_LEFT);
-            
+
             $invoice = Invoice::create([
                 'booking_id' => $booking->id,
                 'invoice_number' => $invNumber,
@@ -136,7 +136,8 @@ class InvoiceController extends Controller
                 'customer_phone' => $booking->customer_phone,
                 'customer_email' => $booking->customer_email,
                 'subtotal' => $booking->price_total,
-                'grand_total' => $booking->price_total - ($booking->dp_amount ?? 0),
+                // Grand total is total invoice value before DP deduction.
+                'grand_total' => $booking->price_total,
                 'dp_amount' => $booking->dp_amount ?? 0,
                 'balance_due' => $booking->price_total - ($booking->dp_amount ?? 0),
             ]);
@@ -163,7 +164,7 @@ class InvoiceController extends Controller
     public function update(Request $request, Invoice $invoice)
     {
         // Validation logic here if needed
-        
+
         $invoice->update([
             'customer_name' => $request->customer_name,
             'customer_phone' => $request->customer_phone,
@@ -192,9 +193,9 @@ class InvoiceController extends Controller
 
         // Sync Items
         $invoice->items()->delete();
-        
-        if($request->has('items')) {
-            foreach($request->items as $item) {
+
+        if ($request->has('items')) {
+            foreach ($request->items as $item) {
                 $invoice->items()->create([
                     'description' => $item['description'],
                     'quantity' => $item['quantity'],
