@@ -9,7 +9,8 @@
         description="Luminara menyediakan jasa photobooth di Bali dengan layanan Video 360, Photobooth Print (cetak instan), dan paket event dengan gratis transport area Bali. Cocok untuk wedding, ulang tahun, dan acara kampus."
         keywords="photobooth di bali, jasa photobooth di bali, photobooth, video 360, photobooth print, photobooth free transport"
         og_image="/images/logo.png" />
-    <script type="application/ld+json">
+    @verbatim
+        <script type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@graph": [
@@ -83,6 +84,7 @@
             ]
         }
     </script>
+    @endverbatim
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap"

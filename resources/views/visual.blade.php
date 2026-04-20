@@ -9,7 +9,8 @@
         description="Luminara Visual Bali melayani foto wisuda, dokumentasi pernikahan, dan event photography videography dengan hasil cinematic untuk area Bali."
         keywords="foto wisuda, foto wisuda bali, wedding photography bali, wedding videography bali, event documentation bali, dokumentasi pernikahan bali"
         og_image="/images/logo.png" />
-    <script type="application/ld+json">
+    @verbatim
+        <script type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "Service",
@@ -49,6 +50,7 @@
             }
         }
     </script>
+    @endverbatim
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
