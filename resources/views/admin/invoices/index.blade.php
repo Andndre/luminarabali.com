@@ -164,6 +164,21 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-2">
+                                    @if ($normalizedBalanceDue > 0)
+                                        <form action="{{ route('admin.invoices.markAsPaid', $invoice->id) }}" method="POST"
+                                            class="mark-paid-form">
+                                            @csrf
+                                            <button type="button" onclick="confirmMarkPaid(this)"
+                                                class="rounded-lg p-2 text-green-600 transition hover:bg-green-50"
+                                                title="Tandai Lunas">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                    </path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @endif
                                     <a href="{{ route('admin.invoices.edit', $invoice->id) }}"
                                         class="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50" title="Edit">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -288,6 +303,21 @@
                             Rp {{ number_format($normalizedGrandTotal, 0, ',', '.') }}
                         </div>
                         <div class="flex gap-2">
+                            @if ($normalizedBalanceDue > 0)
+                                <form action="{{ route('admin.invoices.markAsPaid', $invoice->id) }}" method="POST"
+                                    class="mark-paid-form">
+                                    @csrf
+                                    <button type="button" onclick="confirmMarkPaid(this)"
+                                        class="rounded bg-green-50 p-1.5 text-green-600 hover:bg-green-100"
+                                        title="Tandai Lunas">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            @endif
                             <a href="{{ route('admin.invoices.edit', $invoice->id) }}"
                                 class="rounded bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -340,6 +370,23 @@
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    button.closest('form').submit();
+                }
+            })
+        }
+
+        function confirmMarkPaid(button) {
+            Swal.fire({
+                title: 'Tandai Lunas?',
+                text: "Invoice akan ditandai lunas. Jumlah DP akan diset ke total invoice.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Lunas!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {

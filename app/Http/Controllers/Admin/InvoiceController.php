@@ -265,4 +265,15 @@ class InvoiceController extends Controller
         $invoice->load('items');
         return view('admin.invoices.print', compact('invoice'));
     }
+
+    public function markAsPaid(Invoice $invoice)
+    {
+        $invoice->update([
+            'dp_amount' => $invoice->grand_total,
+            'balance_due' => 0,
+            'status' => 'PAID',
+        ]);
+
+        return back()->with('success', 'Invoice berhasil ditandai Lunas.');
+    }
 }
