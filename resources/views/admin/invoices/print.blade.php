@@ -51,7 +51,7 @@
         </script>
     @endif
 
-    <div class="relative mx-auto w-[800px] rounded-lg bg-white p-12 shadow-lg print:w-full print:p-0 print:shadow-none">
+    <div class="w-200 relative mx-auto rounded-lg bg-white p-12 shadow-lg print:w-full print:p-0 print:shadow-none">
 
         @php
             // Normalize display values for legacy invoices that may store inconsistent totals.

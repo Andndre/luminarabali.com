@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <x-seo title="Booking Photobooth - Luminara Photobooth Bali"
-        description="Booking photobooth dan 360 video booth untuk acara Anda di Bali. Proses mudah, pembayaran aman via Midtrans, dan konfirmasi cepat."
+        description="Booking photobooth dan 360 video booth untuk acara Anda di Bali. Proses mudah dan konfirmasi cepat."
         keywords="booking photobooth bali, sewa photobooth, pesan photobooth online, booking 360 video booth"
         og_image="/images/logo.png" :noindex="true" />
     <script src="https://cdn.tailwindcss.com"></script>
