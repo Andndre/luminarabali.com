@@ -28,7 +28,7 @@ class BookingController extends Controller
             ->where('is_featured', true)
             ->latest()
             ->pluck('image_path')
-            ->map(fn($path) => asset('storage/' . $path))
+            ->map(fn ($path) => asset('storage/'.$path))
             ->toArray();
 
         return view('photobooth', compact('heroImages'));
@@ -42,7 +42,7 @@ class BookingController extends Controller
             ->where('is_featured', true)
             ->latest()
             ->pluck('image_path')
-            ->map(fn($path) => asset('storage/' . $path))
+            ->map(fn ($path) => asset('storage/'.$path))
             ->toArray();
 
         // Portfolio Images (All visual images, limit 12 for grid)
@@ -52,7 +52,7 @@ class BookingController extends Controller
             ->get()
             ->map(function ($gallery) {
                 return [
-                    'path' => asset('storage/' . $gallery->image_path),
+                    'path' => asset('storage/'.$gallery->image_path),
                     'title' => $gallery->title ?? 'Visual Work'
                 ];
             });
@@ -102,15 +102,13 @@ class BookingController extends Controller
     public function availability(Request $request)
     {
         $month = $request->query('month', date('Y-m')); // YYYY-MM
-        $start = $month . '-01';
+        $start = $month.'-01';
         $end = date('Y-m-t', strtotime($start));
 
         // Get blocked dates
         $blocked = BlockedDate::whereBetween('date', [$start, $end])
             ->get()
-            ->map(function ($item) {
-                return $item->date->format('Y-m-d');
-            })
+            ->map(fn ($item) => $item->date->format('Y-m-d'))
             ->toArray();
 
         // Get booking counts per date
@@ -130,7 +128,7 @@ class BookingController extends Controller
 
             $results[] = [
                 'date' => $date,
-                'booking_count' => (int)$count,
+                'booking_count' => (int) $count,
                 'max_booking' => 4,
                 'is_blocked' => $isBlocked
             ];
@@ -180,7 +178,7 @@ class BookingController extends Controller
                 $statusPay = "DP (Down Payment)";
             }
 
-            $waPaymentMsg = "Bukti pembayaran *{$statusPay}* sebesar *Rp " . number_format($amountPaid, 0, ',', '.') . "* sudah diupload ke sistem.";
+            $waPaymentMsg = "Bukti pembayaran *{$statusPay}* sebesar *Rp ".number_format($amountPaid, 0, ',', '.')."* sudah diupload ke sistem.";
         }
 
         $package = \App\Models\Package::where('type', $request->package_type)->first();
@@ -209,7 +207,7 @@ class BookingController extends Controller
 
         // Auto-create Invoice
         try {
-            $invNumber = 'INV/' . now()->format('Y/m') . '/' . str_pad($booking->id, 4, '0', STR_PAD_LEFT);
+            $invNumber = 'INV/'.now()->format('Y/m').'/'.str_pad($booking->id, 4, '0', STR_PAD_LEFT);
             $dpAmount = $booking->dp_amount ?? 0;
             $balanceDue = $booking->price_total - $dpAmount;
 
@@ -230,7 +228,7 @@ class BookingController extends Controller
 
             InvoiceItem::create([
                 'invoice_id' => $invoice->id,
-                'description' => $booking->package_name . ' (' . $booking->duration_hours . ' Jam)',
+                'description' => $booking->package_name.' ('.$booking->duration_hours.' Jam)',
                 'quantity' => 1,
                 'price' => $booking->price_total,
                 'total' => $booking->price_total,
@@ -238,23 +236,23 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             // Log error but don't fail booking? Or fail?
             // For now silent fail or log is better than crashing user experience, but consistency is key.
-            \Illuminate\Support\Facades\Log::error('Failed to create invoice for booking ' . $booking->id . ': ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Failed to create invoice for booking '.$booking->id.': '.$e->getMessage());
         }
 
         $mapsInfo = $booking->event_maps_link ? "\nMaps: {$booking->event_maps_link}" : "";
 
         $message = "Halo Admin Luminara,\n\n"
-            . "Booking Baru:\n"
-            . "Nama: {$booking->customer_name}\n"
-            . "WhatsApp: {$booking->customer_phone}\n"
-            . "Acara: {$booking->event_type}\n"
-            . "Paket: {$booking->package_name}\n"
-            . "Tanggal: " . \Carbon\Carbon::parse($booking->event_date)->translatedFormat('d F Y') . "\n"
-            . "Jam: " . \Carbon\Carbon::parse($booking->event_time)->format('H:i') . " - " . \Carbon\Carbon::parse($booking->event_time)->addHours($booking->duration_hours)->format('H:i') . " WITA\n"
-            . "Durasi: {$booking->duration_hours} jam\n"
-            . "Lokasi: {$booking->event_location}"
-            . $mapsInfo . "\n\n"
-            . $waPaymentMsg;
+            ."Booking Baru:\n"
+            ."Nama: {$booking->customer_name}\n"
+            ."WhatsApp: {$booking->customer_phone}\n"
+            ."Acara: {$booking->event_type}\n"
+            ."Paket: {$booking->package_name}\n"
+            ."Tanggal: ".\Carbon\Carbon::parse($booking->event_date)->translatedFormat('d F Y')."\n"
+            ."Jam: ".\Carbon\Carbon::parse($booking->event_time)->format('H:i')." - ".\Carbon\Carbon::parse($booking->event_time)->addHours($booking->duration_hours)->format('H:i')." WITA\n"
+            ."Durasi: {$booking->duration_hours} jam\n"
+            ."Lokasi: {$booking->event_location}"
+            .$mapsInfo."\n\n"
+            .$waPaymentMsg;
 
         $encodedMessage = urlencode($message);
         $adminPhone = '6287788986136';
@@ -316,10 +314,10 @@ class BookingController extends Controller
         $search = $request->query('search', '');
         $division = $request->query('division', 'semua');
 
-        if (!in_array($sort, ['event_date', 'created_at', 'customer_name', 'price_total'])) {
+        if (! in_array($sort, ['event_date', 'created_at', 'customer_name', 'price_total'])) {
             $sort = 'created_at';
         }
-        if (!in_array($direction, ['asc', 'desc'])) {
+        if (! in_array($direction, ['asc', 'desc'])) {
             $direction = 'desc';
         }
 
@@ -377,7 +375,7 @@ class BookingController extends Controller
             case 'mendatang':
                 $query->where('event_date', '>=', $today);
                 break;
-                // 'semua' — no filter
+            // 'semua' — no filter
         }
 
         // Stats for filter badges (scoped to same division rules)
@@ -389,11 +387,11 @@ class BookingController extends Controller
         }
 
         $stats = [
-            'semua'        => (clone $statsQuery)->count(),
-            'hari_ini'     => (clone $statsQuery)->where('event_date', $today)->count(),
-            'pending'      => (clone $statsQuery)->where('status', Booking::STATUS_PENDING)->count(),
-            'dp'           => (clone $statsQuery)->where('status', Booking::STATUS_DP_BAYAR)->count(),
-            'lunas'        => (clone $statsQuery)->where('status', Booking::STATUS_LUNAS)->count(),
+            'semua' => (clone $statsQuery)->count(),
+            'hari_ini' => (clone $statsQuery)->where('event_date', $today)->count(),
+            'pending' => (clone $statsQuery)->where('status', Booking::STATUS_PENDING)->count(),
+            'dp' => (clone $statsQuery)->where('status', Booking::STATUS_DP_BAYAR)->count(),
+            'lunas' => (clone $statsQuery)->where('status', Booking::STATUS_LUNAS)->count(),
         ];
 
         $query->orderBy($sort, $direction);
@@ -445,8 +443,8 @@ class BookingController extends Controller
         $thumbnailPath = null;
         if ($request->hasFile('thumbnail')) {
             $imageFile = $request->file('thumbnail');
-            $filename = time() . '_' . uniqid() . '.webp';
-            $thumbnailPath = 'bookings/thumbnails/' . $filename;
+            $filename = time().'_'.uniqid().'.webp';
+            $thumbnailPath = 'bookings/thumbnails/'.$filename;
 
             $image = Image::read($imageFile);
             if ($image->width() > 1920) {
@@ -477,7 +475,7 @@ class BookingController extends Controller
 
         // Auto-create Invoice for Admin Booking
         try {
-            $invNumber = 'INV/' . now()->format('Y/m') . '/' . str_pad($booking->id, 4, '0', STR_PAD_LEFT);
+            $invNumber = 'INV/'.now()->format('Y/m').'/'.str_pad($booking->id, 4, '0', STR_PAD_LEFT);
             // Admin created bookings have 0 DP initially usually
             $dpAmount = 0;
             $balanceDue = $request->price_total;
@@ -497,13 +495,13 @@ class BookingController extends Controller
 
             InvoiceItem::create([
                 'invoice_id' => $invoice->id,
-                'description' => $package->name . ' (' . $request->duration_hours . ' Jam)',
+                'description' => $package->name.' ('.$request->duration_hours.' Jam)',
                 'quantity' => 1,
                 'price' => $request->price_total,
                 'total' => $request->price_total,
             ]);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to create invoice for admin booking ' . $booking->id . ': ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Failed to create invoice for admin booking '.$booking->id.': '.$e->getMessage());
         }
 
         return redirect()->route('admin.bookings.index')->with('success', 'Booking manual berhasil dibuat.');
@@ -549,8 +547,8 @@ class BookingController extends Controller
         $oldThumbnail = null;
         if ($request->hasFile('thumbnail')) {
             $imageFile = $request->file('thumbnail');
-            $filename = time() . '_' . uniqid() . '.webp';
-            $thumbnailPath = 'bookings/thumbnails/' . $filename;
+            $filename = time().'_'.uniqid().'.webp';
+            $thumbnailPath = 'bookings/thumbnails/'.$filename;
 
             $image = Image::read($imageFile);
             if ($image->width() > 1920) {
@@ -603,10 +601,10 @@ class BookingController extends Controller
     {
         $booking = Booking::findOrFail($id);
         if ($booking->payment_proof) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($booking->payment_proof);
+            Storage::disk('public')->delete($booking->payment_proof);
         }
         if ($booking->thumbnail) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($booking->thumbnail);
+            Storage::disk('public')->delete($booking->thumbnail);
         }
         $booking->delete();
         return back()->with('success', 'Booking berhasil dihapus.');

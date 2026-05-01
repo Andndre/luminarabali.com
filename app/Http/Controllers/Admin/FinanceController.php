@@ -21,7 +21,7 @@ class FinanceController extends Controller
 
         if ($period === 'monthly') {
             $query->whereYear('invoice_date', $year)
-                  ->whereMonth('invoice_date', $month);
+                ->whereMonth('invoice_date', $month);
         } else {
             $query->whereYear('invoice_date', $year);
         }
@@ -38,15 +38,15 @@ class FinanceController extends Controller
         foreach ($invoices as $invoice) {
             // Calculate actual money received
             $paidAmount = $invoice->grand_total - $invoice->balance_due;
-            
+
             // If status is PAID, assume full amount is paid (double check against logic)
             // Ideally relying on grand_total - balance_due is safer.
             $totalRevenue += $paidAmount;
             $totalPotential += $invoice->balance_due;
 
-            if ($invoice->status === \App\Models\Invoice::STATUS_LUNAS) {
+            if ($invoice->status === Invoice::STATUS_LUNAS) {
                 $paidCount++;
-            } elseif ($invoice->status === \App\Models\Invoice::STATUS_DP_BAYAR) {
+            } elseif ($invoice->status === Invoice::STATUS_DP_BAYAR) {
                 $partialCount++;
             }
         }
@@ -55,9 +55,9 @@ class FinanceController extends Controller
         $chartData = $this->prepareChartData($invoices, $period, $year, $month);
 
         return view('admin.finance.index', compact(
-            'invoices', 
-            'totalRevenue', 
-            'totalPotential', 
+            'invoices',
+            'totalRevenue',
+            'totalPotential',
             'totalTransactions',
             'paidCount',
             'partialCount',
@@ -73,7 +73,7 @@ class FinanceController extends Controller
         // Initialize structure
         $data = [];
         $labels = [];
-        
+
         if ($period === 'monthly') {
             // Daily breakdown for the selected month
             $daysInMonth = Carbon::createFromDate($year, $month)->daysInMonth;

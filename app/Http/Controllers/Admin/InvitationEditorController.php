@@ -41,7 +41,7 @@ class InvitationEditorController extends Controller
                 'published_status' => $page->published_status,
                 'event_date' => optional($page->event_date)->toDateTimeString(),
             ],
-            'sections' => $page->sections->map(fn($section) => $this->transformSection($section))->values()->toArray(),
+            'sections' => $page->sections->map(fn ($section) => $this->transformSection($section))->values()->toArray(),
         ]);
     }
 
@@ -55,7 +55,7 @@ class InvitationEditorController extends Controller
             'sections' => 'present|array',
             'sections.*.id' => 'required|string',
             'sections.*.parent_id' => 'nullable|string',
-            'sections.*.section_type' => 'required|string|in:' . $allowedSectionTypes,
+            'sections.*.section_type' => 'required|string|in:'.$allowedSectionTypes,
             'sections.*.order_index' => 'required|integer',
             'sections.*.props' => 'required|array',
             'sections.*.custom_css' => 'nullable|string',
@@ -68,7 +68,7 @@ class InvitationEditorController extends Controller
 
         $nonTempIds = collect($sections)
             ->pluck('id')
-            ->filter(fn($id) => !str_starts_with($id, 'temp-'))
+            ->filter(fn ($id) => ! str_starts_with($id, 'temp-'))
             ->values();
 
         if ($nonTempIds->count() !== $nonTempIds->unique()->count()) {
@@ -85,7 +85,7 @@ class InvitationEditorController extends Controller
 
             $existingSections = InvitationSection::where('page_id', $pageId)
                 ->get()
-                ->keyBy(fn($section) => (string) $section->id);
+                ->keyBy(fn ($section) => (string) $section->id);
 
             if ($nonTempIds->count() > 0) {
                 $missingIds = $nonTempIds->diff($existingSections->keys());
@@ -102,7 +102,7 @@ class InvitationEditorController extends Controller
             }
             $deleteQuery->delete();
 
-            $persistedIds = $existingSections->keys()->map(fn($id) => (string) $id)->all();
+            $persistedIds = $existingSections->keys()->map(fn ($id) => (string) $id)->all();
             $tempIdMapping = [];
             $savedSections = [];
 
@@ -220,7 +220,7 @@ class InvitationEditorController extends Controller
         }
 
         if (str_starts_with($parentId, 'temp-')) {
-            if (!isset($tempIdMapping[$parentId])) {
+            if (! isset($tempIdMapping[$parentId])) {
                 throw ValidationException::withMessages([
                     'sections' => ['Invalid section structure: parent must be created before child.'],
                 ]);
@@ -229,7 +229,7 @@ class InvitationEditorController extends Controller
             return (int) $tempIdMapping[$parentId];
         }
 
-        if (!in_array($parentId, $persistedIds, true)) {
+        if (! in_array($parentId, $persistedIds, true)) {
             throw ValidationException::withMessages([
                 'sections' => ['Invalid parent_id reference found in sections payload.'],
             ]);

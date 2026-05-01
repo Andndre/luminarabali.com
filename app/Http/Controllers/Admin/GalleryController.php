@@ -40,15 +40,15 @@ class GalleryController extends Controller
 
         $userAuth = Auth::user()->id;
         $user = User::find($userAuth);
-        
-        $businessUnit = ($user->division === 'super_admin') 
-            ? ($request->business_unit ?? 'photobooth') 
+
+        $businessUnit = ($user->division === 'super_admin')
+            ? ($request->business_unit ?? 'photobooth')
             : $user->division;
 
         // Process Image
         $imageFile = $request->file('image');
-        $filename = time() . '_' . uniqid() . '.webp';
-        $path = 'gallery/' . $filename;
+        $filename = time().'_'.uniqid().'.webp';
+        $path = 'gallery/'.$filename;
 
         $image = Image::read($imageFile);
 
@@ -83,7 +83,7 @@ class GalleryController extends Controller
         if ($gallery->image_path) {
             Storage::disk('public')->delete($gallery->image_path);
         }
-        
+
         $gallery->delete();
         return redirect()->route('admin.galleries.index')->with('success', 'Foto dihapus.');
     }
@@ -95,7 +95,7 @@ class GalleryController extends Controller
             abort(403);
         }
 
-        $gallery->is_featured = !$gallery->is_featured;
+        $gallery->is_featured = ! $gallery->is_featured;
         $gallery->save();
 
         return response()->json([
