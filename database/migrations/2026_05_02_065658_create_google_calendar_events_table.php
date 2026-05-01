@@ -22,9 +22,6 @@ return new class extends Migration
             $table->string('html_link')->nullable();
             $table->string('status')->default('confirmed');
             $table->timestamps();
-
-            $table->index('booking_id');
-            $table->index('google_event_id');
         });
     }
 

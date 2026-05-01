@@ -259,20 +259,20 @@ class BookingController extends Controller
         $adminPhone = '6287788986136';
         $waUrl = "https://wa.me/{$adminPhone}?text={$encodedMessage}";
 
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Booking saved successfully.',
-                'wa_url' => $waUrl
-            ]);
-        }
-
         try {
             BookingCreated::dispatch($booking);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Gagal dispatch BookingCreated event', [
                 'booking_id' => $booking->id,
                 'error' => $e->getMessage(),
+            ]);
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking saved successfully.',
+                'wa_url' => $waUrl
             ]);
         }
 
