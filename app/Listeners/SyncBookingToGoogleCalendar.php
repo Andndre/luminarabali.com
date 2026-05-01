@@ -4,9 +4,10 @@ namespace App\Listeners;
 
 use App\Events\BookingCreated;
 use App\Services\GoogleCalendarService;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 
-class SyncBookingToGoogleCalendar
+class SyncBookingToGoogleCalendar implements ShouldQueue
 {
     public function __construct(
         protected GoogleCalendarService $calendarService
