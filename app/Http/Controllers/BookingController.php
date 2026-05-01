@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\BookingCreated;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\BlockedDate;
@@ -266,6 +267,15 @@ class BookingController extends Controller
             ]);
         }
 
+        try {
+            BookingCreated::dispatch($booking);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal dispatch BookingCreated event', [
+                'booking_id' => $booking->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return redirect()->away($waUrl);
     }
 
@@ -502,6 +512,15 @@ class BookingController extends Controller
             ]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to create invoice for admin booking '.$booking->id.': '.$e->getMessage());
+        }
+
+        try {
+            BookingCreated::dispatch($booking);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal dispatch BookingCreated event', [
+                'booking_id' => $booking->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         return redirect()->route('admin.bookings.index')->with('success', 'Booking manual berhasil dibuat.');
