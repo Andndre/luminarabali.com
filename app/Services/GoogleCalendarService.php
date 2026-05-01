@@ -131,7 +131,7 @@ class GoogleCalendarService
         }
 
         if ($booking->price_total) {
-            $paymentInfo = $booking->payment_type === 'LUNAS'
+            $paymentInfo = $booking->status === 'LUNAS'
                 ? 'LUNAS'
                 : "DP {$booking->dp_amount} / {$booking->price_total}";
             $parts[] = "Payment: {$paymentInfo}";

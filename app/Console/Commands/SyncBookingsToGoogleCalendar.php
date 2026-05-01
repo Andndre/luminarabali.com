@@ -51,7 +51,6 @@ class SyncBookingsToGoogleCalendar extends Command
         $bar->start();
 
         $success = 0;
-        $skipped = 0;
         $failed = 0;
 
         foreach ($bookings as $booking) {
@@ -59,8 +58,6 @@ class SyncBookingsToGoogleCalendar extends Command
 
             if ($result) {
                 $success++;
-            } elseif ($booking->googleCalendarEvent) {
-                $skipped++;
             } else {
                 $failed++;
             }
@@ -73,7 +70,6 @@ class SyncBookingsToGoogleCalendar extends Command
 
         $this->info("Sync selesai:");
         $this->line("  - Berhasil: {$success}");
-        $this->line("  - Skip (sudah ada): {$skipped}");
         $this->line("  - Gagal: {$failed}");
 
         return $failed > 0 ? self::FAILURE : self::SUCCESS;
