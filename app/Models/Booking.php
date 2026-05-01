@@ -31,4 +31,9 @@ class Booking extends Model
     {
         return $this->hasOne(Invoice::class);
     }
+
+    public function googleCalendarEvent()
+    {
+        return $this->hasOne(GoogleCalendarEvent::class);
+    }
 }

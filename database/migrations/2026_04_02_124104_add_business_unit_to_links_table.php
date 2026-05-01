@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('links', function (Blueprint $table) {
-            $table->string('business_unit')->default('photobooth')->after('is_active');
-        });
+        if (! Schema::hasColumn('links', 'business_unit')) {
+            Schema::table('links', function (Blueprint $table) {
+                $table->string('business_unit')->default('photobooth')->after('is_active');
+            });
+        }
     }
 
     /**
