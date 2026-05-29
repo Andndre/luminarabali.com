@@ -19,7 +19,14 @@ class LinktreeController extends Controller
         $adminLinks = Link::where('is_active', true)
             ->where('business_unit', $businessUnit)
             ->orderBy('order')
-            ->get();
+            ->get()
+            ->map(function ($link) {
+                $folderId = $this->extractDriveFolderId($link->url);
+                if ($folderId) {
+                    $link->url = route('gallery.drive', $folderId);
+                }
+                return $link;
+            });
 
         $todayBookingLinks = collect();
         $olderBookingLinks = collect();
@@ -67,10 +74,10 @@ class LinktreeController extends Controller
 
     private function extractDriveFolderId($url)
     {
-        if (preg_match('/folders\/([a-zA-Z0-9-_]{25,})/', $url, $matches)) {
+        if (preg_match('/folders\/([a-zA-Z0-9_-]{25,})/', $url, $matches)) {
             return $matches[1];
         }
-        if (preg_match('/id=([a-zA-Z0-9-_]{25,})/', $url, $matches)) {
+        if (preg_match('/id=([a-zA-Z0-9_-]{25,})/', $url, $matches)) {
             return $matches[1];
         }
         return null;
