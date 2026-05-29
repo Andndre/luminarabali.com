@@ -92,7 +92,7 @@
         <!-- High-Impact Title -->
         <h1 class="font-outfit mb-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
             Luminara Photobooth
-        </h1>hto
+        </h1>
 
         <!-- Compact Responsive Subtitle -->
         <p class="mx-auto max-w-md px-4 text-xs leading-relaxed text-slate-300/90 md:text-sm">
