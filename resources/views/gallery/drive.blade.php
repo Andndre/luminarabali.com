@@ -77,8 +77,8 @@
     <header class="relative z-10 mx-auto max-w-7xl px-6 pb-8 pt-10 text-center">
         <!-- Logo Branding matching Linktree -->
         <div
-            class="mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white shadow-xl ring-4 ring-pink-500/10 transition-all duration-300 active:scale-95">
-            <img src="{{ asset('images/logo.png') }}" alt="Luminara Logo" class="h-full w-full object-contain p-1">
+            class="mx-auto mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white shadow-lg">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-full w-full object-contain">
         </div>
 
         <!-- Sleek Digital Badge -->
