@@ -211,7 +211,7 @@
         </div>
 
         <!-- Lightbox Bottom Gallery (Session Items Sub-Gallery) -->
-        <div class="mx-auto w-full max-w-7xl px-4 pb-6 pt-2 md:px-6">
+        <div class="mx-auto w-full min-w-0 max-w-7xl px-4 pb-6 pt-2 md:px-6">
             <div id="originals-box" class="hidden border-t border-white/10 pt-4 transition-all duration-300">
                 <h4
                     class="font-outfit mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
