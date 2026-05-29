@@ -67,10 +67,10 @@
 
     <!-- Ambient Glowing Accents -->
     <div
-        class="pointer-events-none fixed z-0 left-[-10%] top-[-10%] h-[50vw] w-[50vw] rounded-full bg-pink-900/10 blur-[120px]">
+        class="pointer-events-none fixed left-[-10%] top-[-10%] z-0 h-[50vw] w-[50vw] rounded-full bg-pink-900/10 blur-[120px]">
     </div>
     <div
-        class="pointer-events-none fixed z-0 bottom-[-10%] right-[-10%] h-[50vw] w-[50vw] rounded-full bg-rose-900/10 blur-[120px]">
+        class="pointer-events-none fixed bottom-[-10%] right-[-10%] z-0 h-[50vw] w-[50vw] rounded-full bg-rose-900/10 blur-[120px]">
     </div>
 
     <!-- Header Section -->
@@ -91,9 +91,8 @@
 
         <!-- High-Impact Title -->
         <h1 class="font-outfit mb-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-            Luminara <span
-                class="bg-linear-to-r from-pink-400 via-rose-400 to-amber-300 bg-clip-text text-transparent">Photobooth</span>
-        </h1>
+            Luminara Photobooth
+        </h1>hto
 
         <!-- Compact Responsive Subtitle -->
         <p class="mx-auto max-w-md px-4 text-xs leading-relaxed text-slate-300/90 md:text-sm">
@@ -155,10 +154,10 @@
 
     <!-- Modal Lightbox (Modal Layar Penuh) -->
     <div id="lightbox"
-        class="bg-black/95 fixed inset-0 z-50 hidden select-none grid-rows-[auto_1fr_auto] h-full w-full overflow-hidden backdrop-blur-2xl transition-all duration-300">
+        class="fixed inset-0 z-50 hidden h-full w-full select-none grid-rows-[auto_1fr_auto] overflow-hidden bg-black/95 backdrop-blur-2xl transition-all duration-300">
 
         <!-- Lightbox Header Controls -->
-        <div class="w-full max-w-7xl mx-auto flex items-center justify-between px-4 md:px-6 py-4">
+        <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 md:px-6">
             <div class="text-xs tracking-wider text-slate-400">
                 <span id="lightbox-index" class="font-semibold text-white">0</span> / <span id="lightbox-total">0</span>
                 <span class="mx-2">|</span>
@@ -185,7 +184,8 @@
         </div>
 
         <!-- Lightbox Main Content Slot -->
-        <div class="relative w-full h-full min-h-0 min-w-0 flex items-center justify-center overflow-hidden px-0 md:px-12">
+        <div
+            class="relative flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-hidden px-0 md:px-12">
 
             <!-- Navigation Left -->
             <button onclick="prevMedia()"
@@ -196,7 +196,7 @@
             </button>
 
             <!-- Media Container -->
-            <div id="lightbox-media-container" class="w-full h-full flex items-center justify-center p-2">
+            <div id="lightbox-media-container" class="flex h-full w-full items-center justify-center p-2">
                 <!-- Large Image or Video Player Will Be Rendered Dynamically -->
             </div>
 
@@ -211,7 +211,7 @@
         </div>
 
         <!-- Lightbox Bottom Gallery (Session Items Sub-Gallery) -->
-        <div class="w-full max-w-7xl mx-auto px-4 md:px-6 pb-6 pt-2">
+        <div class="mx-auto w-full max-w-7xl px-4 pb-6 pt-2 md:px-6">
             <div id="originals-box" class="hidden border-t border-white/10 pt-4 transition-all duration-300">
                 <h4
                     class="font-outfit mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
