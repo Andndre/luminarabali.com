@@ -91,15 +91,36 @@
 
         <!-- High-Impact Title -->
         <h1 class="font-outfit mb-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-            Luminara Photobooth
+            @if(request()->query('d') === 'visual')
+                Luminara Visual
+            @else
+                Luminara Photobooth
+            @endif
         </h1>
 
         <!-- Compact Responsive Subtitle -->
         <p class="mx-auto max-w-md px-4 text-xs leading-relaxed text-slate-300/90 md:text-sm">
-            Temukan dan unduh seluruh file foto kolase (<span class="font-semibold text-pink-300">Prints</span>), foto
-            satuan (<span class="font-semibold text-pink-300">Originals</span>), dan video animasi (<span
-                class="font-semibold text-pink-300">Animated</span>) dari sesi photobooth Anda.
+            @if(request()->query('d') === 'visual')
+                Temukan dan unduh seluruh file foto resolusi tinggi dan video dari sesi dokumentasi Visual Anda.
+            @else
+                Temukan dan unduh seluruh file foto kolase (<span class="font-semibold text-pink-300">Prints</span>), foto
+                satuan (<span class="font-semibold text-pink-300">Originals</span>), dan video animasi (<span
+                    class="font-semibold text-pink-300">Animated</span>) dari sesi photobooth Anda.
+            @endif
         </p>
+
+        @if(request()->query('d') === 'visual')
+            <div class="mt-6 flex justify-center">
+                <a href="https://drive.google.com/drive/folders/{{ $folderId }}" target="_blank"
+                    class="flex items-center gap-2 rounded-full bg-pink-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-600/30 transition-all hover:scale-105 hover:bg-pink-500 active:scale-95">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Download Semua
+                </a>
+            </div>
+        @endif
     </header>
 
     <!-- Main Workspace Container -->

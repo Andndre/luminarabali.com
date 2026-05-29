@@ -20,10 +20,11 @@ class LinktreeController extends Controller
             ->where('business_unit', $businessUnit)
             ->orderBy('order')
             ->get()
-            ->map(function ($link) {
+            ->map(function ($link) use ($businessUnit) {
                 $folderId = $this->extractDriveFolderId($link->url);
                 if ($folderId) {
-                    $link->url = route('gallery.drive', $folderId);
+                    $routeUrl = route('gallery.drive', $folderId);
+                    $link->url = $businessUnit === 'visual' ? $routeUrl . '?d=visual' : $routeUrl;
                 }
                 return $link;
             });
@@ -31,33 +32,35 @@ class LinktreeController extends Controller
         $todayBookingLinks = collect();
         $olderBookingLinks = collect();
 
-        if ($businessUnit === 'photobooth') {
-            $today = now()->toDateString();
-            $yesterday = now()->subDay()->toDateString();
+        $today = now()->toDateString();
 
-            $bookings = Booking::where('business_unit', 'photobooth')
-                ->whereNotNull('link_drive')
-                ->where('link_drive', '!=', '')
-                ->orderBy('event_date', 'desc')
-                ->get()
-                ->map(function ($booking) {
-                    $folderId = $this->extractDriveFolderId($booking->link_drive);
-                    $url = $folderId ? route('gallery.drive', $folderId) : $booking->link_drive;
+        $bookings = Booking::where('business_unit', $businessUnit)
+            ->whereNotNull('link_drive')
+            ->where('link_drive', '!=', '')
+            ->orderBy('event_date', 'desc')
+            ->get()
+            ->map(function ($booking) use ($businessUnit) {
+                $folderId = $this->extractDriveFolderId($booking->link_drive);
+                if ($folderId) {
+                    $routeUrl = route('gallery.drive', $folderId);
+                    $url = $businessUnit === 'visual' ? $routeUrl . '?d=visual' : $routeUrl;
+                } else {
+                    $url = $booking->link_drive;
+                }
 
-                    return (object) [
-                        'title' => $booking->event_type && $booking->event_type !== '-'
-                            ? $booking->event_type
-                            : $booking->customer_name,
-                        'url' => $url,
-                        'thumbnail' => $booking->thumbnail ?? null,
-                        'type' => 'booking',
-                        'event_date' => $booking->event_date,
-                    ];
-                });
+                return (object) [
+                    'title' => $booking->event_type && $booking->event_type !== '-'
+                        ? $booking->event_type
+                        : $booking->customer_name,
+                    'url' => $url,
+                    'thumbnail' => $booking->thumbnail ?? null,
+                    'type' => 'booking',
+                    'event_date' => $booking->event_date,
+                ];
+            });
 
-            $todayBookingLinks = $bookings->filter(fn($b) => $b->event_date->toDateString() === $today);
-            $olderBookingLinks = $bookings->filter(fn($b) => $b->event_date->toDateString() < $today);
-        }
+        $todayBookingLinks = $bookings->filter(fn($b) => $b->event_date->toDateString() === $today);
+        $olderBookingLinks = $bookings->filter(fn($b) => $b->event_date->toDateString() < $today);
 
         return view('linktree.show', [
             'division' => $division,
