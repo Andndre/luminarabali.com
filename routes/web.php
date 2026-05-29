@@ -124,3 +124,4 @@ Route::post('/invitation/{slug}/rsvp', [\App\Http\Controllers\InvitationViewCont
 
 // Public Linktree Routes
 Route::get('/linkto/{division}', [\App\Http\Controllers\LinktreeController::class, 'show'])->name('linktree.show');
+Route::get('/gallery/drive/{folderId}', [\App\Http\Controllers\LinktreeController::class, 'driveGallery'])->name('gallery.drive');

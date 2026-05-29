@@ -34,11 +34,14 @@ class LinktreeController extends Controller
                 ->orderBy('event_date', 'desc')
                 ->get()
                 ->map(function ($booking) {
+                    $folderId = $this->extractDriveFolderId($booking->link_drive);
+                    $url = $folderId ? route('gallery.drive', $folderId) : $booking->link_drive;
+
                     return (object) [
                         'title' => $booking->event_type && $booking->event_type !== '-'
                             ? $booking->event_type
                             : $booking->customer_name,
-                        'url' => $booking->link_drive,
+                        'url' => $url,
                         'thumbnail' => $booking->thumbnail ?? null,
                         'type' => 'booking',
                         'event_date' => $booking->event_date,
@@ -55,5 +58,21 @@ class LinktreeController extends Controller
             'todayBookingLinks' => $todayBookingLinks,
             'olderBookingLinks' => $olderBookingLinks,
         ]);
+    }
+
+    public function driveGallery($folderId)
+    {
+        return view('gallery.drive', compact('folderId'));
+    }
+
+    private function extractDriveFolderId($url)
+    {
+        if (preg_match('/folders\/([a-zA-Z0-9-_]{25,})/', $url, $matches)) {
+            return $matches[1];
+        }
+        if (preg_match('/id=([a-zA-Z0-9-_]{25,})/', $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
     }
 }
