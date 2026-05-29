@@ -405,10 +405,20 @@
                 // Use Drive's built-in thumbnail link to save bandwidth, pagination prevents 429 rate limit
                 const gridThumbnail = file.thumbnailLink ? file.thumbnailLink.replace(/=s220$/, '=w500') : '';
 
-                // Image Grid Item (Prints are always images, matched to videos and originals inside the lightbox)
+                // Check if file is a video
+                const isVideo = file.mimeType && file.mimeType.includes('video/');
+                const videoOverlay = isVideo ? `
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <div class="w-10 h-10 rounded-full bg-pink-600/90 flex items-center justify-center text-white shadow-md backdrop-blur-sm transition-transform group-hover:scale-110">
+                            <svg class="h-5 w-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                        </div>
+                    </div>
+                ` : '';
+
                 card.innerHTML = `
-                    <div class="aspect-[3/4] relative w-full bg-slate-100 flex items-center justify-center overflow-hidden">
+                    <div class="group aspect-[3/4] relative w-full bg-slate-100 flex items-center justify-center overflow-hidden">
                         <img src="${gridThumbnail}" alt="${file.name}" loading="lazy" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                        ${videoOverlay}
                     </div>
                     <div class="p-3 md:p-4 border-t border-slate-100 bg-white flex justify-between items-center">
                         <div class="min-w-0 flex-1">
