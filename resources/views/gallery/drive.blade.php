@@ -171,7 +171,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
-                    <span class="hidden sm:inline">Download</span>
+                    <span class="inline">Download</span>
                 </a>
                 <button onclick="closeLightbox()"
                     class="bg-maroon flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-lg text-white transition-all hover:scale-105 hover:bg-pink-600 active:scale-95">
