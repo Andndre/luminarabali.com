@@ -399,33 +399,58 @@
             visibleFiles.forEach((file, index) => {
                 const card = document.createElement('div');
                 card.className =
-                    "relative bg-white rounded-2xl overflow-hidden shadow-sm transition-all duration-200 active:scale-[0.98] cursor-pointer";
-                card.onclick = () => openLightbox(index);
+                    "relative bg-white rounded-2xl overflow-hidden shadow-sm transition-all duration-200 active:scale-[0.98] cursor-pointer hover:shadow-md";
+
+                // Check if file is a video or folder
+                const isVideo = file.mimeType && file.mimeType.includes('video/');
+                const isFolder = file.mimeType && file.mimeType === 'application/vnd.google-apps.folder';
+
+                if (isFolder) {
+                    card.onclick = () => {
+                        const currentQuery = window.location.search;
+                        window.location.href = `{{ url('/gallery/drive') }}/${file.id}${currentQuery}`;
+                    };
+                } else {
+                    card.onclick = () => openLightbox(index);
+                }
 
                 // Use Drive's built-in thumbnail link to save bandwidth, pagination prevents 429 rate limit
                 const gridThumbnail = file.thumbnailLink ? file.thumbnailLink.replace(/=s220$/, '=w500') : '';
 
-                // Check if file is a video
-                const isVideo = file.mimeType && file.mimeType.includes('video/');
-                const videoOverlay = isVideo ? `
-                    <div class="absolute inset-0 flex items-center justify-center bg-black/20">
-                        <div class="w-10 h-10 rounded-full bg-pink-600/90 flex items-center justify-center text-white shadow-md backdrop-blur-sm transition-transform group-hover:scale-110">
-                            <svg class="h-5 w-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                let mediaContent = '';
+                if (isFolder) {
+                    mediaContent = `
+                        <div class="flex flex-col items-center justify-center text-pink-400/50 group-hover:text-pink-500 transition-colors duration-300">
+                            <svg class="h-20 w-20 mb-3 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+                            </svg>
+                            <span class="text-xs font-semibold text-slate-400 group-hover:text-pink-500">Buka Folder</span>
                         </div>
-                    </div>
-                ` : '';
+                    `;
+                } else {
+                    const videoOverlay = isVideo ? `
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <div class="w-10 h-10 rounded-full bg-pink-600/90 flex items-center justify-center text-white shadow-md backdrop-blur-sm transition-transform group-hover:scale-110">
+                                <svg class="h-5 w-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                            </div>
+                        </div>
+                    ` : '';
+                    mediaContent = `
+                        <img src="${gridThumbnail}" alt="${file.name}" loading="lazy" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                        ${videoOverlay}
+                    `;
+                }
 
                 card.innerHTML = `
                     <div class="group aspect-[3/4] relative w-full bg-slate-100 flex items-center justify-center overflow-hidden">
-                        <img src="${gridThumbnail}" alt="${file.name}" loading="lazy" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
-                        ${videoOverlay}
+                        ${mediaContent}
                     </div>
                     <div class="p-3 md:p-4 border-t border-slate-100 bg-white flex justify-between items-center">
                         <div class="min-w-0 flex-1">
                             <h4 class="text-[11px] md:text-xs text-slate-800 font-semibold truncate">${file.name}</h4>
                             <span class="text-[9px] md:text-[10px] text-slate-500 mt-0.5 block">${formatDate(file.createdTime)}</span>
                         </div>
-                        <span class="text-[9px] md:text-[10px] font-bold text-pink-600 uppercase tracking-wider shrink-0 ml-2">Lihat</span>
+                        <span class="text-[9px] md:text-[10px] font-bold text-pink-600 uppercase tracking-wider shrink-0 ml-2">${isFolder ? 'Buka' : 'Lihat'}</span>
                     </div>
                 `;
 
