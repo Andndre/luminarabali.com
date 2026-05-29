@@ -256,6 +256,7 @@
             originals: null,
             animated: null
         };
+        let isFlatStructure = false;
 
         // Initialize gallery on load
         window.addEventListener('DOMContentLoaded', () => {
@@ -296,24 +297,27 @@
                 });
 
                 if (!folderIds.prints) {
-                    throw new Error("Folder 'Prints' tidak ditemukan di bawah Parent Folder.");
+                    // Fallback to flat structure if no Prints folder is found
+                    isFlatStructure = true;
+                    setLoading(true, "Membaca file langsung dari folder utama...");
+                    printsFiles = await fetchFilesFromFolder(PARENT_FOLDER_ID);
+                } else {
+                    setLoading(true, "Mengunduh metadata foto dan video...");
+
+                    // Step 2: Fetch all files from folders concurrently
+                    const promises = [
+                        fetchFilesFromFolder(folderIds.prints).then(res => printsFiles = res)
+                    ];
+
+                    if (folderIds.originals) {
+                        promises.push(fetchFilesFromFolder(folderIds.originals).then(res => originalsFilesCache = res));
+                    }
+                    if (folderIds.animated) {
+                        promises.push(fetchFilesFromFolder(folderIds.animated).then(res => animatedFilesCache = res));
+                    }
+
+                    await Promise.all(promises);
                 }
-
-                setLoading(true, "Mengunduh metadata foto dan video...");
-
-                // Step 2: Fetch all files from folders concurrently
-                const promises = [
-                    fetchFilesFromFolder(folderIds.prints).then(res => printsFiles = res)
-                ];
-
-                if (folderIds.originals) {
-                    promises.push(fetchFilesFromFolder(folderIds.originals).then(res => originalsFilesCache = res));
-                }
-                if (folderIds.animated) {
-                    promises.push(fetchFilesFromFolder(folderIds.animated).then(res => animatedFilesCache = res));
-                }
-
-                await Promise.all(promises);
 
                 // Initial render
                 setLoading(false);
@@ -469,8 +473,14 @@
         }
 
         function runTimeBasedMatching(printFile) {
-            const printTime = new Date(printFile.createdTime).getTime();
             const originalsBox = document.getElementById('originals-box');
+            
+            if (isFlatStructure) {
+                originalsBox.classList.add('hidden');
+                return;
+            }
+
+            const printTime = new Date(printFile.createdTime).getTime();
             const originalsList = document.getElementById('originals-list');
 
             originalsList.innerHTML = '';
