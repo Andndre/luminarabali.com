@@ -441,8 +441,8 @@
             document.getElementById('lightbox-total').innerText = currentMediaList.length;
             document.getElementById('lightbox-filename').innerText = file.name;
 
-            // Direct download source
-            const downloadUrl = `https://docs.google.com/uc?export=download&id=${file.id}`;
+            // Direct download source using raw API media stream to bypass Google Drive login prompts
+            const downloadUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`;
             document.getElementById('lightbox-download').href = downloadUrl;
 
             const mediaContainer = document.getElementById('lightbox-media-container');
@@ -505,7 +505,7 @@
                     <img src="${highResUrl}" alt="${printFile.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none">
                 `;
                 document.getElementById('lightbox-download').href =
-                    `https://docs.google.com/uc?export=download&id=${printFile.id}`;
+                    `https://www.googleapis.com/drive/v3/files/${printFile.id}?alt=media&key=${API_KEY}`;
                 document.getElementById('lightbox-filename').innerText = printFile.name;
             };
             originalsList.appendChild(printThumb);
@@ -538,7 +538,7 @@
                         <img src="https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}" alt="${orig.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none">
                     `;
                     document.getElementById('lightbox-download').href =
-                        `https://docs.google.com/uc?export=download&id=${orig.id}`;
+                        `https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}`;
                     document.getElementById('lightbox-filename').innerText = orig.name;
                 };
                 originalsList.appendChild(origThumb);
@@ -570,7 +570,7 @@
                         <video src="https://www.googleapis.com/drive/v3/files/${matchedAnimated.id}?alt=media&key=${API_KEY}" type="video/mp4" controls autoplay loop class="max-w-full max-h-[65vh] rounded-xl border border-white/10 shadow-2xl"></video>
                     `;
                     document.getElementById('lightbox-download').href =
-                        `https://docs.google.com/uc?export=download&id=${matchedAnimated.id}`;
+                        `https://www.googleapis.com/drive/v3/files/${matchedAnimated.id}?alt=media&key=${API_KEY}`;
                     document.getElementById('lightbox-filename').innerText = matchedAnimated.name;
                 };
                 originalsList.appendChild(videoThumb);
