@@ -15,6 +15,8 @@
 
     <!-- Tailwind CSS v4 CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -436,7 +438,7 @@
                         </div>
                     ` : '';
                     mediaContent = `
-                        <img src="${gridThumbnail}" alt="${file.name}" loading="lazy" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                        <img src="${gridThumbnail}" onerror="handleExpiredSession()" alt="${file.name}" loading="lazy" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
                         ${videoOverlay}
                     `;
                 }
@@ -591,7 +593,7 @@
                     "session-thumb flex-none relative aspect-[3/4] h-20 rounded-lg overflow-hidden border border-white/10 cursor-pointer transition-all duration-300";
                 const origThumbUrl = orig.thumbnailLink ? orig.thumbnailLink.replace(/=s220$/, '=s150') : '';
                 origThumb.innerHTML = `
-                    <img src="${origThumbUrl}" alt="${orig.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                    <img src="${origThumbUrl}" onerror="handleExpiredSession()" alt="${orig.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
                     <div class="absolute bottom-0 inset-x-0 bg-black/60 py-0.5 text-center">
                         <span class="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Originals</span>
                     </div>
@@ -676,7 +678,7 @@
             // Render the low resolution image first with a blur effect
             containerElement.innerHTML = `
                 <div class="relative h-full w-full max-h-full max-w-full flex items-center justify-center">
-                    <img src="${lowResUrl}" alt="${altText}" crossorigin="anonymous" referrerpolicy="no-referrer" class="lightbox-dynamic-img h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none filter blur-sm transition-all duration-700">
+                    <img src="${lowResUrl}" onerror="handleExpiredSession()" alt="${altText}" crossorigin="anonymous" referrerpolicy="no-referrer" class="lightbox-dynamic-img h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none filter blur-sm transition-all duration-700">
                     <div class="lightbox-loader absolute inset-0 flex items-center justify-center bg-black/10 rounded-xl">
                          <svg class="h-10 w-10 animate-spin text-white/50 drop-shadow-lg" fill="none" viewBox="0 0 24 24">
                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -701,6 +703,29 @@
                     if (loaderElement) loaderElement.remove();
                 }
             };
+        }
+
+        function handleExpiredSession() {
+            if (window.isSessionExpiredHandled) return;
+            window.isSessionExpiredHandled = true;
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Sesi Kedaluwarsa',
+                    text: 'Tautan keamanan dari Google Drive Anda telah berakhir. Halaman akan dimuat ulang secara otomatis untuk memperbarui sesi Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'Muat Ulang',
+                    confirmButtonColor: '#e11d48',
+                    allowOutsideClick: false,
+                    background: '#1e293b',
+                    color: '#f8fafc'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                alert('Sesi galeri Anda telah berakhir demi keamanan. Halaman akan dimuat ulang.');
+                window.location.reload();
+            }
         }
 
         function setLoading(isLoading, message = "") {
