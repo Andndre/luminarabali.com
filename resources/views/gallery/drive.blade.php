@@ -519,9 +519,8 @@
             } else {
                 // High-resolution image (official API alt=media endpoint for maximum reliability)
                 const highResUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`;
-                mediaContainer.innerHTML = `
-                    <img src="${highResUrl}" alt="${file.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none">
-                `;
+                const lowResUrl = file.thumbnailLink ? file.thumbnailLink.replace(/=s220$/, '=w1000') : highResUrl;
+                renderProgressiveImage(mediaContainer, lowResUrl, highResUrl, file.name);
             }
 
             // Always run dynamic session files matching
@@ -600,11 +599,12 @@
                 origThumb.onclick = () => {
                     setActiveThumb(origThumb);
                     const mediaContainer = document.getElementById('lightbox-media-container');
-                    mediaContainer.innerHTML = `
-                        <img src="https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}" alt="${orig.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none">
-                    `;
-                    document.getElementById('lightbox-download').href =
-                        `https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}`;
+                    const highResUrl = `https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}`;
+                    const lowResUrl = orig.thumbnailLink ? orig.thumbnailLink.replace(/=s220$/, '=w1000') : highResUrl;
+                    
+                    renderProgressiveImage(mediaContainer, lowResUrl, highResUrl, orig.name);
+                    
+                    document.getElementById('lightbox-download').href = highResUrl;
                     document.getElementById('lightbox-filename').innerText = orig.name;
                 };
                 originalsList.appendChild(origThumb);
@@ -671,6 +671,38 @@
         // =========================================
         // 6. UTILITY FUNCTIONS
         // =========================================
+        
+        function renderProgressiveImage(containerElement, lowResUrl, highResUrl, altText) {
+            // Render the low resolution image first with a blur effect
+            containerElement.innerHTML = `
+                <div class="relative h-full w-full max-h-full max-w-full flex items-center justify-center">
+                    <img src="${lowResUrl}" alt="${altText}" crossorigin="anonymous" referrerpolicy="no-referrer" class="lightbox-dynamic-img h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none filter blur-sm transition-all duration-700">
+                    <div class="lightbox-loader absolute inset-0 flex items-center justify-center bg-black/10 rounded-xl">
+                         <svg class="h-10 w-10 animate-spin text-white/50 drop-shadow-lg" fill="none" viewBox="0 0 24 24">
+                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                         </svg>
+                    </div>
+                </div>
+            `;
+            
+            const imgElement = containerElement.querySelector('.lightbox-dynamic-img');
+            const loaderElement = containerElement.querySelector('.lightbox-loader');
+            
+            // Preload the high-resolution image in the background
+            const imgLoader = new Image();
+            imgLoader.src = highResUrl;
+            imgLoader.crossOrigin = "anonymous";
+            imgLoader.onload = () => {
+                // Ensure the img element we created is still in the DOM (user hasn't clicked next/prev)
+                if (document.body.contains(imgElement)) {
+                    imgElement.src = highResUrl;
+                    imgElement.classList.remove('blur-sm');
+                    if (loaderElement) loaderElement.remove();
+                }
+            };
+        }
+
         function setLoading(isLoading, message = "") {
             const status = document.getElementById('loading-status');
             if (isLoading) {
