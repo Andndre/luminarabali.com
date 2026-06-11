@@ -93,7 +93,7 @@
 
         <!-- High-Impact Title -->
         <h1 class="font-outfit mb-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-            @if(request()->query('d') === 'visual')
+            @if (request()->query('d') === 'visual')
                 Luminara Visual
             @else
                 Luminara Photobooth
@@ -102,16 +102,17 @@
 
         <!-- Compact Responsive Subtitle -->
         <p class="mx-auto max-w-md px-4 text-xs leading-relaxed text-slate-300/90 md:text-sm">
-            @if(request()->query('d') === 'visual')
+            @if (request()->query('d') === 'visual')
                 Temukan dan unduh seluruh file foto resolusi tinggi dan video dari sesi dokumentasi Visual Anda.
             @else
-                Temukan dan unduh seluruh file foto kolase (<span class="font-semibold text-pink-300">Prints</span>), foto
+                Temukan dan unduh seluruh file foto kolase (<span class="font-semibold text-pink-300">Prints</span>),
+                foto
                 satuan (<span class="font-semibold text-pink-300">Originals</span>), dan video animasi (<span
                     class="font-semibold text-pink-300">Animated</span>) dari sesi photobooth Anda.
             @endif
         </p>
 
-        @if(request()->query('d') === 'visual')
+        @if (request()->query('d') === 'visual')
             <div class="mt-6 flex justify-center">
                 <a href="https://drive.google.com/drive/folders/{{ $folderId }}" target="_blank"
                     class="flex items-center gap-2 rounded-full bg-pink-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-600/30 transition-all hover:scale-105 hover:bg-pink-500 active:scale-95">
@@ -162,15 +163,16 @@
 
         <!-- Toolbar (Only for flat structures) -->
         <div id="gallery-toolbar" class="hidden">
-            <div class="mb-6 flex justify-between items-center">
+            <div class="mb-6 flex items-center justify-between">
                 <h3 class="font-outfit text-lg font-semibold text-white">Semua File</h3>
                 <div class="flex items-center gap-2">
                     <label for="sort-select" class="text-sm text-slate-400">Urutkan:</label>
-                    <select id="sort-select" onchange="sortFiles(this.value)" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-pink-500 backdrop-blur-md cursor-pointer">
+                    <select id="sort-select" onchange="sortFiles(this.value)"
+                        class="cursor-pointer rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-pink-500">
                         <option value="name_asc" class="text-slate-800" selected>Nama (A-Z)</option>
+                        <option value="name_desc" class="text-slate-800">Nama (Z-A)</option>
                         <option value="newest" class="text-slate-800">Terbaru (Newest)</option>
                         <option value="oldest" class="text-slate-800">Terlama (Oldest)</option>
-                        <option value="name_desc" class="text-slate-800">Nama (Z-A)</option>
                     </select>
                 </div>
             </div>
@@ -182,10 +184,13 @@
         </div>
 
         <!-- Load More Container (Infinite Scroll Trigger) -->
-        <div id="load-more-container" class="mt-12 hidden text-center pb-12">
+        <div id="load-more-container" class="mt-12 hidden pb-12 text-center">
             <svg class="h-8 w-8 animate-spin text-pink-500 drop-shadow-lg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                </circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
             </svg>
         </div>
 
@@ -198,7 +203,8 @@
         <!-- Lightbox Header Controls -->
         <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 md:px-6">
             <div class="text-xs tracking-wider text-slate-400">
-                <span id="lightbox-index" class="font-semibold text-white">0</span> / <span id="lightbox-total">0</span>
+                <span id="lightbox-index" class="font-semibold text-white">0</span> / <span
+                    id="lightbox-total">0</span>
                 <span class="mx-2">|</span>
                 <span id="lightbox-filename" class="hidden sm:inline">file_name.jpg</span>
             </div>
@@ -215,7 +221,8 @@
                 <button onclick="closeLightbox()"
                     class="bg-maroon flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-lg text-white transition-all hover:scale-105 hover:bg-pink-600 active:scale-95">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12">
                         </path>
                     </svg>
                 </button>
@@ -380,10 +387,10 @@
 
             const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
             const fields = 'nextPageToken,files(id,name,thumbnailLink,createdTime,mimeType)';
-            
+
             let allFiles = [];
             let pageToken = '';
-            
+
             do {
                 const tokenParam = pageToken ? `&pageToken=${pageToken}` : '';
                 // Order chronologically by creation time
@@ -399,7 +406,7 @@
                 if (data.files) {
                     allFiles = allFiles.concat(data.files);
                 }
-                
+
                 pageToken = data.nextPageToken;
             } while (pageToken);
 
@@ -516,7 +523,7 @@
             } else if (sortOrder === 'name_desc') {
                 printsFiles.sort((a, b) => b.name.localeCompare(a.name));
             }
-            
+
             // Reset pagination and re-render grid
             itemsToShow = ITEMS_PER_PAGE;
             renderGrid();
@@ -580,7 +587,7 @@
 
         function runTimeBasedMatching(printFile) {
             const originalsBox = document.getElementById('originals-box');
-            
+
             if (isFlatStructure) {
                 originalsBox.classList.add('hidden');
                 return;
@@ -650,11 +657,13 @@
                 origThumb.onclick = () => {
                     setActiveThumb(origThumb);
                     const mediaContainer = document.getElementById('lightbox-media-container');
-                    const highResUrl = `https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}`;
-                    const lowResUrl = orig.thumbnailLink ? orig.thumbnailLink.replace(/=s220$/, '=w1000') : highResUrl;
-                    
+                    const highResUrl =
+                        `https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}`;
+                    const lowResUrl = orig.thumbnailLink ? orig.thumbnailLink.replace(/=s220$/, '=w1000') :
+                        highResUrl;
+
                     renderProgressiveImage(mediaContainer, lowResUrl, highResUrl, orig.name);
-                    
+
                     document.getElementById('lightbox-download').href = highResUrl;
                     document.getElementById('lightbox-filename').innerText = orig.name;
                 };
@@ -722,7 +731,7 @@
         // =========================================
         // 6. UTILITY FUNCTIONS
         // =========================================
-        
+
         function renderProgressiveImage(containerElement, lowResUrl, highResUrl, altText) {
             // Render the low resolution image first with a blur effect
             containerElement.innerHTML = `
@@ -736,10 +745,10 @@
                     </div>
                 </div>
             `;
-            
+
             const imgElement = containerElement.querySelector('.lightbox-dynamic-img');
             const loaderElement = containerElement.querySelector('.lightbox-loader');
-            
+
             // Preload the high-resolution image in the background
             const imgLoader = new Image();
             imgLoader.src = highResUrl;
@@ -786,8 +795,10 @@
                         loadMoreItems();
                     }, 50);
                 }
-            }, { rootMargin: "300px" }); // Trigger 300px before the user actually reaches the bottom
-            
+            }, {
+                rootMargin: "300px"
+            }); // Trigger 300px before the user actually reaches the bottom
+
             observer.observe(loadMoreContainer);
         }
 
