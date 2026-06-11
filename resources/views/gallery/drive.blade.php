@@ -360,18 +360,31 @@
             if (!folderId) return [];
 
             const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-            const fields = 'files(id,name,thumbnailLink,createdTime,mimeType)';
-            // Order chronologically by creation time
-            const response = await fetch(
-                `https://www.googleapis.com/drive/v3/files?q=${query}&fields=${fields}&orderBy=createdTime%20desc&pageSize=500&key=${API_KEY}`
-            );
-            const data = await response.json();
+            const fields = 'nextPageToken,files(id,name,thumbnailLink,createdTime,mimeType)';
+            
+            let allFiles = [];
+            let pageToken = '';
+            
+            do {
+                const tokenParam = pageToken ? `&pageToken=${pageToken}` : '';
+                // Order chronologically by creation time
+                const response = await fetch(
+                    `https://www.googleapis.com/drive/v3/files?q=${query}&fields=${fields}&orderBy=createdTime%20desc&pageSize=1000&key=${API_KEY}${tokenParam}`
+                );
+                const data = await response.json();
 
-            if (data.error) {
-                throw new Error(data.error.message);
-            }
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
 
-            return data.files || [];
+                if (data.files) {
+                    allFiles = allFiles.concat(data.files);
+                }
+                
+                pageToken = data.nextPageToken;
+            } while (pageToken);
+
+            return allFiles;
         }
 
         // =========================================
