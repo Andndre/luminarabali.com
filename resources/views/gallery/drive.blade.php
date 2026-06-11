@@ -167,9 +167,9 @@
                 <div class="flex items-center gap-2">
                     <label for="sort-select" class="text-sm text-slate-400">Urutkan:</label>
                     <select id="sort-select" onchange="sortFiles(this.value)" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-pink-500 backdrop-blur-md cursor-pointer">
+                        <option value="name_asc" class="text-slate-800" selected>Nama (A-Z)</option>
                         <option value="newest" class="text-slate-800">Terbaru (Newest)</option>
                         <option value="oldest" class="text-slate-800">Terlama (Oldest)</option>
-                        <option value="name_asc" class="text-slate-800">Nama (A-Z)</option>
                         <option value="name_desc" class="text-slate-800">Nama (Z-A)</option>
                     </select>
                 </div>
@@ -341,6 +341,8 @@
                     isFlatStructure = true;
                     setLoading(true, "Membaca file langsung dari folder utama...");
                     printsFiles = await fetchFilesFromFolder(PARENT_FOLDER_ID);
+                    // Default sort: Nama (A-Z)
+                    printsFiles.sort((a, b) => a.name.localeCompare(b.name));
                     document.getElementById('gallery-toolbar').classList.remove('hidden');
                 } else {
                     setLoading(true, "Mengunduh metadata foto dan video...");
