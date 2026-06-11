@@ -478,7 +478,7 @@
                         </div>
                     ` : '';
                     mediaContent = `
-                        <img src="${gridThumbnail}" onerror="handleExpiredSession()" alt="${file.name}" loading="lazy" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                        <img src="${gridThumbnail}" onerror="handleExpiredSession(this)" alt="${file.name}" loading="lazy" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
                         ${videoOverlay}
                     `;
                 }
@@ -649,7 +649,7 @@
                     "session-thumb flex-none relative aspect-[3/4] h-20 rounded-lg overflow-hidden border border-white/10 cursor-pointer transition-all duration-300";
                 const origThumbUrl = orig.thumbnailLink ? orig.thumbnailLink.replace(/=s220$/, '=s150') : '';
                 origThumb.innerHTML = `
-                    <img src="${origThumbUrl}" onerror="handleExpiredSession()" alt="${orig.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                    <img src="${origThumbUrl}" onerror="handleExpiredSession(this)" alt="${orig.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
                     <div class="absolute bottom-0 inset-x-0 bg-black/60 py-0.5 text-center">
                         <span class="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Originals</span>
                     </div>
@@ -736,7 +736,7 @@
             // Render the low resolution image first with a blur effect
             containerElement.innerHTML = `
                 <div class="relative h-full w-full max-h-full max-w-full flex items-center justify-center">
-                    <img src="${lowResUrl}" onerror="handleExpiredSession()" alt="${altText}" crossorigin="anonymous" referrerpolicy="no-referrer" class="lightbox-dynamic-img h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none filter blur-sm transition-all duration-700">
+                    <img src="${lowResUrl}" onerror="handleExpiredSession(this)" alt="${altText}" crossorigin="anonymous" referrerpolicy="no-referrer" class="lightbox-dynamic-img h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none filter blur-sm transition-all duration-700">
                     <div class="lightbox-loader absolute inset-0 flex items-center justify-center bg-black/10 rounded-xl">
                          <svg class="h-10 w-10 animate-spin text-white/50 drop-shadow-lg" fill="none" viewBox="0 0 24 24">
                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -763,7 +763,7 @@
             };
         }
 
-        function handleExpiredSession() {
+        function triggerSessionReload() {
             if (window.isSessionExpiredHandled) return;
             window.isSessionExpiredHandled = true;
 
@@ -783,6 +783,54 @@
             } else {
                 alert('Sesi galeri Anda telah berakhir demi keamanan. Halaman akan dimuat ulang.');
                 window.location.reload();
+            }
+        }
+
+        async function handleExpiredSession(imgElement) {
+            if (!imgElement || !imgElement.src) return;
+            const url = imgElement.src;
+
+            // If we are already handling an expiration reload, do nothing
+            if (window.isSessionExpiredHandled) return;
+
+            // Ignore data URLs, blob URLs, or relative assets
+            if (url.startsWith('data:') || url.startsWith('blob:') || !url.startsWith('http')) return;
+
+            try {
+                // Fetch to check the HTTP status code
+                const response = await fetch(url, { method: 'GET', cache: 'no-store' });
+                if (response.status === 403 || response.status === 410 || response.status === 401) {
+                    triggerSessionReload();
+                } else {
+                    console.warn(`Image load failed with status: ${response.status}. Treating as network issue.`);
+                    handleNetworkError(imgElement);
+                }
+            } catch (err) {
+                // Network error / offline / timeout / CORS block
+                console.warn(`Image load failed due to network connectivity:`, err);
+                handleNetworkError(imgElement);
+            }
+        }
+
+        function handleNetworkError(imgElement) {
+            const maxRetries = 3;
+            let retries = parseInt(imgElement.getAttribute('data-retry-count') || '0');
+
+            if (retries < maxRetries) {
+                retries++;
+                imgElement.setAttribute('data-retry-count', retries);
+
+                // Add query parameter to bypass browser cache
+                const cleanSrc = imgElement.src.split('&_retry=')[0].split('?_retry=')[0];
+                const separator = cleanSrc.includes('?') ? '&' : '?';
+
+                setTimeout(() => {
+                    console.log(`Retrying image load (attempt ${retries}/${maxRetries}): ${cleanSrc}`);
+                    imgElement.src = `${cleanSrc}${separator}_retry=${retries}`;
+                }, 3000); // Wait 3 seconds before retrying
+            } else {
+                console.warn(`Failed to load image after ${maxRetries} retries.`);
+                imgElement.classList.add('opacity-50');
             }
         }
 
