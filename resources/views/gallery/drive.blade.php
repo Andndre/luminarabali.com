@@ -160,6 +160,22 @@
             </button>
         </div>
 
+        <!-- Toolbar (Only for flat structures) -->
+        <div id="gallery-toolbar" class="hidden">
+            <div class="mb-6 flex justify-between items-center">
+                <h3 class="font-outfit text-lg font-semibold text-white">Semua File</h3>
+                <div class="flex items-center gap-2">
+                    <label for="sort-select" class="text-sm text-slate-400">Urutkan:</label>
+                    <select id="sort-select" onchange="sortFiles(this.value)" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-pink-500 backdrop-blur-md cursor-pointer">
+                        <option value="newest" class="text-slate-800">Terbaru (Newest)</option>
+                        <option value="oldest" class="text-slate-800">Terlama (Oldest)</option>
+                        <option value="name_asc" class="text-slate-800">Nama (A-Z)</option>
+                        <option value="name_desc" class="text-slate-800">Nama (Z-A)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Media Grid -->
         <div id="media-grid" class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
             <!-- Grid Items Will Be Rendered Dynamically -->
@@ -325,6 +341,7 @@
                     isFlatStructure = true;
                     setLoading(true, "Membaca file langsung dari folder utama...");
                     printsFiles = await fetchFilesFromFolder(PARENT_FOLDER_ID);
+                    document.getElementById('gallery-toolbar').classList.remove('hidden');
                 } else {
                     setLoading(true, "Mengunduh metadata foto dan video...");
 
@@ -484,6 +501,22 @@
 
         function loadMoreItems() {
             itemsToShow += ITEMS_PER_PAGE;
+            renderGrid();
+        }
+
+        function sortFiles(sortOrder) {
+            if (sortOrder === 'newest') {
+                printsFiles.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+            } else if (sortOrder === 'oldest') {
+                printsFiles.sort((a, b) => new Date(a.createdTime) - new Date(b.createdTime));
+            } else if (sortOrder === 'name_asc') {
+                printsFiles.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortOrder === 'name_desc') {
+                printsFiles.sort((a, b) => b.name.localeCompare(a.name));
+            }
+            
+            // Reset pagination and re-render grid
+            itemsToShow = ITEMS_PER_PAGE;
             renderGrid();
         }
 
