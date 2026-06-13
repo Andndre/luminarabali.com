@@ -83,16 +83,27 @@
                         </div>
                     </div>
                 </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Meta Data (JSON Override)</label>
+                    <textarea name="meta_data" rows="5"
+                              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent font-mono text-sm"
+                              placeholder="{'bg_music': '...', 'custom_image': '...'}">{{ old('meta_data', $invitation->meta_data ? json_encode($invitation->meta_data, JSON_PRETTY_PRINT) : '') }}</textarea>
+                    <p class="mt-1 text-xs text-gray-500">Opsional. Gunakan format JSON untuk menimpa properti spesifik halaman ini (misal: bg_music atau image_url).</p>
+                    @error('meta_data')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
         </div>
 
         <!-- Actions -->
         <div class="flex justify-between">
-            <a href="{{ route('admin.invitations.editor', $invitation->id) }}" class="px-6 py-2 border rounded-lg hover:bg-gray-50 transition flex items-center">
+            <a href="{{ route('invitation.show', $invitation->slug) }}" target="_blank" class="px-6 py-2 border rounded-lg hover:bg-gray-50 transition flex items-center text-blue-600 border-blue-200 bg-blue-50">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                 </svg>
-                Edit dengan Visual Editor
+                Lihat Undangan (Live)
             </a>
 
             <div class="flex gap-3">

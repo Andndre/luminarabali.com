@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
         <h1 class="text-2xl font-bold text-gray-900 mt-4">Edit Template</h1>
     </div>
 
-    <form action="{{ route('admin.templates.update', $template->id) }}" method="POST" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <form action="{{ route('admin.templates.update', $template->id) }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         @csrf
         @method('PUT')
 

@@ -15,12 +15,11 @@ class InvitationViewController extends Controller
         $page = Cache::remember("invitation:{$slug}", 3600, function () use ($slug) {
             return InvitationPage::where('slug', $slug)
                 ->where('published_status', 'published')
-                ->with(['sections', 'assets', 'template'])
+                ->with(['assets', 'template'])
                 ->firstOrFail();
         });
 
-        $renderer = app(InvitationRenderer::class);
-        $content = $renderer->render($page);
+        $content = \Illuminate\Support\Facades\Blade::render($page->template->blade_content ?? '', ['page' => $page]);
 
         return view('invitations.public', [
             'page' => $page,

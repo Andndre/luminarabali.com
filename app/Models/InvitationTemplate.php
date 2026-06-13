@@ -13,13 +13,20 @@ class InvitationTemplate extends Model
         'description',
         'category',
         'global_custom_css',
+        'blade_content',
+        'cover_content',
+        'meta_data',
         'is_active',
         'created_by'
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean'
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'meta_data' => 'array',
+        ];
+    }
 
     public function pages()
     {

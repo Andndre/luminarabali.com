@@ -14,7 +14,7 @@
         <h1 class="text-2xl font-bold text-gray-900 mt-4">Buat Template Baru</h1>
     </div>
 
-    <form action="{{ route('admin.templates.store') }}" method="POST" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <form action="{{ route('admin.templates.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         @csrf
 
         <div class="space-y-4">

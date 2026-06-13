@@ -369,9 +369,11 @@ function mediaLibrary() {
         selectAsset(asset) {
             // If opened in modal/iframe, send message to parent
             if (window.opener || window.parent !== window) {
+                // Alpine proxies cannot be cloned by postMessage, so we need to unwrap it using JSON parse
+                const rawAsset = JSON.parse(JSON.stringify(asset));
                 window.parent.postMessage({
                     type: 'assetSelected',
-                    asset: asset
+                    asset: rawAsset
                 }, '*');
             }
         },

@@ -35,8 +35,13 @@
         href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
-    <!-- Tailwind CSS -->
+    @vite(['resources/css/app.css'])
+    
+    <!-- Tailwind CSS (CDN for dynamic DB templates) -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         * {
@@ -74,9 +79,9 @@
         }
     </style>
 
-    @if (!empty(data_get($page->meta_data, 'global_custom_css')))
+    @if (!empty($page->template->global_custom_css))
         <style>
-            {!! data_get($page->meta_data, 'global_custom_css') !!}
+            {!! $page->template->global_custom_css !!}
         </style>
     @endif
 
@@ -84,21 +89,42 @@
 </head>
 
 <body class="bg-white">
-    <!-- Invitation Content -->
-    <main>
-        {!! $content ?? '' !!}
-    </main>
+    @php
+        $music = $page->meta_data['bg_music'] ?? '';
+        $rsvpEnabled = $page->meta_data['rsvp_enabled'] ?? true;
+    @endphp
+    
+    <x-invitation.layout class="bg-gray-50">
+        <x-invitation.audio :src="$music" />
 
-    <!-- Footer -->
-    @if ($page->template)
-        <footer class="py-8 text-center text-sm text-gray-600">
-            <p>Created with love using Luminara Photobooth</p>
-            <p class="mt-1">
-                <a href="https://luminaraphotobooth.com" class="text-yellow-600 hover:text-yellow-700">Create your
-                    invitation</a>
-            </p>
-        </footer>
-    @endif
+        @if(!empty($page->template->cover_content))
+            {!! \Illuminate\Support\Facades\Blade::render($page->template->cover_content, ['page' => $page]) !!}
+        @else
+            <x-invitation.cover 
+                :groom="$page->groom_name ?? 'Romeo'"
+                :bride="$page->bride_name ?? 'Juliet'"
+                :guest="request()->query('to', 'Tamu Spesial')"
+                image="{{ $page->og_image ?? 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop' }}"
+            />
+        @endif
+
+        <div x-show="isOpen" style="display: none;" class="w-full">
+            {!! $content ?? '' !!}
+            
+            @if($rsvpEnabled)
+                <x-invitation.rsvp :slug="$page->slug" />
+            @endif
+            
+            <footer class="py-16 text-center bg-gray-50">
+                <h2 class="text-4xl font-serif mb-4 text-gray-900">{{ $page->groom_name ?? 'Romeo' }} & {{ $page->bride_name ?? 'Juliet' }}</h2>
+                <p class="text-sm tracking-widest uppercase mb-12 text-gray-500">{{ optional($page->event_date)->format('d . m . Y') ?? '12 . 12 . 2026' }}</p>
+                <p class="text-gray-400 text-xs tracking-widest">Created with love using Luminara Photobooth</p>
+                <p class="mt-1">
+                    <a href="https://luminarabali.com" class="text-gray-500 hover:text-gray-700">luminarabali.com</a>
+                </p>
+            </footer>
+        </div>
+    </x-invitation.layout>
 
     <!-- SweetAlert2 for notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

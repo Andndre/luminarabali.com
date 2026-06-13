@@ -23,19 +23,21 @@ class InvitationPage extends Model
         'event_date' => 'datetime'
     ];
 
+    public function sections()
+    {
+        return $this->hasMany(InvitationSection::class, 'page_id');
+    }
+
     public function template()
     {
         return $this->belongsTo(InvitationTemplate::class);
     }
 
-    public function sections()
-    {
-        return $this->hasMany(InvitationSection::class)->orderBy('order_index');
-    }
+
 
     public function assets()
     {
-        return $this->hasMany(InvitationAsset::class);
+        return $this->hasMany(InvitationAsset::class, 'page_id');
     }
 
     public function rsvpResponses()

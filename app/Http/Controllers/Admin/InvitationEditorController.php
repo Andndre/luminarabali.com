@@ -22,7 +22,7 @@ class InvitationEditorController extends Controller
         }
 
         $page = InvitationPage::with(['sections', 'template'])->findOrFail($id);
-        return view('admin.invitations.editor-react', compact('page'));
+        return view('admin.templates.editor-native', compact('page'));
     }
 
     public function load($id)
@@ -144,11 +144,7 @@ class InvitationEditorController extends Controller
             return $savedSections;
         });
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Sections saved',
-            'sections' => $savedSections,
-        ]);
+        return redirect()->back()->with('success', 'Berhasil disimpan!');
     }
 
     public function updateSection(Request $request, $id)
@@ -241,6 +237,7 @@ class InvitationEditorController extends Controller
     private function allowedSectionTypes(): array
     {
         return [
+            'cover',
             'section_one_col',
             'section_two_col',
             'section_three_col',

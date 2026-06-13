@@ -23,7 +23,7 @@ class TemplateEditorController extends Controller
         }
 
         $template = InvitationTemplate::with(['sections', 'creator'])->findOrFail($id);
-        return view('admin.templates.editor-react', compact('template'));
+        return view('admin.templates.editor-native', compact('template'));
     }
 
     public function editorReact($id)
@@ -36,7 +36,7 @@ class TemplateEditorController extends Controller
         }
 
         $template = InvitationTemplate::with(['sections', 'creator'])->findOrFail($id);
-        return view('admin.templates.editor-react', compact('template'));
+        return view('admin.templates.editor-native', compact('template'));
     }
 
     public function load($id)
@@ -53,116 +53,34 @@ class TemplateEditorController extends Controller
 
     public function saveSection(Request $request)
     {
-        $allowedSectionTypes = implode(',', $this->allowedSectionTypes());
-
-        $rules = [
+        $request->validate([
             'template_id' => 'required|exists:invitation_templates,id',
             'global_custom_css' => 'nullable|string',
-            'sections' => 'present|array',
-        ];
-
-        if (!empty($request->sections)) {
-            $rules['sections.*.id'] = 'required|string';
-            $rules['sections.*.parent_id'] = 'nullable|string';
-            $rules['sections.*.section_type'] = 'required|string|in:' . $allowedSectionTypes;
-            $rules['sections.*.order_index'] = 'required|integer';
-            $rules['sections.*.props'] = 'required|array';
-            $rules['sections.*.custom_css'] = 'nullable|string';
-            $rules['sections.*.is_visible'] = 'nullable|boolean';
-        }
-
-        $request->validate($rules);
+            'blade_content' => 'nullable|string',
+            'cover_content' => 'nullable|string',
+            'meta_data' => 'nullable|string',
+        ]);
 
         $templateId = (int) $request->template_id;
-        $sections = $request->sections ?? [];
+        $template = InvitationTemplate::findOrFail($templateId);
 
-        $nonTempIds = collect($sections)
-            ->pluck('id')
-            ->filter(fn($id) => !str_starts_with($id, 'temp-'))
-            ->values();
-
-        if ($nonTempIds->count() !== $nonTempIds->unique()->count()) {
-            throw ValidationException::withMessages([
-                'sections' => ['Duplicate section id found in payload.'],
-            ]);
+        $metaData = null;
+        if ($request->meta_data) {
+            $metaData = json_decode($request->meta_data, true);
         }
 
-        $globalCustomCss = $request->global_custom_css;
-
-        $savedSections = DB::transaction(function () use ($templateId, $sections, $nonTempIds, $globalCustomCss) {
-            $existingSections = InvitationSection::where('template_id', $templateId)
-                ->get()
-                ->keyBy(fn($section) => (string) $section->id);
-
-            if (Schema::hasColumn('invitation_templates', 'global_custom_css')) {
-                InvitationTemplate::where('id', $templateId)->update([
-                    'global_custom_css' => $globalCustomCss,
-                ]);
-            }
-
-            if ($nonTempIds->count() > 0) {
-                $missingIds = $nonTempIds->diff($existingSections->keys());
-                if ($missingIds->isNotEmpty()) {
-                    throw ValidationException::withMessages([
-                        'sections' => ['Some section ids are invalid for this template.'],
-                    ]);
-                }
-            }
-
-            $deleteQuery = InvitationSection::where('template_id', $templateId);
-            if ($nonTempIds->count() > 0) {
-                $deleteQuery->whereNotIn('id', $nonTempIds->all());
-            }
-            $deleteQuery->delete();
-
-            $persistedIds = $existingSections->keys()->map(fn($id) => (string) $id)->all();
-            $tempIdMapping = [];
-            $savedSections = [];
-
-            foreach ($sections as $sectionData) {
-                $incomingId = (string) $sectionData['id'];
-                $parentId = $this->resolveParentId(
-                    $sectionData['parent_id'] ?? null,
-                    $tempIdMapping,
-                    $persistedIds,
-                );
-
-                $payload = [
-                    'template_id' => $templateId,
-                    'page_id' => null,
-                    'parent_id' => $parentId,
-                    'section_type' => $sectionData['section_type'],
-                    'order_index' => $sectionData['order_index'],
-                    'props' => $sectionData['props'] ?? [],
-                    'custom_css' => $sectionData['custom_css'] ?? null,
-                    'is_visible' => $sectionData['is_visible'] ?? true,
-                ];
-
-                if (str_starts_with($incomingId, 'temp-')) {
-                    $newSection = InvitationSection::create($payload);
-                    $newId = (string) $newSection->id;
-                    $tempIdMapping[$incomingId] = $newId;
-                    $persistedIds[] = $newId;
-                    $savedSections[] = [
-                        'temp_id' => $incomingId,
-                        'id' => $newSection->id,
-                    ];
-                    continue;
-                }
-
-                /** @var InvitationSection $section */
-                $section = $existingSections->get($incomingId);
-                $section->update($payload);
-            }
-
-            return $savedSections;
-        });
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Sections saved',
-            'sections' => $savedSections,
+        $template->update([
+            'global_custom_css' => $request->global_custom_css,
+            'blade_content' => $request->blade_content,
+            'cover_content' => $request->cover_content,
+            'meta_data' => $metaData,
         ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Berhasil disimpan!']);
+        }
+
+        return redirect()->back()->with('success', 'Berhasil disimpan!');
     }
 
     public function updateSection(Request $request, $id)
@@ -264,6 +182,7 @@ class TemplateEditorController extends Controller
     private function allowedSectionTypes(): array
     {
         return [
+            'cover',
             'section_one_col',
             'section_two_col',
             'section_three_col',

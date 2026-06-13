@@ -69,14 +69,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('/templates/{id}/duplicate', [\App\Http\Controllers\Admin\TemplateController::class, 'duplicate'])->name('admin.templates.duplicate');
     Route::get('/templates/test', function () { return view('admin.templates.test'); })->name('admin.templates.test');
     Route::get('/templates/{id}/editor', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'editor'])->name('admin.templates.editor');
-    Route::get('/templates/{id}/editor-react', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'editorReact'])->name('admin.templates.editor-react');
+    Route::get('/templates/{id}/editor-react', function ($id) {
+        return redirect()->route('admin.templates.editor', $id);
+    })->name('admin.templates.editor-react');
     Route::get('/templates/{id}/preview', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'preview'])->name('admin.templates.preview');
     Route::post('/templates/{id}/publish', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'publish'])->name('admin.templates.publish');
 
     // Invitations Routes
-    Route::resource('invitations', \App\Http\Controllers\Admin\InvitationController::class)->names('admin.invitations');
     Route::get('/invitations/{id}/editor', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'editor'])->name('admin.invitations.editor');
-    Route::post('/invitations/{id}/publish', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'publish'])->name('admin.invitations.publish');
+    Route::resource('invitations', \App\Http\Controllers\Admin\InvitationController::class)->names('admin.invitations');
 
     // Media Library Routes
     Route::get('/assets', [\App\Http\Controllers\Admin\InvitationAssetController::class, 'indexView'])->name('admin.assets.index');

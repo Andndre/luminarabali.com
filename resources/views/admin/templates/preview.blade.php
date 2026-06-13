@@ -13,8 +13,13 @@
         href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
-    <!-- Tailwind CSS -->
+    @vite(['resources/css/app.css'])
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         * {
@@ -66,47 +71,47 @@
         Preview Mode - Template: {{ $template->name }}
     </div>
 
-    @php
-        $sortedSections = $template->sections->sortBy('order_index')->values();
-        $sectionsByParent = [];
+        @php
+            $page = new \stdClass();
+            $page->groom_name = 'Romeo';
+            $page->bride_name = 'Juliet';
+            $page->event_date = now()->addDays(30);
+            $page->meta_data = $template->meta_data ?? [];
+            $page->template = $template; // Pass the template relationship
+            $page->slug = 'demo';
+            
+            $music = $page->meta_data['bg_music'] ?? '';
+            $rsvpEnabled = $page->meta_data['rsvp_enabled'] ?? true;
+        @endphp
+        
+        <x-invitation.layout class="bg-gray-50" :skip-cover="request()->query('skip_cover') == 1">
+            <x-invitation.audio :src="$music" />
 
-        foreach ($sortedSections as $item) {
-            $key = $item->parent_id ? (string) $item->parent_id : 'root';
-            $sectionsByParent[$key] = $sectionsByParent[$key] ?? [];
-            $sectionsByParent[$key][] = $item;
-        }
+            @if(!empty($template->cover_content))
+                {!! \Illuminate\Support\Facades\Blade::render($template->cover_content, ['page' => $page]) !!}
+            @else
+                <x-invitation.cover 
+                    :groom="$page->groom_name ?? 'Romeo'"
+                    :bride="$page->bride_name ?? 'Juliet'"
+                    :guest="request()->query('to', 'Tamu Spesial')"
+                    image="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop"
+                />
+            @endif
 
-        $renderSection = function ($section) use (&$renderSection, $sectionsByParent, $template) {
-            $children = collect($sectionsByParent[(string) $section->id] ?? [])
-                ->sortBy('order_index')
-                ->values();
-            $viewPath = "templates.components.{$section->section_type}";
-            $filePath = str_replace('.', '/', $viewPath);
-
-            if (!file_exists(resource_path("views/{$filePath}.blade.php"))) {
-                return '<div class="bg-red-100 p-4 text-center text-red-700">Component not found: ' .
-                    e($section->section_type) .
-                    '</div>';
-            }
-
-            return view($viewPath, [
-                'props' => $section->props ?? [],
-                'section' => $section,
-                'page' => $template,
-                'elements' => $children,
-            ])->render();
-        };
-
-        $rootSections = collect($sectionsByParent['root'] ?? [])
-            ->sortBy('order_index')
-            ->values();
-    @endphp
-
-    <div>
-        @foreach ($rootSections as $section)
-            {!! $renderSection($section) !!}
-        @endforeach
-    </div>
+            <div x-show="isOpen" style="display: none;" class="w-full">
+                {!! \Illuminate\Support\Facades\Blade::render($template->blade_content ?? '', ['page' => $page]) !!}
+                
+                @if($rsvpEnabled)
+                    <x-invitation.rsvp :slug="$page->slug" />
+                @endif
+                
+                <footer class="py-16 text-center bg-gray-50">
+                    <h2 class="text-4xl font-serif mb-4 text-gray-900">{{ $page->groom_name ?? 'Romeo' }} & {{ $page->bride_name ?? 'Juliet' }}</h2>
+                    <p class="text-sm tracking-widest uppercase mb-12 text-gray-500">{{ optional($page->event_date)->format('d . m . Y') ?? '12 . 12 . 2026' }}</p>
+                    <p class="text-gray-400 text-xs tracking-widest">MADE WITH ❤️ BY LUMINARA</p>
+                </footer>
+            </div>
+        </x-invitation.layout>
 </body>
 
 </html>

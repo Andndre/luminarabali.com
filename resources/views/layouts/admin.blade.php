@@ -31,6 +31,7 @@
 <body class="bg-gray-100 overflow-x-hidden">
 
     <div class="min-h-screen flex w-full">
+        @if(!request()->query('modal'))
         <!-- Sidebar -->
         <aside class="w-64 bg-gray-900 text-white flex flex-col fixed h-full z-20 transition-transform transform md:translate-x-0 -translate-x-full" id="sidebar">
             <div class="h-16 flex flex-col items-center justify-center border-b border-gray-800">
@@ -118,12 +119,14 @@
                 </form>
             </div>
         </aside>
+        @endif
 
         <!-- Overlay for mobile sidebar -->
         <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-10 hidden md:hidden glass transition-opacity opacity-0"></div>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col md:ml-64 transition-all min-w-0 w-full max-w-full">
+        <div class="flex-1 flex flex-col {{ request()->query('modal') ? '' : 'md:ml-64' }} transition-all min-w-0 w-full max-w-full">
+            @if(!request()->query('modal'))
             <!-- Mobile Header -->
             <header class="bg-white shadow-sm md:hidden h-16 flex items-center px-4 justify-between sticky top-0 z-10">
                 <span class="font-bold text-lg">LUMINARA ADMIN</span>
@@ -131,6 +134,7 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
             </header>
+            @endif
 
             <script>
                 function toggleSidebar() {
@@ -153,21 +157,37 @@
 
             <main class="flex-1 p-4 md:p-8 overflow-y-auto">
                 @if(session('success'))
-                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow-sm" role="alert">
-                        <p class="font-bold">Berhasil</p>
-                        <p>{{ session('success') }}</p>
-                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: '{{ session('success') }}',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
+                        });
+                    </script>
                 @endif
 
                 @if($errors->any())
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm" role="alert">
-                        <p class="font-bold">Terjadi Kesalahan</p>
-                        <ul class="list-disc list-inside">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Terjadi Kesalahan',
+                                html: '<ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 4000,
+                                timerProgressBar: true
+                            });
+                        });
+                    </script>
                 @endif
 
                 @yield('content')

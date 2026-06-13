@@ -75,36 +75,10 @@ class InvitationController extends Controller
             'created_by' => $currentUserId,
         ]);
 
-        // Duplicate sections from template as a snapshot starter
-        if ($request->template_id) {
-            $template = \App\Models\InvitationTemplate::find($request->template_id);
-            if ($template && $template->sections()->count() > 0) {
-                DB::transaction(function () use ($template, $invitation) {
-                    $idMapping = [];
-                    $templateSections = $template->sections()
-                        ->orderBy('order_index')
-                        ->get();
+        // No need to duplicate sections since sections belong to the template now.
 
-                    foreach ($templateSections as $section) {
-                        $newSection = $invitation->sections()->create([
-                            'parent_id' => $section->parent_id
-                                ? ($idMapping[(int) $section->parent_id] ?? null)
-                                : null,
-                            'section_type' => $section->section_type,
-                            'order_index' => $section->order_index,
-                            'props' => $section->props,
-                            'custom_css' => $section->custom_css,
-                            'is_visible' => $section->is_visible,
-                        ]);
-
-                        $idMapping[$section->id] = $newSection->id;
-                    }
-                });
-            }
-        }
-
-        return redirect()->route('admin.invitations.editor', $invitation->id)
-            ->with('success', 'Undangan berhasil dibuat. Silakan edit dengan visual editor.');
+        return redirect()->route('admin.invitations.edit', $invitation->id)
+            ->with('success', 'Undangan berhasil dibuat.');
     }
 
     public function edit($id)
@@ -136,13 +110,20 @@ class InvitationController extends Controller
             'groom_name' => 'required|string|max:255',
             'bride_name' => 'required|string|max:255',
             'event_date' => 'required|date',
+            'meta_data' => 'nullable|string',
         ]);
+
+        $metaData = null;
+        if ($request->meta_data) {
+            $metaData = json_decode($request->meta_data, true);
+        }
 
         $invitation->update([
             'title' => $request->title,
             'groom_name' => $request->groom_name,
             'bride_name' => $request->bride_name,
             'event_date' => $request->event_date,
+            'meta_data' => $metaData,
         ]);
 
         return redirect()->route('admin.invitations.index')->with('success', 'Undangan berhasil diperbarui.');
