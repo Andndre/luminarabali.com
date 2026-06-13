@@ -1,13 +1,85 @@
-@extends('layouts.admin')
+@extends('layouts.editor')
 
 @section('title', 'Blade Code Editor')
 
 
 
 @section('content')
-<div class="h-[calc(100vh-64px)] flex overflow-hidden">
-    <!-- Left Panel: Monaco Code Editor -->
-    <div class="w-1/2 h-full bg-[#1e1e1e] border-r border-gray-800 flex flex-col relative">
+<div class="h-screen flex overflow-hidden w-full" x-data="templateLibrary()">
+    
+    <!-- Left Panel: Component Library -->
+    <div class="w-[280px] shrink-0 bg-white border-r border-gray-200 flex flex-col z-20">
+        <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+            <div>
+                <h2 class="font-bold text-gray-900">Library</h2>
+                <p class="text-xs text-gray-500">Components & Sections</p>
+            </div>
+            <a href="{{ route('admin.component-library.index') }}" target="_blank" class="p-1.5 text-gray-400 hover:text-blue-600 bg-white rounded shadow-sm border border-gray-200" title="Manage Library">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
+        </div>
+        
+        <!-- Filters -->
+        <div class="p-3 border-b border-gray-200 space-y-3">
+            <div class="relative">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" x-model="search" placeholder="Cari komponen..." class="w-full pl-9 pr-3 py-1.5 text-sm bg-gray-100 border-transparent focus:border-yellow-500 focus:bg-white focus:ring-0 rounded-lg transition">
+            </div>
+            <select x-model="selectedCategory" class="w-full py-1.5 px-3 text-sm bg-gray-100 border-transparent focus:border-yellow-500 focus:bg-white focus:ring-0 rounded-lg transition">
+                <option value="">Semua Kategori</option>
+                <option value="cover">Cover</option>
+                <option value="hero">Hero</option>
+                <option value="text">Text & Typography</option>
+                <option value="event">Event Details</option>
+                <option value="gallery">Gallery</option>
+                <option value="countdown">Countdown</option>
+                <option value="rsvp">RSVP</option>
+                <option value="section">Full Section</option>
+            </select>
+        </div>
+
+        <!-- Component List -->
+        <div class="flex-1 overflow-y-auto p-3 space-y-3 relative">
+            
+            <div x-show="loading" class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                <svg class="animate-spin h-6 w-6 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </div>
+
+            <template x-for="item in filteredComponents" :key="item.id">
+                <div @click="insertComponent(item.id)" class="group bg-white border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-yellow-500 hover:shadow-md transition">
+                    <div class="aspect-video bg-gray-100 relative">
+                        <template x-if="item.thumbnail">
+                            <img :src="item.thumbnail ? '/' + item.thumbnail : ''" class="w-full h-full object-cover">
+                        </template>
+                        <template x-if="!item.thumbnail">
+                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                <svg class="w-6 h-6 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            </div>
+                        </template>
+                        
+                        <!-- Hover overlay -->
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span class="bg-yellow-500 text-black text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">Insert</span>
+                        </div>
+                    </div>
+                    <div class="p-2.5">
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400" x-text="item.category"></span>
+                            <span x-show="item.type === 'section'" class="text-[9px] px-1 bg-purple-100 text-purple-700 rounded border border-purple-200">Section</span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 text-sm leading-tight group-hover:text-yellow-600 transition" x-text="item.name"></h3>
+                    </div>
+                </div>
+            </template>
+            
+            <div x-show="!loading && filteredComponents.length === 0" class="text-center py-8 text-gray-500 text-sm">
+                Tidak ada komponen ditemukan.
+            </div>
+        </div>
+    </div>
+
+    <!-- Middle Panel: Monaco Code Editor -->
+    <div class="flex-1 h-full bg-[#1e1e1e] border-r border-gray-800 flex flex-col relative min-w-0">
         <div class="p-3 bg-[#252526] text-white flex justify-between items-center border-b border-gray-800 z-10">
             <div class="flex items-center gap-3">
                 <a href="{{ route('admin.templates.index') }}" class="text-xs text-gray-400 hover:text-white transition">&larr; Kembali</a>
@@ -88,7 +160,7 @@
     </div>
 
     <!-- Right Panel: Live Preview Iframe -->
-    <div class="w-1/2 h-full bg-gray-100 relative">
+    <div class="w-[40%] h-full bg-gray-100 relative shrink-0">
         <div class="absolute top-4 right-4 z-10 flex gap-2">
             <a href="{{ route('admin.templates.preview', $template->id) }}" target="_blank" class="bg-white/80 backdrop-blur px-3 py-2 rounded shadow text-xs font-medium hover:bg-white flex items-center gap-2 border border-gray-200">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
@@ -123,6 +195,78 @@
             },
             updateJson() {
                 document.getElementById('meta_data_input').value = JSON.stringify(this.formData);
+            }
+        }));
+
+        Alpine.data('templateLibrary', () => ({
+            components: [],
+            search: '',
+            selectedCategory: '',
+            loading: true,
+            
+            init() {
+                this.fetchComponents();
+            },
+            
+            async fetchComponents() {
+                this.loading = true;
+                try {
+                    const response = await fetch('/admin/api/component-library');
+                    this.components = await response.json();
+                } catch (error) {
+                    console.error('Failed to fetch components', error);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            
+            get filteredComponents() {
+                return this.components.filter(c => {
+                    const matchSearch = c.name.toLowerCase().includes(this.search.toLowerCase()) || 
+                                      (c.description && c.description.toLowerCase().includes(this.search.toLowerCase()));
+                    const matchCategory = this.selectedCategory === '' || c.category === this.selectedCategory;
+                    return matchSearch && matchCategory;
+                });
+            },
+            
+            async insertComponent(id) {
+                try {
+                    const response = await fetch(`/admin/api/component-library/${id}`);
+                    const component = await response.json();
+                    
+                    if(!globalEditor) return;
+                    
+                    // Default values for variables
+                    let code = component.code;
+                    if(component.variables && component.variables.length > 0) {
+                        component.variables.forEach(v => {
+                            const regex = new RegExp(`\\{\\{\\s*\\$${v.key}\\s*\\}\\}`, 'g');
+                            code = code.replace(regex, v.default || `[${v.label}]`);
+                        });
+                    }
+                    
+                    // Insert at cursor
+                    const position = globalEditor.getPosition();
+                    globalEditor.executeEdits("library-insert", [{
+                        range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+                        text: code + '\n',
+                        forceMoveMarkers: true
+                    }]);
+                    globalEditor.focus();
+                    
+                    // Flash notification
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Component inserted',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                } catch (error) {
+                    console.error('Failed to insert component', error);
+                    Swal.fire('Error', 'Gagal memuat komponen', 'error');
+                }
             }
         }));
     });

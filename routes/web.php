@@ -82,6 +82,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Media Library Routes
     Route::get('/assets', [\App\Http\Controllers\Admin\InvitationAssetController::class, 'indexView'])->name('admin.assets.index');
 
+    // Component Library Routes
+    Route::resource('component-library', \App\Http\Controllers\Admin\ComponentLibraryController::class)->names('admin.component-library');
+
     // Links Management Routes
     Route::resource('links', \App\Http\Controllers\Admin\LinkController::class)->names('admin.links');
     Route::post('links/reorder', [\App\Http\Controllers\Admin\LinkController::class, 'reorder'])->name('admin.links.reorder');
@@ -108,6 +111,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/assets/upload', [\App\Http\Controllers\Admin\InvitationAssetController::class, 'upload']);
         Route::delete('/assets/{id}', [\App\Http\Controllers\Admin\InvitationAssetController::class, 'destroy']);
         Route::put('/assets/{id}', [\App\Http\Controllers\Admin\InvitationAssetController::class, 'update']);
+
+        // Component Library API
+        Route::get('/component-library', [\App\Http\Controllers\Admin\ComponentLibraryController::class, 'apiIndex'])->name('component-library.index');
+        Route::get('/component-library/{id}', [\App\Http\Controllers\Admin\ComponentLibraryController::class, 'apiShow'])->name('component-library.show');
+        Route::post('/component-library/{id}/thumbnail', [\App\Http\Controllers\Admin\ComponentLibraryController::class, 'uploadThumbnail'])->name('component-library.thumbnail');
     });
 });
 
