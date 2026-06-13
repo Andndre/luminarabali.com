@@ -9,9 +9,9 @@ class Invoice extends Model
 {
     use HasFactory;
 
-    const STATUS_PENDING = 'PENDING';
-    const STATUS_DP_BAYAR = 'DP_BAYAR';
-    const STATUS_LUNAS = 'LUNAS';
+    public const STATUS_PENDING = 'PENDING';
+    public const STATUS_DP_BAYAR = 'DP_BAYAR';
+    public const STATUS_LUNAS = 'LUNAS';
 
     protected $guarded = ['id'];
 

@@ -11,6 +11,6 @@ class Gallery extends Model
 
     protected $guarded = ['id'];
 
-    const UNIT_PHOTOBOOTH = 'photobooth';
-    const UNIT_VISUAL = 'visual';
+    public const UNIT_PHOTOBOOTH = 'photobooth';
+    public const UNIT_VISUAL = 'visual';
 }

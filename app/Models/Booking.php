@@ -12,8 +12,8 @@ class Booking extends Model
     protected $guarded = ['id'];
 
     // Enums for Business Unit
-    const UNIT_PHOTOBOOTH = 'photobooth';
-    const UNIT_VISUAL = 'visual';
+    public const UNIT_PHOTOBOOTH = 'photobooth';
+    public const UNIT_VISUAL = 'visual';
 
     protected $casts = [
         'event_date' => 'date',
@@ -23,9 +23,9 @@ class Booking extends Model
     ];
 
     // Enums for Status
-    const STATUS_PENDING = 'PENDING';
-    const STATUS_DP_BAYAR = 'DP_BAYAR';
-    const STATUS_LUNAS = 'LUNAS';
+    public const STATUS_PENDING = 'PENDING';
+    public const STATUS_DP_BAYAR = 'DP_BAYAR';
+    public const STATUS_LUNAS = 'LUNAS';
 
     public function invoice()
     {
