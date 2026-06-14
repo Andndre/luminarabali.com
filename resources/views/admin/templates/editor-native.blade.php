@@ -251,8 +251,14 @@
         });
 
         // Convert container queries back to standard Tailwind breakpoints (@md: -> md:)
+        // and clean up Sortable/Alpine temporary attributes
         const allEls = clone.querySelectorAll('*');
         allEls.forEach(el => {
+            el.removeAttribute('draggable');
+            if (el.getAttribute('style') === '') {
+                el.removeAttribute('style');
+            }
+            
             if (el.className && typeof el.className === 'string') {
                 el.className = el.className.replace(/@(sm|md|lg|xl|2xl):/g, '$1:');
                 if (el.className.trim() === '') {
@@ -274,8 +280,33 @@
 
     document.addEventListener('alpine:init', () => {
         Alpine.data('editorApp', () => ({
-            mode: 'code',
+            mode: 'visual',
             drawerOpen: false,
+            init() {
+                this.$watch('mode', value => {
+                    if (value === 'visual') {
+                        // Sync from Monaco to Canvas
+                        const canvas = document.getElementById('visual-canvas');
+                        if (canvas && typeof htmlModel !== 'undefined') {
+                            canvas.innerHTML = htmlModel.getValue();
+                            
+                            // Let Alpine initialize bindings and then re-apply editable logic
+                            setTimeout(() => {
+                                const container = document.querySelector('[x-data="invitationEditor()"]');
+                                if(container) {
+                                    const editorData = Alpine.$data(container);
+                                    if(editorData && typeof editorData.init === 'function') {
+                                        editorData.init();
+                                    }
+                                }
+                            }, 50);
+                        }
+                    } else if (value === 'code') {
+                        // Sync from Canvas to Monaco
+                        window.syncToMonaco();
+                    }
+                });
+            },
             preSaveSync() {
                 if(this.mode === 'visual') {
                     window.syncToMonaco();
