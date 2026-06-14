@@ -5,107 +5,37 @@
 
 
 @section('content')
-<div class="h-screen flex overflow-hidden w-full" x-data="templateLibrary()">
+<div class="h-screen flex overflow-hidden w-full bg-[#1e1e1e]" x-data="templateLibrary()">
     
-    <!-- Left Panel: Component Library -->
-    <div class="w-[280px] shrink-0 bg-white border-r border-gray-200 flex flex-col z-20">
-        <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-            <div>
-                <h2 class="font-bold text-gray-900">Library</h2>
-                <p class="text-xs text-gray-500">Components & Sections</p>
-            </div>
-            <a href="{{ route('admin.component-library.index') }}" target="_blank" class="p-1.5 text-gray-400 hover:text-blue-600 bg-white rounded shadow-sm border border-gray-200" title="Manage Library">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-            </a>
-        </div>
-        
-        <!-- Filters -->
-        <div class="p-3 border-b border-gray-200 space-y-3">
-            <div class="relative">
-                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" x-model="search" placeholder="Cari komponen..." class="w-full pl-9 pr-3 py-1.5 text-sm bg-gray-100 border-transparent focus:border-yellow-500 focus:bg-white focus:ring-0 rounded-lg transition">
-            </div>
-            <select x-model="selectedCategory" class="w-full py-1.5 px-3 text-sm bg-gray-100 border-transparent focus:border-yellow-500 focus:bg-white focus:ring-0 rounded-lg transition">
-                <option value="">Semua Kategori</option>
-                <option value="cover">Cover</option>
-                <option value="hero">Hero</option>
-                <option value="text">Text & Typography</option>
-                <option value="event">Event Details</option>
-                <option value="gallery">Gallery</option>
-                <option value="countdown">Countdown</option>
-                <option value="rsvp">RSVP</option>
-                <option value="section">Full Section</option>
-            </select>
-        </div>
-
-        <!-- Component List -->
-        <div class="flex-1 overflow-y-auto p-3 space-y-3 relative">
-            
-            <div x-show="loading" class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-                <svg class="animate-spin h-6 w-6 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            </div>
-
-            <template x-for="item in filteredComponents" :key="item.id">
-                <div @click="insertComponent(item.id)" class="group bg-white border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-yellow-500 hover:shadow-md transition">
-                    <div class="aspect-video bg-gray-100 relative">
-                        <template x-if="item.thumbnail">
-                            <img :src="item.thumbnail ? '/' + item.thumbnail : ''" class="w-full h-full object-cover">
-                        </template>
-                        <template x-if="!item.thumbnail">
-                            <div class="w-full h-full flex items-center justify-center text-gray-400">
-                                <svg class="w-6 h-6 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            </div>
-                        </template>
-                        
-                        <!-- Hover overlay -->
-                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span class="bg-yellow-500 text-black text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">Insert</span>
-                        </div>
-                    </div>
-                    <div class="p-2.5">
-                        <div class="flex items-center gap-1.5 mb-1">
-                            <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400" x-text="item.category"></span>
-                            <span x-show="item.type === 'section'" class="text-[9px] px-1 bg-purple-100 text-purple-700 rounded border border-purple-200">Section</span>
-                        </div>
-                        <h3 class="font-bold text-gray-900 text-sm leading-tight group-hover:text-yellow-600 transition" x-text="item.name"></h3>
-                    </div>
-                </div>
-            </template>
-            
-            <div x-show="!loading && filteredComponents.length === 0" class="text-center py-8 text-gray-500 text-sm">
-                Tidak ada komponen ditemukan.
-            </div>
-        </div>
-    </div>
-
-    <!-- Middle Panel: Monaco Code Editor -->
-    <div class="flex-1 h-full bg-[#1e1e1e] border-r border-gray-800 flex flex-col relative min-w-0">
-        <div class="p-3 bg-[#252526] text-white flex justify-between items-center border-b border-gray-800 z-10">
+    <!-- Left Pane: Monaco Code Editor & Properties -->
+    <div class="flex-1 h-full flex flex-col relative min-w-0 border-r border-gray-800">
+        <!-- Minimal Flat Header -->
+        <div class="p-3 bg-[#1e1e1e] text-gray-300 flex justify-between items-center border-b border-gray-800 z-10">
             <div class="flex items-center gap-3">
-                <a href="{{ route('admin.templates.index') }}" class="text-xs text-gray-400 hover:text-white transition">&larr; Kembali</a>
-                <h1 class="text-sm font-semibold">{{ $template->name }} <span class="text-gray-500 font-normal">| blade_content</span></h1>
+                <a href="{{ route('admin.templates.index') }}" class="text-xs text-gray-500 hover:text-white transition">&larr; Kembali</a>
+                <h1 class="text-sm font-medium">{{ $template->name }} <span class="text-gray-600 font-normal">| source</span></h1>
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" onclick="openMediaLibrary()" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded text-xs transition flex items-center gap-1 text-white">
+                <button type="button" onclick="openMediaLibrary()" class="bg-[#2d2d2d] hover:bg-[#3d3d3d] px-3 py-1.5 rounded text-xs transition flex items-center gap-1 text-gray-300 border border-gray-700">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    Media Library
+                    Media
                 </button>
-                <button type="button" onclick="document.getElementById('previewFrame').contentWindow.location.reload()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded text-xs transition flex items-center gap-1 text-white">
+                <button type="button" onclick="document.getElementById('previewFrame').contentWindow.location.reload()" class="bg-[#2d2d2d] hover:bg-[#3d3d3d] px-3 py-1.5 rounded text-xs transition flex items-center gap-1 text-gray-300 border border-gray-700">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    Refresh Preview
+                    Refresh
                 </button>
-                <button form="editorForm" type="submit" class="bg-blue-600 hover:bg-blue-500 px-4 py-1.5 rounded text-xs font-medium transition text-white">
-                    Simpan (Ctrl+S)
+                <button form="editorForm" type="submit" class="bg-blue-600 hover:bg-blue-500 px-4 py-1.5 rounded text-xs font-medium transition text-white shadow-sm border border-blue-500">
+                    Simpan
                 </button>
             </div>
         </div>
 
-        <!-- Tab Navigation -->
-        <div class="flex border-b border-gray-800 text-xs text-gray-400 bg-[#1e1e1e]">
-            <button type="button" onclick="switchTab('cover')" id="tab-cover" class="px-4 py-2 border-b-2 border-transparent hover:text-white hover:bg-[#2d2d2d] transition">Cover Page (Blade)</button>
-            <button type="button" onclick="switchTab('html')" id="tab-html" class="px-4 py-2 border-b-2 border-blue-500 text-white hover:bg-[#2d2d2d] transition">Main Content (Blade)</button>
-            <button type="button" onclick="switchTab('css')" id="tab-css" class="px-4 py-2 border-b-2 border-transparent hover:text-white hover:bg-[#2d2d2d] transition">Global CSS</button>
-            <button type="button" onclick="switchTab('json')" id="tab-json" class="px-4 py-2 border-b-2 border-transparent hover:text-white hover:bg-[#2d2d2d] transition">Properties (JSON)</button>
+        <!-- Minimal Tabs Navigation -->
+        <div class="flex border-b border-gray-800 text-xs text-gray-500 bg-[#1e1e1e]">
+            <button type="button" onclick="switchTab('cover')" id="tab-cover" class="px-4 py-2 border-b-2 border-transparent hover:text-gray-300 transition">Cover Page</button>
+            <button type="button" onclick="switchTab('html')" id="tab-html" class="px-4 py-2 border-b-2 border-blue-500 text-white transition">Main Content</button>
+            <button type="button" onclick="switchTab('css')" id="tab-css" class="px-4 py-2 border-b-2 border-transparent hover:text-gray-300 transition">Global CSS</button>
+            <button type="button" onclick="switchTab('json')" id="tab-json" class="px-4 py-2 border-b-2 border-transparent hover:text-gray-300 transition">Properties</button>
         </div>
 
         <form id="editorForm" action="{{ route('api.templates.sections.save') }}" method="POST" class="hidden">
@@ -120,37 +50,38 @@
         <!-- Monaco Container -->
         <div id="monaco-container" class="flex-1 w-full h-full"></div>
 
-        <!-- Properties Form UI (Alpine.js) -->
-        <div id="properties-ui" class="flex-1 w-full h-full bg-[#FAF8F5] overflow-y-auto hidden"
-             x-data="propertiesForm({{ json_encode($template->meta_data ?: ['bg_music' => '', 'rsvp_enabled' => true, 'theme' => 'forest']) }})">
-            <div class="p-8 max-w-3xl mx-auto text-gray-800">
-                <div class="mb-8 border-b border-gray-200 pb-4">
-                    <h2 class="text-2xl font-serif text-gray-900">Template Properties</h2>
-                    <p class="text-sm text-gray-500 mt-1">Konfigurasi dasar dari template ini (dapat dioverride oleh tiap klien).</p>
+        <!-- Properties Form UI -->
+        <div id="properties-ui" class="flex-1 w-full h-full bg-[#1e1e1e] overflow-y-auto hidden"
+             x-data="propertiesForm({{ json_encode($template->meta_data ?: ['bg_music' => '', 'rsvp_enabled' => true]) }})">
+            <div class="p-8 max-w-3xl mx-auto text-gray-300">
+                <div class="mb-8 border-b border-gray-800 pb-4">
+                    <h2 class="text-xl font-medium text-white">Template Properties</h2>
+                    <p class="text-sm text-gray-500 mt-1">Konfigurasi dasar dari template ini.</p>
                 </div>
 
                 <div class="space-y-6">
                     <!-- Background Music -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Background Music (MP3 URL)</label>
+                    <div class="bg-[#252526] p-6 rounded border border-gray-800">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Background Music (MP3 URL)</label>
                         <div class="flex gap-2">
-                            <input type="text" x-model="formData.bg_music" @input="updateJson" id="bg_music_input_field" class="flex-1 border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2" placeholder="https://example.com/audio.mp3">
-                            <button type="button" onclick="openMediaLibrary('audio')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition border border-gray-200">Browse</button>
+                            <input type="text" x-model="formData.bg_music" @input="updateJson" id="bg_music_input_field" class="flex-1 bg-[#1e1e1e] border border-gray-700 rounded text-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm px-3 py-2 outline-none" placeholder="https://example.com/audio.mp3">
+                            <button type="button" onclick="openMediaLibrary('audio')" class="px-4 py-2 bg-[#2d2d2d] text-gray-300 rounded hover:bg-[#3d3d3d] text-sm transition border border-gray-700">Browse</button>
                         </div>
                     </div>
-
-<!-- Removed Theme Selector as requested -->
-
-
                 </div>
             </div>
         </div>
+
+        <!-- Floating Action Button (FAB) for Library Drawer -->
+        <button type="button" @click="drawerOpen = true" class="absolute bottom-6 right-6 z-20 bg-blue-600 hover:bg-blue-500 text-white rounded-full p-4 shadow-lg hover:shadow-blue-500/25 transition-all transform hover:scale-105 flex items-center justify-center group" title="Open Component Library">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </button>
     </div>
 
-    <!-- Right Panel: Live Preview Iframe -->
-    <div class="w-[40%] h-full bg-gray-100 relative shrink-0">
+    <!-- Right Pane: Live Preview Iframe (Visual Canvas) -->
+    <div class="flex-1 h-full bg-gray-100 relative min-w-0">
         <div class="absolute top-4 right-4 z-10 flex gap-2">
-            <a href="{{ route('admin.templates.preview', $template->id) }}" target="_blank" class="bg-white/80 backdrop-blur px-3 py-2 rounded shadow text-xs font-medium hover:bg-white flex items-center gap-2 border border-gray-200">
+            <a href="{{ route('admin.templates.preview', $template->id) }}" target="_blank" class="bg-white/90 backdrop-blur px-3 py-2 rounded shadow-sm text-xs font-medium hover:bg-white flex items-center gap-2 border border-gray-200 text-gray-700">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 Buka Tab Baru
             </a>
@@ -159,8 +90,100 @@
         <iframe 
             id="previewFrame"
             src="{{ route('admin.templates.preview', $template->id) }}" 
-            class="w-full h-full border-0 bg-white shadow-inner"
+            class="w-full h-full border-0 bg-white"
         ></iframe>
+    </div>
+
+    <!-- Backdrop for Drawer -->
+    <div 
+        x-show="drawerOpen" 
+        x-transition.opacity
+        @click="drawerOpen = false"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        x-cloak>
+    </div>
+
+    <!-- Drawer Component Library -->
+    <div 
+        x-show="drawerOpen" 
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="-translate-x-full"
+        x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="-translate-x-full"
+        class="fixed inset-y-0 left-0 w-[320px] bg-white shadow-2xl z-50 flex flex-col border-r border-gray-200"
+        x-cloak>
+        
+        <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+            <div>
+                <h2 class="font-bold text-gray-900">Library</h2>
+                <p class="text-xs text-gray-500">Components & Sections</p>
+            </div>
+            <button type="button" @click="drawerOpen = false" class="p-2 text-gray-400 hover:text-red-500 rounded hover:bg-red-50 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <!-- Filters -->
+        <div class="p-4 border-b border-gray-100 space-y-3 bg-white shadow-sm z-10">
+            <div class="relative">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" x-model="search" placeholder="Cari komponen..." class="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-1 focus:ring-blue-500 rounded outline-none transition">
+            </div>
+            <select x-model="selectedCategory" class="w-full py-2 px-3 text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-1 focus:ring-blue-500 rounded outline-none transition">
+                <option value="">Semua Kategori</option>
+                <option value="cover">Cover</option>
+                <option value="hero">Hero</option>
+                <option value="text">Text & Typography</option>
+                <option value="event">Event Details</option>
+                <option value="gallery">Gallery</option>
+                <option value="countdown">Countdown</option>
+                <option value="rsvp">RSVP</option>
+                <option value="section">Full Section</option>
+            </select>
+        </div>
+
+        <!-- Component List -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 relative bg-gray-50/50">
+            <div x-show="loading" class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                <svg class="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </div>
+
+            <template x-for="item in filteredComponents" :key="item.id">
+                <div @click="insertComponent(item.id)" class="group bg-white border border-gray-200 rounded overflow-hidden cursor-pointer hover:border-blue-500 hover:shadow-md transition">
+                    <div class="aspect-video bg-gray-100 relative">
+                        <template x-if="item.thumbnail">
+                            <img :src="item.thumbnail ? '/' + item.thumbnail : ''" class="w-full h-full object-cover">
+                        </template>
+                        <template x-if="!item.thumbnail">
+                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                <svg class="w-6 h-6 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            </div>
+                        </template>
+                        
+                        <!-- Hover overlay -->
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+                            <span class="bg-blue-600 text-white text-xs font-medium px-4 py-2 rounded shadow-sm flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Insert
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400" x-text="item.category"></span>
+                            <span x-show="item.type === 'section'" class="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded border border-blue-100">Section</span>
+                        </div>
+                        <h3 class="font-medium text-gray-900 text-sm leading-tight group-hover:text-blue-600 transition" x-text="item.name"></h3>
+                    </div>
+                </div>
+            </template>
+            
+            <div x-show="!loading && filteredComponents.length === 0" class="text-center py-10 text-gray-500 text-sm">
+                Tidak ada komponen ditemukan.
+            </div>
+        </div>
     </div>
 </div>
 
@@ -191,6 +214,7 @@
             search: '',
             selectedCategory: '',
             loading: true,
+            drawerOpen: false,
             
             init() {
                 this.fetchComponents();
@@ -235,6 +259,10 @@
                     
                     // Insert at cursor
                     const position = globalEditor.getPosition();
+                    
+                    // Fallback to EOF if position is 1,1 and model is not focused? 
+                    // Actually Monaco maintains position. If they never focused, it might be 1,1.
+                    // Let's just use the current position, it's the most reliable native behavior.
                     globalEditor.executeEdits("library-insert", [{
                         range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
                         text: code + '\n',
@@ -242,6 +270,9 @@
                     }]);
                     globalEditor.focus();
                     
+                    // Tutup laci
+                    this.drawerOpen = false;
+
                     // Flash notification
                     Swal.fire({
                         icon: 'success',
@@ -251,6 +282,12 @@
                         showConfirmButton: false,
                         timer: 2000
                     });
+
+                    // Trigger save & refresh
+                    if (typeof handleSave === 'function') {
+                        handleSave();
+                    }
+
                 } catch (error) {
                     console.error('Failed to insert component', error);
                     Swal.fire('Error', 'Gagal memuat komponen', 'error');
@@ -365,6 +402,9 @@
                 setTimeout(() => saveBtn.innerText = originalText, 2000);
             });
         }
+
+        // Expose globally
+        window.handleSave = handleSave;
 
         // Sync data ke hidden input saat form disubmit
         document.getElementById('editorForm').addEventListener('submit', handleSave);
