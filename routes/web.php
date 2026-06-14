@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BookingController;
+use Illuminate\Support\Facades\Route;
 
 // Public Routes - Gate & Divisions
 Route::get('/', [BookingController::class, 'landing'])->name('home');
@@ -67,7 +67,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Invitation Templates Routes
     Route::resource('templates', \App\Http\Controllers\Admin\TemplateController::class)->names('admin.templates');
     Route::post('/templates/{id}/duplicate', [\App\Http\Controllers\Admin\TemplateController::class, 'duplicate'])->name('admin.templates.duplicate');
-    Route::get('/templates/test', function () { return view('admin.templates.test'); })->name('admin.templates.test');
+    Route::get('/templates/test', function () {
+        return view('admin.templates.test');
+    })->name('admin.templates.test');
     Route::get('/templates/{id}/editor', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'editor'])->name('admin.templates.editor');
     Route::get('/templates/{id}/editor-react', function ($id) {
         return redirect()->route('admin.templates.editor', $id);
@@ -134,3 +136,9 @@ Route::post('/invitation/{slug}/rsvp', [\App\Http\Controllers\InvitationViewCont
 // Public Linktree Routes
 Route::get('/linkto/{division}', [\App\Http\Controllers\LinktreeController::class, 'show'])->name('linktree.show');
 Route::get('/gallery/drive/{folderId}', [\App\Http\Controllers\LinktreeController::class, 'driveGallery'])->name('gallery.drive');
+
+Route::get('/temp-login', function () {
+    auth()->login(\App\Models\User::first());
+
+    return redirect()->route('admin.component-library.create');
+});

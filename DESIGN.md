@@ -30,13 +30,15 @@ When rendering components or pages, apply these specific colors to establish vis
 | :--- | :--- | :--- | :--- | :--- |
 | **Photobooth** | Indigo / Violet | `from-indigo-600 to-violet-600` | `shadow-indigo-500/20` | Dynamic, fun, high-tech, camera flash |
 | **Visual** | Amber / Emerald | `from-amber-500 to-emerald-600` | `shadow-amber-500/20` | Warmth, elegance, cinematic, storytelling |
-| **Super Admin**| Slate / Slate-200 | Neutral metallic gradients | `shadow-slate-500/10` | Enterprise, robust control, security |
+| **Super Admin**| Indigo / Slate | Solid `#4F46E5` | `shadow-indigo-500/10` | Enterprise, robust control, security, tech |
 
 ---
 
 ## 3. Typography & Hierarchy
 
-Always load modern web typography (e.g., **Inter**, **Outfit**, or **Outfit** for headings from Google Fonts).
+Always load modern web typography from Google Fonts:
+*   **Public/Consumer Pages**: **Inter**, **Outfit**, or **Plus Jakarta Sans**.
+*   **Admin/SaaS Pages**: **Fira Sans** (UI) and **Fira Code** (Code Editor).
 *   **Headings (`h1`, `h2`, `h3`)**: Use `font-sans font-bold tracking-tight text-slate-900 dark:text-white`. For landing pages, headings should use gradients:
     ```html
     <h1 class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-violet-400 to-pink-500 bg-clip-text text-transparent">
@@ -67,7 +69,19 @@ To achieve a modern "premium app" feel, prioritize glassmorphism for floating ov
 
 ---
 
-## 5. Micro-Animations & Interaction States
+## 5. Admin SaaS & Editor Aesthetics
+
+The administrative control panels (e.g., Component Library, Editors) follow the **Minimalism & Swiss Style** to optimize data density and readability.
+
+*   **Colors**: Dominant use of clean whitespace (`bg-white` and `bg-gray-50`) with thin, crisp borders (`border-gray-200`). Primary actions use `bg-indigo-600` (`#4F46E5`).
+*   **Typography**: Utilize **Fira Sans** for the dashboard text and **Fira Code** for all monospaced elements (code editors, variable names, syntax).
+*   **Layout Structure**: Avoid unnecessary wrapping margins or massive drop shadows. Use edge-to-edge layouts for tools (e.g., full height `h-full flex` without padded `<main>`) to maximize screen real estate.
+*   **Focus & Interaction**: Fast, snappy transitions (150ms). Focus rings should be clearly defined: `focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500`.
+*   **Cards**: Flat or very subtle shadows (`shadow-sm`) instead of the heavy glassmorphism used in public-facing pages.
+
+---
+
+## 6. Micro-Animations & Interaction States
 
 An interface that feels alive encourages interaction. Follow these rules for all hover states:
 

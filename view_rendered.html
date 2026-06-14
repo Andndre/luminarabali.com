@@ -1,16 +1,57 @@
-@extends('layouts.editor')
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="">
+    <link rel="icon" type="image/x-icon" href="http://localhost:8000/favicon.ico">
+    <title>Admin Dashboard - Luminara</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        /* Scrollbar untuk sidebar - Firefox */
+        #sidebar nav { scrollbar-width: thin; scrollbar-color: #4B5563 transparent; }
+        /* Scrollbar untuk sidebar - WebKit */
+        #sidebar nav::-webkit-scrollbar { width: 4px; }
+        #sidebar nav::-webkit-scrollbar-track { background: transparent; }
+        #sidebar nav::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 4px; }
+        #sidebar nav::-webkit-scrollbar-thumb:hover { background: #6B7280; }
 
-@section('content')
-<div x-data="componentEditor()" class="flex-1 flex flex-col w-full h-full bg-white relative">
+        /* Font classes for Admin/Editor */
+        .font-sans-ui { font-family: 'Fira Sans', 'Plus Jakarta Sans', sans-serif; }
+        .font-mono-code { font-family: 'Fira Code', monospace; }
+    </style>
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gray-100 overflow-x-hidden font-sans-ui">
+
+    <div class="h-screen flex w-full">
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col min-w-0 w-full max-w-full">
+
+            <main class="flex-1 overflow-hidden h-full">
+                
+                
+                <div x-data="componentEditor()" class="flex-1 flex flex-col w-full h-full bg-white relative">
     
     <!-- Header -->
     <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-4">
-            <a href="{{ route('admin.component-library.index') }}" class="text-gray-500 hover:text-gray-900">
+            <a href="http://localhost:8000/admin/component-library" class="text-gray-500 hover:text-gray-900">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
             <div>
-                <h1 class="text-xl font-bold text-gray-900">{{ isset($component) ? 'Edit Component: ' . $component->name : 'Create Component' }}</h1>
+                <h1 class="text-xl font-bold text-gray-900">Create Component</h1>
                 <p class="text-xs text-gray-500 mt-1">Define reusable code snippet and its variables.</p>
             </div>
         </div>
@@ -33,7 +74,7 @@
             <div class="h-1/2 flex flex-col border-b border-gray-200 bg-[#1e1e1e] relative">
                 <div class="bg-gray-900 text-gray-400 text-[11px] uppercase tracking-wider font-semibold px-4 py-2 border-b border-gray-800 flex justify-between font-mono-code shrink-0">
                     <span>Code Editor (Blade/HTML)</span>
-                    <span>Use @{{ $variable_name }} for placeholders</span>
+                    <span>Use {{ $variable_name }} for placeholders</span>
                 </div>
                 <div id="monaco-editor" x-ignore class="flex-1 w-full relative"></div>
             </div>
@@ -197,9 +238,9 @@
                     <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 border-b border-gray-100 pb-2.5 font-sans">Thumbnail</h3>
                     
                     <div class="flex gap-4 items-start">
-                        <div class="w-1/2 aspect-video bg-white rounded-lg overflow-hidden border border-dashed border-gray-200 flex items-center justify-center relative">
+                        <div class="w-1/2 aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center relative">
                             <template x-if="thumbnailUrl">
-                                <img :src="thumbnailUrl" class="w-full h-full object-contain p-4">
+                                <img :src="thumbnailUrl" class="w-full h-full object-cover">
                             </template>
                             <template x-if="!thumbnailUrl">
                                 <span class="text-sm text-gray-400 font-sans">No thumbnail</span>
@@ -215,7 +256,10 @@
                         </div>
                     </div>
 
-
+                    <!-- Hidden div for html2canvas rendering -->
+                    <div class="overflow-hidden h-0 w-0 absolute">
+                        <div id="render-target" x-ignore class="w-[800px] h-[450px] bg-white relative"></div>
+                    </div>
                 </div>
 
             </div>
@@ -223,34 +267,32 @@
     </div>
 </div>
 
-<!-- html-to-image for pixel-perfect thumbnail generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 <!-- Monaco Editor -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<!-- html2canvas for thumbnail generation -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
-let monacoEditorInstance = null;
-
 document.addEventListener('alpine:init', () => {
     Alpine.data('componentEditor', () => ({
         isSaving: false,
+        editor: null,
         previewInitialized: false,
         previewReady: false,
-        thumbnailUrl: '{{ isset($component) && $component->thumbnail ? asset($component->thumbnail) : '' }}',
+        thumbnailUrl: '',
         thumbnailBlob: null,
         
         form: {
-            id: {{ isset($component) ? $component->id : 'null' }},
-            name: @json(isset($component) ? $component->name : ''),
-            slug: @json(isset($component) ? $component->slug : ''),
-            category: @json(isset($component) ? $component->category : 'hero'),
-            type: @json(isset($component) ? $component->type : 'component'),
-            description: @json(isset($component) ? $component->description : ''),
-            is_public: {{ isset($component) ? ($component->is_public ? 'true' : 'false') : 'true' }},
-            is_active: {{ isset($component) ? ($component->is_active ? 'true' : 'false') : 'true' }},
-            variables: @json(isset($component) ? $component->variables : []),
-            code: @json(isset($component) ? $component->code : '<section class="relative">\n    <!-- write blade code here -->\n</section>')
-        },
+            id: null,
+            name: "",
+            slug: "",
+            category: "hero",
+            type: "component",
+            description: "",
+            is_public: true,
+            is_active: true,
+            variables: [],
+            code: "\u003Csection class=\u0022relative\u0022\u003E\\n    \u003C!-- write blade code here --\u003E\\n\u003C\/section\u003E"        },
 
         previewTimeout: null,
 
@@ -285,13 +327,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         initMonaco() {
-            if (monacoEditorInstance) return;
-
-            const container = document.getElementById('monaco-editor');
-            if (!container) return;
-
-            const createEditor = () => {
-                monacoEditorInstance = monaco.editor.create(container, {
+            require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+            require(['vs/editor/editor.main'], () => {
+                this.editor = monaco.editor.create(document.getElementById('monaco-editor'), {
                     value: this.form.code,
                     language: 'html',
                     theme: 'vs-dark',
@@ -303,27 +341,18 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 // Update preview on changes
-                monacoEditorInstance.onDidChangeModelContent(() => {
+                this.editor.onDidChangeModelContent(() => {
                     this.updatePreviewDebounced();
                 });
 
                 // Ctrl+S to save
-                monacoEditorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+                this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
                     this.save();
                 });
 
                 // Populate preview initially once editor is ready
                 this.updatePreviewDebounced();
-            };
-
-            if (window.monaco) {
-                createEditor();
-            } else {
-                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
-                require(['vs/editor/editor.main'], () => {
-                    createEditor();
-                });
-            }
+            });
         },
 
         updatePreviewDebounced() {
@@ -344,7 +373,7 @@ document.addEventListener('alpine:init', () => {
                 '<!DOCTYPE html><html><head>',
                 '<meta charset="utf-8">',
                 '<script src="https://cdn.tailwindcss.com"><\/script>',
-                '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" crossorigin="anonymous">',
+                '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">',
                 '<style>',
                 'body { font-family: "Plus Jakarta Sans", sans-serif; margin: 0; padding: 20px; background-color: #f8fafc; }',
                 '<\/style>',
@@ -382,75 +411,50 @@ document.addEventListener('alpine:init', () => {
         },
 
         updatePreview() {
-            if (!this.previewReady || !monacoEditorInstance) return;
-
-            try {
-                const iframe = document.getElementById('preview-iframe');
-                if (!iframe) return;
-
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                if (!doc) return;
-
-                const container = doc.getElementById('preview-container');
-                if (!container) return;
-
-                let html = monacoEditorInstance.getValue();
-
-                // Process/replace variables
-                if (this.form.variables && this.form.variables.length > 0) {
-                    this.form.variables.forEach(v => {
-                        if (!v.key) return;
-                        const escapedKey = v.key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                        const pattern = '\\{' + '\\{\\s*\\$' + escapedKey + '\\s*\\}' + '\\}';
-                        const regex = new RegExp(pattern, 'g');
-                        html = html.replace(regex, v.default || ('[' + v.label + ']'));
-                    });
-                }
-
-                container.innerHTML = html;
-            } catch (error) {
-                console.warn('Failed to update preview:', error);
-            }
+            // Temporary disable to isolate the freeze issue
+            console.log('updatePreview called');
         },
 
         async generateThumbnail() {
-            const iframe = document.getElementById('preview-iframe');
-            if (!iframe) return;
-
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            if (!doc) return;
-
-            const container = doc.getElementById('preview-container');
-            if (!container) return;
-
-            // Wait for all fonts inside the iframe to load fully
-            await doc.fonts.ready;
-            await new Promise(r => setTimeout(r, 200));
-
-            // Temporarily change container style to shrink-wrap the component exactly
-            const originalStyle = container.getAttribute('style') || '';
-            container.style.display = 'inline-block';
-            container.style.padding = '0px';
-            container.style.margin = '0px';
-            container.style.border = 'none';
-            container.style.background = 'transparent';
-
+            if(!this.editor) return;
+            
+            // 1. Prepare render target
+            const target = document.getElementById('render-target');
+            let html = this.editor.getValue();
+            
+            // Inject default variables for preview
+            this.form.variables.forEach(v => {
+                const escapedKey = (v.key || '').replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                const pattern = '\\{' + '\\{\\s*\\$' + escapedKey + '\\s*\\}' + '\\}';
+                const regex = new RegExp(pattern, 'g');
+                html = html.replace(regex, v.default || ('[' + v.label + ']'));
+            });
+            
+            // Basic Tailwind injection for preview using split string tags
+            target.innerHTML = '<script src="https://cdn.tailwindcss.com"><' + '/script><div class="relative w-full h-full overflow-hidden">' + html + '</div>';
+            
+            // Wait for tailwind to process
+            await new Promise(r => setTimeout(r, 500));
+            
             try {
-                // Use html-to-image for pixel-perfect SVG-based rendering
-                const blob = await window.htmlToImage.toBlob(container, {
-                    pixelRatio: 2,
-                    skipFonts: false
+                // 2. Capture with html2canvas
+                const canvas = await html2canvas(target, {
+                    width: 800,
+                    height: 450,
+                    scale: 1, // keep it small
+                    useCORS: true,
+                    allowTaint: true
                 });
-
-                // Restore original styling of container in the live preview iframe
-                container.setAttribute('style', originalStyle);
-
-                this.thumbnailBlob = blob;
-                this.thumbnailUrl = URL.createObjectURL(blob);
-                return blob;
+                
+                // 3. Convert to blob
+                return new Promise(resolve => {
+                    canvas.toBlob(blob => {
+                        this.thumbnailBlob = blob;
+                        this.thumbnailUrl = URL.createObjectURL(blob);
+                        resolve(blob);
+                    }, 'image/jpeg', 0.8);
+                });
             } catch (err) {
-                // Restore original style in case of failure
-                container.setAttribute('style', originalStyle);
                 console.error('Failed to generate thumbnail', err);
             }
         },
@@ -465,7 +469,7 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.isSaving = true;
-            this.form.code = monacoEditorInstance.getValue();
+            this.form.code = this.editor.getValue();
             
             // Try generating thumbnail if we don't have one
             await this.generateThumbnail();
@@ -536,4 +540,9 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 </script>
-@endsection
+            </main>
+        </div>
+    </div>
+
+    </body>
+</html>

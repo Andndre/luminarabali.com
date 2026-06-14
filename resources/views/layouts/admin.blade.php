@@ -7,7 +7,8 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <title>Admin Dashboard - Luminara</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
     <!-- Flatpickr -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -22,13 +23,28 @@
         #sidebar nav::-webkit-scrollbar-track { background: transparent; }
         #sidebar nav::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 4px; }
         #sidebar nav::-webkit-scrollbar-thumb:hover { background: #6B7280; }
+        
+        /* Font classes for Admin */
+        .font-sans-ui { font-family: 'Fira Sans', 'Plus Jakarta Sans', sans-serif; }
+        .font-mono-code { font-family: 'Fira Code', monospace; }
+
+        /* html2canvas font metrics workaround for Tailwind CSS Preflight conflict */
+        .html2canvas-container img {
+            display: inline-block !important;
+        }
     </style>
     <!-- Alpine.js for interactivity -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-gray-100 overflow-x-hidden">
+<body class="bg-gray-50 overflow-x-hidden font-sans-ui">
+
+    @php
+        $activeClass = auth()->user() && auth()->user()->division == 'super_admin' 
+            ? 'bg-indigo-600 text-white font-semibold shadow-sm' 
+            : 'bg-yellow-500 text-black font-bold shadow-sm';
+    @endphp
 
     <div class="min-h-screen flex w-full">
         @if(!request()->query('modal'))
@@ -42,42 +58,42 @@
             </div>
 
             <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto overscroll-contain">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.dashboard') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                     Dashboard
                 </a>
 
-                <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.bookings.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.bookings.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                     Bookings
                 </a>
 
-                <a href="{{ route('admin.invoices.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.invoices.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                <a href="{{ route('admin.invoices.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.invoices.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Invoice
                 </a>
 
-                <a href="{{ route('admin.finance.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.finance.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                <a href="{{ route('admin.finance.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.finance.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Keuangan
                 </a>
 
-                <a href="{{ route('admin.packages.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.packages.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                <a href="{{ route('admin.packages.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.packages.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     Paket & Harga
                 </a>
 
-                <a href="{{ route('admin.calendar.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.calendar.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                <a href="{{ route('admin.calendar.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.calendar.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     Kalender / Block
                 </a>
 
-                <a href="{{ route('admin.galleries.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.galleries.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                <a href="{{ route('admin.galleries.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.galleries.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     Galeri & Portfolio
                 </a>
 
-                <a href="{{ route('admin.links.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.links.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                <a href="{{ route('admin.links.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.links.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                     Links
                 </a>
@@ -85,19 +101,19 @@
                 @if(auth()->user()->division == 'super_admin')
                 <div class="pt-4 mt-4 border-t border-gray-800">
                     <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Undangan Digital</p>
-                    <a href="{{ route('admin.templates.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.templates.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                    <a href="{{ route('admin.templates.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.templates.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
                         Templates
                     </a>
-                    <a href="{{ route('admin.invitations.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.invitations.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                    <a href="{{ route('admin.invitations.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.invitations.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         Undangan
                     </a>
-                    <a href="{{ route('admin.assets.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.assets.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                    <a href="{{ route('admin.assets.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.assets.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         Media Library
                     </a>
-                    <a href="{{ route('admin.component-library.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.component-library.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                    <a href="{{ route('admin.component-library.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.component-library.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                         Component Library
                     </a>
@@ -105,7 +121,7 @@
 
                 <div class="pt-4 mt-4 border-t border-gray-800">
                     <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Super Admin</p>
-                    <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-yellow-500 text-black font-bold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
+                    <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.users.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         Kelola Admin
                     </a>
@@ -159,7 +175,7 @@
                 }
             </script>
 
-            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <main class="flex-1 overflow-y-auto @yield('main_class', 'p-4 md:p-8') flex flex-col">
                 @if(session('success'))
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
