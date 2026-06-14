@@ -231,16 +231,17 @@
                         </div>
 
                         <!-- DOM Breadcrumbs Navigator -->
-                        <div class="px-4 pb-3 bg-gray-50 border-b border-gray-100" x-show="breadcrumbs.length > 0">
-                            <div class="flex flex-wrap items-center gap-0.5 text-[10px] font-mono text-gray-500 bg-white p-1.5 rounded border border-gray-200 shadow-sm">
+                        <div class="border-b border-gray-100 bg-gray-50 px-4 pb-3" x-show="breadcrumbs.length > 0">
+                            <div
+                                class="flex flex-wrap items-center gap-0.5 rounded border border-gray-200 bg-white p-1.5 font-mono text-[10px] text-gray-500 shadow-sm">
                                 <template x-for="(crumb, index) in breadcrumbs" :key="index">
                                     <div class="flex items-center">
                                         <span x-show="index > 0" class="mx-0.5 text-gray-300">›</span>
-                                        <button type="button" 
-                                                @click="selectNode(crumb.node)" 
-                                                class="px-1.5 py-0.5 rounded transition truncate max-w-[120px] tracking-wide"
-                                                :class="crumb.node === selectedNode ? 'bg-blue-500 text-white font-bold' : 'hover:bg-gray-100 hover:text-gray-800'"
-                                                :title="crumb.tagName + crumb.signature">
+                                        <button type="button" @click="selectNode(crumb.node)"
+                                            class="max-w-[120px] truncate rounded px-1.5 py-0.5 tracking-wide transition"
+                                            :class="crumb.node === selectedNode ? 'bg-blue-500 text-white font-bold' :
+                                                'hover:bg-gray-100 hover:text-gray-800'"
+                                            :title="crumb.tagName + crumb.signature">
                                             <span x-text="crumb.tagName"></span>
                                         </button>
                                     </div>
@@ -670,7 +671,7 @@
                     // Find closest block
                     const block = el.closest(
                         'section, header, footer, div.flex, div.grid, div.container, [class*="section"]'
-                        );
+                    );
                     if (!block || block.id === 'visual-canvas') {
                         // Don't instantly hide when hitting gaps, allow menu to persist
                         // until they hover a new block or leave the editor entirely
@@ -793,11 +794,13 @@
                     if (targetNode.closest('svg')) {
                         targetNode = targetNode.closest('svg');
                     }
-                    
+
                     // SMART FALLBACK: If clicking a purely structural/empty absolute overlay, bubble up to the closest macro-block
                     if (targetNode.tagName === 'DIV' && !targetNode.isContentEditable) {
-                        if ((targetNode.classList.contains('absolute') || targetNode.classList.contains('fixed')) && targetNode.textContent.trim() === '') {
-                            const macro = targetNode.closest('section, header, footer, [class*="section"]');
+                        if ((targetNode.classList.contains('absolute') || targetNode.classList.contains(
+                                'fixed')) && targetNode.textContent.trim() === '') {
+                            const macro = targetNode.closest(
+                                'section, header, footer, [class*="section"]');
                             if (macro) targetNode = macro;
                         }
                     }
@@ -808,13 +811,15 @@
 
                 selectNode(node) {
                     if (!node) return;
-                    
+
                     this.removeHighlight();
                     this.selectedNode = node;
-                    this.selectedNode.classList.add('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
+                    this.selectedNode.classList.add('ring-2', 'ring-blue-500', 'ring-inset',
+                        'outline-none');
 
                     this.nodeData.tagName = this.selectedNode.tagName.toUpperCase();
-                    this.nodeData.isDynamic = this.selectedNode.hasAttribute('x-text') || this.selectedNode.closest('[x-text]') !== null;
+                    this.nodeData.isDynamic = this.selectedNode.hasAttribute('x-text') || this
+                        .selectedNode.closest('[x-text]') !== null;
 
                     // Only pull text if it's a relatively simple element (leaf node) to avoid nested HTML text extraction
                     if (!this.nodeData.isDynamic && this.selectedNode.children.length === 0) {
@@ -825,7 +830,9 @@
 
                     // Clean up classes by removing temporary highlight classes from the string
                     let cleanClasses = this.selectedNode.getAttribute('class') || '';
-                    cleanClasses = cleanClasses.replace(/\bring-2\b|\bring-blue-500\b|\bring-inset\b|\boutline-none\b/g, '').replace(/\s+/g, ' ').trim();
+                    cleanClasses = cleanClasses.replace(
+                            /\bring-2\b|\bring-blue-500\b|\bring-inset\b|\boutline-none\b/g, '')
+                        .replace(/\s+/g, ' ').trim();
 
                     this.nodeData.classes = cleanClasses;
                     this.nodeData.href = this.selectedNode.getAttribute('href') || '';
@@ -838,24 +845,27 @@
                 updateBreadcrumbs() {
                     this.breadcrumbs = [];
                     let current = this.selectedNode;
-                    
-                    while (current && current.id !== 'visual-canvas' && current.tagName.toLowerCase() !== 'body') {
+
+                    while (current && current.id !== 'visual-canvas' && current.tagName
+                    .toLowerCase() !== 'body') {
                         let clsStr = '';
                         let cls = current.getAttribute('class');
                         if (cls) {
-                            cls = cls.replace(/\bring-2\b|\bring-blue-500\b|\bring-inset\b|\boutline-none\b|\bis-visible\b/g, '').replace(/\s+/g, ' ').trim();
+                            cls = cls.replace(
+                                /\bring-2\b|\bring-blue-500\b|\bring-inset\b|\boutline-none\b|\bis-visible\b/g,
+                                '').replace(/\s+/g, ' ').trim();
                             const classes = cls.split(' ').filter(c => c.length > 0).slice(0, 2);
                             if (classes.length > 0) {
                                 clsStr = '.' + classes.join('.');
                             }
                         }
-                        
+
                         this.breadcrumbs.unshift({
                             tagName: current.tagName.toLowerCase(),
                             signature: clsStr,
                             node: current
                         });
-                        
+
                         current = current.parentElement;
                     }
                 },
@@ -879,10 +889,11 @@
 
                 selectParentNode() {
                     if (!this.selectedNode || !this.selectedNode.parentElement) return;
-                    
+
                     const parent = this.selectedNode.parentElement;
-                    if (parent.id === 'visual-canvas' || parent.tagName.toLowerCase() === 'body') return;
-                    
+                    if (parent.id === 'visual-canvas' || parent.tagName.toLowerCase() === 'body')
+                return;
+
                     this.selectNode(parent);
                 },
 
@@ -923,14 +934,16 @@
                         // Remove highlight classes if any child has them (e.g. if selectedNode is inside it)
                         const highlighted = clone.querySelector('.ring-blue-500');
                         if (highlighted) {
-                            highlighted.classList.remove('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
+                            highlighted.classList.remove('ring-2', 'ring-blue-500', 'ring-inset',
+                                'outline-none');
                             let cls = highlighted.getAttribute('class') || '';
                             if (cls.trim() === '') {
                                 highlighted.removeAttribute('class');
                             }
                         }
                         if (clone.classList.contains('ring-blue-500')) {
-                            clone.classList.remove('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
+                            clone.classList.remove('ring-2', 'ring-blue-500', 'ring-inset',
+                                'outline-none');
                             let cls = clone.getAttribute('class') || '';
                             if (cls.trim() === '') clone.removeAttribute('class');
                         }
@@ -1193,170 +1206,6 @@
             }
         });
         require(['vs/editor/editor.main'], function() {
-
-            // Blade Snippets for HTML Language
-            monaco.languages.registerCompletionItemProvider('html', {
-                triggerCharacters: ['@', '{'],
-                provideCompletionItems: function(model, position) {
-                    var word = model.getWordUntilPosition(position);
-                    var range = {
-                        startLineNumber: position.lineNumber,
-                        endLineNumber: position.lineNumber,
-                        startColumn: word.startColumn,
-                        endColumn: word.endColumn
-                    };
-
-                    // Cek apakah sedang mengetik sesuatu dengan prefix tertentu
-                    var textUntilPosition = model.getValueInRange({
-                        startLineNumber: 1,
-                        startColumn: 1,
-                        endLineNumber: position.lineNumber,
-                        endColumn: position.column
-                    });
-
-                    var suggestions = [{
-                            label: '\\x40if',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40if(${1:condition})\n\t$0\n\\x40endif',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range,
-                            detail: 'Blade if statement'
-                        },
-                        {
-                            label: '\\x40else',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40else',
-                            range: range
-                        },
-                        {
-                            label: '\\x40elseif',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40elseif(${1:condition})',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x40foreach',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40foreach($${1:array} as $${2:item})\n\t$0\n\\x40endforeach',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range,
-                            detail: 'Blade foreach loop'
-                        },
-                        {
-                            label: '\\x40empty',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40empty\n\t$0',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x40auth',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40auth\n\t$0\n\\x40endauth',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x40guest',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40guest\n\t$0\n\\x40endguest',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x40include',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40include(\'${1:view}\')',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x40php',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40php\n\t$0\n\\x40endphp',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x40isset',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40isset($${1:var})\n\t$0\n\\x40endisset',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x40switch',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: '\\x40switch($${1:var})\n\t\\x40case(${2:1})\n\t\t$0\n\t\t\\x40break\n\\x40endswitch',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x40click (Alpine)',
-                            kind: monaco.languages.CompletionItemKind.Event,
-                            insertText: '\\x40click="${1:function}()"',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x7b\\x7b \\x7d\\x7d (Echo)',
-                            kind: monaco.languages.CompletionItemKind.Snippet,
-                            insertText: '\\x7b\\x7b $1 \\x7d\\x7d',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: '\\x7b!! !!\\x7d (Raw Echo)',
-                            kind: monaco.languages.CompletionItemKind.Snippet,
-                            insertText: '\\x7b!! $1 !!\\x7d',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: 'x-data (Alpine)',
-                            kind: monaco.languages.CompletionItemKind.Snippet,
-                            insertText: 'x-data="{ ${1:property}: ${2:value} }"',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: 'x-show (Alpine)',
-                            kind: monaco.languages.CompletionItemKind.Snippet,
-                            insertText: 'x-show="${1:condition}"',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                        {
-                            label: 'x-bind (Alpine)',
-                            kind: monaco.languages.CompletionItemKind.Snippet,
-                            insertText: 'x-bind:${1:class}="${2:condition}"',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule
-                                .InsertAsSnippet,
-                            range: range
-                        },
-                    ];
-
-                    return {
-                        suggestions: suggestions
-                    };
-                }
-            });
 
             const rawCover = document.getElementById('raw_cover_content').value;
             const rawHtml = document.getElementById('raw_html_content').value;
