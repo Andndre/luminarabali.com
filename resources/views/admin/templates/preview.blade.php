@@ -17,7 +17,7 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -71,47 +71,33 @@
         Preview Mode - Template: {{ $template->name }}
     </div>
 
-        @php
-            $page = new \stdClass();
-            $page->groom_name = 'Romeo';
-            $page->bride_name = 'Juliet';
-            $page->event_date = now()->addDays(30);
-            $page->meta_data = $template->meta_data ?? [];
-            $page->template = $template; // Pass the template relationship
-            $page->slug = 'demo';
-            
-            $music = $page->meta_data['bg_music'] ?? '';
-            $rsvpEnabled = $page->meta_data['rsvp_enabled'] ?? true;
-        @endphp
-        
-        <x-invitation.layout class="bg-gray-50" :skip-cover="request()->query('skip_cover') == 1">
-            <x-invitation.audio :src="$music" />
+    @php
+        $page = new \stdClass();
+        $page->groom_name = 'Romeo';
+        $page->bride_name = 'Juliet';
+        $page->event_date = now()->addDays(30);
+        $page->meta_data = $template->meta_data ?? [];
+        $page->template = $template; // Pass the template relationship
+        $page->slug = 'demo';
 
-            @if(!empty($template->cover_content))
-                {!! \Illuminate\Support\Facades\Blade::render($template->cover_content, ['page' => $page]) !!}
-            @else
-                <x-invitation.cover 
-                    :groom="$page->groom_name ?? 'Romeo'"
-                    :bride="$page->bride_name ?? 'Juliet'"
-                    :guest="request()->query('to', 'Tamu Spesial')"
-                    image="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop"
-                />
-            @endif
+        $music = $page->meta_data['bg_music'] ?? '';
+        $rsvpEnabled = $page->meta_data['rsvp_enabled'] ?? true;
+    @endphp
 
-            <div x-show="isOpen" style="display: none;" class="w-full">
-                {!! \Illuminate\Support\Facades\Blade::render($template->blade_content ?? '', ['page' => $page]) !!}
-                
-                @if($rsvpEnabled)
-                    <x-invitation.rsvp :slug="$page->slug" />
-                @endif
-                
-                <footer class="py-16 text-center bg-gray-50">
-                    <h2 class="text-4xl font-serif mb-4 text-gray-900">{{ $page->groom_name ?? 'Romeo' }} & {{ $page->bride_name ?? 'Juliet' }}</h2>
-                    <p class="text-sm tracking-widest uppercase mb-12 text-gray-500">{{ optional($page->event_date)->format('d . m . Y') ?? '12 . 12 . 2026' }}</p>
-                    <p class="text-gray-400 text-xs tracking-widest">MADE WITH ❤️ BY LUMINARA</p>
-                </footer>
-            </div>
-        </x-invitation.layout>
+    <x-invitation.layout class="bg-gray-50" :skip-cover="request()->query('skip_cover') == 1">
+        <x-invitation.audio :src="$music" />
+
+        @if (!empty($template->cover_content))
+            {!! \Illuminate\Support\Facades\Blade::render($template->cover_content, ['page' => $page]) !!}
+        @else
+            <x-invitation.cover :groom="$page->groom_name ?? 'Romeo'" :bride="$page->bride_name ?? 'Juliet'" :guest="request()->query('to', 'Tamu Spesial')"
+                image="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop" />
+        @endif
+
+        <div x-show="isOpen" style="display: none;" class="w-full">
+            {!! \Illuminate\Support\Facades\Blade::render($template->blade_content ?? '', ['page' => $page]) !!}
+        </div>
+    </x-invitation.layout>
 </body>
 
 </html>

@@ -28,203 +28,372 @@ class FullInvitationTemplateSeeder extends Seeder
                 'rsvp_enabled' => true,
                 'fonts' => ['Cormorant Garamond', 'Montserrat']
             ],
-            'global_custom_css' => '
-                @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@200;300;400;500&display=swap");
-                
-                body {
-                    font-family: "Montserrat", sans-serif;
-                    background-color: #FAF8F5;
-                    color: #2C3E35;
-                }
-                
-                h1, h2, h3, h4, h5, h6, .font-serif {
-                    font-family: "Cormorant Garamond", serif;
-                }
+            'global_custom_css' => <<<'CSS'
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Serif+Balinese&display=swap');
 
-                .bg-forest { background-color: #1B2B24; }
-                .text-forest { color: #1B2B24; }
-                .bg-gold { background-color: #C5A059; }
-                .text-gold { color: #C5A059; }
-                .border-gold { border-color: #C5A059; }
+body {
+    font-family: 'Montserrat', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
 
-                /* Animations */
-                @keyframes fadeUp {
-                    from { opacity: 0; transform: translateY(40px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes slowZoom {
-                    from { transform: scale(1); }
-                    to { transform: scale(1.1); }
-                }
-                @keyframes float {
-                    0% { transform: translateY(0px); }
-                    50% { transform: translateY(-10px); }
-                    100% { transform: translateY(0px); }
-                }
+.font-serif {
+    font-family: 'Playfair Display', serif;
+}
 
-                .animate-fade-up {
-                    animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                }
-                .animate-zoom {
-                    animation: slowZoom 20s linear infinite alternate;
-                }
-                .animate-float {
-                    animation: float 4s ease-in-out infinite;
-                }
-                
-                .reveal-on-scroll {
-                    opacity: 0;
-                    transform: translateY(30px);
-                    transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-                .reveal-on-scroll.is-visible {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+.font-balinese {
+    font-family: 'Noto Serif Balinese', serif;
+}
 
-                /* Sembunyikan scrollbar saat cover terbuka */
-                .no-scroll { overflow: hidden; }
-                
-                .glass-panel {
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                }
-            ',
-            'cover_content' => '
-<!-- Default Cover Page -->
+/* Alpine Reveal Animation */
+.reveal-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes zoomSlow {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.15); }
+}
+.animate-zoom-slow {
+    animation: zoomSlow 20s ease-in-out infinite alternate;
+}
+CSS,
+            'cover_content' => <<<'BLADE'
+<!-- Cover Page - Balinese Style -->
 <div id="invitation-cover" 
      x-show="!isOpen" 
-     x-transition.opacity.duration.1000ms
-     class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 transition-transform duration-1000 ease-in-out">
+     x-transition.opacity.duration.1500ms
+     class="fixed inset-0 z-[100] flex items-center justify-center bg-[#2C1E16] overflow-hidden font-sans">
     <!-- Background Image -->
     <div class="absolute inset-0">
-        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop" 
-             alt="Cover Image" class="w-full h-full object-cover opacity-60">
-        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+        <img src="https://images.unsplash.com/photo-1625759190925-a67568fd123b?q=80&w=687&auto=format&fit=crop" 
+             alt="Cover" class="w-full h-full object-cover opacity-60 scale-105 animate-zoom-slow">
+        <!-- Balinese gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-[#2C1E16] via-[#2C1E16]/50 to-[#2C1E16]/20"></div>
     </div>
     
-    <!-- Content -->
-    <div class="relative z-10 text-center px-6 max-w-lg mx-auto transform transition-all duration-1000 translate-y-0">
-        <p class="invitation-accent text-sm tracking-[0.3em] uppercase mb-6 text-gray-300">The Wedding Of</p>
+    <!-- Ornaments Top/Bottom (Simulated with CSS/SVG) -->
+    <div class="absolute top-0 left-0 w-full h-32 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+    
+    <div class="relative z-10 text-center px-6 w-full max-w-lg border-x border-[#C5A059]/30 py-12 backdrop-blur-sm bg-[#2C1E16]/30">
+        <!-- Top Ornament -->
+        <div class="flex justify-center mb-6">
+            <svg class="w-8 h-8 text-[#C5A059]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z M12 22L9 16H15L12 22Z M2 12L8 9V15L2 12Z M22 12L16 15V9L22 12Z M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/></svg>
+        </div>
         
-        <h1 class="invitation-title text-6xl md:text-8xl font-serif mb-8 text-white">
-            {{ $page->groom_name }}<br>
-            <span class="invitation-accent text-4xl italic">&</span><br>
-            {{ $page->bride_name }}
+        <p class="font-sans text-[10px] tracking-[0.4em] text-[#C5A059] uppercase mb-6">Pewiwahan / The Wedding Of</p>
+        
+        <h1 class="font-serif text-5xl md:text-7xl text-white mb-4 leading-tight drop-shadow-lg">
+            {{ $page->groom_name ?? 'Wayan' }}<br>
+            <span class="text-3xl italic text-[#C5A059] my-2 block">&amp;</span>
+            {{ $page->bride_name ?? 'Ni Luh' }}
         </h1>
         
         <div class="mt-12 mb-12">
-            <p class="text-sm text-gray-400 uppercase tracking-widest mb-2">Kepada Yth.</p>
-            <p class="text-xl font-serif text-white">{{ request()->query(\'to\', \'Tamu Spesial\') }}</p>
+            <p class="text-[10px] text-white/50 uppercase tracking-[0.3em] mb-3">Om Swastiastu</p>
+            <p class="text-xs text-white/70 uppercase tracking-widest mb-2">Kepada Yth. Bapak/Ibu/Saudara/i</p>
+            <p class="text-xl font-serif text-[#C5A059] border-b border-[#C5A059]/50 inline-block pb-1 px-4">{{ request()->query('to', 'Tamu Spesial') }}</p>
         </div>
-        
-        <button @click="openInvitation()" 
-                class="invitation-button group relative px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white tracking-[0.2em] text-xs uppercase transition-all duration-500 overflow-hidden">
-            <span class="relative z-10 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"></path></svg>
+
+        <button @click="openInvitation()"  class="group relative inline-flex items-center justify-center px-8 py-3 border border-[#C5A059] bg-[#C5A059]/10 text-white font-medium tracking-[0.2em] text-[10px] uppercase hover:bg-[#C5A059] hover:text-[#2C1E16] transition-all duration-700">
+            <span class="flex items-center gap-3">
                 Buka Undangan
+                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
             </span>
         </button>
+        
+        <!-- Bottom Ornament -->
+        <div class="flex justify-center mt-10">
+            <svg class="w-6 h-6 text-[#C5A059]/50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z M12 22L9 16H15L12 22Z"/></svg>
+        </div>
     </div>
 </div>
-            ',
-            'blade_content' => '
-<!-- Hero Section -->
-<section class="invitation-hero relative min-h-screen flex flex-col items-center justify-center text-center p-8 overflow-hidden bg-white">
-    <div class="absolute inset-0 bg-cover bg-center opacity-30 fixed" style="background-image: url(\'https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=2000&auto=format&fit=crop\')"></div>
-    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white"></div>
+BLADE,
+            'blade_content' => <<<'BLADE'
+<!-- Hero -->
+<section class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[#F9F6F0]">
+    <div class="absolute inset-0 z-0">
+        <!-- Balinese Background Architecture/Nature -->
+        <img src="https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-10 grayscale">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#F9F6F0]"></div>
+    </div>
     
-    <div class="relative z-10 max-w-2xl mx-auto pt-32">
-        <p class="invitation-accent uppercase tracking-[0.3em] text-sm mb-6 reveal-on-scroll">We Are Getting Married</p>
-        <h2 class="invitation-title text-6xl md:text-8xl font-serif text-gray-900 mb-8 reveal-on-scroll" style="transition-delay: 200ms;">
-            {{ $page->groom_name }} <br> <span class="invitation-accent text-4xl italic">&</span> <br> {{ $page->bride_name ?? \'Juliet\' }}
+    <div class="relative z-10 text-center px-6 pt-20">
+        <!-- Balinese motif SVG -->
+        <svg class="w-12 h-12 mx-auto text-[#C5A059] mb-6 reveal-up" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z M12 22L9 16H15L12 22Z M2 12L8 9V15L2 12Z M22 12L16 15V9L22 12Z M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/></svg>
+        
+        <p class="font-sans text-[10px] tracking-[0.4em] uppercase text-[#2C1E16]/60 mb-6 reveal-up">Om Swastiastu</p>
+        <h2 class="font-serif text-6xl md:text-8xl text-[#2C1E16] leading-tight mb-8 reveal-up" style="transition-delay: 200ms;">
+            {{ $page->groom_name ?? 'Wayan' }}<br>
+            <span class="italic text-[#C5A059] text-5xl md:text-6xl my-2 block">&amp;</span>
+            {{ $page->bride_name ?? 'Ni Luh' }}
         </h2>
-        <div class="invitation-line w-px h-32 mx-auto mt-12 animate-float reveal-on-scroll bg-gray-400" style="transition-delay: 400ms;"></div>
-    </div>
-</section>
-
-<!-- Quote Section -->
-<section class="invitation-quote py-24 px-6 bg-gray-50">
-    <div class="max-w-4xl mx-auto text-center reveal-on-scroll">
-        <svg class="invitation-accent w-12 h-12 mx-auto mb-8 opacity-50 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
-        <p class="invitation-title font-serif text-3xl md:text-5xl leading-tight mb-8 text-gray-900">
-            "Two souls with but a single thought,<br>two hearts that beat as one."
+        <p class="font-sans text-[#2C1E16]/80 tracking-[0.3em] uppercase text-xs reveal-up" style="transition-delay: 400ms;">
+            {{ optional($page->event_date)->format('d . m . Y') ?? '12 . 12 . 2026' }}
         </p>
-        <p class="invitation-accent uppercase tracking-widest text-sm text-gray-500">— John Keats</p>
     </div>
 </section>
 
-<!-- Image Break -->
-<section class="invitation-image-break h-[60vh] md:h-[80vh] bg-fixed bg-center bg-cover reveal-on-scroll" style="background-image: url(\'https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=2000&auto=format&fit=crop\');">
+<!-- Quote (Balinese / Hindu Sloka) -->
+<section class="py-32 bg-[#2C1E16] text-center px-6 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')]"></div>
+    <div class="max-w-4xl mx-auto reveal-up relative z-10">
+        <p class="font-sans text-[10px] uppercase tracking-[0.3em] text-[#C5A059] mb-8">Sloka Rg Veda X.85.42</p>
+        <p class="font-serif text-2xl md:text-4xl text-white leading-loose mb-10 italic">
+            "Ihaiva stam ma vi yaustam, visvam ayur vyasnutam,<br>kridantau puttrair naptrbhih, modamanau sve grhe."
+        </p>
+        <p class="font-sans text-white/60 tracking-[0.1em] text-sm leading-relaxed max-w-2xl mx-auto">
+            "Wahai pasangan suami-istri, semoga kalian tetap bersatu dan tidak pernah terpisahkan. Semoga kalian mencapai umur penuh, bersukaria bersama putra-putri dan cucu-cucu kalian, senantiasa bergembira di rumah kalian sendiri."
+        </p>
+    </div>
 </section>
 
-<!-- Details Section -->
-<section class="invitation-details py-32 relative bg-white">
+<!-- Couple Info -->
+<section class="py-32 bg-[#F9F6F0] relative">
+    <!-- Corner Ornaments -->
+    <div class="absolute top-0 left-0 w-32 h-32 opacity-20 bg-[url('data:image/svg+xml;utf8,<svg viewBox=\%220 0 100 100\%22 xmlns=\%22http://www.w3.org/2000/svg\%22><path d=\%22M0,0 L100,0 C100,55.23 55.23,100 0,100 L0,0 Z\%22 fill=\%22%23C5A059\%22/></svg>')]"></div>
+    <div class="absolute bottom-0 right-0 w-32 h-32 opacity-20 bg-[url('data:image/svg+xml;utf8,<svg viewBox=\%220 0 100 100\%22 xmlns=\%22http://www.w3.org/2000/svg\%22><path d=\%22M100,100 L0,100 C0,44.77 44.77,0 100,0 L100,100 Z\%22 fill=\%22%23C5A059\%22/></svg>')]"></div>
+
+    <div class="max-w-6xl mx-auto px-6 relative z-10">
+        <div class="text-center mb-24 reveal-up">
+            <h3 class="font-serif text-5xl text-[#2C1E16]">Sang Pengantin</h3>
+            <div class="w-24 h-1 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent mx-auto mt-8"></div>
+        </div>
+        
+        <div class="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-24">
+            <!-- Groom -->
+            <div class="text-center md:w-1/3 reveal-up" style="transition-delay: 100ms;">
+                <div class="w-64 h-80 mx-auto mb-8 overflow-hidden rounded-tl-[80px] rounded-br-[80px] border-4 border-[#C5A059]/20 shadow-xl shadow-[#2C1E16]/10 p-2 bg-white">
+                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover rounded-tl-[70px] rounded-br-[70px] hover:scale-105 transition-transform duration-1000 grayscale sepia-[.3]">
+                </div>
+                <h4 class="font-serif text-3xl text-[#2C1E16] mb-3">{{ $page->groom_name ?? 'I Wayan Romeo' }}</h4>
+                <p class="text-[#2C1E16]/60 text-sm mb-6 leading-relaxed">Putra dari<br>Bpk. I Made Montague & Ibu Ni Nyoman Lady</p>
+                <a href="#" class="text-[#C5A059] hover:text-[#2C1E16] text-[10px] uppercase tracking-[0.2em] transition border border-[#C5A059] px-4 py-2 rounded-full">@romeo_ig</a>
+            </div>
+            
+            <div class="text-7xl font-serif italic text-[#C5A059] opacity-30 reveal-up">&amp;</div>
+            
+            <!-- Bride -->
+            <div class="text-center md:w-1/3 reveal-up" style="transition-delay: 300ms;">
+                <div class="w-64 h-80 mx-auto mb-8 overflow-hidden rounded-tr-[80px] rounded-bl-[80px] border-4 border-[#C5A059]/20 shadow-xl shadow-[#2C1E16]/10 p-2 bg-white">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover rounded-tr-[70px] rounded-bl-[70px] hover:scale-105 transition-transform duration-1000 grayscale sepia-[.3]">
+                </div>
+                <h4 class="font-serif text-3xl text-[#2C1E16] mb-3">{{ $page->bride_name ?? 'Ni Luh Juliet' }}</h4>
+                <p class="text-[#2C1E16]/60 text-sm mb-6 leading-relaxed">Putri dari<br>Bpk. I Ketut Capulet & Ibu Ni Putu Lady</p>
+                <a href="#" class="text-[#C5A059] hover:text-[#2C1E16] text-[10px] uppercase tracking-[0.2em] transition border border-[#C5A059] px-4 py-2 rounded-full">@juliet_ig</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Image Break / Balinese Ritual -->
+<section class="h-[70vh] bg-fixed bg-center bg-cover reveal-up relative" style="background-image: url('https://images.unsplash.com/photo-1558005530-cb61e2cb3200?q=80&w=2000&auto=format&fit=crop');">
+    <div class="absolute inset-0 bg-[#2C1E16]/40"></div>
+    <div class="absolute inset-0 flex items-center justify-center">
+        <h2 class="text-white font-balinese text-[8rem] md:text-[12rem] text-center opacity-90 tracking-wider drop-shadow-md">ᬒᬁ</h2>
+    </div>
+</section>
+
+<!-- Countdown (Alpine) -->
+<section class="py-24 bg-white relative overflow-hidden border-b border-[#F9F6F0]" 
+         x-data="countdown('{{ optional($page->event_date)->format('Y-m-d\TH:i:s') ?? '2026-12-12T08:00:00' }}')">
+    <div class="max-w-4xl mx-auto px-6 text-center relative z-10 reveal-up">
+        <h3 class="font-sans text-[10px] tracking-[0.4em] uppercase text-[#C5A059] mb-16 border-b border-[#C5A059]/30 inline-block pb-2">Menuju Hari Bahagia</h3>
+        <div class="flex flex-wrap justify-center gap-6 md:gap-16">
+            <div class="w-24 bg-[#F9F6F0] p-4 rounded-t-full rounded-b-lg border border-[#C5A059]/20 shadow-sm hover:-translate-y-1 transition-transform">
+                <div class="font-serif text-5xl text-[#2C1E16] mb-2" x-text="days">00</div>
+                <div class="text-[9px] uppercase tracking-widest text-[#C5A059]">Hari</div>
+            </div>
+            <div class="w-24 bg-[#F9F6F0] p-4 rounded-t-full rounded-b-lg border border-[#C5A059]/20 shadow-sm hover:-translate-y-1 transition-transform">
+                <div class="font-serif text-5xl text-[#2C1E16] mb-2" x-text="hours">00</div>
+                <div class="text-[9px] uppercase tracking-widest text-[#C5A059]">Jam</div>
+            </div>
+            <div class="w-24 bg-[#F9F6F0] p-4 rounded-t-full rounded-b-lg border border-[#C5A059]/20 shadow-sm hover:-translate-y-1 transition-transform">
+                <div class="font-serif text-5xl text-[#2C1E16] mb-2" x-text="minutes">00</div>
+                <div class="text-[9px] uppercase tracking-widest text-[#C5A059]">Menit</div>
+            </div>
+            <div class="w-24 bg-[#F9F6F0] p-4 rounded-t-full rounded-b-lg border border-[#C5A059]/20 shadow-sm hover:-translate-y-1 transition-transform">
+                <div class="font-serif text-5xl text-[#C5A059] mb-2" x-text="seconds">00</div>
+                <div class="text-[9px] uppercase tracking-widest text-[#2C1E16]">Detik</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Event Details -->
+<section class="py-32 bg-[#F9F6F0]">
     <div class="max-w-6xl mx-auto px-6">
-        <div class="text-center mb-20 reveal-on-scroll">
-            <p class="invitation-accent uppercase tracking-[0.2em] text-sm mb-4 text-gray-500">Join Us to Celebrate</p>
-            <h2 class="invitation-title text-5xl md:text-7xl font-serif text-gray-900">The Wedding Details</h2>
+        <div class="text-center mb-20 reveal-up">
+            <h3 class="font-serif text-5xl text-[#2C1E16] mb-6">Rangkaian Acara</h3>
+            <div class="w-24 h-1 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent mx-auto"></div>
         </div>
         
-        <div class="grid md:grid-cols-2 gap-12 md:gap-20">
-            <!-- Akad/Ceremony Card -->
-            <div class="invitation-card group bg-gray-50 p-12 text-center shadow-[0_20px_50px_rgba(0,0,0,0.05)] reveal-on-scroll hover:-translate-y-2 transition-transform duration-500 border-t-4 border-transparent hover:border-gray-300">
-                <div class="invitation-icon-box w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-8 bg-white">
-                    <svg class="invitation-accent w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+        <div class="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto relative">
+            <!-- Central Line for Desktop -->
+            <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#C5A059]/50 to-transparent transform -translate-x-1/2"></div>
+            
+            <!-- Pawiwahan -->
+            <div class="bg-white p-10 text-center shadow-lg shadow-[#2C1E16]/5 rounded-sm reveal-up border-x border-[#C5A059]/20 relative z-10">
+                <div class="w-16 h-16 mx-auto bg-[#F9F6F0] rounded-full flex items-center justify-center mb-8 border border-[#C5A059]/30">
+                    <svg class="w-8 h-8 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
-                <h3 class="invitation-title text-4xl font-serif mb-2 text-gray-900">Akad Nikah</h3>
-                <div class="invitation-line w-12 h-px mx-auto mb-8 bg-gray-300"></div>
-                <p class="invitation-date text-gray-500 font-medium tracking-widest uppercase text-sm mb-2">{{ optional($page->event_date)->format(\'l, d F Y\') ?? \'Minggu, 12 Desember 2026\' }}</p>
-                <p class="text-gray-400 mb-8 font-light">08.00 WIB - Selesai</p>
-                <h4 class="invitation-title font-serif text-2xl mb-2 text-gray-800">Masjid Agung Luminara</h4>
-                <p class="text-sm text-gray-500 mb-8 font-light">Jl. Cinta Damai No. 1, Bali, Indonesia</p>
-                <a href="#" class="invitation-button inline-block px-8 py-3 border border-gray-900 uppercase tracking-wider text-xs transition-colors duration-300 text-gray-900 hover:bg-gray-900 hover:text-white">View Map</a>
+                <h4 class="font-serif text-3xl text-[#2C1E16] mb-4">Pawiwahan</h4>
+                <p class="font-sans font-medium text-[#C5A059] mb-2 text-sm">{{ optional($page->event_date)->format('l, d F Y') ?? 'Minggu, 12 Desember 2026' }}</p>
+                <p class="text-[#2C1E16]/60 mb-8 font-light text-sm">08:00 WITA - Selesai</p>
+                <div class="mb-10">
+                    <p class="font-bold text-[#2C1E16] mb-1">Griya Santrian</p>
+                    <p class="text-xs text-[#2C1E16]/60 font-light">Jl. Danau Tamblingan No. 47, Sanur, Bali</p>
+                </div>
+                <a href="#" target="_blank" class="inline-block px-8 py-3 border border-[#2C1E16] text-[#2C1E16] text-[10px] uppercase tracking-[0.2em] hover:bg-[#2C1E16] hover:text-white transition">Lihat Peta</a>
             </div>
-
-            <!-- Resepsi/Reception Card -->
-            <div class="invitation-card group bg-gray-50 p-12 text-center shadow-[0_20px_50px_rgba(0,0,0,0.05)] reveal-on-scroll hover:-translate-y-2 transition-transform duration-500 border-t-4 border-transparent hover:border-gray-300" style="transition-delay: 200ms;">
-                <div class="invitation-icon-box w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-8 bg-white">
-                    <svg class="invitation-accent w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z"></path></svg>
+            
+            <!-- Resepsi -->
+            <div class="bg-white p-10 text-center shadow-lg shadow-[#2C1E16]/5 rounded-sm reveal-up border-x border-[#C5A059]/20 relative z-10" style="transition-delay: 200ms;">
+                <div class="w-16 h-16 mx-auto bg-[#F9F6F0] rounded-full flex items-center justify-center mb-8 border border-[#C5A059]/30">
+                    <svg class="w-8 h-8 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z"></path></svg>
                 </div>
-                <h3 class="invitation-title text-4xl font-serif mb-2 text-gray-900">Resepsi</h3>
-                <div class="invitation-line w-12 h-px mx-auto mb-8 bg-gray-300"></div>
-                <p class="invitation-date text-gray-500 font-medium tracking-widest uppercase text-sm mb-2">{{ optional($page->event_date)->format(\'l, d F Y\') ?? \'Minggu, 12 Desember 2026\' }}</p>
-                <p class="text-gray-400 mb-8 font-light">11.00 WIB - 14.00 WIB</p>
-                <h4 class="invitation-title font-serif text-2xl mb-2 text-gray-800">Luminara Grand Ballroom</h4>
-                <p class="text-sm text-gray-500 mb-8 font-light">Jl. Cinta Damai No. 1, Bali, Indonesia</p>
-                <a href="#" class="invitation-button inline-block px-8 py-3 border border-gray-900 uppercase tracking-wider text-xs transition-colors duration-300 text-gray-900 hover:bg-gray-900 hover:text-white">View Map</a>
+                <h4 class="font-serif text-3xl text-[#2C1E16] mb-4">Resepsi</h4>
+                <p class="font-sans font-medium text-[#C5A059] mb-2 text-sm">{{ optional($page->event_date)->format('l, d F Y') ?? 'Minggu, 12 Desember 2026' }}</p>
+                <p class="text-[#2C1E16]/60 mb-8 font-light text-sm">11:00 WITA - 14:00 WITA</p>
+                <div class="mb-10">
+                    <p class="font-bold text-[#2C1E16] mb-1">Griya Santrian</p>
+                    <p class="text-xs text-[#2C1E16]/60 font-light">Jl. Danau Tamblingan No. 47, Sanur, Bali</p>
+                </div>
+                <a href="#" target="_blank" class="inline-block px-8 py-3 border border-[#2C1E16] text-[#2C1E16] text-[10px] uppercase tracking-[0.2em] hover:bg-[#2C1E16] hover:text-white transition">Lihat Peta</a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Our Gallery Section -->
-<section class="invitation-gallery py-24 bg-gray-50">
+<!-- Gallery -->
+<section class="py-32 bg-white border-t border-[#F9F6F0]" x-data="{ lightboxOpen: false, lightboxImage: '' }">
     <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-16 reveal-on-scroll">
-            <h2 class="invitation-title text-5xl md:text-7xl font-serif text-gray-900">Moments in Time</h2>
-            <p class="invitation-accent uppercase tracking-[0.2em] text-sm mt-6 text-gray-500">A glimpse of our journey</p>
+        <div class="text-center mb-20 reveal-up">
+            <h3 class="font-serif text-5xl text-[#2C1E16] mb-6">Galeri Kasih</h3>
+            <div class="w-24 h-1 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent mx-auto"></div>
         </div>
         
-        <!-- Simple Masonry Gallery -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="grid gap-4">
-                <img class="h-auto max-w-full rounded-lg reveal-on-scroll hover:opacity-90 transition" src="https://images.unsplash.com/photo-1583939000240-690e16fa01e6?q=80&w=800&auto=format&fit=crop" alt="">
-                <img class="h-auto max-w-full rounded-lg reveal-on-scroll hover:opacity-90 transition" src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=800&auto=format&fit=crop" alt="">
+        <!-- Masonry Grid with some spacing -->
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+            <div class="break-inside-avoid reveal-up">
+                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1586420669671-701d93b76748?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
             </div>
-            <div class="grid gap-4">
-                <img class="h-auto max-w-full rounded-lg reveal-on-scroll hover:opacity-90 transition" style="transition-delay:100ms;" src="https://images.unsplash.com/photo-1606490204369-1736b4859a58?q=80&w=800&auto=format&fit=crop" alt="">
-                <img class="h-auto max-w-full rounded-lg reveal-on-scroll hover:opacity-90 transition" style="transition-delay:100ms;" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=800&auto=format&fit=crop" alt="">
+            <div class="break-inside-avoid reveal-up" style="transition-delay: 100ms;">
+                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1587200868091-23e92ff750b4?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
             </div>
-            <div class="grid gap-4">
-                <img class="h-auto max-w-full rounded-lg reveal-on-scroll hover:opacity-90 transition" style="transition-delay:200ms;" src="https://images.unsplash.com/photo-1621801306184-fbdd90048e58?q=80&w=800&auto=format&fit=crop" alt="">
-                <img class="h-auto max-w-full rounded-lg reveal-on-scroll hover:opacity-90 transition" style="transition-delay:200ms;" src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=800&auto=format&fit=crop" alt="">
+            <div class="break-inside-avoid reveal-up" style="transition-delay: 200ms;">
+                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://plus.unsplash.com/premium_photo-1661443432542-d934aba7c922?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
+            </div>
+            <div class="break-inside-avoid reveal-up">
+                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1671517477698-fafce6ec9c02?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
+            </div>
+            <div class="break-inside-avoid reveal-up" style="transition-delay: 100ms;">
+                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1672251486261-71681105b331?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
+            </div>
+            <div class="break-inside-avoid reveal-up" style="transition-delay: 200ms;">
+                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1625759190925-a67568fd123b?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
             </div>
         </div>
     </div>
+
+    <!-- Lightbox Overlay -->
+    <div x-show="lightboxOpen" 
+         style="display: none;" 
+         x-transition.opacity.duration.300ms
+         class="fixed inset-0 z-[100] flex items-center justify-center bg-[#2C1E16]/95 backdrop-blur-md p-4"
+         @keydown.escape.window="lightboxOpen = false">
+        
+        <!-- Close Button -->
+        <button @click="lightboxOpen = false" class="absolute top-6 right-6 text-white/50 hover:text-white transition bg-black/20 p-2 rounded-full backdrop-blur-sm z-50">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        
+        <!-- Full Image -->
+        <img :src="lightboxImage" @click.away="lightboxOpen = false" class="max-w-full max-h-[90vh] object-contain rounded-sm shadow-2xl border-4 border-white/10" x-transition.scale.origin.center>
+    </div>
 </section>
-'
+
+<!-- RSVP -->
+<section class="py-32 bg-[#2C1E16] text-white relative overflow-hidden">
+    <!-- Subtle Pattern -->
+    <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')]"></div>
+    <div class="max-w-3xl mx-auto px-6 text-center relative z-10 reveal-up">
+        <h3 class="font-serif text-4xl md:text-5xl mb-6 text-[#C5A059]">Buku Tamu & RSVP</h3>
+        <p class="text-white/60 mb-16 font-light tracking-wide text-sm">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.</p>
+        
+        <form class="bg-[#2C1E16] p-8 md:p-14 rounded-sm border border-[#C5A059]/30 text-left shadow-2xl relative">
+            <!-- Corner Accents -->
+            <div class="absolute top-0 left-0 w-4 h-4 border-t border-l border-[#C5A059] -translate-x-1 -translate-y-1"></div>
+            <div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#C5A059] translate-x-1 -translate-y-1"></div>
+            <div class="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[#C5A059] -translate-x-1 translate-y-1"></div>
+            <div class="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[#C5A059] translate-x-1 translate-y-1"></div>
+
+            <div class="mb-8">
+                <label class="block text-[10px] uppercase tracking-widest text-[#C5A059] mb-3">Nama Lengkap</label>
+                <input type="text" class="w-full bg-transparent border-b border-white/10 focus:border-[#C5A059] py-3 outline-none text-white text-sm transition placeholder-white/20" placeholder="Tulis nama anda...">
+            </div>
+            <div class="mb-8">
+                <label class="block text-[10px] uppercase tracking-widest text-[#C5A059] mb-3">Kehadiran</label>
+                <select class="w-full bg-transparent border-b border-white/10 focus:border-[#C5A059] py-3 outline-none text-white text-sm transition [&>option]:text-[#2C1E16] appearance-none cursor-pointer">
+                    <option value="">Pilih status kehadiran...</option>
+                    <option value="hadir">Ya, saya akan hadir</option>
+                    <option value="tidak">Maaf, saya tidak bisa hadir</option>
+                </select>
+            </div>
+            <div class="mb-10">
+                <label class="block text-[10px] uppercase tracking-widest text-[#C5A059] mb-3">Ucapan & Doa</label>
+                <textarea rows="3" class="w-full bg-transparent border-b border-white/10 focus:border-[#C5A059] py-3 outline-none text-white text-sm transition placeholder-white/20" placeholder="Berikan ucapan terbaik anda..."></textarea>
+            </div>
+            <button type="button" class="w-full py-4 bg-[#C5A059] text-[#2C1E16] font-medium uppercase tracking-[0.2em] text-[10px] hover:bg-[#a6864a] transition shadow-lg shadow-[#C5A059]/10">Kirim Konfirmasi</button>
+        </form>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-16 bg-[#1a110d] text-center text-white/30 text-[10px] tracking-[0.3em] uppercase">
+    <p class="mb-4 text-[#C5A059]">Om Shanti Shanti Shanti Om</p>
+    <p>Created with ♥ by Luminara Visual</p>
+</footer>
+
+<!-- Scripts -->
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('countdown', (targetDate) => ({
+        days: '00', hours: '00', minutes: '00', seconds: '00',
+        init() {
+            const countDownDate = new Date(targetDate).getTime();
+            setInterval(() => {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+                if (distance < 0) return;
+                this.days = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+                this.hours = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                this.minutes = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                this.seconds = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
+            }, 1000);
+        }
+    }));
+});
+
+// Simple Intersection Observer for reveal animation
+document.addEventListener('DOMContentLoaded', () => {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+            }
+        });
+    }, { threshold: 0.15 });
+    
+    document.querySelectorAll('.reveal-up').forEach((el) => observer.observe(el));
+});
+</script>
+BLADE
         ]);
 
         // Tetapkan URL musik yang benar jika tersedia dalam Asset
