@@ -85,11 +85,112 @@
                 <x-invitation.layout class="bg-gray-50" :skip-cover="true">
                     <x-invitation.audio :src="''" />
                     <div x-show="isOpen" class="w-full" style="display:block;">
-                        <div id="visual-canvas" class="w-full min-h-[500px] @container">
+                        <div id="visual-canvas" class="w-full min-h-[500px] @container" @click="inspectElement($event)">
                             {!! $template->html_content !!}
                         </div>
                     </div>
                 </x-invitation.layout>
+
+                <!-- Active Node Inspector (Properties Sidebar) -->
+                <div x-show="isPropertiesPanelOpen" 
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="translate-x-full"
+                     x-transition:enter-end="translate-x-0"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="translate-x-0"
+                     x-transition:leave-end="translate-x-full"
+                     class="fixed top-0 right-0 bottom-0 w-80 bg-white border-l border-gray-200 shadow-2xl z-[60] flex flex-col font-sans"
+                     style="display: none;">
+                    
+                    <!-- Header -->
+                    <div class="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold font-mono">
+                                <span x-text="nodeData.tagName"></span>
+                            </div>
+                            <h3 class="text-sm font-semibold text-gray-800">Properties</h3>
+                        </div>
+                        <button @click="closeInspector()" class="p-1 text-gray-400 hover:text-gray-600 rounded transition" title="Close Inspector">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-5 space-y-6 text-left">
+                        
+                        <!-- Inner Text Input -->
+                        <div x-show="['H1','H2','H3','H4','H5','H6','P','SPAN','A','BUTTON','DIV'].includes(nodeData.tagName)">
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex justify-between">
+                                <span>Text Content</span>
+                                <span x-show="nodeData.isDynamic" class="text-orange-500 text-[10px]">Dynamic (Locked)</span>
+                            </label>
+                            <textarea 
+                                x-model="nodeData.text" 
+                                @input="updateNodeProperty('text', $event.target.value)"
+                                :disabled="nodeData.isDynamic"
+                                :class="nodeData.isDynamic ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' : 'bg-white border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'"
+                                rows="3" 
+                                class="w-full text-sm border rounded p-2 outline-none transition resize-y"></textarea>
+                        </div>
+
+                        <!-- Link URL Input -->
+                        <div x-show="nodeData.tagName === 'A'">
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Link URL</label>
+                            <input type="text" 
+                                x-model="nodeData.href" 
+                                @input="updateNodeProperty('href', $event.target.value)"
+                                placeholder="https://"
+                                class="w-full text-sm bg-white border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded p-2 outline-none transition">
+                        </div>
+
+                        <!-- Image Source Input -->
+                        <div x-show="nodeData.tagName === 'IMG' || nodeData.classes.includes('bg-[url')">
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Image Source</label>
+                            <div class="flex gap-2">
+                                <input type="text" 
+                                    x-model="nodeData.src" 
+                                    @input="updateNodeProperty('src', $event.target.value)"
+                                    id="visual_image_src_input"
+                                    placeholder="/storage/..."
+                                    class="flex-1 text-sm bg-white border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded p-2 outline-none transition">
+                                <button @click="openMediaLibrary('visual')" type="button" class="px-3 bg-gray-100 border border-gray-300 text-gray-600 rounded hover:bg-gray-200 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Text Alignment GUI -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Text Alignment</label>
+                            <div class="flex bg-gray-100 p-1 rounded border border-gray-200">
+                                <button @click="toggleTailwindClass('text-left', ['text-center', 'text-right', 'text-justify'])" 
+                                        :class="nodeData.classes.includes('text-left') ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'"
+                                        class="flex-1 py-1.5 flex justify-center rounded transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h16"></path></svg>
+                                </button>
+                                <button @click="toggleTailwindClass('text-center', ['text-left', 'text-right', 'text-justify'])" 
+                                        :class="nodeData.classes.includes('text-center') ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'"
+                                        class="flex-1 py-1.5 flex justify-center rounded transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M7 12h10M4 18h16"></path></svg>
+                                </button>
+                                <button @click="toggleTailwindClass('text-right', ['text-left', 'text-center', 'text-justify'])" 
+                                        :class="nodeData.classes.includes('text-right') ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'"
+                                        class="flex-1 py-1.5 flex justify-center rounded transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M10 12h10M4 18h16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Raw Tailwind Classes -->
+                        <div class="flex-1 flex flex-col min-h-[150px]">
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Tailwind Classes</label>
+                            <textarea 
+                                x-model="nodeData.classes" 
+                                @input="updateNodeProperty('classes', $event.target.value)"
+                                class="w-full flex-1 text-sm font-mono bg-gray-50 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded p-2 outline-none transition resize-y"
+                                spellcheck="false"></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -261,6 +362,8 @@
             
             if (el.className && typeof el.className === 'string') {
                 el.className = el.className.replace(/@(sm|md|lg|xl|2xl):/g, '$1:');
+                el.className = el.className.replace(/\bring-2\b|\bring-blue-500\b|\bring-inset\b|\boutline-none\b/g, '').replace(/\s+/g, ' ').trim();
+                
                 if (el.className.trim() === '') {
                     el.removeAttribute('class');
                 }
@@ -319,6 +422,118 @@
             groom_name: 'Romeo',
             bride_name: 'Juliet',
             event_date: '2026-12-12T08:00:00',
+            
+            // Node Inspector State
+            isPropertiesPanelOpen: false,
+            selectedNode: null,
+            nodeData: { tagName: '', text: '', classes: '', href: '', src: '', isDynamic: false },
+            
+            inspectElement(event) {
+                // Ignore clicks on the visual-canvas wrapper itself
+                if (event.target.id === 'visual-canvas') return;
+                
+                // Prevent following links during editing
+                const aTag = event.target.closest('a');
+                if (aTag) {
+                    event.preventDefault();
+                }
+
+                let el = event.target;
+                
+                // If they clicked a child of an SVG, target the SVG instead
+                if (el.closest('svg')) {
+                    el = el.closest('svg');
+                }
+                
+                // Remove highlight from previous node
+                this.removeHighlight();
+
+                this.selectedNode = el;
+                this.nodeData.tagName = el.tagName.toUpperCase();
+                this.nodeData.isDynamic = el.hasAttribute('x-text') || el.closest('[x-text]') !== null;
+                
+                // Only pull text if it's a relatively simple element (leaf node) to avoid nested HTML text extraction
+                if (!this.nodeData.isDynamic && el.children.length === 0) {
+                    this.nodeData.text = el.textContent;
+                } else {
+                    this.nodeData.text = ''; // Clear text if it has children or is dynamic
+                }
+                
+                // Clean up classes by removing temporary highlight classes from the string
+                let cleanClasses = el.getAttribute('class') || '';
+                cleanClasses = cleanClasses.replace(/\bring-2\b|\bring-blue-500\b|\bring-inset\b|\boutline-none\b/g, '').replace(/\s+/g, ' ').trim();
+                
+                this.nodeData.classes = cleanClasses;
+                this.nodeData.href = el.getAttribute('href') || '';
+                this.nodeData.src = el.getAttribute('src') || '';
+                
+                // Add highlight
+                el.classList.add('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
+                
+                this.isPropertiesPanelOpen = true;
+            },
+            
+            removeHighlight() {
+                if (this.selectedNode) {
+                    this.selectedNode.classList.remove('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
+                    let cls = this.selectedNode.getAttribute('class') || '';
+                    if (cls.trim() === '') {
+                        this.selectedNode.removeAttribute('class');
+                    }
+                }
+            },
+            
+            closeInspector() {
+                this.removeHighlight();
+                this.selectedNode = null;
+                this.isPropertiesPanelOpen = false;
+            },
+            
+            updateNodeProperty(property, value) {
+                if (!this.selectedNode) return;
+                
+                if (property === 'text' && !this.nodeData.isDynamic) {
+                    this.selectedNode.textContent = value;
+                } else if (property === 'classes') {
+                    // Temporarily remove highlight before applying classes to ensure clean class string is set
+                    this.removeHighlight();
+                    if(value.trim() === '') {
+                        this.selectedNode.removeAttribute('class');
+                    } else {
+                        this.selectedNode.setAttribute('class', value);
+                    }
+                    // Re-apply highlight
+                    this.selectedNode.classList.add('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
+                } else if (property === 'href') {
+                    if (value) this.selectedNode.setAttribute('href', value);
+                    else this.selectedNode.removeAttribute('href');
+                } else if (property === 'src') {
+                    if (value) this.selectedNode.setAttribute('src', value);
+                    else this.selectedNode.removeAttribute('src');
+                }
+                
+                window.syncToMonaco();
+            },
+            
+            toggleTailwindClass(classToAdd, classesToRemove = []) {
+                if (!this.selectedNode) return;
+                
+                const classes = (this.nodeData.classes || '').split(' ').filter(c => c.trim() !== '');
+                
+                // Remove conflicting classes
+                const newClasses = classes.filter(c => !classesToRemove.includes(c));
+                
+                // Toggle logic
+                const idx = newClasses.indexOf(classToAdd);
+                if (idx > -1) {
+                    newClasses.splice(idx, 1);
+                } else {
+                    newClasses.push(classToAdd);
+                }
+                
+                this.nodeData.classes = newClasses.join(' ');
+                this.updateNodeProperty('classes', this.nodeData.classes);
+            },
             
             init() {
                 const canvas = document.getElementById('visual-canvas');
@@ -702,7 +917,7 @@
 </script>
 
 <!-- Modal Media Library -->
-<div id="mediaModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm items-center justify-center p-4">
+<div id="mediaModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden">
         <div class="p-4 border-b flex justify-between items-center bg-gray-50">
             <h3 class="font-bold text-gray-800">Media Library</h3>
