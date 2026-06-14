@@ -109,9 +109,9 @@ class FullInvitationTemplateSeeder extends Seeder
         <p class="invitation-accent text-sm tracking-[0.3em] uppercase mb-6 text-gray-300">The Wedding Of</p>
         
         <h1 class="invitation-title text-6xl md:text-8xl font-serif mb-8 text-white">
-            {{ $page->groom_name ?? \'Romeo\' }}<br>
+            {{ $page->groom_name }}<br>
             <span class="invitation-accent text-4xl italic">&</span><br>
-            {{ $page->bride_name ?? \'Juliet\' }}
+            {{ $page->bride_name }}
         </h1>
         
         <div class="mt-12 mb-12">
@@ -138,7 +138,7 @@ class FullInvitationTemplateSeeder extends Seeder
     <div class="relative z-10 max-w-2xl mx-auto pt-32">
         <p class="invitation-accent uppercase tracking-[0.3em] text-sm mb-6 reveal-on-scroll">We Are Getting Married</p>
         <h2 class="invitation-title text-6xl md:text-8xl font-serif text-gray-900 mb-8 reveal-on-scroll" style="transition-delay: 200ms;">
-            {{ $page->groom_name ?? \'Romeo\' }} <br> <span class="invitation-accent text-4xl italic">&</span> <br> {{ $page->bride_name ?? \'Juliet\' }}
+            {{ $page->groom_name }} <br> <span class="invitation-accent text-4xl italic">&</span> <br> {{ $page->bride_name ?? \'Juliet\' }}
         </h2>
         <div class="invitation-line w-px h-32 mx-auto mt-12 animate-float reveal-on-scroll bg-gray-400" style="transition-delay: 400ms;"></div>
     </div>
@@ -231,7 +231,7 @@ class FullInvitationTemplateSeeder extends Seeder
         $lagu = InvitationAsset::where('asset_name', 'Lagu Pernikahan Kita - Tiara Andini')->first();
         if ($lagu) {
             $md = $template->meta_data;
-            $md['bg_music'] = asset('storage/' . $lagu->file_path);
+            $md['bg_music'] = asset('storage/'.$lagu->file_path);
             $template->meta_data = $md;
             $template->save();
         }
