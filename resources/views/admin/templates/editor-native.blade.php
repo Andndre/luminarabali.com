@@ -41,8 +41,8 @@
 
         <!-- Aside Navigation -->
         <div class="z-50 flex w-14 shrink-0 flex-col items-center border-r border-gray-800 bg-[#1e1e1e] py-4">
-            <button type="button" @click="mode = 'visual'"
-                :class="mode === 'visual' ? 'text-blue-500 bg-gray-800' : 'text-gray-400 hover:text-white'"
+            <button type="button" @click="toggleView('visual')"
+                :class="panels.visual ? 'text-blue-500 bg-gray-800' : 'text-gray-400 hover:text-white'"
                 class="mb-2 rounded-xl p-3 transition" title="Visual Mode">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -52,16 +52,16 @@
                     </path>
                 </svg>
             </button>
-            <button type="button" @click="mode = 'code'"
-                :class="mode === 'code' ? 'text-blue-500 bg-gray-800' : 'text-gray-400 hover:text-white'"
+            <button type="button" @click="toggleView('code')"
+                :class="panels.code ? 'text-blue-500 bg-gray-800' : 'text-gray-400 hover:text-white'"
                 class="mb-2 rounded-xl p-3 transition" title="Code Mode">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                 </svg>
             </button>
-            <button type="button" @click="mode = 'properties'"
-                :class="mode === 'properties' ? 'text-blue-500 bg-gray-800' : 'text-gray-400 hover:text-white'"
+            <button type="button" @click="toggleView('properties')"
+                :class="panels.properties ? 'text-blue-500 bg-gray-800' : 'text-gray-400 hover:text-white'"
                 class="mb-2 rounded-xl p-3 transition" title="Properties">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -71,8 +71,8 @@
                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
             </button>
-            <button type="button" @click="togglePanel('library')"
-                :class="activePanel === 'library' ? 'text-blue-500 bg-gray-800' : 'text-gray-400 hover:text-white'"
+            <button type="button" @click="toggleView('library')"
+                :class="panels.library ? 'text-blue-500 bg-gray-800' : 'text-gray-400 hover:text-white'"
                 class="mb-2 rounded-xl p-3 transition" title="Library">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -93,7 +93,7 @@
         </div>
 
         <!-- Side Panel Component Library -->
-        <div x-data="templateLibrary" :class="activePanel === 'library' ? 'w-[320px] opacity-100' : 'w-0 border-none opacity-0'"
+        <div x-data="templateLibrary" :class="panels.library ? 'w-[320px] opacity-100' : 'w-0 border-none opacity-0'"
             class="flex shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-white shadow-xl transition-all duration-300 ease-in-out"
             x-cloak>
 
@@ -102,7 +102,7 @@
                     <h2 class="font-bold text-gray-900">Library</h2>
                     <p class="text-xs text-gray-500">Components & Sections</p>
                 </div>
-                <button type="button" @click="togglePanel('library')"
+                <button type="button" @click="toggleView('library')"
                     class="rounded p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-500">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -207,8 +207,7 @@
             <!-- Header Top Bar -->
             <div class="z-10 flex items-center justify-between border-b border-gray-800 bg-[#1e1e1e] p-3 text-gray-300">
                 <div class="flex items-center gap-3">
-                    <h1 class="text-sm font-medium">{{ $template->name }} <span class="font-normal text-gray-600"
-                            x-text="'| ' + mode + ' mode'"></span></h1>
+                    <h1 class="text-sm font-medium">{{ $template->name }}</h1>
                 </div>
                 <div class="flex items-center gap-2">
                     <button type="button" onclick="openMediaLibrary()"
@@ -227,8 +226,10 @@
                 </div>
             </div>
 
-            <!-- CODE MODE -->
-            <div x-show="mode === 'code'" class="flex h-full flex-1 flex-col bg-[#1e1e1e]">
+            <!-- Split View Container -->
+            <div class="flex flex-1 overflow-hidden relative">
+                <!-- CODE MODE -->
+                <div x-show="panels.code" class="flex h-full flex-1 flex-col border-r border-gray-800 bg-[#1e1e1e] min-w-[400px]">
                 <!-- Minimal Tabs Navigation -->
                 <div class="flex shrink-0 border-b border-gray-800 bg-[#1e1e1e] text-xs text-gray-500">
                     <button type="button" onclick="switchTab('cover')" id="tab-cover"
@@ -243,10 +244,10 @@
                 <div id="monaco-container" class="h-full w-full flex-1"></div>
             </div>
 
-            <!-- VISUAL MODE -->
-            <div x-show="mode === 'visual'" class="h-full flex-1 overflow-y-auto bg-gray-100" id="visual-workspace">
+                <!-- VISUAL MODE -->
+                <div x-show="panels.visual" class="h-full flex-1 overflow-y-auto bg-gray-100 min-w-[350px]" id="visual-workspace">
                 <div class="relative mx-auto my-4 min-h-screen max-w-[480px] bg-white font-[Lato] shadow-2xl"
-                    x-data="invitationEditor()" @mouseleave="hoverMenuVisible = false">
+                    @mouseleave="hoverMenuVisible = false">
                     <x-invitation.layout class="bg-gray-50" :skip-cover="true">
                         <x-invitation.audio :src="''" />
                         <div x-show="isOpen" class="w-full" style="display:block;">
@@ -488,7 +489,7 @@
             </div>
 
             <!-- PROPERTIES MODE -->
-            <div x-show="mode === 'properties'" class="h-full w-full flex-1 overflow-y-auto bg-[#1e1e1e]"
+            <div x-show="panels.properties" class="flex h-full w-[400px] shrink-0 flex-col overflow-y-auto border-l border-gray-800 bg-[#1e1e1e]"
                 x-data="propertiesForm({{ json_encode($template->meta_data ?: ['bg_music' => '', 'rsvp_enabled' => true]) }})">
                 <div class="mx-auto max-w-3xl p-8 text-gray-300">
                     <div class="mb-8 border-b border-gray-800 pb-4">
@@ -512,6 +513,8 @@
                     </div>
                 </div>
             </div>
+            
+            </div> <!-- End Split View Container -->
 
             <form id="editorForm" action="{{ route('api.templates.sections.save') }}" method="POST" class="hidden">
                 @csrf
@@ -539,9 +542,18 @@
     <!-- Load Monaco Editor synchronously before usage -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
     <script>
+        window.isSyncing = false;
+        window.typingTimer = null;
+
         window.syncToMonaco = function() {
+            if (window.isSyncing) return;
+            window.isSyncing = true;
+            
             const canvas = document.getElementById('visual-canvas');
-            if (!canvas || typeof htmlModel === 'undefined') return;
+            if (!canvas || typeof htmlModel === 'undefined') {
+                window.isSyncing = false;
+                return;
+            }
 
             const clone = canvas.cloneNode(true);
             const textElements = clone.querySelectorAll('[contenteditable]');
@@ -589,52 +601,42 @@
             });
 
             // Update Monaco Model
-            htmlModel.setValue(clone.innerHTML.trim());
+            let cleanHTML = clone.innerHTML.trim();
+            if (window.globalEditor) {
+                const fullRange = htmlModel.getFullModelRange();
+                window.globalEditor.executeEdits('visual-canvas', [{
+                    range: fullRange,
+                    text: cleanHTML
+                }]);
+            } else {
+                htmlModel.setValue(cleanHTML);
+            }
+            
+            setTimeout(() => { window.isSyncing = false; }, 50);
         };
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('editorApp', () => ({
-                mode: 'visual',
-                activePanel: null,
-                togglePanel(panelName) {
-                    this.activePanel = this.activePanel === panelName ? null : panelName;
+                panels: {
+                    library: true,
+                    visual: true,
+                    code: false,
+                    properties: false
+                },
+                isSyncing: false,
+                typingTimer: null,
+                toggleView(panelName) {
+                    this.panels[panelName] = !this.panels[panelName];
+                    if (panelName === 'code' && this.panels.code && window.globalEditor) {
+                        setTimeout(() => window.globalEditor.layout(), 350);
+                    }
                 },
                 insertTargetNode: null,
-                init() {
-                    this.$watch('mode', value => {
-                        if (value === 'visual') {
-                            // Sync from Monaco to Canvas
-                            const canvas = document.getElementById('visual-canvas');
-                            if (canvas && typeof htmlModel !== 'undefined') {
-                                canvas.innerHTML = htmlModel.getValue();
-
-                                // Let Alpine initialize bindings and then re-apply editable logic
-                                setTimeout(() => {
-                                    const container = document.querySelector(
-                                        '[x-data="invitationEditor()"]');
-                                    if (container) {
-                                        const editorData = Alpine.$data(container);
-                                        if (editorData && typeof editorData.init ===
-                                            'function') {
-                                            editorData.init();
-                                        }
-                                    }
-                                }, 50);
-                            }
-                        } else if (value === 'code') {
-                            // Sync from Canvas to Monaco
-                            window.syncToMonaco();
-                        }
-                    });
-                },
                 preSaveSync() {
-                    if (this.mode === 'visual') {
-                        window.syncToMonaco();
-                    }
-                }
-            }));
-
-            Alpine.data('invitationEditor', () => ({
+                    window.syncToMonaco();
+                },
+                
+                // --- INVITATION EDITOR STATE MERGED ---
                 // Fake data for rendering x-text variables in Editor
                 groom_name: 'Romeo',
                 bride_name: 'Juliet',
@@ -1209,7 +1211,7 @@
                                 // and then attach editable events
                                 setTimeout(() => {
                                     const container = document.querySelector(
-                                        '[x-data="invitationEditor()"]');
+                                        '[x-data="editorApp()"]');
                                     if (container) {
                                         const editorData = Alpine.$data(container);
                                         if (editorData && typeof editorData.initEditable ===
@@ -1294,6 +1296,38 @@
                 padding: {
                     top: 16
                 }
+            });
+
+            // Add ResizeObserver for robust layout updating when flex panels animate
+            const resizeObserver = new ResizeObserver(() => {
+                if (window.globalEditor) {
+                    window.globalEditor.layout();
+                }
+            });
+            resizeObserver.observe(document.getElementById('monaco-container'));
+
+            // Real-Time 2-Way Sync (Code -> Visual)
+            htmlModel.onDidChangeContent(() => {
+                if (window.isSyncing) return;
+                
+                clearTimeout(window.typingTimer);
+                window.typingTimer = setTimeout(() => {
+                    window.isSyncing = true;
+                    
+                    const rawHTML = htmlModel.getValue();
+                    const canvas = document.getElementById('visual-canvas');
+                    if (canvas) {
+                        canvas.innerHTML = rawHTML;
+                        
+                        // Re-bind Alpine controls
+                        const container = document.querySelector('[x-data="editorApp()"]');
+                        if (container && Alpine.$data(container) && typeof Alpine.$data(container).initEditable === 'function') {
+                            Alpine.$data(container).initEditable();
+                        }
+                    }
+                    
+                    setTimeout(() => { window.isSyncing = false; }, 50);
+                }, 500); // 500ms debounce
             });
 
             function handleSave(e) {
