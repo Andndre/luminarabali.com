@@ -219,6 +219,28 @@
                                 class="w-full flex-1 text-sm font-mono bg-gray-50 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded p-2 outline-none transition resize-y"
                                 spellcheck="false"></textarea>
                         </div>
+
+                        <!-- Quick Actions -->
+                        <div class="pt-4 border-t border-gray-200 mt-2">
+                            <label class="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">Quick Actions</label>
+                            <div class="flex gap-2">
+                                <button 
+                                    @click="duplicateSelectedNode()" 
+                                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-2 px-3 rounded transition flex items-center justify-center gap-1"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                    Duplicate
+                                </button>
+                                
+                                <button 
+                                    @click="deleteSelectedNode()" 
+                                    class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium py-2 px-3 rounded transition flex items-center justify-center gap-1"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -545,7 +567,7 @@
 
             inspectElement(event) {
                 // Ignore clicks on the visual-canvas wrapper itself
-                if (event.target.id === 'visual-canvas') return;
+                if (event.target.id === 'visual-canvas' || event.target.tagName.toLowerCase() === 'body') return;
                 
                 // Prevent following links during editing
                 const aTag = event.target.closest('a');
@@ -627,6 +649,36 @@
                     else this.selectedNode.removeAttribute('src');
                 }
                 
+                window.syncToMonaco();
+            },
+            
+            duplicateSelectedNode() {
+                if (!this.selectedNode) return;
+                
+                // Clone the DOM node deeply
+                const clone = this.selectedNode.cloneNode(true);
+                
+                // Remove highlight classes from the clone
+                clone.classList.remove('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
+                let cls = clone.getAttribute('class') || '';
+                if (cls.trim() === '') {
+                    clone.removeAttribute('class');
+                }
+                
+                // Insert the clone directly after the selected node
+                this.selectedNode.parentNode.insertBefore(clone, this.selectedNode.nextSibling);
+                
+                // Re-initialize contenteditable on the clone if needed
+                this.initEditable();
+                
+                window.syncToMonaco();
+            },
+
+            deleteSelectedNode() {
+                if (!this.selectedNode) return;
+                
+                this.selectedNode.remove();
+                this.closeInspector();
                 window.syncToMonaco();
             },
             
