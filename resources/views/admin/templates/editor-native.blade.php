@@ -335,10 +335,11 @@
                     });
                 });
                 
-                // Add visual distinction for dynamic variables
+                // Add visual distinction and disable editing for dynamic variables
                 const dynamicElements = this.$el.querySelectorAll('[x-text]');
                 dynamicElements.forEach(el => {
-                    el.classList.add('border-b', 'border-dashed', 'border-blue-400', 'cursor-not-allowed');
+                    el.setAttribute('contenteditable', 'false');
+                    el.classList.add('border-b', 'border-dashed', 'border-blue-400', 'cursor-not-allowed', 'select-none');
                     el.setAttribute('title', 'Dynamic Variable (Editing Disabled)');
                 });
             },
@@ -582,7 +583,15 @@
         // Sync data ke hidden input saat form disubmit
         document.getElementById('editorForm').addEventListener('submit', handleSave);
 
-        // Shortcut Ctrl+S untuk Save
+        // Shortcut Ctrl+S (Global) untuk Save
+        window.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                handleSave();
+            }
+        });
+        
+        // Shortcut Ctrl+S (Monaco scope) fallback
         globalEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function() {
             handleSave();
         });
