@@ -56,7 +56,7 @@ class TemplateEditorController extends Controller
         $request->validate([
             'template_id' => 'required|exists:invitation_templates,id',
             'global_custom_css' => 'nullable|string',
-            'blade_content' => 'nullable|string',
+            'html_content' => 'nullable|string',
             'cover_content' => 'nullable|string',
             'meta_data' => 'nullable|string',
         ]);
@@ -71,7 +71,7 @@ class TemplateEditorController extends Controller
 
         $template->update([
             'global_custom_css' => $request->global_custom_css,
-            'blade_content' => $request->blade_content,
+            'html_content' => $request->html_content,
             'cover_content' => $request->cover_content,
             'meta_data' => $metaData,
         ]);

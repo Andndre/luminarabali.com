@@ -78,9 +78,9 @@ CSS,
         <p class="font-sans text-[10px] tracking-[0.4em] text-[#C5A059] uppercase mb-6">Pewiwahan / The Wedding Of</p>
         
         <h1 class="font-serif text-5xl md:text-7xl text-white mb-4 leading-tight drop-shadow-lg">
-            {{ $page->groom_name ?? 'Wayan' }}<br>
+            <span x-text="groom_name">Wayan</span><br>
             <span class="text-3xl italic text-[#C5A059] my-2 block">&amp;</span>
-            {{ $page->bride_name ?? 'Ni Luh' }}
+            <span x-text="bride_name">Ni Luh</span>
         </h1>
         
         <div class="mt-12 mb-12">
@@ -103,7 +103,7 @@ CSS,
     </div>
 </div>
 BLADE,
-            'blade_content' => <<<'BLADE'
+            'html_content' => <<<'BLADE'
 <!-- Hero -->
 <section class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[#F9F6F0]">
     <div class="absolute inset-0 z-0">
@@ -118,12 +118,12 @@ BLADE,
         
         <p class="font-sans text-[10px] tracking-[0.4em] uppercase text-[#2C1E16]/60 mb-6" data-reveal="up">Om Swastiastu</p>
         <h2 class="font-serif text-6xl md:text-8xl text-[#2C1E16] leading-tight mb-8" data-reveal="up" style="transition-delay: 200ms;">
-            {{ $page->groom_name ?? 'Wayan' }}<br>
+            <span x-text="groom_name">Wayan</span><br>
             <span class="italic text-[#C5A059] text-5xl md:text-6xl my-2 block">&amp;</span>
-            {{ $page->bride_name ?? 'Ni Luh' }}
+            <span x-text="bride_name">Ni Luh</span>
         </h2>
         <p class="font-sans text-[#2C1E16]/80 tracking-[0.3em] uppercase text-xs" data-reveal="up" style="transition-delay: 400ms;">
-            {{ optional($page->event_date)->format('d . m . Y') ?? '12 . 12 . 2026' }}
+            <span x-text="new Date(event_date).toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'}).replace(/\//g, ' . ')">12 . 12 . 2026</span>
         </p>
     </div>
 </section>
@@ -160,7 +160,7 @@ BLADE,
                 <div class="w-64 h-80 mx-auto mb-8 overflow-hidden rounded-tl-[80px] rounded-br-[80px] border-4 border-[#C5A059]/20 shadow-xl shadow-[#2C1E16]/10 p-2 bg-white">
                     <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover rounded-tl-[70px] rounded-br-[70px] hover:scale-105 transition-transform duration-1000 grayscale sepia-[.3]">
                 </div>
-                <h4 class="font-serif text-3xl text-[#2C1E16] mb-3">{{ $page->groom_name ?? 'I Wayan Romeo' }}</h4>
+                <h4 class="font-serif text-3xl text-[#2C1E16] mb-3" x-text="groom_name">I Wayan Romeo</h4>
                 <p class="text-[#2C1E16]/60 text-sm mb-6 leading-relaxed">Putra dari<br>Bpk. I Made Montague & Ibu Ni Nyoman Lady</p>
                 <a href="#" class="text-[#C5A059] hover:text-[#2C1E16] text-[10px] uppercase tracking-[0.2em] transition border border-[#C5A059] px-4 py-2 rounded-full">@romeo_ig</a>
             </div>
@@ -172,7 +172,7 @@ BLADE,
                 <div class="w-64 h-80 mx-auto mb-8 overflow-hidden rounded-tr-[80px] rounded-bl-[80px] border-4 border-[#C5A059]/20 shadow-xl shadow-[#2C1E16]/10 p-2 bg-white">
                     <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover rounded-tr-[70px] rounded-bl-[70px] hover:scale-105 transition-transform duration-1000 grayscale sepia-[.3]">
                 </div>
-                <h4 class="font-serif text-3xl text-[#2C1E16] mb-3">{{ $page->bride_name ?? 'Ni Luh Juliet' }}</h4>
+                <h4 class="font-serif text-3xl text-[#2C1E16] mb-3" x-text="bride_name">Ni Luh Juliet</h4>
                 <p class="text-[#2C1E16]/60 text-sm mb-6 leading-relaxed">Putri dari<br>Bpk. I Ketut Capulet & Ibu Ni Putu Lady</p>
                 <a href="#" class="text-[#C5A059] hover:text-[#2C1E16] text-[10px] uppercase tracking-[0.2em] transition border border-[#C5A059] px-4 py-2 rounded-full">@juliet_ig</a>
             </div>
@@ -232,7 +232,7 @@ BLADE,
                     <svg class="w-8 h-8 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
                 <h4 class="font-serif text-3xl text-[#2C1E16] mb-4">Pawiwahan</h4>
-                <p class="font-sans font-medium text-[#C5A059] mb-2 text-sm">{{ optional($page->event_date)->format('l, d F Y') ?? 'Minggu, 12 Desember 2026' }}</p>
+                <p class="font-sans font-medium text-[#C5A059] mb-2 text-sm" x-text="new Date(event_date).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'})">Minggu, 12 Desember 2026</p>
                 <p class="text-[#2C1E16]/60 mb-8 font-light text-sm">08:00 WITA - Selesai</p>
                 <div class="mb-10">
                     <p class="font-bold text-[#2C1E16] mb-1">Griya Santrian</p>
@@ -247,7 +247,7 @@ BLADE,
                     <svg class="w-8 h-8 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z"></path></svg>
                 </div>
                 <h4 class="font-serif text-3xl text-[#2C1E16] mb-4">Resepsi</h4>
-                <p class="font-sans font-medium text-[#C5A059] mb-2 text-sm">{{ optional($page->event_date)->format('l, d F Y') ?? 'Minggu, 12 Desember 2026' }}</p>
+                <p class="font-sans font-medium text-[#C5A059] mb-2 text-sm" x-text="new Date(event_date).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'})">Minggu, 12 Desember 2026</p>
                 <p class="text-[#2C1E16]/60 mb-8 font-light text-sm">11:00 WITA - 14:00 WITA</p>
                 <div class="mb-10">
                     <p class="font-bold text-[#2C1E16] mb-1">Griya Santrian</p>

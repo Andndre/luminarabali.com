@@ -31,18 +31,18 @@ class ComponentLibrarySeeder extends Seeder
     
     <!-- Content -->
     <div class="relative z-10 text-center max-w-4xl mx-auto space-y-8 animate-fade-in-up">
-        <div class="inline-block px-4 py-1.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-md text-white text-sm tracking-widest uppercase mb-4">
-            {{ $eyebrow_text }}
+        <div class="inline-block px-4 py-1.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-md text-white text-sm tracking-widest uppercase mb-4" x-text="eyebrow_text">
+            The Wedding Of
         </div>
         
         <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif text-white leading-tight drop-shadow-lg">
-            <span class="block italic font-light">{{ $bride_name }}</span>
+            <span class="block italic font-light" x-text="bride_name">Sarah</span>
             <span class="block text-4xl md:text-6xl my-2 text-yellow-400">&amp;</span>
-            <span class="block italic font-light">{{ $groom_name }}</span>
+            <span class="block italic font-light" x-text="groom_name">Michael</span>
         </h1>
         
-        <p class="text-lg md:text-xl text-gray-200 mt-6 tracking-wide font-light">
-            {{ $date_text }}
+        <p class="text-lg md:text-xl text-gray-200 mt-6 tracking-wide font-light" x-text="date_text">
+            Saturday, 24 August 2026
         </p>
     </div>
 </section>',
@@ -72,33 +72,39 @@ class ComponentLibrarySeeder extends Seeder
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <!-- Event 1 -->
             <div class="bg-gray-50 rounded-2xl p-8 md:p-12 text-center border border-gray-100 hover:shadow-xl transition duration-300 group" data-aos="fade-up" data-aos-delay="100">
                 <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition">
                     <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
-                <h3 class="text-2xl font-serif text-gray-900 mb-2">{{ $event1_title }}</h3>
-                <p class="text-gray-600 mb-6">{{ $event1_date }}<br>{{ $event1_time }}</p>
+                <h3 class="text-2xl font-serif text-gray-900 mb-2" x-text="event1_title">Akad Nikah</h3>
+                <p class="text-gray-600 mb-6"><span x-text="event1_date">Sabtu, 24 Agustus 2026</span><br><span x-text="event1_time">08:00 - 10:00 WITA</span></p>
                 <div class="border-t border-gray-200 pt-6">
-                    <h4 class="font-bold text-gray-900 mb-1">{{ $event1_location_name }}</h4>
-                    <p class="text-sm text-gray-500 mb-6 leading-relaxed">{{ $event1_address }}</p>
-                    <a href="{{ $event1_map_url }}" target="_blank" class="inline-block px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-yellow-600 transition">
+                    <h4 class="font-bold text-gray-900 mb-1" x-text="event1_location_name">Masjid Agung</h4>
+                    <p class="text-sm text-gray-500 mb-6 leading-relaxed" x-text="event1_address">Jl. Sudirman No. 1, Denpasar, Bali</p>
+                    <a :href="event1_map_url" target="_blank" class="inline-block px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-yellow-600 transition">
+                        Google Maps
+                    </a>
+                </div>
+            </div>
                         Google Maps
                     </a>
                 </div>
             </div>
 
-            <!-- Event 2 -->
             <div class="bg-gray-50 rounded-2xl p-8 md:p-12 text-center border border-gray-100 hover:shadow-xl transition duration-300 group" data-aos="fade-up" data-aos-delay="200">
                 <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition">
                     <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></circle></svg>
                 </div>
-                <h3 class="text-2xl font-serif text-gray-900 mb-2">{{ $event2_title }}</h3>
-                <p class="text-gray-600 mb-6">{{ $event2_date }}<br>{{ $event2_time }}</p>
+                <h3 class="text-2xl font-serif text-gray-900 mb-2" x-text="event2_title">Resepsi Pernikahan</h3>
+                <p class="text-gray-600 mb-6"><span x-text="event2_date">Sabtu, 24 Agustus 2026</span><br><span x-text="event2_time">11:00 - 14:00 WITA</span></p>
                 <div class="border-t border-gray-200 pt-6">
-                    <h4 class="font-bold text-gray-900 mb-1">{{ $event2_location_name }}</h4>
-                    <p class="text-sm text-gray-500 mb-6 leading-relaxed">{{ $event2_address }}</p>
-                    <a href="{{ $event2_map_url }}" target="_blank" class="inline-block px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-yellow-600 transition">
+                    <h4 class="font-bold text-gray-900 mb-1" x-text="event2_location_name">Grand Ballroom Hotel</h4>
+                    <p class="text-sm text-gray-500 mb-6 leading-relaxed" x-text="event2_address">Jl. Gatot Subroto No. 99, Denpasar, Bali</p>
+                    <a :href="event2_map_url" target="_blank" class="inline-block px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-yellow-600 transition">
+                        Google Maps
+                    </a>
+                </div>
+            </div>
                         Google Maps
                     </a>
                 </div>
@@ -136,8 +142,8 @@ class ComponentLibrarySeeder extends Seeder
 <section class="py-24 px-4 bg-gray-50" id="rsvp">
     <div class="max-w-3xl mx-auto">
         <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-3xl md:text-5xl font-serif text-gray-900 mb-4">{{ $section_title }}</h2>
-            <p class="text-gray-600">{{ $section_subtitle }}</p>
+            <h2 class="text-3xl md:text-5xl font-serif text-gray-900 mb-4" x-text="section_title">RSVP & Ucapan</h2>
+            <p class="text-gray-600" x-text="section_subtitle">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir di acara pernikahan kami.</p>
         </div>
 
         <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-gray-100" data-aos="fade-up" data-aos-delay="100">
@@ -183,7 +189,7 @@ class ComponentLibrarySeeder extends Seeder
         ];
 
         foreach ($components as $component) {
-            \App\Models\ComponentLibrary::firstOrCreate(
+            \App\Models\ComponentLibrary::updateOrCreate(
                 ['slug' => $component['slug']],
                 $component
             );

@@ -19,7 +19,7 @@ class InvitationViewController extends Controller
                 ->firstOrFail();
         });
 
-        $content = \Illuminate\Support\Facades\Blade::render($page->template->blade_content ?? '', ['page' => $page]);
+        $content = $page->template->html_content ?? '';
 
         return view('invitations.public', [
             'page' => $page,

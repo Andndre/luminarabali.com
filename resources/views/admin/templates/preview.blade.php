@@ -84,18 +84,25 @@
         $rsvpEnabled = $page->meta_data['rsvp_enabled'] ?? true;
     @endphp
 
-    <x-invitation.layout class="bg-gray-50" :skip-cover="request()->query('skip_cover') == 1">
+    <script>
+        window.invitationData = @json($page);
+        window.invitationData.bride_name = window.invitationData.bride_name || 'Juliet';
+        window.invitationData.groom_name = window.invitationData.groom_name || 'Romeo';
+        window.invitationData.event_date = window.invitationData.event_date || '2026-12-12T08:00:00';
+    </script>
+
+    <x-invitation.layout class="bg-gray-50 @container" :skip-cover="request()->query('skip_cover') == 1" x-data="window.invitationData">
         <x-invitation.audio :src="$music" />
 
         @if (!empty($template->cover_content))
-            {!! \Illuminate\Support\Facades\Blade::render($template->cover_content, ['page' => $page]) !!}
+            {!! $template->cover_content !!}
         @else
             <x-invitation.cover :groom="$page->groom_name ?? 'Romeo'" :bride="$page->bride_name ?? 'Juliet'" :guest="request()->query('to', 'Tamu Spesial')"
                 image="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop" />
         @endif
 
         <div x-show="isOpen" style="display: none;" class="w-full">
-            {!! \Illuminate\Support\Facades\Blade::render($template->blade_content ?? '', ['page' => $page]) !!}
+            {!! $template->html_content ?? '' !!}
         </div>
     </x-invitation.layout>
 </body>

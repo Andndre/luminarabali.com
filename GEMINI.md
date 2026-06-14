@@ -447,3 +447,79 @@ protected function isAccessible(User $user, ?string $path = null): bool
 | decoration-slice | box-decoration-slice |
 | decoration-clone | box-decoration-clone |
 </laravel-boost-guidelines>
+
+---
+
+# Architecture Context: Template Editor Undangan
+
+Dokumen ini berisi rangkuman teknis (*Source of Truth*) mengenai arsitektur sistem "Template Editor Undangan" (Digital Invitation System) saat ini. Konteks ini sangat penting bagi AI/Developer untuk memahami struktur sistem sebelum merancang atau melakukan transisi ke arsitektur *No-Code/JSON-based*.
+
+## 1. Struktur Database (Models & Migrations)
+
+Sistem undangan digital menggunakan beberapa tabel utama untuk menyimpan kerangka (*blueprint*) dan data spesifik klien:
+
+- **`invitation_templates`**: Tabel ini adalah cetak biru (*blueprint*) dari sebuah tema undangan.
+  - **Penyimpanan Kode**: Saat ini, kode HTML/Blade mentah disimpan langsung di dalam kolom:
+    - `cover_content` (Tipe: `text/longtext`): Menyimpan string Blade untuk bagian sampul/depan undangan.
+    - `blade_content` (Tipe: `text/longtext`): Menyimpan string Blade untuk isi/konten utama undangan.
+    - `global_custom_css` (Tipe: `text/longtext`): Menyimpan custom CSS murni.
+  - **Relasi Utama**:
+    - `hasMany(InvitationPage::class)`: Satu template dapat digunakan oleh banyak halaman klien.
+    - `hasMany(InvitationSection::class)`: Disiapkan untuk arsitektur visual (*block-by-block*).
+    - `belongsTo(User::class, 'created_by')`: Merujuk pada admin pembuat.
+
+- **`invitation_pages`**: Tabel ini merepresentasikan halaman undangan milik satu klien spesifik.
+  - Menyimpan data dinamis seperti `groom_name`, `bride_name`, `event_date`, dan `slug` URL unik.
+  - Relasi: `belongsTo(InvitationTemplate::class)`.
+
+- **`invitation_sections`**: (Struktur transisi) Disiapkan untuk menyimpan state visual *builder* dalam bentuk array/JSON di kolom `props`, dengan relasi `parent_id` (hierarki).
+
+## 2. Backend Flow (Controllers)
+
+Pusat kendali editor saat ini di-handle oleh `TemplateEditorController`:
+
+- **Load Data ke Editor**:
+  - `editor($id)`: Mengambil data dari `invitation_templates` berdasarkan ID, kemudian me-return *view* `admin.templates.editor-native`.
+  - Halaman `editor-native.blade.php` memuat Monaco Editor (IDE Javascript) yang diinisialisasi menggunakan string dari hidden textarea yang berisi `$template->cover_content`, `$template->blade_content`, dan `$template->global_custom_css`.
+
+- **Alur Save (Penyimpanan)**:
+  - Saat tombol "Simpan" ditekan, fungsi Javascript menangkap isi (`getValue()`) dari model Monaco Editor.
+  - Data disisipkan ke *hidden form inputs* dan dikirim via AJAX POST ke method `saveSection(Request $request)`.
+  - Controller melakukan validasi dan langsung melakukan fungsi `update()` ke kolom `blade_content`, `cover_content`, `global_custom_css`, dan `meta_data` (JSON) di tabel `invitation_templates`.
+
+- **Injeksi Variabel (Server-side Rendering)**:
+  - Saat *Preview* atau *View* publik dipanggil, data eksternal disiapkan di Controller/View (sebagai object/model `$page`).
+  - Sistem kemudian menggunakan *facade* Laravel Blade untuk melakukan render string dari database secara dinamis.
+
+## 3. Frontend Rendering (Blade & Alpine.js)
+
+Pendekatan *rendering* HTML mentah dari database dieksekusi secara native menggunakan compiler bawaan Laravel Blade.
+
+- **Proses Render Iframe (Snippet)**:
+  Pada halaman `preview.blade.php`, template dirender dengan mem-*passing* objek `$page` ke dalam fungsi `Blade::render()`. Hal ini memungkinkan variabel seperti `{{ $page->groom_name }}` tereksekusi layaknya *file* blade fisik.
+  
+  ```php
+  @php
+      // Mocking variabel untuk preview
+      $page = new \stdClass();
+      $page->groom_name = 'Romeo';
+      $page->bride_name = 'Juliet';
+  @endphp
+  
+  <x-invitation.layout class="bg-gray-50" :skip-cover="request()->query('skip_cover') == 1">
+      <!-- Rendering Cover -->
+      @if (!empty($template->cover_content))
+          {!! \Illuminate\Support\Facades\Blade::render($template->cover_content, ['page' => $page]) !!}
+      @endif
+
+      <!-- Rendering Main Content -->
+      <div x-show="isOpen" style="display: none;" class="w-full">
+          {!! \Illuminate\Support\Facades\Blade::render($template->blade_content ?? '', ['page' => $page]) !!}
+      </div>
+  </x-invitation.layout>
+  ```
+
+- **Struktur State Alpine.js**:
+  Manajemen *state* (seperti transisi buka undangan, audio, scroll animasi, *lightbox*, dan *countdown*) ditangani secara global oleh master komponen `<x-invitation.layout>`.
+  - `x-data="{ isOpen: false, isPlaying: false }"`: Mengontrol visibilitas konten `blade_content` agar tersembunyi sampai tombol "Buka Undangan" pada `cover_content` ditekan (yang memicu fungsi `openInvitation()`).
+  - Di dalam *editor*, skrip Alpine yang mengatur `x-data="templateLibrary()"` digunakan untuk menampilkan laci (drawer) komponen (*Component Library*), melakukan *search*, dan menyuntikkan kode komponen ke dalam titik kursor Monaco Editor.

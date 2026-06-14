@@ -94,11 +94,19 @@
         $rsvpEnabled = $page->meta_data['rsvp_enabled'] ?? true;
     @endphp
 
-    <x-invitation.layout class="bg-gray-50">
+    <script>
+        window.invitationData = @json($page);
+        // Default fallbacks for previewing
+        window.invitationData.bride_name = window.invitationData.bride_name || 'Juliet';
+        window.invitationData.groom_name = window.invitationData.groom_name || 'Romeo';
+        window.invitationData.event_date = window.invitationData.event_date || '2026-12-12T08:00:00';
+    </script>
+
+    <x-invitation.layout class="bg-gray-50 @container" x-data="window.invitationData">
         <x-invitation.audio :src="$music" />
 
         @if (!empty($page->template->cover_content))
-            {!! \Illuminate\Support\Facades\Blade::render($page->template->cover_content, ['page' => $page]) !!}
+            {!! $page->template->cover_content !!}
         @else
             <x-invitation.cover :groom="$page->groom_name ?? 'Romeo'" :bride="$page->bride_name ?? 'Juliet'" :guest="request()->query('to', 'Tamu Spesial')"
                 image="{{ $page->og_image ?? 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop' }}" />
