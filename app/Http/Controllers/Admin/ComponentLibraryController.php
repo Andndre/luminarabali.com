@@ -21,9 +21,14 @@ class ComponentLibraryController extends Controller
         return view('admin.component-library.index', compact('components'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('admin.component-library.form');
+        if (!$request->has('category')) {
+            return view('admin.component-library.select');
+        }
+        
+        $category = $request->category;
+        return view('admin.component-library.form', compact('category'));
     }
 
     public function store(Request $request)

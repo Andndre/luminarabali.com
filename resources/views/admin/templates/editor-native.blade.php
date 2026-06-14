@@ -141,19 +141,7 @@
 
 <!-- Removed Theme Selector as requested -->
 
-                    <!-- RSVP Toggle -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Aktifkan Form RSVP</label>
-                            <p class="text-xs text-gray-500 mt-1">Menampilkan form konfirmasi kehadiran.</p>
-                        </div>
-                        <button type="button" @click="formData.rsvp_enabled = !formData.rsvp_enabled; updateJson()"
-                                :class="formData.rsvp_enabled ? 'bg-indigo-600' : 'bg-gray-200'"
-                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none">
-                            <span aria-hidden="true" :class="formData.rsvp_enabled ? 'translate-x-5' : 'translate-x-0'"
-                                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
-                        </button>
-                    </div>
+
                 </div>
             </div>
         </div>

@@ -1,6 +1,202 @@
 @extends('layouts.editor')
 
 @section('content')
+@php
+$defaultCode = '';
+$defaultVariables = '[]';
+if (!isset($component) && !old('code') && isset($category)) {
+    switch($category) {
+        case 'cover':
+            $defaultCode = '<div id="invitation-cover" 
+     x-show="!isOpen" 
+     x-transition.opacity.duration.1000ms
+     class="fixed inset-0 z-100 flex items-center justify-center bg-gray-900 transition-transform duration-1000 ease-in-out">
+    <!-- Background Image -->
+    <div class="absolute inset-0">
+        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop" 
+             alt="Cover Image" class="w-full h-full object-cover opacity-60">
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+    </div>
+    
+    <!-- Content -->
+    <div class="relative z-10 text-center px-6 max-w-lg mx-auto transform transition-all duration-1000 translate-y-0">
+        <p class="invitation-accent text-sm tracking-[0.3em] uppercase mb-6 text-gray-300">The Wedding Of</p>
+        
+        <h1 class="invitation-title text-6xl md:text-8xl font-serif mb-8 text-white">
+            {{ $groom_name }}<br>
+            <span class="invitation-accent text-4xl italic">&amp;</span><br>
+            {{ $bride_name }}
+        </h1>
+        
+        <div class="mt-12 mb-12">
+            <p class="text-sm text-gray-400 uppercase tracking-widest mb-2">Kepada Yth.</p>
+            <p class="text-xl font-serif text-white">{{ $guest_name }}</p>
+        </div>
+        
+        <button @click="openInvitation()" 
+                class="invitation-button group relative px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white tracking-[0.2em] text-xs uppercase transition-all duration-500 overflow-hidden">
+            <span class="relative z-10 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"></path></svg>
+                Buka Undangan
+            </span>
+        </button>
+    </div>
+</div>';
+            $defaultVariables = json_encode([
+                ['key' => 'bride_name', 'label' => 'Bride Name', 'type' => 'text', 'default' => 'Juliet', 'description' => 'Nama mempelai wanita'],
+                ['key' => 'groom_name', 'label' => 'Groom Name', 'type' => 'text', 'default' => 'Romeo', 'description' => 'Nama mempelai pria'],
+                ['key' => 'guest_name', 'label' => 'Guest Name', 'type' => 'search_param', 'default' => 'to', 'description' => 'Parameter URL pencarian nama tamu (misal: ?to=Nama)']
+            ]);
+            break;
+        case 'hero':
+            $defaultCode = '<!-- Hero Section -->
+<section class="invitation-hero relative min-h-[100dvh] flex flex-col items-center justify-center text-center p-8 overflow-hidden bg-white">
+    <div class="absolute inset-0 bg-cover bg-center opacity-30 fixed" style="background-image: url(\'https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=2000&auto=format&fit=crop\')"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white"></div>
+    
+    <div class="relative z-10 max-w-2xl mx-auto pt-32">
+        <p class="invitation-accent uppercase tracking-[0.3em] text-sm mb-6 reveal-on-scroll">We Are Getting Married</p>
+        <h2 class="invitation-title text-6xl md:text-8xl font-serif text-gray-900 mb-8 reveal-on-scroll" style="transition-delay: 200ms;">
+            {{ $groom_name ?? \'Romeo\' }} <br> <span class="invitation-accent text-4xl italic">&amp;</span> <br> {{ $bride_name ?? \'Juliet\' }}
+        </h2>
+        <div class="invitation-line w-px h-32 mx-auto mt-12 animate-float reveal-on-scroll bg-gray-400" style="transition-delay: 400ms;"></div>
+    </div>
+</section>';
+            $defaultVariables = json_encode([
+                ['key' => 'bride_name', 'label' => 'Bride Name', 'type' => 'text', 'default' => 'Juliet', 'description' => 'Nama mempelai wanita'],
+                ['key' => 'groom_name', 'label' => 'Groom Name', 'type' => 'text', 'default' => 'Romeo', 'description' => 'Nama mempelai pria']
+            ]);
+            break;
+        case 'text':
+            $defaultCode = '<div class="max-w-2xl mx-auto p-8 text-center">
+    <h3 class="text-2xl font-bold mb-3 text-gray-800">{{ $title }}</h3>
+    <p class="text-gray-600 leading-relaxed">{{ $content }}</p>
+</div>';
+            $defaultVariables = json_encode([
+                ['key' => 'title', 'label' => 'Title', 'type' => 'text', 'default' => 'Judul Text', 'description' => ''],
+                ['key' => 'content', 'label' => 'Content', 'type' => 'textarea', 'default' => 'Lorem ipsum dolor sit amet.', 'description' => '']
+            ]);
+            break;
+        case 'button':
+            $defaultCode = '<div class="text-center p-4">
+    <button class="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-full transition-colors shadow-md">
+        {{ $button_text }}
+    </button>
+</div>';
+            $defaultVariables = json_encode([
+                ['key' => 'button_text', 'label' => 'Button Text', 'type' => 'text', 'default' => 'Click Me', 'description' => '']
+            ]);
+            break;
+        case 'rsvp':
+            $defaultCode = '<div class="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+    <h3 class="text-2xl font-bold text-center mb-6 text-gray-800">RSVP</h3>
+    <form class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+            <input type="text" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ketik nama Anda...">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Kehadiran</label>
+            <select class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                <option value="1">Ya, Saya akan hadir</option>
+                <option value="0">Maaf, tidak bisa hadir</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Pesan & Doa (Opsional)</label>
+            <textarea class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="3" placeholder="Tuliskan ucapan..."></textarea>
+        </div>
+        <button type="button" class="w-full bg-gray-900 text-white font-medium py-3 rounded-xl hover:bg-gray-800 transition">Kirim RSVP</button>
+    </form>
+</div>';
+            break;
+        case 'event':
+            $defaultCode = '<div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+    <div class="bg-gray-50 p-6 rounded-2xl text-center">
+        <h4 class="font-bold text-xl mb-2">Akad Nikah</h4>
+        <p class="text-gray-600 mb-4">Minggu, 12 Desember 2026<br>08.00 - Selesai</p>
+        <p class="text-sm text-gray-500">Masjid Agung Bali</p>
+    </div>
+    <div class="bg-gray-50 p-6 rounded-2xl text-center">
+        <h4 class="font-bold text-xl mb-2">Resepsi</h4>
+        <p class="text-gray-600 mb-4">Minggu, 12 Desember 2026<br>11.00 - 14.00</p>
+        <p class="text-sm text-gray-500">Hotel Aston Bali</p>
+    </div>
+</div>';
+            break;
+        case 'countdown':
+            $defaultCode = '<div class="flex justify-center gap-4 p-8">
+    <div class="text-center"><div class="w-16 h-16 bg-gray-900 text-white rounded-xl flex items-center justify-center text-2xl font-bold mb-2">12</div><span class="text-xs text-gray-500 uppercase">Hari</span></div>
+    <div class="text-center"><div class="w-16 h-16 bg-gray-900 text-white rounded-xl flex items-center justify-center text-2xl font-bold mb-2">08</div><span class="text-xs text-gray-500 uppercase">Jam</span></div>
+    <div class="text-center"><div class="w-16 h-16 bg-gray-900 text-white rounded-xl flex items-center justify-center text-2xl font-bold mb-2">45</div><span class="text-xs text-gray-500 uppercase">Menit</span></div>
+</div>';
+            break;
+        case 'gallery':
+            $defaultCode = '<div class="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 max-w-4xl mx-auto">
+    <div class="aspect-square bg-gray-200 rounded-xl overflow-hidden"><img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover"></div>
+    <div class="aspect-square bg-gray-200 rounded-xl overflow-hidden"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover"></div>
+    <div class="aspect-square bg-gray-200 rounded-xl overflow-hidden"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover"></div>
+</div>';
+            break;
+        case 'map':
+            $defaultCode = '<div class="w-full max-w-3xl mx-auto p-4">
+    <div class="w-full aspect-video bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 flex items-center justify-center text-gray-400">
+        <!-- Embed iframe gmaps disini -->
+        [Google Maps Iframe]
+    </div>
+    <div class="mt-4 text-center">
+        <a href="#" class="inline-flex items-center gap-2 px-6 py-2 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-800">Buka di Google Maps</a>
+    </div>
+</div>';
+            break;
+        case 'divider':
+            $defaultCode = '<div class="w-full py-8 flex justify-center">
+    <div class="w-24 h-px bg-gray-300 relative">
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-gray-300 bg-white"></div>
+    </div>
+</div>';
+            break;
+        case 'footer':
+            $defaultCode = '<footer class="w-full py-8 bg-gray-900 text-center text-gray-400">
+    <p class="text-sm">Made with love by Luminara</p>
+</footer>';
+            break;
+        case 'video':
+            $defaultCode = '<div class="w-full max-w-3xl mx-auto p-4">
+    <div class="aspect-video bg-gray-900 rounded-2xl overflow-hidden flex items-center justify-center">
+        <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm cursor-pointer hover:bg-white/30 transition">
+            <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"></path></svg>
+        </div>
+    </div>
+</div>';
+            break;
+        case 'section':
+            $defaultCode = '<section class="w-full py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center mb-12">Judul Section</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Kolom 1 -->
+            <div>
+                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=600" class="w-full rounded-2xl shadow-lg">
+            </div>
+            <!-- Kolom 2 -->
+            <div class="flex flex-col justify-center">
+                <h3 class="text-2xl font-semibold mb-4">Sub Judul</h3>
+                <p class="text-gray-600 mb-6">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <button class="px-6 py-3 bg-black text-white rounded-xl self-start">Selengkapnya</button>
+            </div>
+        </div>
+    </div>
+</section>';
+            break;
+        default:
+            $defaultCode = '<div class="p-4 text-center">
+    <p class="text-gray-500">Tulis komponen Anda disini</p>
+</div>';
+            break;
+    }
+}
+@endphp
 <div x-data="componentEditor()" class="flex-1 flex flex-col w-full h-full bg-white relative">
     
     <!-- Header -->
@@ -17,6 +213,10 @@
         
         <div class="flex items-center gap-3">
             <span x-show="isSaving" class="text-sm text-gray-500" x-cloak>Menyimpan...</span>
+            <button @click="isDrawerOpen = true" class="px-4 py-2 bg-white border border-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition flex items-center gap-2 shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Settings
+            </button>
             <button @click="save()" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                 Save
@@ -25,35 +225,41 @@
     </div>
 
     <!-- Main Content Split -->
-    <div class="flex-1 flex overflow-hidden">
+    <div class="flex-1 flex overflow-hidden relative w-full">
         
-        <!-- Left Panel: Monaco Editor & Realtime Preview -->
-        <div class="flex-1 flex flex-col bg-[#1e1e1e] h-full overflow-hidden">
-            <!-- Monaco Editor -->
-            <div class="h-1/2 flex flex-col border-b border-gray-200 bg-[#1e1e1e] relative">
-                <div class="bg-gray-900 text-gray-400 text-[11px] uppercase tracking-wider font-semibold px-4 py-2 border-b border-gray-800 flex justify-between font-mono-code shrink-0">
-                    <span>Code Editor (Blade/HTML)</span>
-                    <span>Use @{{ $variable_name }} for placeholders</span>
-                </div>
-                <div id="monaco-editor" x-ignore class="flex-1 w-full relative"></div>
+        <!-- Left Panel: Monaco Editor -->
+        <div class="w-1/2 flex flex-col border-r border-gray-800 bg-[#1e1e1e] h-full overflow-hidden shrink-0">
+            <div class="bg-gray-900 text-gray-400 text-[11px] uppercase tracking-wider font-semibold px-4 py-2 border-b border-gray-800 flex justify-between font-mono-code shrink-0">
+                <span>Code Editor (Blade/HTML)</span>
+                <span>Use @{{ $variable_name }} for placeholders</span>
             </div>
-            
-            <!-- Realtime Preview -->
-            <div class="h-1/2 flex flex-col bg-white relative">
-                <div class="bg-gray-100 text-gray-600 text-[11px] uppercase tracking-wider font-semibold px-4 py-2 border-b border-gray-200 flex justify-between font-sans shrink-0">
-                    <span>Realtime Preview</span>
-                    <span class="text-xs text-gray-400 font-sans">Updates dynamically as you type</span>
-                </div>
-                <div class="flex-1 w-full relative bg-slate-50">
-                    <iframe id="preview-iframe" x-ignore class="w-full h-full border-0"></iframe>
-                </div>
+            <div id="monaco-editor" x-ignore class="flex-1 w-full relative"></div>
+        </div>
+        
+        <!-- Right Panel: Realtime Preview -->
+        <div class="flex-1 flex flex-col bg-white h-full overflow-hidden relative">
+            <div class="bg-gray-100 text-gray-600 text-[11px] uppercase tracking-wider font-semibold px-4 py-2 border-b border-gray-200 flex justify-between font-sans shrink-0">
+                <span>Realtime Preview</span>
+                <span class="text-xs text-gray-400 font-sans">Updates dynamically as you type</span>
+            </div>
+            <div class="flex-1 w-full relative bg-slate-50">
+                <iframe id="preview-iframe" x-ignore class="w-full h-full border-0"></iframe>
             </div>
         </div>
         
-        <!-- Right Panel: Variables & Settings -->
-        <div class="w-[420px] shrink-0 border-l border-gray-200 flex flex-col bg-gray-50 overflow-y-auto">
+        <!-- Drawer Overlay -->
+        <div x-show="isDrawerOpen" class="fixed inset-0 bg-gray-900/20 z-40 backdrop-blur-sm transition-opacity" @click="isDrawerOpen = false" x-transition.opacity x-cloak></div>
+
+        <!-- Drawer Panel -->
+        <div class="fixed inset-y-0 right-0 w-[420px] bg-gray-50 border-l border-gray-200 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col" :class="isDrawerOpen ? 'translate-x-0' : 'translate-x-full'" x-cloak>
+            <div class="px-6 py-4 border-b border-gray-200 bg-white flex items-center justify-between shrink-0 shadow-sm z-10">
+                <h2 class="font-bold text-gray-900 font-sans">Settings & Variables</h2>
+                <button @click="isDrawerOpen = false" class="p-1 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
             
-            <div class="p-6 space-y-6">
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
                 <!-- General Settings -->
                 <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 border-b border-gray-100 pb-2.5 font-sans">General Settings</h3>
@@ -170,6 +376,7 @@
                                                 <option value="select">Select</option>
                                                 <option value="color">Color</option>
                                                 <option value="range">Range Slider</option>
+                                                <option value="search_param">Search Param (URL)</option>
                                             </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
                                                 <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,8 +421,7 @@
                             </button>
                         </div>
                     </div>
-
-
+                    <textarea id="raw_code" class="hidden">{!! old('code', $component->code ?? $defaultCode) !!}</textarea>
                 </div>
 
             </div>
@@ -233,6 +439,7 @@ let monacoEditorInstance = null;
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('componentEditor', () => ({
+        isDrawerOpen: false,
         isSaving: false,
         previewInitialized: false,
         previewReady: false,
@@ -243,13 +450,13 @@ document.addEventListener('alpine:init', () => {
             id: {{ isset($component) ? $component->id : 'null' }},
             name: @json(isset($component) ? $component->name : ''),
             slug: @json(isset($component) ? $component->slug : ''),
-            category: @json(isset($component) ? $component->category : 'hero'),
+            category: '{{ old('category', $component->category ?? ($category ?? 'cover')) }}',
             type: @json(isset($component) ? $component->type : 'component'),
             description: @json(isset($component) ? $component->description : ''),
             is_public: {{ isset($component) ? ($component->is_public ? 'true' : 'false') : 'true' }},
             is_active: {{ isset($component) ? ($component->is_active ? 'true' : 'false') : 'true' }},
-            variables: @json(isset($component) ? $component->variables : []),
-            code: @json(isset($component) ? $component->code : '<section class="relative">\n    <!-- write blade code here -->\n</section>')
+            variables: {!! isset($component) ? json_encode($component->variables) : (isset($defaultVariables) ? $defaultVariables : '[]') !!},
+            code: document.getElementById('raw_code').value
         },
 
         previewTimeout: null,
@@ -346,7 +553,8 @@ document.addEventListener('alpine:init', () => {
                 '<script src="https://cdn.tailwindcss.com"><\/script>',
                 '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" crossorigin="anonymous">',
                 '<style>',
-                'body { font-family: "Plus Jakarta Sans", sans-serif; margin: 0; padding: 20px; background-color: #f8fafc; }',
+                'body { font-family: "Plus Jakarta Sans", sans-serif; margin: 0; background-color: #f8fafc; transform: translateZ(0); height: 100vh; overflow-y: auto; overflow-x: hidden; }',
+                '#preview-container { padding: 20px; min-height: 100%; }',
                 '<\/style>',
                 '<\/head><body>',
                 '<div id="preview-container"><\/div>',
@@ -403,7 +611,13 @@ document.addEventListener('alpine:init', () => {
                         const escapedKey = v.key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                         const pattern = '\\{' + '\\{\\s*\\$' + escapedKey + '\\s*\\}' + '\\}';
                         const regex = new RegExp(pattern, 'g');
-                        html = html.replace(regex, v.default || ('[' + v.label + ']'));
+                        
+                        let replacement = v.default || ('[' + v.label + ']');
+                        if (v.type === 'search_param') {
+                            replacement = new URLSearchParams(window.location.search).get(v.default) || 'Tamu Spesial';
+                        }
+                        
+                        html = html.replace(regex, replacement);
                     });
                 }
 
