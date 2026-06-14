@@ -168,6 +168,10 @@ composer test
     *   Admin templates can be customized block-by-block using the React visual editor.
     *   Admins can adjust visibility, reorder blocks, load templates, duplicate templates, and upload page-specific assets.
     *   Guests view public pages, maps, check countdowns, and submit RSVPs dynamically.
+    *   **Global Layout Utilities (`layout.blade.php`)**: The invitation system uses a master layout component that automatically provides the following global utilities to all template themes:
+        *   **Scroll Animations**: Elements with the `data-reveal="up|down|left|right|fade|zoom"` attribute will automatically be animated via Intersection Observer. No manual CSS or JS is needed inside themes.
+        *   **Countdown Alpine Data**: `x-data="countdown('HH:mm DD-MM-YYYY')"` provides an Alpine.js scope that automatically parses dates and exposes `days`, `hours`, `minutes`, and `seconds` variables for custom countdown UI.
+        *   **Global Lightbox Directive**: `<img x-lightbox src="...">` transforms any image into a clickable thumbnail that opens a global, full-screen, backdrop-blurred lightbox overlay. No inline Alpine state or redundant modal HTML is needed.
 
 *   **Finance & Reporting**:
     *   Tracks financial margins comparing `grand_total` bills against unpaid accounts receivable (`balance_due`).

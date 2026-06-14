@@ -260,7 +260,7 @@ BLADE,
 </section>
 
 <!-- Gallery -->
-<section class="py-32 bg-white border-t border-[#F9F6F0]" x-data="{ lightboxOpen: false, lightboxImage: '' }">
+<section class="py-32 bg-white border-t border-[#F9F6F0]">
     <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-20" data-reveal="up">
             <h3 class="font-serif text-5xl text-[#2C1E16] mb-6">Galeri Kasih</h3>
@@ -270,40 +270,24 @@ BLADE,
         <!-- Masonry Grid with some spacing -->
         <div class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
             <div class="break-inside-avoid" data-reveal="up">
-                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1586420669671-701d93b76748?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
+                <img x-lightbox src="https://images.unsplash.com/photo-1586420669671-701d93b76748?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] hover:scale-[1.02] duration-500">
             </div>
             <div class="break-inside-avoid" data-reveal="up" style="transition-delay: 100ms;">
-                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1587200868091-23e92ff750b4?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
+                <img x-lightbox src="https://images.unsplash.com/photo-1587200868091-23e92ff750b4?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] hover:scale-[1.02] duration-500">
             </div>
             <div class="break-inside-avoid" data-reveal="up" style="transition-delay: 200ms;">
-                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://plus.unsplash.com/premium_photo-1661443432542-d934aba7c922?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
+                <img x-lightbox src="https://plus.unsplash.com/premium_photo-1661443432542-d934aba7c922?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] hover:scale-[1.02] duration-500">
             </div>
             <div class="break-inside-avoid" data-reveal="up">
-                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1671517477698-fafce6ec9c02?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
+                <img x-lightbox src="https://images.unsplash.com/photo-1671517477698-fafce6ec9c02?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] hover:scale-[1.02] duration-500">
             </div>
             <div class="break-inside-avoid" data-reveal="up" style="transition-delay: 100ms;">
-                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1672251486261-71681105b331?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
+                <img x-lightbox src="https://images.unsplash.com/photo-1672251486261-71681105b331?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] hover:scale-[1.02] duration-500">
             </div>
             <div class="break-inside-avoid" data-reveal="up" style="transition-delay: 200ms;">
-                <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1625759190925-a67568fd123b?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
+                <img x-lightbox src="https://images.unsplash.com/photo-1625759190925-a67568fd123b?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] hover:scale-[1.02] duration-500">
             </div>
         </div>
-    </div>
-
-    <!-- Lightbox Overlay -->
-    <div x-show="lightboxOpen" 
-         style="display: none;" 
-         x-transition.opacity.duration.300ms
-         class="fixed inset-0 z-[100] flex items-center justify-center bg-[#2C1E16]/95 backdrop-blur-md p-4"
-         @keydown.escape.window="lightboxOpen = false">
-        
-        <!-- Close Button -->
-        <button @click="lightboxOpen = false" class="absolute top-6 right-6 text-white/50 hover:text-white transition bg-black/20 p-2 rounded-full backdrop-blur-sm z-50">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-        
-        <!-- Full Image -->
-        <img :src="lightboxImage" @click.away="lightboxOpen = false" class="max-w-full max-h-[90vh] object-contain rounded-sm shadow-2xl border-4 border-white/10" x-transition.scale.origin.center>
     </div>
 </section>
 

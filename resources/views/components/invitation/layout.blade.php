@@ -76,10 +76,34 @@
     class="relative min-h-screen {{ $attributes->get('class', 'font-light selection:bg-[#C5A059] selection:text-white') }}"
 >
     {{ $slot }}
+
+    <!-- Global Lightbox -->
+    <div x-data="{ lightboxOpen: false, lightboxImage: '' }" 
+         @open-lightbox.window="lightboxImage = $event.detail; lightboxOpen = true"
+         x-show="lightboxOpen" 
+         style="display: none;" 
+         x-transition.opacity.duration.300ms
+         class="fixed inset-0 z-[100] flex items-center justify-center bg-[#2C1E16]/95 backdrop-blur-md p-4"
+         @keydown.escape.window="lightboxOpen = false">
+        
+        <button @click="lightboxOpen = false" class="absolute top-6 right-6 text-white/50 hover:text-white transition bg-black/20 p-2 rounded-full backdrop-blur-sm z-50">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        
+        <img :src="lightboxImage" @click.away="lightboxOpen = false" class="max-w-full max-h-[90vh] object-contain rounded-sm shadow-2xl border-4 border-white/10" x-transition.scale.origin.center>
+    </div>
 </div>
 
 <script>
 document.addEventListener('alpine:init', () => {
+    // Custom Directive for Lightbox
+    Alpine.directive('lightbox', (el) => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('open-lightbox', { detail: el.src }));
+        });
+    });
+
     Alpine.data('countdown', (targetDate) => ({
         days: '00', hours: '00', minutes: '00', seconds: '00',
         init() {
