@@ -216,7 +216,7 @@
                         <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50 p-4 pb-3">
                             <div class="flex items-center gap-2">
                                 <div
-                                    class="flex h-6 w-6 items-center justify-center rounded bg-blue-100 font-mono text-xs font-bold text-blue-600">
+                                    class="flex h-6 min-w-6 items-center justify-center rounded bg-blue-100 px-2 font-mono text-xs font-bold text-blue-600">
                                     <span x-text="nodeData.tagName"></span>
                                 </div>
                                 <h3 class="text-sm font-semibold text-gray-800">Properties</h3>
