@@ -136,6 +136,7 @@
 
     <!-- Drawer Component Library -->
     <div 
+        x-data="templateLibrary"
         x-show="drawerOpen" 
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="-translate-x-full"
@@ -567,13 +568,6 @@
             .then(data => {
                 saveBtn.innerText = 'Tersimpan ✓';
                 setTimeout(() => saveBtn.innerText = originalText, 2000);
-                
-                // Reload preview with skip_cover if editing Main Content
-                const previewFrame = document.getElementById('previewFrame');
-                const isHtmlTab = document.getElementById('tab-html').classList.contains('border-blue-500');
-                const baseUrl = "{{ route('admin.templates.preview', $template->id) }}";
-                
-                previewFrame.src = baseUrl + (isHtmlTab ? '?skip_cover=1' : '');
             })
             .catch(err => {
                 console.error(err);
