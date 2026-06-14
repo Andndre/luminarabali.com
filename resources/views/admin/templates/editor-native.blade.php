@@ -81,15 +81,45 @@
 
         <!-- VISUAL MODE -->
         <div x-show="mode === 'visual'" class="flex-1 h-full bg-gray-100 overflow-y-auto" id="visual-workspace">
-            <div class="max-w-[480px] mx-auto min-h-screen bg-white shadow-2xl my-4 relative font-[Lato]" x-data="invitationEditor()">
+            <div class="max-w-[480px] mx-auto min-h-screen bg-white shadow-2xl my-4 relative font-[Lato]" x-data="invitationEditor()" @mouseleave="hoverMenuVisible = false">
                 <x-invitation.layout class="bg-gray-50" :skip-cover="true">
                     <x-invitation.audio :src="''" />
                     <div x-show="isOpen" class="w-full" style="display:block;">
-                        <div id="visual-canvas" class="w-full min-h-[500px] @container" @click="inspectElement($event)">
+                        <div id="visual-canvas" class="w-full min-h-[500px] @container" @click="inspectElement($event)" @mousemove.throttle.50ms="trackHover($event)">
                             {!! $template->html_content !!}
                         </div>
                     </div>
                 </x-invitation.layout>
+
+                <!-- Floating Hover Menu -->
+                <div 
+                    x-show="hoverMenuVisible"
+                    class="absolute z-40 border-2 border-blue-400 pointer-events-none transition-all duration-75 ease-linear"
+                    :style="`top: ${hoverMenuPos.top}; left: ${hoverMenuPos.left}; width: ${hoverMenuPos.width}; height: ${hoverMenuPos.height};`"
+                    style="display: none;"
+                >
+                    <div class="absolute -top-4 -left-3 flex gap-1 pointer-events-auto bg-white border border-gray-200 rounded shadow-sm overflow-hidden z-50">
+                        <button @click.stop="moveNodeUp()" class="hover:bg-gray-100 p-1.5 transition text-gray-600" title="Move Up">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                        </button>
+                        <div class="w-px bg-gray-200"></div>
+                        <button @click.stop="moveNodeDown()" class="hover:bg-gray-100 p-1.5 transition text-gray-600" title="Move Down">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="absolute -top-3 -right-3 flex gap-1 pointer-events-auto z-50">
+                        <button @click.stop="deleteHoveredNode()" class="bg-red-500 text-white p-1.5 rounded-full shadow-md hover:bg-red-600 hover:scale-110 transition" title="Delete Block">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 pointer-events-auto z-50">
+                        <button @click.stop="prepareInsertBelow()" class="bg-blue-600 text-white p-1.5 rounded-full shadow-md hover:bg-blue-700 hover:scale-110 transition" title="Add Section Below">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                        </button>
+                    </div>
+                </div>
 
                 <!-- Active Node Inspector (Properties Sidebar) -->
                 <div x-show="isPropertiesPanelOpen" 
@@ -385,6 +415,7 @@
         Alpine.data('editorApp', () => ({
             mode: 'visual',
             drawerOpen: false,
+            insertTargetNode: null,
             init() {
                 this.$watch('mode', value => {
                     if (value === 'visual') {
@@ -428,6 +459,90 @@
             selectedNode: null,
             nodeData: { tagName: '', text: '', classes: '', href: '', src: '', isDynamic: false },
             
+            // Hover Block Control State
+            hoveredNode: null,
+            hoverMenuVisible: false,
+            hoverMenuPos: { top: '0px', left: '0px', width: '0px', height: '0px' },
+
+            trackHover(event) {
+                // Ignore if we are dragging
+                if (event.buttons > 0) return;
+                
+                const el = event.target;
+                if (!el || el.id === 'visual-canvas') return;
+                
+                // Find closest block
+                const block = el.closest('section, header, footer, div.flex, div.grid, div.container, [class*="section"]');
+                if (!block || block.id === 'visual-canvas') {
+                    // Don't instantly hide when hitting gaps, allow menu to persist
+                    // until they hover a new block or leave the editor entirely
+                    return;
+                }
+                
+                this.hoveredNode = block;
+                
+                // Position relative to max-w-[480px] parent wrapper which is relative
+                this.hoverMenuPos = {
+                    top: block.offsetTop + 'px',
+                    left: block.offsetLeft + 'px',
+                    width: block.offsetWidth + 'px',
+                    height: block.offsetHeight + 'px'
+                };
+                
+                this.hoverMenuVisible = true;
+            },
+
+            deleteHoveredNode() {
+                if (this.hoveredNode) {
+                    if (this.selectedNode === this.hoveredNode || this.hoveredNode.contains(this.selectedNode)) {
+                        this.closeInspector();
+                    }
+                    this.hoveredNode.remove();
+                    this.hoverMenuVisible = false;
+                    this.hoveredNode = null;
+                    window.syncToMonaco();
+                }
+            },
+
+            prepareInsertBelow() {
+                if (this.hoveredNode) {
+                    // Set parent's insertTargetNode
+                    this.insertTargetNode = this.hoveredNode;
+                    // Open drawer
+                    this.drawerOpen = true;
+                }
+            },
+
+            moveNodeUp() {
+                if (this.hoveredNode && this.hoveredNode.previousElementSibling) {
+                    this.hoveredNode.parentNode.insertBefore(this.hoveredNode, this.hoveredNode.previousElementSibling);
+                    
+                    // Update visual position
+                    this.hoverMenuPos = {
+                        top: this.hoveredNode.offsetTop + 'px',
+                        left: this.hoveredNode.offsetLeft + 'px',
+                        width: this.hoveredNode.offsetWidth + 'px',
+                        height: this.hoveredNode.offsetHeight + 'px'
+                    };
+                    window.syncToMonaco();
+                }
+            },
+
+            moveNodeDown() {
+                if (this.hoveredNode && this.hoveredNode.nextElementSibling) {
+                    this.hoveredNode.parentNode.insertBefore(this.hoveredNode.nextElementSibling, this.hoveredNode);
+                    
+                    // Update visual position
+                    this.hoverMenuPos = {
+                        top: this.hoveredNode.offsetTop + 'px',
+                        left: this.hoveredNode.offsetLeft + 'px',
+                        width: this.hoveredNode.offsetWidth + 'px',
+                        height: this.hoveredNode.offsetHeight + 'px'
+                    };
+                    window.syncToMonaco();
+                }
+            },
+
             inspectElement(event) {
                 // Ignore clicks on the visual-canvas wrapper itself
                 if (event.target.id === 'visual-canvas') return;
@@ -669,7 +784,12 @@
                     if (this.mode === 'visual') {
                         const canvas = document.getElementById('visual-canvas');
                         if (canvas) {
-                            canvas.insertAdjacentHTML('beforeend', code);
+                            if (this.insertTargetNode) {
+                                this.insertTargetNode.insertAdjacentHTML('afterend', code);
+                                this.insertTargetNode = null;
+                            } else {
+                                canvas.insertAdjacentHTML('beforeend', code);
+                            }
                             
                             // Let Alpine initialize bindings on new html
                             // and then attach editable events
