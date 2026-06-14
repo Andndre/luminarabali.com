@@ -98,8 +98,15 @@
 document.addEventListener('alpine:init', () => {
     // Custom Directive for Lightbox
     Alpine.directive('lightbox', (el) => {
-        el.style.cursor = 'pointer';
-        el.addEventListener('click', () => {
+        // Only apply zoom-in cursor if we are NOT inside the Visual Editor
+        if (!document.getElementById('visual-canvas')) {
+            el.style.cursor = 'zoom-in';
+        }
+        
+        el.addEventListener('click', (event) => {
+            // Prevent opening lightbox if inside the Visual Editor so it can be selected/edited
+            if (document.getElementById('visual-canvas')) return;
+            
             window.dispatchEvent(new CustomEvent('open-lightbox', { detail: el.src }));
         });
     });

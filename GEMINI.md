@@ -13,7 +13,7 @@ For a detailed breakdown of UI/UX design rules, aesthetic styles, color systems,
 ## Tech Stack
 *   **Backend Framework**: Laravel 12 (PHP 8.2+)
 *   **Database**: MySQL / MariaDB
-*   **Frontend**: Blade Templates + Vite + Tailwind CSS v4 + React (used for the digital invitation visual editor)
+*   **Frontend**: Blade Templates + Vite + Tailwind CSS v4 + Alpine.js (Lightweight reactivity & Visual Builder state)
 *   **Payment Gateway**: Midtrans (Snap API)
 *   **Image Processing**: Intervention Image v3 (`intervention/image` & `intervention/image-laravel` with WebP encoding & scaling support)
 *   **API Client**: Google API Client (`google/apiclient` for Google Calendar Integration)
@@ -145,7 +145,7 @@ composer test
 *   **`resources/views/`**: Blade templates for frontend and administrator views.
     *   `admin/finance/`: Financial overviews and reporting charts.
     *   `admin/links/`: Bio link lists with sortable features.
-    *   `admin/templates/` & `admin/invitations/`: Drag-and-drop React integration.
+    *   `admin/templates/` & `admin/invitations/`: Hybrid No-Code Visual Builder (Alpine.js + Monaco Editor + SortableJS).
 
 ## Key Features & Conventions
 
@@ -164,10 +164,14 @@ composer test
     *   Division linktree bio-link pages (`/linkto/{division}`) dynamically serve configured navigation links.
     *   For the photobooth division, active bookings that contain Google Drive files (`link_drive`) are pulled and sorted into **Hari Ini** (today's events) and **Sebelumnya** (past events) directly on the landing page, offering quick, frictionless client access.
 
-*   **Digital Invitation Editor**:
-    *   Admin templates can be customized block-by-block using the React visual editor.
-    *   Admins can adjust visibility, reorder blocks, load templates, duplicate templates, and upload page-specific assets.
-    *   Guests view public pages, maps, check countdowns, and submit RSVPs dynamically.
+*   **Hybrid No-Code Digital Invitation Editor**:
+    *   **Architecture**: Transitioned from a React-based block system to a **Pure HTML Hybrid Builder**. The system uses Monaco Editor as the underlying source of truth (`html_content`), while providing a fully interactive Visual Canvas powered by Alpine.js and SortableJS.
+    *   **Features**:
+        *   **2-Way Sync**: Edits in the Visual Canvas instantly reflect in Monaco, and vice-versa.
+        *   **Inline Editing**: Real-time contenteditable text elements (`h1`, `p`, etc.) with `blur` auto-save.
+        *   **Macro-Block Hover Controls**: A floating UI that detects top-level blocks/sections for drag-and-drop reordering, duplication, and deletion.
+        *   **Micro-Element Properties**: A Right Sidebar that lets admins modify specific nodes, inject Tailwind classes dynamically, and change image/audio sources.
+        *   **DOM Breadcrumbs**: A bottom-up DOM tree navigator allowing users to precisely select specific layers in complex absolute/stacked layouts.
     *   **Global Layout Utilities (`layout.blade.php`)**: The invitation system uses a master layout component that automatically provides the following global utilities to all template themes:
         *   **Scroll Animations**: Elements with the `data-reveal="up|down|left|right|fade|zoom"` attribute will automatically be animated via Intersection Observer. No manual CSS or JS is needed inside themes.
         *   **Countdown Alpine Data**: `x-data="countdown('HH:mm DD-MM-YYYY')"` provides an Alpine.js scope that automatically parses dates and exposes `days`, `hours`, `minutes`, and `seconds` variables for custom countdown UI.
