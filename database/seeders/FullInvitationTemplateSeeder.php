@@ -44,17 +44,6 @@ body {
     font-family: 'Noto Serif Balinese', serif;
 }
 
-/* Alpine Reveal Animation */
-.reveal-up {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.reveal-up.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
 @keyframes zoomSlow {
     0% { transform: scale(1); }
     100% { transform: scale(1.15); }
@@ -125,15 +114,15 @@ BLADE,
     
     <div class="relative z-10 text-center px-6 pt-20">
         <!-- Balinese motif SVG -->
-        <svg class="w-12 h-12 mx-auto text-[#C5A059] mb-6 reveal-up" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z M12 22L9 16H15L12 22Z M2 12L8 9V15L2 12Z M22 12L16 15V9L22 12Z M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/></svg>
+        <svg class="w-12 h-12 mx-auto text-[#C5A059] mb-6" data-reveal="up" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z M12 22L9 16H15L12 22Z M2 12L8 9V15L2 12Z M22 12L16 15V9L22 12Z M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/></svg>
         
-        <p class="font-sans text-[10px] tracking-[0.4em] uppercase text-[#2C1E16]/60 mb-6 reveal-up">Om Swastiastu</p>
-        <h2 class="font-serif text-6xl md:text-8xl text-[#2C1E16] leading-tight mb-8 reveal-up" style="transition-delay: 200ms;">
+        <p class="font-sans text-[10px] tracking-[0.4em] uppercase text-[#2C1E16]/60 mb-6" data-reveal="up">Om Swastiastu</p>
+        <h2 class="font-serif text-6xl md:text-8xl text-[#2C1E16] leading-tight mb-8" data-reveal="up" style="transition-delay: 200ms;">
             {{ $page->groom_name ?? 'Wayan' }}<br>
             <span class="italic text-[#C5A059] text-5xl md:text-6xl my-2 block">&amp;</span>
             {{ $page->bride_name ?? 'Ni Luh' }}
         </h2>
-        <p class="font-sans text-[#2C1E16]/80 tracking-[0.3em] uppercase text-xs reveal-up" style="transition-delay: 400ms;">
+        <p class="font-sans text-[#2C1E16]/80 tracking-[0.3em] uppercase text-xs" data-reveal="up" style="transition-delay: 400ms;">
             {{ optional($page->event_date)->format('d . m . Y') ?? '12 . 12 . 2026' }}
         </p>
     </div>
@@ -142,7 +131,7 @@ BLADE,
 <!-- Quote (Balinese / Hindu Sloka) -->
 <section class="py-32 bg-[#2C1E16] text-center px-6 relative overflow-hidden">
     <div class="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')]"></div>
-    <div class="max-w-4xl mx-auto reveal-up relative z-10">
+    <div class="max-w-4xl mx-auto relative z-10" data-reveal="up">
         <p class="font-sans text-[10px] uppercase tracking-[0.3em] text-[#C5A059] mb-8">Sloka Rg Veda X.85.42</p>
         <p class="font-serif text-2xl md:text-4xl text-white leading-loose mb-10 italic">
             "Ihaiva stam ma vi yaustam, visvam ayur vyasnutam,<br>kridantau puttrair naptrbhih, modamanau sve grhe."
@@ -160,14 +149,14 @@ BLADE,
     <div class="absolute bottom-0 right-0 w-32 h-32 opacity-20 bg-[url('data:image/svg+xml;utf8,<svg viewBox=\%220 0 100 100\%22 xmlns=\%22http://www.w3.org/2000/svg\%22><path d=\%22M100,100 L0,100 C0,44.77 44.77,0 100,0 L100,100 Z\%22 fill=\%22%23C5A059\%22/></svg>')]"></div>
 
     <div class="max-w-6xl mx-auto px-6 relative z-10">
-        <div class="text-center mb-24 reveal-up">
+        <div class="text-center mb-24" data-reveal="up">
             <h3 class="font-serif text-5xl text-[#2C1E16]">Sang Pengantin</h3>
             <div class="w-24 h-1 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent mx-auto mt-8"></div>
         </div>
         
         <div class="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-24">
             <!-- Groom -->
-            <div class="text-center md:w-1/3 reveal-up" style="transition-delay: 100ms;">
+            <div class="text-center md:w-1/3" data-reveal="left" style="transition-delay: 100ms;">
                 <div class="w-64 h-80 mx-auto mb-8 overflow-hidden rounded-tl-[80px] rounded-br-[80px] border-4 border-[#C5A059]/20 shadow-xl shadow-[#2C1E16]/10 p-2 bg-white">
                     <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover rounded-tl-[70px] rounded-br-[70px] hover:scale-105 transition-transform duration-1000 grayscale sepia-[.3]">
                 </div>
@@ -176,10 +165,10 @@ BLADE,
                 <a href="#" class="text-[#C5A059] hover:text-[#2C1E16] text-[10px] uppercase tracking-[0.2em] transition border border-[#C5A059] px-4 py-2 rounded-full">@romeo_ig</a>
             </div>
             
-            <div class="text-7xl font-serif italic text-[#C5A059] opacity-30 reveal-up">&amp;</div>
+            <div class="text-7xl font-serif italic text-[#C5A059] opacity-30" data-reveal="zoom">&amp;</div>
             
             <!-- Bride -->
-            <div class="text-center md:w-1/3 reveal-up" style="transition-delay: 300ms;">
+            <div class="text-center md:w-1/3" data-reveal="right" style="transition-delay: 300ms;">
                 <div class="w-64 h-80 mx-auto mb-8 overflow-hidden rounded-tr-[80px] rounded-bl-[80px] border-4 border-[#C5A059]/20 shadow-xl shadow-[#2C1E16]/10 p-2 bg-white">
                     <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover rounded-tr-[70px] rounded-bl-[70px] hover:scale-105 transition-transform duration-1000 grayscale sepia-[.3]">
                 </div>
@@ -192,7 +181,7 @@ BLADE,
 </section>
 
 <!-- Image Break / Balinese Ritual -->
-<section class="h-[70vh] bg-fixed bg-center bg-cover reveal-up relative" style="background-image: url('https://images.unsplash.com/photo-1558005530-cb61e2cb3200?q=80&w=2000&auto=format&fit=crop');">
+<section class="h-[70vh] bg-fixed bg-center bg-cover relative" data-reveal="zoom" style="background-image: url('https://plus.unsplash.com/premium_photo-1682097623645-4fd444d9cecb?q=80&w=2000&auto=format&fit=crop');">
     <div class="absolute inset-0 bg-[#2C1E16]/40"></div>
     <div class="absolute inset-0 flex items-center justify-center">
         <h2 class="text-white font-balinese text-[8rem] md:text-[12rem] text-center opacity-90 tracking-wider drop-shadow-md">ᬒᬁ</h2>
@@ -201,8 +190,8 @@ BLADE,
 
 <!-- Countdown (Alpine) -->
 <section class="py-24 bg-white relative overflow-hidden border-b border-[#F9F6F0]" 
-         x-data="countdown('{{ optional($page->event_date)->format('Y-m-d\TH:i:s') ?? '2026-12-12T08:00:00' }}')">
-    <div class="max-w-4xl mx-auto px-6 text-center relative z-10 reveal-up">
+         x-data="countdown('08:00 12-12-2026')">
+    <div class="max-w-4xl mx-auto px-6 text-center relative z-10" data-reveal="up">
         <h3 class="font-sans text-[10px] tracking-[0.4em] uppercase text-[#C5A059] mb-16 border-b border-[#C5A059]/30 inline-block pb-2">Menuju Hari Bahagia</h3>
         <div class="flex flex-wrap justify-center gap-6 md:gap-16">
             <div class="w-24 bg-[#F9F6F0] p-4 rounded-t-full rounded-b-lg border border-[#C5A059]/20 shadow-sm hover:-translate-y-1 transition-transform">
@@ -228,7 +217,7 @@ BLADE,
 <!-- Event Details -->
 <section class="py-32 bg-[#F9F6F0]">
     <div class="max-w-6xl mx-auto px-6">
-        <div class="text-center mb-20 reveal-up">
+        <div class="text-center mb-20" data-reveal="up">
             <h3 class="font-serif text-5xl text-[#2C1E16] mb-6">Rangkaian Acara</h3>
             <div class="w-24 h-1 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent mx-auto"></div>
         </div>
@@ -238,7 +227,7 @@ BLADE,
             <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#C5A059]/50 to-transparent transform -translate-x-1/2"></div>
             
             <!-- Pawiwahan -->
-            <div class="bg-white p-10 text-center shadow-lg shadow-[#2C1E16]/5 rounded-sm reveal-up border-x border-[#C5A059]/20 relative z-10">
+            <div class="bg-white p-10 text-center shadow-lg shadow-[#2C1E16]/5 rounded-sm border-x border-[#C5A059]/20 relative z-10" data-reveal="right">
                 <div class="w-16 h-16 mx-auto bg-[#F9F6F0] rounded-full flex items-center justify-center mb-8 border border-[#C5A059]/30">
                     <svg class="w-8 h-8 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
@@ -253,7 +242,7 @@ BLADE,
             </div>
             
             <!-- Resepsi -->
-            <div class="bg-white p-10 text-center shadow-lg shadow-[#2C1E16]/5 rounded-sm reveal-up border-x border-[#C5A059]/20 relative z-10" style="transition-delay: 200ms;">
+            <div class="bg-white p-10 text-center shadow-lg shadow-[#2C1E16]/5 rounded-sm border-x border-[#C5A059]/20 relative z-10" data-reveal="left" style="transition-delay: 200ms;">
                 <div class="w-16 h-16 mx-auto bg-[#F9F6F0] rounded-full flex items-center justify-center mb-8 border border-[#C5A059]/30">
                     <svg class="w-8 h-8 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z"></path></svg>
                 </div>
@@ -273,29 +262,29 @@ BLADE,
 <!-- Gallery -->
 <section class="py-32 bg-white border-t border-[#F9F6F0]" x-data="{ lightboxOpen: false, lightboxImage: '' }">
     <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-20 reveal-up">
+        <div class="text-center mb-20" data-reveal="up">
             <h3 class="font-serif text-5xl text-[#2C1E16] mb-6">Galeri Kasih</h3>
             <div class="w-24 h-1 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent mx-auto"></div>
         </div>
         
         <!-- Masonry Grid with some spacing -->
         <div class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-            <div class="break-inside-avoid reveal-up">
+            <div class="break-inside-avoid" data-reveal="up">
                 <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1586420669671-701d93b76748?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
             </div>
-            <div class="break-inside-avoid reveal-up" style="transition-delay: 100ms;">
+            <div class="break-inside-avoid" data-reveal="up" style="transition-delay: 100ms;">
                 <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1587200868091-23e92ff750b4?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
             </div>
-            <div class="break-inside-avoid reveal-up" style="transition-delay: 200ms;">
+            <div class="break-inside-avoid" data-reveal="up" style="transition-delay: 200ms;">
                 <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://plus.unsplash.com/premium_photo-1661443432542-d934aba7c922?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
             </div>
-            <div class="break-inside-avoid reveal-up">
+            <div class="break-inside-avoid" data-reveal="up">
                 <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1671517477698-fafce6ec9c02?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
             </div>
-            <div class="break-inside-avoid reveal-up" style="transition-delay: 100ms;">
+            <div class="break-inside-avoid" data-reveal="up" style="transition-delay: 100ms;">
                 <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1672251486261-71681105b331?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
             </div>
-            <div class="break-inside-avoid reveal-up" style="transition-delay: 200ms;">
+            <div class="break-inside-avoid" data-reveal="up" style="transition-delay: 200ms;">
                 <img @click="lightboxOpen = true; lightboxImage = $el.src" src="https://images.unsplash.com/photo-1625759190925-a67568fd123b?q=80&w=1200&auto=format&fit=crop" class="w-full rounded-sm shadow-sm hover:opacity-90 transition grayscale hover:grayscale-0 sepia-[.2] cursor-pointer hover:scale-[1.02] duration-500">
             </div>
         </div>
@@ -322,7 +311,7 @@ BLADE,
 <section class="py-32 bg-[#2C1E16] text-white relative overflow-hidden">
     <!-- Subtle Pattern -->
     <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')]"></div>
-    <div class="max-w-3xl mx-auto px-6 text-center relative z-10 reveal-up">
+    <div class="max-w-3xl mx-auto px-6 text-center relative z-10" data-reveal="up">
         <h3 class="font-serif text-4xl md:text-5xl mb-6 text-[#C5A059]">Buku Tamu & RSVP</h3>
         <p class="text-white/60 mb-16 font-light tracking-wide text-sm">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.</p>
         
@@ -359,40 +348,6 @@ BLADE,
     <p class="mb-4 text-[#C5A059]">Om Shanti Shanti Shanti Om</p>
     <p>Created with ♥ by Luminara Visual</p>
 </footer>
-
-<!-- Scripts -->
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('countdown', (targetDate) => ({
-        days: '00', hours: '00', minutes: '00', seconds: '00',
-        init() {
-            const countDownDate = new Date(targetDate).getTime();
-            setInterval(() => {
-                const now = new Date().getTime();
-                const distance = countDownDate - now;
-                if (distance < 0) return;
-                this.days = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
-                this.hours = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-                this.minutes = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-                this.seconds = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
-            }, 1000);
-        }
-    }));
-});
-
-// Simple Intersection Observer for reveal animation
-document.addEventListener('DOMContentLoaded', () => {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-            }
-        });
-    }, { threshold: 0.15 });
-    
-    document.querySelectorAll('.reveal-up').forEach((el) => observer.observe(el));
-});
-</script>
 BLADE
         ]);
 
