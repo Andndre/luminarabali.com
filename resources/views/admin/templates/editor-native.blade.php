@@ -636,21 +636,10 @@
         });
         document.getElementById('tab-' + tab).classList.remove('border-transparent');
         document.getElementById('tab-' + tab).classList.add('border-blue-500', 'text-white');
-
-        const monacoContainer = document.getElementById('monaco-container');
-        const propertiesUi = document.getElementById('properties-ui');
-
-        if(tab === 'json') {
-            monacoContainer.classList.add('hidden');
-            propertiesUi.classList.remove('hidden');
-        } else {
-            monacoContainer.classList.remove('hidden');
-            propertiesUi.classList.add('hidden');
-            
-            if(tab === 'cover') globalEditor.setModel(coverModel);
-            if(tab === 'html') globalEditor.setModel(htmlModel);
-            if(tab === 'css') globalEditor.setModel(cssModel);
-        }
+        
+        if(tab === 'cover') globalEditor.setModel(coverModel);
+        else if(tab === 'html') globalEditor.setModel(htmlModel);
+        else if(tab === 'css') globalEditor.setModel(cssModel);
     };
 
     function openMediaLibrary(target = 'editor') {
