@@ -229,7 +229,7 @@
             <!-- Split View Container -->
             <div class="flex flex-1 overflow-hidden relative">
                 <!-- CODE MODE -->
-                <div x-show="panels.code" class="flex h-full flex-1 flex-col border-r border-gray-800 bg-[#1e1e1e] min-w-[400px]">
+                <div x-show="panels.code" class="order-2 flex h-full flex-1 flex-col border-l border-gray-800 bg-[#1e1e1e] min-w-[400px]">
                 <!-- Minimal Tabs Navigation -->
                 <div class="flex shrink-0 border-b border-gray-800 bg-[#1e1e1e] text-xs text-gray-500">
                     <button type="button" onclick="switchTab('cover')" id="tab-cover"
@@ -245,7 +245,7 @@
             </div>
 
                 <!-- VISUAL MODE -->
-                <div x-show="panels.visual" class="h-full flex-1 overflow-y-auto bg-gray-100 min-w-[350px]" id="visual-workspace">
+                <div x-show="panels.visual" class="order-1 h-full flex-1 overflow-y-auto bg-gray-100 min-w-[350px]" id="visual-workspace">
                 <div class="relative mx-auto my-4 min-h-screen max-w-[480px] bg-white font-[Lato] shadow-2xl"
                     @mouseleave="hoverMenuVisible = false">
                     <x-invitation.layout class="bg-gray-50" :skip-cover="true">
@@ -489,7 +489,7 @@
             </div>
 
             <!-- PROPERTIES MODE -->
-            <div x-show="panels.properties" class="flex h-full w-[400px] shrink-0 flex-col overflow-y-auto border-l border-gray-800 bg-[#1e1e1e]"
+            <div x-show="panels.properties" class="order-3 flex h-full w-[400px] shrink-0 flex-col overflow-y-auto border-l border-gray-800 bg-[#1e1e1e]"
                 x-data="propertiesForm({{ json_encode($template->meta_data ?: ['bg_music' => '', 'rsvp_enabled' => true]) }})">
                 <div class="mx-auto max-w-3xl p-8 text-gray-300">
                     <div class="mb-8 border-b border-gray-800 pb-4">
