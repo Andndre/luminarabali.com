@@ -46,6 +46,8 @@
             }, 100);
         },
         openInvitation() { 
+            // Skip in editor context — allow inspecting the button instead
+            if (document.getElementById('visual-canvas')) return;
             this.isOpen = true; 
             document.body.classList.remove('no-scroll');
             
