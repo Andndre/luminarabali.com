@@ -569,10 +569,10 @@
             // Clean states
             document.getElementById('originals-box').classList.add('hidden');
 
-            if (file.mimeType.includes('video')) {
-                // Video Player (Using direct download link allows browser to stream without CORS errors)
+            if (file.mimeType && file.mimeType.includes('video')) {
+                // Video Player (Using official API for inline streaming to prevent Firefox NS_BINDING_ABORTED on attachments)
                 mediaContainer.innerHTML = `
-                    <video src="https://drive.google.com/uc?export=download&id=${file.id}" type="video/mp4" controls autoplay loop class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain"></video>
+                    <video src="https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}" type="video/mp4" controls autoplay loop class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain"></video>
                 `;
             } else {
                 // High-resolution image (official API alt=media endpoint for maximum reliability)
@@ -691,7 +691,7 @@
                     setActiveThumb(videoThumb);
                     const mediaContainer = document.getElementById('lightbox-media-container');
                     mediaContainer.innerHTML = `
-                        <video src="https://drive.google.com/uc?export=download&id=${matchedAnimated.id}" type="video/mp4" controls autoplay loop class="max-w-full max-h-[65vh] rounded-xl border border-white/10 shadow-2xl"></video>
+                        <video src="https://www.googleapis.com/drive/v3/files/${matchedAnimated.id}?alt=media&key=${API_KEY}" type="video/mp4" controls autoplay loop class="max-w-full max-h-[65vh] rounded-xl border border-white/10 shadow-2xl"></video>
                     `;
                     document.getElementById('lightbox-download').href =
                         `https://drive.google.com/uc?export=download&id=${matchedAnimated.id}`;
