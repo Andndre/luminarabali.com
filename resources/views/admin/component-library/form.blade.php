@@ -71,18 +71,18 @@
     <form class="space-y-4" @submit.prevent="submitRsvp" x-show="!isSuccess">
         <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Nama Lengkap</label>
-            <input type="text" x-model="formData.guest_name" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ketik nama Anda...">
+            <input type="text" x-model="formData.guest_name" required class="w-full rounded-lg border-gray-300 shadow-sm px-4 py-3 text-sm bg-white focus:border-gray-500 focus:ring-gray-500" placeholder="Ketik nama Anda...">
         </div>
         <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Kehadiran</label>
-            <select x-model="formData.status" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <select x-model="formData.status" class="w-full rounded-lg border-gray-300 shadow-sm px-4 py-3 text-sm bg-white focus:border-gray-500 focus:ring-gray-500">
                 <option value="Hadir">Ya, Saya akan hadir</option>
                 <option value="Tidak Hadir">Maaf, tidak bisa hadir</option>
             </select>
         </div>
         <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Pesan & Doa (Opsional)</label>
-            <textarea x-model="formData.comments" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="3" placeholder="Tuliskan ucapan..."></textarea>
+            <textarea x-model="formData.comments" class="w-full rounded-lg border-gray-300 shadow-sm px-4 py-3 text-sm bg-white focus:border-gray-500 focus:ring-gray-500" rows="3" placeholder="Tuliskan ucapan..."></textarea>
         </div>
         <button type="submit" :disabled="isSubmitting" class="w-full flex items-center justify-center rounded-xl bg-gray-900 py-3 font-medium text-white transition hover:bg-gray-800">
             <span x-show="!isSubmitting">Kirim RSVP</span>
