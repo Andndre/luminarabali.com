@@ -83,8 +83,7 @@
         </div>
     </div>
 
-    {{-- Alpine.js --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @php $skip_alpine = true; @endphp
 
     {{-- Hidden Textareas to safely pass data to Monaco without PHP addslashes issues --}}
     <textarea id="raw_cover_content" autocomplete="off" style="display:none;">{{ $template->cover_content ?? '' }}</textarea>
