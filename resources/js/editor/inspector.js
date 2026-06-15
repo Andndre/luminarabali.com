@@ -90,6 +90,9 @@ export default function EditorInspector() {
             cleanedClassesString = cleanedClassesString.replace(/\bring-2\b|\bring-blue-500\b|\bring-inset\b|\boutline-none\b/g, '')
                 .replace(/\s+/g, ' ').trim();
 
+            // Saring dan buang karakter '@' pada breakpoint (container queries) agar pengguna hanya melihat format standar 'md:class'
+            cleanedClassesString = cleanedClassesString.replace(/@(sm|md|lg|xl|2xl):/g, '$1:');
+
             this.nodeData.classes = cleanedClassesString;
             this.nodeData.href = this.selectedNode.getAttribute('href') || '';
             this.nodeData.src = this.selectedNode.getAttribute('src') || '';
@@ -201,7 +204,13 @@ export default function EditorInspector() {
                 if (propertyValue.trim() === '') {
                     this.selectedNode.removeAttribute('class');
                 } else {
-                    this.selectedNode.setAttribute('class', propertyValue);
+                    let classValueForCanvas = propertyValue;
+                    // Bersihkan tanda '@' terlebih dahulu (jika ada) untuk mencegah penambahan ganda
+                    classValueForCanvas = classValueForCanvas.replace(/@(sm|md|lg|xl|2xl):/g, '$1:');
+                    // Tambahkan kembali '@' di depan breakpoint agar dikenali sebagai Container Queries di kanvas visual
+                    classValueForCanvas = classValueForCanvas.replace(/\b(sm|md|lg|xl|2xl):/g, '@$1:');
+                    
+                    this.selectedNode.setAttribute('class', classValueForCanvas);
                 }
                 // Kembalikan ring highlight agar penanda fokus tidak hilang
                 this.selectedNode.classList.add('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
