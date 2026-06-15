@@ -48,26 +48,17 @@ class InvitationController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:invitation_pages,slug',
             'groom_name' => 'required|string|max:255',
             'bride_name' => 'required|string|max:255',
             'event_date' => 'required|date',
             'template_id' => 'nullable|exists:invitation_templates,id',
         ]);
 
-        // Generate unique slug
-        $slug = Str::slug($request->groom_name . '-' . $request->bride_name);
-        $originalSlug = $slug;
-        $counter = 1;
-
-        while (InvitationPage::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
-        }
-
         $invitation = InvitationPage::create([
             'template_id' => $request->template_id,
             'title' => $request->title,
-            'slug' => $slug,
+            'slug' => Str::slug($request->slug),
             'groom_name' => $request->groom_name,
             'bride_name' => $request->bride_name,
             'event_date' => $request->event_date,
@@ -107,6 +98,7 @@ class InvitationController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:invitation_pages,slug,' . $id,
             'groom_name' => 'required|string|max:255',
             'bride_name' => 'required|string|max:255',
             'event_date' => 'required|date',
@@ -120,6 +112,7 @@ class InvitationController extends Controller
 
         $invitation->update([
             'title' => $request->title,
+            'slug' => Str::slug($request->slug),
             'groom_name' => $request->groom_name,
             'bride_name' => $request->bride_name,
             'event_date' => $request->event_date,

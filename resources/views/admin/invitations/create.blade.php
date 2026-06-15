@@ -70,7 +70,17 @@ use Illuminate\Support\Facades\Storage;
         </div>
 
         <!-- Step 2: Invitation Details -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6" x-data="{
+            groom: '{{ old('groom_name') }}',
+            bride: '{{ old('bride_name') }}',
+            slug: '{{ old('slug') }}',
+            userEditedSlug: {{ old('slug') ? 'true' : 'false' }},
+            updateSlug() {
+                if (!this.userEditedSlug) {
+                    this.slug = (this.groom + '-' + this.bride).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                }
+            }
+        }">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">Detail Undangan</h2>
 
             <div class="space-y-4">
@@ -87,7 +97,7 @@ use Illuminate\Support\Facades\Storage;
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pria *</label>
-                        <input type="text" name="groom_name" value="{{ old('groom_name') }}" required
+                        <input type="text" name="groom_name" x-model="groom" @input="updateSlug" required
                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                placeholder="Nama lengkap pria">
                         @error('groom_name')
@@ -97,13 +107,28 @@ use Illuminate\Support\Facades\Storage;
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nama Wanita *</label>
-                        <input type="text" name="bride_name" value="{{ old('bride_name') }}" required
+                        <input type="text" name="bride_name" x-model="bride" @input="updateSlug" required
                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                placeholder="Nama lengkap wanita">
                         @error('bride_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Slug / URL Undangan *</label>
+                    <div class="flex rounded-lg shadow-sm">
+                      <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                        {{ rtrim(url('/invitation/'), '/') }}/
+                      </span>
+                      <input type="text" name="slug" x-model="slug" @input="userEditedSlug = true" required
+                             class="flex-1 min-w-0 block w-full px-4 py-2 rounded-none rounded-r-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                             placeholder="romeo-juliet">
+                    </div>
+                    @error('slug')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
