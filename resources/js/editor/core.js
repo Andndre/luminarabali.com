@@ -25,6 +25,12 @@ export default function EditorCore() {
         // Status visibilitas panel Inspector elemen mikro (sisi kanan melayang)
         isInspectorOpen: false,
 
+        // State untuk panel perpustakaan (library) komponen
+        search: '',
+        selectedCategory: 'all',
+        loading: false,
+
+
         /**
          * Mengalihkan status tampil/sembunyi suatu panel (library, visual, code, atau properties).
          * Khusus panel 'code', jika dibuka maka Monaco Editor akan diperintahkan untuk me-layout ulang

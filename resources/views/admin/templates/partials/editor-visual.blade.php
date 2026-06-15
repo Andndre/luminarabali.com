@@ -1,23 +1,29 @@
 {{-- Visual Canvas Panel --}}
 <div x-show="panels.visual" class="order-1 h-full min-w-[350px] flex-1 overflow-y-auto bg-gray-100" id="visual-workspace">
-    <div class="relative mx-auto my-4 min-h-screen max-w-[480px] transform overflow-hidden bg-white font-[Lato] shadow-2xl"
-        @mouseleave="hoverMenuVisible = false">
-        <x-invitation.layout class="bg-gray-50" :skip-cover="true">
-            <div @tab-changed.window="isOpen = ($event.detail !== 'cover')"></div>
-            <x-invitation.audio :src="''" />
-            <div id="visual-canvas" class="@container min-h-[500px] w-full" @click="inspectElement($event)"
-                @mousemove.throttle.50ms="trackHover($event)">
-                {!! $template->html_content !!}
-            </div>
-        </x-invitation.layout>
+    {{-- Wrapper without overflow-hidden to allow hover menu buttons to spill over --}}
+    <div class="relative mx-auto my-4 min-h-screen max-w-[480px]" @mouseleave="hoverMenuVisible = false">
+        
+        {{-- Inner Canvas Container with overflow-hidden --}}
+        <div class="h-full w-full transform overflow-hidden bg-white font-[Lato] shadow-2xl">
+            <x-invitation.layout class="bg-gray-50" :skip-cover="true">
+                <div @tab-changed.window="isOpen = ($event.detail !== 'cover')"></div>
+                <x-invitation.audio :src="''" />
+                <div id="visual-canvas" class="@container min-h-[500px] w-full" @click="inspectElement($event)"
+                    @mousemove.throttle.50ms="trackHover($event)">
+                    {!! $template->html_content !!}
+                </div>
+            </x-invitation.layout>
+        </div>
 
         {{-- Floating Hover Menu --}}
         <div x-show="hoverMenuVisible"
             class="pointer-events-none absolute z-40 border-2 border-blue-400 transition-all duration-75 ease-linear"
             :style="`top: ${hoverMenuPos.top}; left: ${hoverMenuPos.left}; width: ${hoverMenuPos.width}; height: ${hoverMenuPos.height};`"
             style="display: none;">
+            
+            {{-- We can make these buttons have slightly negative coordinates so they look better and don't get clipped! --}}
             <div
-                class="pointer-events-auto absolute left-1.5 top-1.5 z-50 flex gap-1 overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
+                class="pointer-events-auto absolute -left-2 -top-4 z-50 flex gap-1 overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
                 <button @click.stop="moveNodeUp()" class="p-1.5 text-gray-600 transition hover:bg-gray-100"
                     title="Move Up">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +39,7 @@
                 </button>
             </div>
 
-            <div class="pointer-events-auto absolute right-1.5 top-1.5 z-50 flex gap-1">
+            <div class="pointer-events-auto absolute -right-2 -top-4 z-50 flex gap-1">
                 <button @click.stop="duplicateHoveredNode()"
                     class="rounded-full bg-blue-500 p-1.5 text-white shadow-md transition hover:scale-110 hover:bg-blue-600"
                     title="Duplicate Block">
@@ -54,7 +60,7 @@
                 </button>
             </div>
 
-            <div class="pointer-events-auto absolute bottom-1.5 left-1/2 z-50 -translate-x-1/2 transform">
+            <div class="pointer-events-auto absolute -bottom-3 left-1/2 z-50 -translate-x-1/2 transform">
                 <button @click.stop="prepareInsertBelow()"
                     class="rounded-full bg-blue-600 p-1.5 text-white shadow-md transition hover:scale-110 hover:bg-blue-700"
                     title="Add Section Below">
