@@ -210,7 +210,7 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <a id="lightbox-download" href="#" target="_blank" download
+                <a id="lightbox-download" href="#" download
                     class="bg-maroon hover:bg-maroon-dark flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-white transition-all">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -559,8 +559,8 @@
             document.getElementById('lightbox-total').innerText = currentMediaList.length;
             document.getElementById('lightbox-filename').innerText = file.name;
 
-            // Direct download source using raw API media stream to bypass Google Drive login prompts
-            const downloadUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`;
+            // Direct download source using Google Drive public download link to force correct original filename
+            const downloadUrl = `https://drive.google.com/uc?export=download&id=${file.id}`;
             document.getElementById('lightbox-download').href = downloadUrl;
 
             const mediaContainer = document.getElementById('lightbox-media-container');
@@ -570,9 +570,9 @@
             document.getElementById('originals-box').classList.add('hidden');
 
             if (file.mimeType.includes('video')) {
-                // Video Player (Uses Google Drive API alt=media stream with API Key for highly reliable browser streaming)
+                // Video Player (Using direct download link allows browser to stream without CORS errors)
                 mediaContainer.innerHTML = `
-                    <video src="https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}" type="video/mp4" controls autoplay loop crossorigin="anonymous" class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain"></video>
+                    <video src="https://drive.google.com/uc?export=download&id=${file.id}" type="video/mp4" controls autoplay loop class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain"></video>
                 `;
             } else {
                 // High-resolution image (official API alt=media endpoint for maximum reliability)
@@ -615,7 +615,7 @@
                 "session-thumb flex-none relative aspect-[3/4] h-20 rounded-lg overflow-hidden border border-pink-500 cursor-pointer transition-all duration-300";
             const printThumbUrl = printFile.thumbnailLink ? printFile.thumbnailLink.replace(/=s220$/, '=s150') : '';
             printThumb.innerHTML = `
-                <img src="${printThumbUrl}" alt="Prints Collage" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                <img src="${printThumbUrl}" alt="Prints Collage" class="w-full h-full object-cover">
                 <div class="absolute bottom-0 inset-x-0 bg-black/60 py-0.5 text-center">
                     <span class="text-[9px] font-bold text-white uppercase tracking-wider">Prints</span>
                 </div>
@@ -625,10 +625,10 @@
                 const mediaContainer = document.getElementById('lightbox-media-container');
                 const highResUrl = `https://www.googleapis.com/drive/v3/files/${printFile.id}?alt=media&key=${API_KEY}`;
                 mediaContainer.innerHTML = `
-                    <img src="${highResUrl}" alt="${printFile.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none">
+                    <img src="${highResUrl}" alt="${printFile.name}" class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none">
                 `;
                 document.getElementById('lightbox-download').href =
-                    `https://www.googleapis.com/drive/v3/files/${printFile.id}?alt=media&key=${API_KEY}`;
+                    `https://drive.google.com/uc?export=download&id=${printFile.id}`;
                 document.getElementById('lightbox-filename').innerText = printFile.name;
             };
             originalsList.appendChild(printThumb);
@@ -657,14 +657,12 @@
                 origThumb.onclick = () => {
                     setActiveThumb(origThumb);
                     const mediaContainer = document.getElementById('lightbox-media-container');
-                    const highResUrl =
-                        `https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}`;
-                    const lowResUrl = orig.thumbnailLink ? orig.thumbnailLink.replace(/=s220$/, '=w1000') :
-                        highResUrl;
+                    const highResUrl = `https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}`;
+                    const lowResUrl = orig.thumbnailLink ? orig.thumbnailLink.replace(/=s220$/, '=w1000') : highResUrl;
 
                     renderProgressiveImage(mediaContainer, lowResUrl, highResUrl, orig.name);
 
-                    document.getElementById('lightbox-download').href = highResUrl;
+                    document.getElementById('lightbox-download').href = `https://drive.google.com/uc?export=download&id=${orig.id}`;
                     document.getElementById('lightbox-filename').innerText = orig.name;
                 };
                 originalsList.appendChild(origThumb);
@@ -693,10 +691,10 @@
                     setActiveThumb(videoThumb);
                     const mediaContainer = document.getElementById('lightbox-media-container');
                     mediaContainer.innerHTML = `
-                        <video src="https://www.googleapis.com/drive/v3/files/${matchedAnimated.id}?alt=media&key=${API_KEY}" type="video/mp4" controls autoplay loop class="max-w-full max-h-[65vh] rounded-xl border border-white/10 shadow-2xl"></video>
+                        <video src="https://drive.google.com/uc?export=download&id=${matchedAnimated.id}" type="video/mp4" controls autoplay loop class="max-w-full max-h-[65vh] rounded-xl border border-white/10 shadow-2xl"></video>
                     `;
                     document.getElementById('lightbox-download').href =
-                        `https://www.googleapis.com/drive/v3/files/${matchedAnimated.id}?alt=media&key=${API_KEY}`;
+                        `https://drive.google.com/uc?export=download&id=${matchedAnimated.id}`;
                     document.getElementById('lightbox-filename').innerText = matchedAnimated.name;
                 };
                 originalsList.appendChild(videoThumb);
@@ -752,12 +750,16 @@
             // Preload the high-resolution image in the background
             const imgLoader = new Image();
             imgLoader.src = highResUrl;
-            imgLoader.crossOrigin = "anonymous";
+            // No crossOrigin to prevent CORS 403 on Google APIs
             imgLoader.onload = () => {
                 // Ensure the img element we created is still in the DOM (user hasn't clicked next/prev)
                 if (document.body.contains(imgElement)) {
-                    imgElement.src = highResUrl;
-                    imgElement.classList.remove('blur-sm');
+                    // Replace the DOM element entirely to use the already-downloaded memory buffer
+                    // This prevents a 2nd download caused by CORS attribute mismatches.
+                    imgLoader.className = imgElement.className;
+                    imgLoader.classList.remove('blur-sm');
+                    imgLoader.alt = altText;
+                    imgElement.replaceWith(imgLoader);
                     if (loaderElement) loaderElement.remove();
                 }
             };
