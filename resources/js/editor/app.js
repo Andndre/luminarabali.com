@@ -78,10 +78,10 @@ Alpine.data('propertiesForm', (initialData) => ({
  * dari perpustakaan komponen (Component Library) ke dalam Visual Canvas editor.
  */
 Alpine.data('templateLibrary', () => ({
-    components: [],         // Daftar komponen yang diambil dari backend API
-    search: '',             // Kata kunci pencarian komponen
-    selectedCategory: '',   // Kategori komponen yang dipilih untuk filter
-    loading: true,          // Indikator loading data
+    libraryComponents: [],       // Daftar komponen yang diambil dari backend API
+    searchQuery: '',             // Kata kunci pencarian komponen
+    selectedFilterCategory: '',  // Kategori komponen yang dipilih untuk filter
+    isLibraryLoading: true,      // Indikator loading data
 
     init() {
         this.fetchComponents();
@@ -113,14 +113,14 @@ Alpine.data('templateLibrary', () => ({
      * Mengambil daftar komponen pustaka dari API Backend Laravel.
      */
     async fetchComponents() {
-        this.loading = true;
+        this.isLibraryLoading = true;
         try {
             const response = await fetch('/admin/api/component-library');
-            this.components = await response.json();
+            this.libraryComponents = await response.json();
         } catch (error) {
             console.error('Gagal memuat komponen pustaka:', error);
         } finally {
-            this.loading = false;
+            this.isLibraryLoading = false;
         }
     },
 
@@ -128,11 +128,11 @@ Alpine.data('templateLibrary', () => ({
      * Getter untuk menyaring komponen berdasarkan kata kunci pencarian dan kategori yang dipilih.
      */
     get filteredComponents() {
-        return this.components.filter(c => {
-            const matchSearch = c.name.toLowerCase().includes(this.search.toLowerCase()) ||
-                (c.description && c.description.toLowerCase().includes(this.search.toLowerCase()));
-            const matchCategory = this.selectedCategory === '' || c.category === this.selectedCategory;
-            return matchSearch && matchCategory;
+        return this.libraryComponents.filter(componentItem => {
+            const isSearchMatch = componentItem.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                (componentItem.description && componentItem.description.toLowerCase().includes(this.searchQuery.toLowerCase()));
+            const isCategoryMatch = this.selectedFilterCategory === '' || componentItem.category === this.selectedFilterCategory;
+            return isSearchMatch && isCategoryMatch;
         });
     },
 
@@ -141,38 +141,38 @@ Alpine.data('templateLibrary', () => ({
      * Jika ada node target yang sedang aktif (diklik sebelumnya), komponen disisipkan setelahnya.
      * Jika tidak, komponen disisipkan di bagian paling akhir kanvas.
      */
-    async insertComponent(id) {
+    async insertComponent(componentId) {
         try {
-            const response = await fetch(`/admin/api/component-library/${id}`);
+            const response = await fetch(`/admin/api/component-library/${componentId}`);
             const component = await response.json();
 
-            let code = component.code;
+            let componentHtmlCode = component.code;
 
             // Dapatkan referensi data Alpine dari editorApp utama
             const editorAppContainer = document.querySelector('[x-data="editorApp()"]');
-            const editorApp = editorAppContainer ? Alpine.$data(editorAppContainer) : null;
-            if (!editorApp) {
+            const editorAppData = editorAppContainer ? Alpine.$data(editorAppContainer) : null;
+            if (!editorAppData) {
                 console.error('editorApp tidak ditemukan');
                 return;
             }
             
-            const canvas = document.getElementById('visual-canvas');
-            if (canvas) {
+            const visualCanvasContainer = document.getElementById('visual-canvas');
+            if (visualCanvasContainer) {
                 // Sisipkan di posisi spesifik (insertTargetNode) atau paling bawah jika tidak ada target khusus
-                if (editorApp.insertTargetNode) {
-                    editorApp.insertTargetNode.insertAdjacentHTML('afterend', code);
-                    editorApp.insertTargetNode = null; // Reset target setelah digunakan
+                if (editorAppData.insertTargetNode) {
+                    editorAppData.insertTargetNode.insertAdjacentHTML('afterend', componentHtmlCode);
+                    editorAppData.insertTargetNode = null; // Reset target setelah digunakan
                 } else {
-                    canvas.insertAdjacentHTML('beforeend', code);
+                    visualCanvasContainer.insertAdjacentHTML('beforeend', componentHtmlCode);
                 }
 
                 // Inisialisasi ulang properti edit dan sinkronkan perubahan ke Monaco Editor
                 setTimeout(() => {
-                    const container = document.querySelector('[x-data="editorApp()"]');
-                    if (container) {
-                        const editorData = Alpine.$data(container);
-                        if (editorData && typeof editorData.initEditable === 'function') {
-                            editorData.initEditable();
+                    const containerElement = document.querySelector('[x-data="editorApp()"]');
+                    if (containerElement) {
+                        const editorAppDataObject = Alpine.$data(containerElement);
+                        if (editorAppDataObject && typeof editorAppDataObject.initEditable === 'function') {
+                            editorAppDataObject.initEditable();
                         }
                     }
                     window.syncToMonaco();
@@ -200,9 +200,9 @@ Alpine.data('templateLibrary', () => ({
 Alpine.start();
 
 // Variable global untuk Monaco Editor
-var globalEditor = null;
-var coverModel, htmlModel, cssModel;
-var mediaTarget = 'editor'; // Menentukan target sisipan media: 'editor' (kode Monaco), 'visual' (kanvas gambar), atau 'audio' (musik latar)
+var globalMonacoEditor = null;
+var coverCodeModel, htmlCodeModel, cssCodeModel;
+var mediaInsertionTarget = 'editor'; // Menentukan target sisipan media: 'editor' (kode Monaco), 'visual' (kanvas gambar), atau 'audio' (musik latar)
 
 // Inisialisasi Monaco Editor menggunakan RequireJS
 require.config({
@@ -213,18 +213,18 @@ require.config({
 
 require(['vs/editor/editor.main'], function() {
     // Ambil konten mentah dari textareas tersembunyi yang disiapkan oleh Laravel Blade
-    const rawCover = document.getElementById('raw_cover_content').value;
-    const rawHtml = document.getElementById('raw_html_content').value;
-    const rawCss = document.getElementById('raw_custom_css').value;
+    const rawCoverHtmlString = document.getElementById('raw_cover_content').value;
+    const rawMainHtmlString = document.getElementById('raw_html_content').value;
+    const rawCustomCssString = document.getElementById('raw_custom_css').value;
 
     // Buat model data terpisah untuk Cover (HTML), Main Content (HTML), dan Custom CSS (CSS)
-    coverModel = monaco.editor.createModel(rawCover, "html");
-    htmlModel = monaco.editor.createModel(rawHtml, "html");
-    cssModel = monaco.editor.createModel(rawCss, "css");
+    coverCodeModel = monaco.editor.createModel(rawCoverHtmlString, "html");
+    htmlCodeModel = monaco.editor.createModel(rawMainHtmlString, "html");
+    cssCodeModel = monaco.editor.createModel(rawCustomCssString, "css");
 
     // Inisialisasi Monaco Editor Instance
-    globalEditor = monaco.editor.create(document.getElementById('monaco-container'), {
-        model: htmlModel, // Default model di awal adalah Main Content (HTML)
+    globalMonacoEditor = monaco.editor.create(document.getElementById('monaco-container'), {
+        model: htmlCodeModel, // Default model di awal adalah Main Content (HTML)
         theme: 'vs-dark',
         automaticLayout: true,
         wordWrap: 'on',
@@ -239,33 +239,36 @@ require(['vs/editor/editor.main'], function() {
     });
 
     // ResizeObserver untuk menyesuaikan lebar Monaco secara otomatis ketika panel visual/kode bergeser atau beranimasi
-    const resizeObserver = new ResizeObserver(() => {
+    const monacoResizeObserver = new ResizeObserver(() => {
         if (window.globalEditor) {
             window.globalEditor.layout();
         }
     });
-    resizeObserver.observe(document.getElementById('monaco-container'));
+    monacoResizeObserver.observe(document.getElementById('monaco-container'));
+
+    // Synchronize globalEditor reference
+    window.globalEditor = globalMonacoEditor;
 
     /**
      * Sinkronisasi 2-Arah: Dari Kode (Monaco Editor) ke Kanvas Visual.
      * Menggunakan debounce 500ms agar rendering tidak memberatkan browser selama pengguna mengetik.
      */
-    window.syncToCanvas = function(model) {
+    window.syncToCanvas = function(monacoModel) {
         if (window.isSyncing) return;
         
         clearTimeout(window.typingTimer);
         window.typingTimer = setTimeout(() => {
             window.isSyncing = true;
             
-            const rawHTML = model.getValue();
-            const canvas = document.getElementById('visual-canvas');
-            if (canvas) {
-                canvas.innerHTML = rawHTML;
+            const rawHtmlFromEditor = monacoModel.getValue();
+            const visualCanvasContainer = document.getElementById('visual-canvas');
+            if (visualCanvasContainer) {
+                visualCanvasContainer.innerHTML = rawHtmlFromEditor;
                 
                 // Inisialisasi ulang binder Alpine editable (contenteditable, double click img) pada DOM baru
-                const container = document.querySelector('[x-data="editorApp()"]');
-                if (container && Alpine.$data(container) && typeof Alpine.$data(container).initEditable === 'function') {
-                    Alpine.$data(container).initEditable();
+                const editorAppContainer = document.querySelector('[x-data="editorApp()"]');
+                if (editorAppContainer && Alpine.$data(editorAppContainer) && typeof Alpine.$data(editorAppContainer).initEditable === 'function') {
+                    Alpine.$data(editorAppContainer).initEditable();
                 }
             }
             
@@ -274,47 +277,47 @@ require(['vs/editor/editor.main'], function() {
     };
 
     // Dengarkan perubahan isi teks pada model untuk langsung menyinkronkan ke kanvas visual
-    htmlModel.onDidChangeContent(() => {
-        if (window.activeTab === 'html') window.syncToCanvas(htmlModel);
+    htmlCodeModel.onDidChangeContent(() => {
+        if (window.activeTab === 'html') window.syncToCanvas(htmlCodeModel);
     });
-    coverModel.onDidChangeContent(() => {
-        if (window.activeTab === 'cover') window.syncToCanvas(coverModel);
+    coverCodeModel.onDidChangeContent(() => {
+        if (window.activeTab === 'cover') window.syncToCanvas(coverCodeModel);
     });
 
     /**
      * Mengirim dan menyimpan data editor ke server database Laravel melalui AJAX Fetch.
      */
-    function handleSave(e) {
-        if (e) e.preventDefault();
+    function handleSave(submitEvent) {
+        if (submitEvent) submitEvent.preventDefault();
 
         // Salin isi kode dari model Monaco ke input form tersembunyi
-        document.getElementById('cover_content_input').value = coverModel.getValue();
-        document.getElementById('html_content_input').value = htmlModel.getValue();
-        document.getElementById('global_custom_css_input').value = cssModel.getValue();
+        document.getElementById('cover_content_input').value = coverCodeModel.getValue();
+        document.getElementById('html_content_input').value = htmlCodeModel.getValue();
+        document.getElementById('global_custom_css_input').value = cssCodeModel.getValue();
 
-        const form = document.getElementById('editorForm');
-        const formData = new FormData(form);
+        const editorFormElement = document.getElementById('editorForm');
+        const editorFormData = new FormData(editorFormElement);
 
-        const saveBtn = document.querySelector('button[form="editorForm"]');
-        const originalText = saveBtn.innerText;
-        saveBtn.innerText = 'Menyimpan...';
+        const saveButtonElement = document.querySelector('button[form="editorForm"]');
+        const originalButtonText = saveButtonElement.innerText;
+        saveButtonElement.innerText = 'Menyimpan...';
 
-        fetch(form.action, {
+        fetch(editorFormElement.action, {
             method: 'POST',
-            body: formData,
+            body: editorFormData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(res => res.json())
-        .then(data => {
-            saveBtn.innerText = 'Tersimpan ✓';
-            setTimeout(() => saveBtn.innerText = originalText, 2000);
+        .then(saveResponse => saveResponse.json())
+        .then(saveResponseData => {
+            saveButtonElement.innerText = 'Tersimpan ✓';
+            setTimeout(() => saveButtonElement.innerText = originalButtonText, 2000);
         })
-        .catch(err => {
-            console.error('Gagal menyimpan:', err);
-            saveBtn.innerText = 'Gagal Menyimpan!';
-            setTimeout(() => saveBtn.innerText = originalText, 2000);
+        .catch(saveError => {
+            console.error('Gagal menyimpan:', saveError);
+            saveButtonElement.innerText = 'Gagal Menyimpan!';
+            setTimeout(() => saveButtonElement.innerText = originalButtonText, 2000);
         });
     }
 
@@ -325,15 +328,15 @@ require(['vs/editor/editor.main'], function() {
     document.getElementById('editorForm').addEventListener('submit', handleSave);
 
     // Pintasan keyboard Ctrl + S atau Cmd + S di level window global untuk menyimpan
-    window.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
+    window.addEventListener('keydown', function(keydownEvent) {
+        if ((keydownEvent.ctrlKey || keydownEvent.metaKey) && keydownEvent.key === 's') {
+            keydownEvent.preventDefault();
             handleSave();
         }
     });
 
     // Pintasan keyboard Ctrl + S di lingkup editor Monaco
-    globalEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function() {
+    globalMonacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function() {
         handleSave();
     });
 });
@@ -342,99 +345,99 @@ require(['vs/editor/editor.main'], function() {
  * Berpindah Tab Model di Monaco Editor (Cover Page / Main Content / Global CSS)
  * Serta memperbarui tampilan status tab yang aktif.
  */
-window.switchTab = function(tab) {
-    window.activeTab = tab;
+window.switchTab = function(activeTabName) {
+    window.activeTab = activeTabName;
     
     // Perbarui gaya CSS tab navigasi
-    document.querySelectorAll('[id^="tab-"]').forEach(el => {
-        el.classList.remove('border-blue-500', 'text-white');
-        el.classList.add('border-transparent');
+    document.querySelectorAll('[id^="tab-"]').forEach(tabElement => {
+        tabElement.classList.remove('border-blue-500', 'text-white');
+        tabElement.classList.add('border-transparent');
     });
-    document.getElementById('tab-' + tab).classList.remove('border-transparent');
-    document.getElementById('tab-' + tab).classList.add('border-blue-500', 'text-white');
+    document.getElementById('tab-' + activeTabName).classList.remove('border-transparent');
+    document.getElementById('tab-' + activeTabName).classList.add('border-blue-500', 'text-white');
 
     // Ubah model aktif pada editor Monaco dan paksa sinkronisasi visual jika pindah ke tab HTML
-    if (tab === 'cover') {
-        globalEditor.setModel(coverModel);
-        if (typeof window.syncToCanvas === 'function') window.syncToCanvas(coverModel);
-    } else if (tab === 'html') {
-        globalEditor.setModel(htmlModel);
-        if (typeof window.syncToCanvas === 'function') window.syncToCanvas(htmlModel);
-    } else if (tab === 'css') {
-        globalEditor.setModel(cssModel);
+    if (activeTabName === 'cover') {
+        globalMonacoEditor.setModel(coverCodeModel);
+        if (typeof window.syncToCanvas === 'function') window.syncToCanvas(coverCodeModel);
+    } else if (activeTabName === 'html') {
+        globalMonacoEditor.setModel(htmlCodeModel);
+        if (typeof window.syncToCanvas === 'function') window.syncToCanvas(htmlCodeModel);
+    } else if (activeTabName === 'css') {
+        globalMonacoEditor.setModel(cssCodeModel);
     }
     
     // Pancarkan event tab-changed ke global untuk didengar oleh state Alpine jika diperlukan
-    window.dispatchEvent(new CustomEvent('tab-changed', { detail: tab }));
+    window.dispatchEvent(new CustomEvent('tab-changed', { detail: activeTabName }));
 };
 
 /**
  * Membuka Modal Media Library (Manajer Aset)
- * @param {string} target - Tujuan penyisipan: 'editor', 'visual', atau 'audio'
+ * @param {string} libraryTargetType - Tujuan penyisipan: 'editor', 'visual', atau 'audio'
  */
-window.openMediaLibrary = function(target = 'editor') {
-    mediaTarget = target;
-    const modal = document.getElementById('mediaModal');
-    const iframe = document.getElementById('mediaIframe');
+window.openMediaLibrary = function(libraryTargetType = 'editor') {
+    mediaInsertionTarget = libraryTargetType;
+    const mediaModalElement = document.getElementById('mediaModal');
+    const mediaIframeElement = document.getElementById('mediaIframe');
 
     // Muat halaman manajemen aset Laravel pada iframe jika belum pernah dimuat
-    if (!iframe.getAttribute('src')) {
-        const assetsRoute = (window.EditorConfig && window.EditorConfig.assetsRoute) 
+    if (!mediaIframeElement.getAttribute('src')) {
+        const resolvedAssetsRoute = (window.EditorConfig && window.EditorConfig.assetsRoute) 
             ? window.EditorConfig.assetsRoute 
             : '/admin/assets?modal=1';
-        iframe.setAttribute('src', assetsRoute);
+        mediaIframeElement.setAttribute('src', resolvedAssetsRoute);
     }
 
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    mediaModalElement.classList.remove('hidden');
+    mediaModalElement.classList.add('flex');
 };
 
 /**
  * Menutup Modal Media Library
  */
 window.closeMediaLibrary = function() {
-    const modal = document.getElementById('mediaModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
+    const mediaModalElement = document.getElementById('mediaModal');
+    mediaModalElement.classList.add('hidden');
+    mediaModalElement.classList.remove('flex');
 };
 
 /**
  * Memasukkan aset media (URL gambar/audio) dari Media Library iframe ke target yang sesuai.
- * @param {string} url - URL dari file media yang dipilih
+ * @param {string} mediaAssetUrl - URL dari file media yang dipilih
  */
-window.insertMedia = function(url) {
-    if (mediaTarget === 'visual' && window.currentMediaTarget) {
+window.insertMedia = function(mediaAssetUrl) {
+    if (mediaInsertionTarget === 'visual' && window.currentMediaTarget) {
         // Jika target adalah elemen visual di kanvas (double click img/bg)
-        const el = window.currentMediaTarget;
-        if (el.tagName === 'IMG') {
-            el.src = url;
+        const targetedVisualElement = window.currentMediaTarget;
+        if (targetedVisualElement.tagName === 'IMG') {
+            targetedVisualElement.src = mediaAssetUrl;
         } else {
-            el.style.backgroundImage = `url('${url}')`;
+            targetedVisualElement.style.backgroundImage = `url('${mediaAssetUrl}')`;
         }
-        el.removeAttribute('title');
+        targetedVisualElement.removeAttribute('title');
 
         // Sinkronisasikan perubahan dari kanvas ke Monaco Editor
         window.syncToMonaco();
         window.currentMediaTarget = null;
-    } else if (mediaTarget === 'editor') {
+    } else if (mediaInsertionTarget === 'editor') {
         // Jika target adalah posisi kursor di Monaco Editor, sisipkan tag <img>
-        if (!globalEditor) return;
-        const imgTag = `<img src="${url}" alt="image" class="w-full h-auto">`;
+        if (!globalMonacoEditor) return;
+        const imgHtmlTag = `<img src="${mediaAssetUrl}" alt="image" class="w-full h-auto">`;
 
-        const position = globalEditor.getPosition();
-        globalEditor.executeEdits("media-insert", [{
-            range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
-            text: imgTag,
+        const editorCursorPosition = globalMonacoEditor.getPosition();
+        globalMonacoEditor.executeEdits("media-insert", [{
+            range: new monaco.Range(editorCursorPosition.lineNumber, editorCursorPosition.column, editorCursorPosition.lineNumber, editorCursorPosition.column),
+            text: imgHtmlTag,
             forceMoveMarkers: true
         }]);
-        globalEditor.focus();
-    } else if (mediaTarget === 'audio') {
+        globalMonacoEditor.focus();
+    } else if (mediaInsertionTarget === 'audio') {
         // Jika target adalah isian input musik latar (bg music)
-        const audioField = document.getElementById('bg_music_input_field');
-        if (audioField) {
-            audioField.value = url;
+        const audioInputElement = document.getElementById('bg_music_input_field');
+        if (audioInputElement) {
+            audioInputElement.value = mediaAssetUrl;
             // Trigger event input secara manual agar dideteksi oleh AlpineJS
-            audioField.dispatchEvent(new Event('input', {
+            audioInputElement.dispatchEvent(new Event('input', {
                 bubbles: true
             }));
         }

@@ -25,10 +25,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
-            <input type="text" x-model="search" placeholder="Cari komponen..."
+            <input type="text" x-model="searchQuery" placeholder="Cari komponen..."
                 class="w-full rounded border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-1 focus:ring-blue-500">
         </div>
-        <select x-model="selectedCategory"
+        <select x-model="selectedFilterCategory"
             class="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-1 focus:ring-blue-500">
             <option value="">Semua Kategori</option>
             <option value="cover">Cover</option>
@@ -44,7 +44,7 @@
 
     {{-- Component List --}}
     <div class="relative flex-1 space-y-4 overflow-y-auto bg-gray-50/50 p-4">
-        <div x-show="loading" class="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
+        <div x-show="isLibraryLoading" class="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
             <svg class="h-6 w-6 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
@@ -101,7 +101,7 @@
             </template>
         </div>
 
-        <div x-show="!loading && filteredComponents.length === 0" class="py-10 text-center text-sm text-gray-500">
+        <div x-show="!isLibraryLoading && filteredComponents.length === 0" class="py-10 text-center text-sm text-gray-500">
             Tidak ada komponen ditemukan.
         </div>
     </div>

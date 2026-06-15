@@ -30,11 +30,11 @@ export default function EditorCore() {
          * Khusus panel 'code', jika dibuka maka Monaco Editor akan diperintahkan untuk me-layout ulang
          * ukuran dimensinya agar pas dengan sisa ruang layar yang tersedia setelah transisi selesai.
          * 
-         * @param {string} panelName - Nama panel yang ingin di-toggle
+         * @param {string} panelIdentifier - Nama panel yang ingin di-toggle
          */
-        toggleView(panelName) {
-            this.panels[panelName] = !this.panels[panelName];
-            if (panelName === 'code' && this.panels.code && window.globalEditor) {
+        toggleView(panelIdentifier) {
+            this.panels[panelIdentifier] = !this.panels[panelIdentifier];
+            if (panelIdentifier === 'code' && this.panels.code && window.globalEditor) {
                 // Berikan jeda waktu 350ms agar animasi transisi layout flexbox selesai sebelum mendeteksi ukuran baru
                 setTimeout(() => window.globalEditor.layout(), 350);
             }

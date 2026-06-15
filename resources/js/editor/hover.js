@@ -31,33 +31,33 @@ export default function EditorHover() {
          * Menemukan kontainer makro terdekat (section, header, footer, dll.) dan memposisikan
          * menu hover overlay di atas koordinat elemen tersebut.
          * 
-         * @param {MouseEvent} event - Event mousemove/mouseover dari browser
+         * @param {MouseEvent} mouseEvent - Event mousemove/mouseover dari browser
          */
-        trackHover(event) {
+        trackHover(mouseEvent) {
             // Abaikan jika user sedang menekan tombol mouse (misalnya saat sedang drag-and-drop atau menyeleksi teks)
-            if (event.buttons > 0) return;
+            if (mouseEvent.buttons > 0) return;
 
-            const el = event.target;
-            if (!el || el.id === 'visual-canvas') return;
+            const hoveredTargetElement = mouseEvent.target;
+            if (!hoveredTargetElement || hoveredTargetElement.id === 'visual-canvas') return;
 
             // Cari elemen blok/makro terdekat yang memenuhi kriteria selektor struktural
-            const block = el.closest(
+            const closestMacroBlock = hoveredTargetElement.closest(
                 'section, header, footer, div.flex, div.grid, div.container, [class*="section"]'
             );
             
             // Jika tidak ada blok makro atau kursor menunjuk kanvas utama secara langsung, sembunyikan menu hover
-            if (!block || block.id === 'visual-canvas') {
+            if (!closestMacroBlock || closestMacroBlock.id === 'visual-canvas') {
                 return;
             }
 
-            this.hoveredNode = block;
+            this.hoveredNode = closestMacroBlock;
 
             // Hitung posisi koordinat relatif terhadap kontainer induk visual-canvas
             this.hoverMenuPos = {
-                top: block.offsetTop + 'px',
-                left: block.offsetLeft + 'px',
-                width: block.offsetWidth + 'px',
-                height: block.offsetHeight + 'px'
+                top: closestMacroBlock.offsetTop + 'px',
+                left: closestMacroBlock.offsetLeft + 'px',
+                width: closestMacroBlock.offsetWidth + 'px',
+                height: closestMacroBlock.offsetHeight + 'px'
             };
 
             this.hoverMenuVisible = true;
@@ -71,27 +71,27 @@ export default function EditorHover() {
         duplicateHoveredNode() {
             if (this.hoveredNode) {
                 // Lakukan deep copy pada node
-                const clone = this.hoveredNode.cloneNode(true);
+                const clonedMacroBlock = this.hoveredNode.cloneNode(true);
 
                 // Bersihkan penanda ring seleksi biru pada anak elemen di dalam clone
-                const highlighted = clone.querySelector('.ring-blue-500');
-                if (highlighted) {
-                    highlighted.classList.remove('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
-                    let cls = highlighted.getAttribute('class') || '';
-                    if (cls.trim() === '') {
-                        highlighted.removeAttribute('class');
+                const highlightedChildElement = clonedMacroBlock.querySelector('.ring-blue-500');
+                if (highlightedChildElement) {
+                    highlightedChildElement.classList.remove('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
+                    let classString = highlightedChildElement.getAttribute('class') || '';
+                    if (classString.trim() === '') {
+                        highlightedChildElement.removeAttribute('class');
                     }
                 }
                 
                 // Bersihkan penanda ring seleksi biru pada elemen terluar clone itu sendiri
-                if (clone.classList.contains('ring-blue-500')) {
-                    clone.classList.remove('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
-                    let cls = clone.getAttribute('class') || '';
-                    if (cls.trim() === '') clone.removeAttribute('class');
+                if (clonedMacroBlock.classList.contains('ring-blue-500')) {
+                    clonedMacroBlock.classList.remove('ring-2', 'ring-blue-500', 'ring-inset', 'outline-none');
+                    let classString = clonedMacroBlock.getAttribute('class') || '';
+                    if (classString.trim() === '') clonedMacroBlock.removeAttribute('class');
                 }
 
                 // Sisipkan clone sebagai string HTML agar AlpineJS dapat memproses ulang direktifnya secara bersih
-                this.hoveredNode.insertAdjacentHTML('afterend', clone.outerHTML);
+                this.hoveredNode.insertAdjacentHTML('afterend', clonedMacroBlock.outerHTML);
 
                 // Inisialisasi ulang atribut contenteditable pada elemen teks di kanvas dan sinkronkan ke Monaco Editor
                 setTimeout(() => {

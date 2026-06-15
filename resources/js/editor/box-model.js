@@ -15,115 +15,115 @@ export default function EditorBoxModel() {
          * untuk merakit kelas shorthand Tailwind yang ringkas (seperti -x, -y, atau global shorthand).
          * 
          * @param {string} type - Jenis Box Model ('p' untuk padding, 'm' untuk margin, 'border' untuk border width, 'rounded' untuk border radius)
-         * @param {Object} updates - Objek berisi pasangan kunci-nilai sisi yang diperbarui (misal {t: '4', b: '4'})
+         * @param {Object} updatedValues - Objek berisi pasangan kunci-nilai sisi yang diperbarui (misal {t: '4', b: '4'})
          */
-        updateBoxState(type, updates) {
+        updateBoxState(type, updatedValues) {
             if (!this.selectedNode) return;
 
-            let state = {};
+            let boxModelState = {};
             // Rounded corners menggunakan singkatan sudut (top-left, dsb), sedangkan yang lainnya menggunakan t, b, l, r (top, bottom, left, right)
-            const sides = (type === 'rounded') ? ['tl', 'tr', 'bl', 'br'] : ['t', 'b', 'l', 'r'];
+            const boxSides = (type === 'rounded') ? ['tl', 'tr', 'bl', 'br'] : ['t', 'b', 'l', 'r'];
             
             // Baca nilai yang ada saat ini dari elemen DOM
-            sides.forEach(s => { 
-                const val = this.getBoxValue(type, s);
-                if (val && val !== '') state[s] = val;
+            boxSides.forEach(sideKey => { 
+                const sideValue = this.getBoxValue(type, sideKey);
+                if (sideValue && sideValue !== '') boxModelState[sideKey] = sideValue;
             });
 
-            // Timpa state lama dengan perubahan (updates) yang dikirim
-            Object.keys(updates).forEach(k => {
-                if (updates[k] === null || updates[k] === '') delete state[k];
-                else state[k] = updates[k];
+            // Timpa state lama dengan perubahan (updatedValues) yang dikirim
+            Object.keys(updatedValues).forEach(updatedSideKey => {
+                if (updatedValues[updatedSideKey] === null || updatedValues[updatedSideKey] === '') delete boxModelState[updatedSideKey];
+                else boxModelState[updatedSideKey] = updatedValues[updatedSideKey];
             });
 
             let newClasses = [];
 
             // Helper untuk merakit kelas Tailwind. Menangani penempatan awalan tanda minus untuk nilai negatif (misal -mt-4 atau -mt-[15px])
-            const buildClass = (prefix, val) => {
-                if (val === 'default') return prefix;
-                const strVal = String(val);
-                const isNeg = strVal.startsWith('-');
-                const absVal = isNeg ? strVal.substring(1) : strVal;
-                return (isNeg ? '-' : '') + prefix + '-' + absVal;
+            const buildTailwindClass = (tailwindClassPrefix, targetValue) => {
+                if (targetValue === 'default') return tailwindClassPrefix;
+                const strVal = String(targetValue);
+                const isNegativeValue = strVal.startsWith('-');
+                const absoluteValue = isNegativeValue ? strVal.substring(1) : strVal;
+                return (isNegativeValue ? '-' : '') + tailwindClassPrefix + '-' + absoluteValue;
             };
 
             // PROSES SHORTHAND SINKRONISASI UNTUK PADDING (p), MARGIN (m), DAN BORDER WIDTH (border)
             if (type === 'p' || type === 'm' || type === 'border') {
-                const prefix = (type === 'border') ? 'border' : type;
-                const sep = (type === 'border') ? '-' : '';
+                const tailwindClassPrefix = (type === 'border') ? 'border' : type;
+                const prefixSeparator = (type === 'border') ? '-' : '';
                 
                 // Aturan 1: Jika keempat sisi bernilai sama -> dirakit menjadi kelas global (misal: p-4)
-                if (state.t && state.t === state.b && state.t === state.l && state.t === state.r) {
-                    newClasses.push(buildClass(prefix, state.t));
+                if (boxModelState.t && boxModelState.t === boxModelState.b && boxModelState.t === boxModelState.l && boxModelState.t === boxModelState.r) {
+                    newClasses.push(buildTailwindClass(tailwindClassPrefix, boxModelState.t));
                 } else {
                     // Aturan 2: Jika atas dan bawah sama -> gunakan shorthand sumbu Y (misal: py-2)
-                    if (state.t && state.t === state.b) {
-                        newClasses.push(buildClass(prefix + sep + 'y', state.t));
-                        delete state.t; delete state.b;
+                    if (boxModelState.t && boxModelState.t === boxModelState.b) {
+                        newClasses.push(buildTailwindClass(tailwindClassPrefix + prefixSeparator + 'y', boxModelState.t));
+                        delete boxModelState.t; delete boxModelState.b;
                     }
                     // Aturan 3: Jika kiri dan kanan sama -> gunakan shorthand sumbu X (misal: px-4)
-                    if (state.l && state.l === state.r) {
-                        newClasses.push(buildClass(prefix + sep + 'x', state.l));
-                        delete state.l; delete state.r;
+                    if (boxModelState.l && boxModelState.l === boxModelState.r) {
+                        newClasses.push(buildTailwindClass(tailwindClassPrefix + prefixSeparator + 'x', boxModelState.l));
+                        delete boxModelState.l; delete boxModelState.r;
                     }
                     // Aturan 4: Sisi yang tersisa ditulis secara individual (misal: pt-1, pb-3)
-                    if (state.t) newClasses.push(buildClass(prefix + sep + 't', state.t));
-                    if (state.b) newClasses.push(buildClass(prefix + sep + 'b', state.b));
-                    if (state.l) newClasses.push(buildClass(prefix + sep + 'l', state.l));
-                    if (state.r) newClasses.push(buildClass(prefix + sep + 'r', state.r));
+                    if (boxModelState.t) newClasses.push(buildTailwindClass(tailwindClassPrefix + prefixSeparator + 't', boxModelState.t));
+                    if (boxModelState.b) newClasses.push(buildTailwindClass(tailwindClassPrefix + prefixSeparator + 'b', boxModelState.b));
+                    if (boxModelState.l) newClasses.push(buildTailwindClass(tailwindClassPrefix + prefixSeparator + 'l', boxModelState.l));
+                    if (boxModelState.r) newClasses.push(buildTailwindClass(tailwindClassPrefix + prefixSeparator + 'r', boxModelState.r));
                 }
             } 
             // PROSES SHORTHAND SINKRONISASI UNTUK CORNERS / BORDER RADIUS (rounded)
             else if (type === 'rounded') {
                 // Aturan 1: Jika keempat sudut sama -> gunakan rounded global (misal: rounded-lg)
-                if (state.tl && state.tl === state.tr && state.tl === state.bl && state.tl === state.br) {
-                    newClasses.push(buildClass('rounded', state.tl));
+                if (boxModelState.tl && boxModelState.tl === boxModelState.tr && boxModelState.tl === boxModelState.bl && boxModelState.tl === boxModelState.br) {
+                    newClasses.push(buildTailwindClass('rounded', boxModelState.tl));
                 } else {
                     // Aturan 2: Jika sudut-sudut atas sama -> gunakan rounded-t (misal: rounded-t-xl)
-                    if (state.tl && state.tl === state.tr) {
-                        newClasses.push(buildClass('rounded-t', state.tl));
-                        delete state.tl; delete state.tr;
+                    if (boxModelState.tl && boxModelState.tl === boxModelState.tr) {
+                        newClasses.push(buildTailwindClass('rounded-t', boxModelState.tl));
+                        delete boxModelState.tl; delete boxModelState.tr;
                     } 
                     // Aturan 3: Jika sudut-sudut bawah sama -> gunakan rounded-b (misal: rounded-b-md)
-                    else if (state.bl && state.bl === state.br) {
-                        newClasses.push(buildClass('rounded-b', state.bl));
-                        delete state.bl; delete state.br;
+                    else if (boxModelState.bl && boxModelState.bl === boxModelState.br) {
+                        newClasses.push(buildTailwindClass('rounded-b', boxModelState.bl));
+                        delete boxModelState.bl; delete boxModelState.br;
                     }
                     // Aturan 4: Jika sudut-sudut kiri sama -> gunakan rounded-l
-                    if (state.tl && state.tl === state.bl) {
-                        newClasses.push(buildClass('rounded-l', state.tl));
-                        delete state.tl; delete state.bl;
+                    if (boxModelState.tl && boxModelState.tl === boxModelState.bl) {
+                        newClasses.push(buildTailwindClass('rounded-l', boxModelState.tl));
+                        delete boxModelState.tl; delete boxModelState.bl;
                     } 
                     // Aturan 5: Jika sudut-sudut kanan sama -> gunakan rounded-r
-                    else if (state.tr && state.tr === state.br) {
-                        newClasses.push(buildClass('rounded-r', state.tr));
-                        delete state.tr; delete state.br;
+                    else if (boxModelState.tr && boxModelState.tr === boxModelState.br) {
+                        newClasses.push(buildTailwindClass('rounded-r', boxModelState.tr));
+                        delete boxModelState.tr; delete boxModelState.br;
                     }
                     // Aturan 6: Sudut tersisa ditulis secara individual (misal: rounded-tl-sm)
-                    if (state.tl) newClasses.push(buildClass('rounded-tl', state.tl));
-                    if (state.tr) newClasses.push(buildClass('rounded-tr', state.tr));
-                    if (state.bl) newClasses.push(buildClass('rounded-bl', state.bl));
-                    if (state.br) newClasses.push(buildClass('rounded-br', state.br));
+                    if (boxModelState.tl) newClasses.push(buildTailwindClass('rounded-tl', boxModelState.tl));
+                    if (boxModelState.tr) newClasses.push(buildTailwindClass('rounded-tr', boxModelState.tr));
+                    if (boxModelState.bl) newClasses.push(buildTailwindClass('rounded-bl', boxModelState.bl));
+                    if (boxModelState.br) newClasses.push(buildTailwindClass('rounded-br', boxModelState.br));
                 }
             }
 
             // Dapatkan daftar seluruh kelas elemen saat ini, lalu saring (buang) semua kelas Box Model sejenis yang lama
-            let classes = (this.nodeData.classes || '').split(' ').filter(c => c.trim() !== '');
-            classes = classes.filter(c => {
-                const cleanC = c.startsWith('-') ? c.substring(1) : c;
-                const cleanBase = cleanC.split('-')[0];
+            let tailwindClassesList = (this.nodeData.classes || '').split(' ').filter(tailwindClass => tailwindClass.trim() !== '');
+            tailwindClassesList = tailwindClassesList.filter(tailwindClass => {
+                const normalizedClass = tailwindClass.startsWith('-') ? tailwindClass.substring(1) : tailwindClass;
+                const classPrefixBase = normalizedClass.split('-')[0];
                 
                 if (type === 'rounded') {
-                    return !cleanC.startsWith('rounded');
+                    return !normalizedClass.startsWith('rounded');
                 } else if (type === 'p' || type === 'm' || type === 'border') {
-                    return cleanBase !== type && !cleanC.startsWith(type + '-');
+                    return classPrefixBase !== type && !normalizedClass.startsWith(type + '-');
                 }
                 return true;
             });
 
             // Masukkan gabungan kelas shorthand/individual baru ke dalam elemen
-            classes.push(...newClasses);
-            this.nodeData.classes = classes.join(' ');
+            tailwindClassesList.push(...newClasses);
+            this.nodeData.classes = tailwindClassesList.join(' ');
             
             // Perbarui visual kanvas & sinkronkan ke Monaco Editor
             this.updateNodeProperty('classes', this.nodeData.classes);
@@ -138,60 +138,60 @@ export default function EditorBoxModel() {
          * 
          * @param {string} type - Jenis Box Model ('p', 'm', 'border', 'rounded')
          * @param {string} side - Nama sisi yang diubah (misal 't', 'b', 'tl', dsb)
-         * @param {string|null} val - Nilai input baru yang dimasukkan pengguna
+         * @param {string|null} inputValue - Nilai input baru yang dimasukkan pengguna
          * @param {Event|null} event - Event dari input element (untuk mendeteksi penekanan tombol Alt)
          */
-        setBoxValue(type, side, val, event = null) {
-            if (!val || val.trim() === '') {
-                val = null;
+        setBoxValue(type, side, inputValue, event = null) {
+            if (!inputValue || inputValue.trim() === '') {
+                inputValue = null;
             } else {
-                val = val.trim();
-                let isNegative = false;
+                inputValue = inputValue.trim();
+                let isNegativeValue = false;
 
                 // Tangani input bernilai negatif (biasanya pada margin)
-                if (val.startsWith('-')) {
-                    isNegative = true;
-                    val = val.substring(1);
+                if (inputValue.startsWith('-')) {
+                    isNegativeValue = true;
+                    inputValue = inputValue.substring(1);
                 }
 
                 // Cek format input. Jika input berisi angka mentah yang bukan utility bawaan Tailwind,
                 // bungkus dalam tanda kurung siku arbitrer (contoh: 15px -> [15px], 3rem -> [3rem])
-                if (!val.includes('[')) {
-                    if (/^\d+(\.\d+)?$/.test(val) || ['auto', 'none', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', 'full'].includes(val)) {
+                if (!inputValue.includes('[')) {
+                    if (/^\d+(\.\d+)?$/.test(inputValue) || ['auto', 'none', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', 'full'].includes(inputValue)) {
                         // Biarkan nilai angka mentah (seperti 4, 1.5) atau utility bawaan Tailwind tetap bersih
-                    } else if (val !== 'default') {
-                        val = '[' + val + ']';
+                    } else if (inputValue !== 'default') {
+                        inputValue = '[' + inputValue + ']';
                     }
                 }
                 
                 // Kembalikan awalan tanda minus jika nilai awal adalah negatif
-                if (isNegative && val !== 'default') {
-                    val = '-' + val;
+                if (isNegativeValue && inputValue !== 'default') {
+                    inputValue = '-' + inputValue;
                 }
             }
 
             let updates = {};
             // Periksa apakah Global Lock untuk jenis Box Model ini sedang aktif
-            let isGlobal = this.constraints[type + 'Global'];
+            let isGlobalLockActive = this.constraints[type + 'Global'];
             // Periksa penekanan tombol Alt pada keyboard untuk penguncian simetris (Y/X lock)
-            let isAlt = event && event.altKey;
+            let isAltKeyPressed = event && event.altKey;
             const sides = (type === 'rounded') ? ['tl', 'tr', 'bl', 'br'] : ['t', 'b', 'l', 'r'];
 
-            if (isGlobal) {
+            if (isGlobalLockActive) {
                 // Aturan 1: Global Lock aktif -> Terapkan nilai yang sama ke seluruh 4 sisi
-                sides.forEach(s => updates[s] = val);
-            } else if (isAlt) {
+                sides.forEach(s => updates[s] = inputValue);
+            } else if (isAltKeyPressed) {
                 // Aturan 2: Alt Key ditekan -> Penguncian Simetris aktif (Y/X lock)
                 if (type === 'rounded') {
-                    if (side === 'tl' || side === 'tr') { updates.tl = val; updates.tr = val; }
-                    else if (side === 'bl' || side === 'br') { updates.bl = val; updates.br = val; }
+                    if (side === 'tl' || side === 'tr') { updates.tl = inputValue; updates.tr = inputValue; }
+                    else if (side === 'bl' || side === 'br') { updates.bl = inputValue; updates.br = inputValue; }
                 } else {
-                    if (side === 't' || side === 'b') { updates.t = val; updates.b = val; }
-                    else if (side === 'l' || side === 'r') { updates.l = val; updates.r = val; }
+                    if (side === 't' || side === 'b') { updates.t = inputValue; updates.b = inputValue; }
+                    else if (side === 'l' || side === 'r') { updates.l = inputValue; updates.r = inputValue; }
                 }
             } else {
                 // Aturan 3: Normal -> Hanya perbarui sisi yang diklik/diubah saja
-                updates[side] = val;
+                updates[side] = inputValue;
             }
 
             this.updateBoxState(type, updates);
@@ -207,82 +207,82 @@ export default function EditorBoxModel() {
          * @returns {string} Nilai sisi yang berhasil di-parse (atau string kosong jika tidak ditemukan)
          */
         getBoxValue(type, side) {
-            const classes = (this.nodeData.classes || '').split(' ');
+            const tailwindClassesList = (this.nodeData.classes || '').split(' ');
 
             // Helper internal untuk mencocokkan regex dan mengekstrak nilai di belakang nama kelas
-            const extractValue = (prefix) => {
+            const extractValueFromClasses = (tailwindClassPrefix) => {
                 // Regex mencocokkan awalan kelas (bisa negatif) diikuti nama prefix
-                const regex = new RegExp('^-?' + prefix + '(?:-|$)');
-                const match = classes.find(c => regex.test(c));
-                if (!match) return null;
+                const regex = new RegExp('^-?' + tailwindClassPrefix + '(?:-|$)');
+                const matchingClass = tailwindClassesList.find(classString => regex.test(classString));
+                if (!matchingClass) return null;
                 
-                const isNegative = match.startsWith('-');
-                const replaceRegex = new RegExp('^-?' + prefix + '-?');
-                let val = match.replace(replaceRegex, '');
+                const isNegativeClass = matchingClass.startsWith('-');
+                const stripPrefixRegex = new RegExp('^-?' + tailwindClassPrefix + '-?');
+                let tailwindClassValue = matchingClass.replace(stripPrefixRegex, '');
                 
-                if (val === '') val = 'default';
-                return (isNegative ? '-' : '') + val;
+                if (tailwindClassValue === '') tailwindClassValue = 'default';
+                return (isNegativeClass ? '-' : '') + tailwindClassValue;
             };
 
             // PARSING UNTUK PADDING (p) DAN MARGIN (m)
             if (type === 'p' || type === 'm') {
-                const axis = (side === 't' || side === 'b') ? 'y' : 'x';
+                const shorthandAxis = (side === 't' || side === 'b') ? 'y' : 'x';
                 
                 // 1. Cek kelas spesifik sisi (misal: pt-4 atau -mr-2)
-                let val = extractValue(type + side);
-                if (val !== null) return val;
+                let inputValue = extractValueFromClasses(type + side);
+                if (inputValue !== null) return inputValue;
                 
                 // 2. Cek kelas shorthand sumbu (misal: py-4 atau mx-2)
-                val = extractValue(type + axis);
-                if (val !== null) return val;
+                inputValue = extractValueFromClasses(type + shorthandAxis);
+                if (inputValue !== null) return inputValue;
                 
                 // 3. Cek kelas global (misal: p-4 atau m-auto)
-                val = extractValue(type);
-                return val !== null ? val : '';
+                inputValue = extractValueFromClasses(type);
+                return inputValue !== null ? inputValue : '';
             }
 
             // PARSING UNTUK BORDER WIDTH (border)
             if (type === 'border') {
-                const axis = (side === 't' || side === 'b') ? 'y' : 'x';
+                const shorthandAxis = (side === 't' || side === 'b') ? 'y' : 'x';
                 
                 // 1. Cek kelas spesifik sisi (misal: border-t-2)
-                let val = extractValue('border-' + side);
-                if (val !== null) return val;
+                let inputValue = extractValueFromClasses('border-' + side);
+                if (inputValue !== null) return inputValue;
                 
                 // 2. Cek kelas shorthand sumbu (misal: border-y-2)
-                val = extractValue('border-' + axis);
-                if (val !== null) return val;
+                inputValue = extractValueFromClasses('border-' + shorthandAxis);
+                if (inputValue !== null) return inputValue;
                 
                 // 3. Cek kelas global (misal: border-4 atau border)
-                val = extractValue('border');
-                return val !== null ? val : '';
+                inputValue = extractValueFromClasses('border');
+                return inputValue !== null ? inputValue : '';
             }
 
             // PARSING UNTUK BORDER RADIUS CORNERS (rounded)
             if (type === 'rounded') {
                 // 1. Cek kelas sudut individual (misal: rounded-tl-lg)
-                let val = extractValue('rounded-' + side);
-                if (val !== null) return val;
+                let inputValue = extractValueFromClasses('rounded-' + side);
+                if (inputValue !== null) return inputValue;
                 
                 // 2. Cek kelas tepi horizontal/vertikal (misal: jika mencari 'tl', cek rounded-t dan rounded-l)
-                let edge1 = null, edge2 = null;
-                if (side === 'tl') { edge1 = 't'; edge2 = 'l'; }
-                else if (side === 'tr') { edge1 = 't'; edge2 = 'r'; }
-                else if (side === 'bl') { edge1 = 'b'; edge2 = 'l'; }
-                else if (side === 'br') { edge1 = 'b'; edge2 = 'r'; }
+                let adjacentEdge1 = null, adjacentEdge2 = null;
+                if (side === 'tl') { adjacentEdge1 = 't'; adjacentEdge2 = 'l'; }
+                else if (side === 'tr') { adjacentEdge1 = 't'; adjacentEdge2 = 'r'; }
+                else if (side === 'bl') { adjacentEdge1 = 'b'; adjacentEdge2 = 'l'; }
+                else if (side === 'br') { adjacentEdge1 = 'b'; adjacentEdge2 = 'r'; }
 
-                if (edge1 !== null) {
-                    val = extractValue('rounded-' + edge1);
-                    if (val !== null) return val;
+                if (adjacentEdge1 !== null) {
+                    inputValue = extractValueFromClasses('rounded-' + adjacentEdge1);
+                    if (inputValue !== null) return inputValue;
                 }
-                if (edge2 !== null) {
-                    val = extractValue('rounded-' + edge2);
-                    if (val !== null) return val;
+                if (adjacentEdge2 !== null) {
+                    inputValue = extractValueFromClasses('rounded-' + adjacentEdge2);
+                    if (inputValue !== null) return inputValue;
                 }
                 
                 // 3. Cek kelas global (misal: rounded-3xl atau rounded)
-                val = extractValue('rounded');
-                return val !== null ? val : '';
+                inputValue = extractValueFromClasses('rounded');
+                return inputValue !== null ? inputValue : '';
             }
 
             return '';
