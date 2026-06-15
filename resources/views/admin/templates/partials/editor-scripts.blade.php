@@ -474,6 +474,22 @@
                 this.updateNodeProperty('classes', this.nodeData.classes);
             },
 
+            updateDirectionalClass(prefix, newValue) {
+                if (!this.selectedNode) return;
+                let classes = (this.nodeData.classes || '').split(' ').filter(c => c.trim() !== '');
+
+                const regex = new RegExp('^-?' + prefix + '(?:-|$)');
+
+                classes = classes.filter(c => !regex.test(c));
+
+                if (newValue && newValue.trim() !== '') {
+                    classes.push(newValue);
+                }
+
+                this.nodeData.classes = classes.join(' ');
+                this.updateNodeProperty('classes', this.nodeData.classes);
+            },
+
             init() {
                 const canvas = document.getElementById('visual-canvas');
                 if (canvas) {
