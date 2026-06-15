@@ -17,7 +17,7 @@
             :style="`top: ${hoverMenuPos.top}; left: ${hoverMenuPos.left}; width: ${hoverMenuPos.width}; height: ${hoverMenuPos.height};`"
             style="display: none;">
             <div
-                class="pointer-events-auto absolute -left-3 -top-4 z-50 flex gap-1 overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
+                class="pointer-events-auto absolute left-1.5 top-1.5 z-50 flex gap-1 overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
                 <button @click.stop="moveNodeUp()" class="p-1.5 text-gray-600 transition hover:bg-gray-100"
                     title="Move Up">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +33,7 @@
                 </button>
             </div>
 
-            <div class="pointer-events-auto absolute -right-3 -top-3 z-50 flex gap-1">
+            <div class="pointer-events-auto absolute right-1.5 top-1.5 z-50 flex gap-1">
                 <button @click.stop="duplicateHoveredNode()"
                     class="rounded-full bg-blue-500 p-1.5 text-white shadow-md transition hover:scale-110 hover:bg-blue-600"
                     title="Duplicate Block">
@@ -54,7 +54,7 @@
                 </button>
             </div>
 
-            <div class="pointer-events-auto absolute -bottom-3 left-1/2 z-50 -translate-x-1/2 transform">
+            <div class="pointer-events-auto absolute bottom-1.5 left-1/2 z-50 -translate-x-1/2 transform">
                 <button @click.stop="prepareInsertBelow()"
                     class="rounded-full bg-blue-600 p-1.5 text-white shadow-md transition hover:scale-110 hover:bg-blue-700"
                     title="Add Section Below">
