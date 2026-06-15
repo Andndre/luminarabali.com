@@ -171,18 +171,18 @@
             <div class="space-y-4">
                 {{-- Padding Grid --}}
                 <div>
-                    <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-400">Padding</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach(['pt' => 'T', 'pb' => 'B', 'pl' => 'L', 'pr' => 'R'] as $prefix => $label)
-                        <div class="flex items-center gap-1">
-                            <span class="w-4 text-[10px] font-bold text-gray-400">{{ $label }}</span>
-                            <select @change="updateDirectionalClass('{{ $prefix }}', $event.target.value)" class="w-full rounded border border-gray-300 bg-white p-1 text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    <label class="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-400">Padding</label>
+                    <div class="grid grid-cols-2 gap-1">
+                        @foreach(['t' => 'pt', 'b' => 'pb', 'l' => 'pl', 'r' => 'pr'] as $side => $prefix)
+                        <div class="flex items-center gap-1 rounded bg-gray-50 px-2 transition hover:bg-gray-100">
+                            <span class="w-3 text-[10px] font-bold text-gray-400">{{ strtoupper($side) }}</span>
+                            <select @change="updateDirectionalClass('{{ $prefix }}', $event.target.value)" class="w-full cursor-pointer appearance-none border-none bg-transparent p-1 text-[11px] text-gray-700 outline-none focus:ring-0">
                                 <option value="">-</option>
-                                <option value="{{ $prefix }}-0" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-0')">0</option>
-                                <option value="{{ $prefix }}-2" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-2')">2</option>
-                                <option value="{{ $prefix }}-4" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-4')">4</option>
-                                <option value="{{ $prefix }}-8" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-8')">8</option>
-                                <option value="{{ $prefix }}-12" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-12')">12</option>
+                                <option value="{{ $prefix }}-0" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-0'">0</option>
+                                <option value="{{ $prefix }}-2" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-2'">2</option>
+                                <option value="{{ $prefix }}-4" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-4'">4</option>
+                                <option value="{{ $prefix }}-8" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-8'">8</option>
+                                <option value="{{ $prefix }}-12" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-12'">12</option>
                             </select>
                         </div>
                         @endforeach
@@ -191,19 +191,19 @@
 
                 {{-- Margin Grid --}}
                 <div>
-                    <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-400">Margin</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach(['mt' => 'T', 'mb' => 'B', 'ml' => 'L', 'mr' => 'R'] as $prefix => $label)
-                        <div class="flex items-center gap-1">
-                            <span class="w-4 text-[10px] font-bold text-gray-400">{{ $label }}</span>
-                            <select @change="updateDirectionalClass('{{ $prefix }}', $event.target.value)" class="w-full rounded border border-gray-300 bg-white p-1 text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    <label class="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-400">Margin</label>
+                    <div class="grid grid-cols-2 gap-1">
+                        @foreach(['t' => 'mt', 'b' => 'mb', 'l' => 'ml', 'r' => 'mr'] as $side => $prefix)
+                        <div class="flex items-center gap-1 rounded bg-gray-50 px-2 transition hover:bg-gray-100">
+                            <span class="w-3 text-[10px] font-bold text-gray-400">{{ strtoupper($side) }}</span>
+                            <select @change="updateDirectionalClass('{{ $prefix }}', $event.target.value)" class="w-full cursor-pointer appearance-none border-none bg-transparent p-1 text-[11px] text-gray-700 outline-none focus:ring-0">
                                 <option value="">-</option>
-                                <option value="{{ $prefix }}-0" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-0')">0</option>
-                                <option value="{{ $prefix }}-2" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-2')">2</option>
-                                <option value="{{ $prefix }}-4" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-4')">4</option>
-                                <option value="{{ $prefix }}-8" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-8')">8</option>
-                                <option value="-{{ $prefix }}-4" :selected="(nodeData.classes || '').split(' ').includes('-{{ $prefix }}-4')">-4</option>
-                                <option value="{{ $prefix }}-auto" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-auto')">Auto</option>
+                                <option value="{{ $prefix }}-0" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-0'">0</option>
+                                <option value="{{ $prefix }}-2" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-2'">2</option>
+                                <option value="{{ $prefix }}-4" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-4'">4</option>
+                                <option value="{{ $prefix }}-8" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-8'">8</option>
+                                <option value="-{{ $prefix }}-4" :selected="getActiveBoxClass('m', '{{ $side }}') === '-{{ $prefix }}-4'">-4</option>
+                                <option value="{{ $prefix }}-auto" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-auto'">Auto</option>
                             </select>
                         </div>
                         @endforeach
@@ -212,17 +212,17 @@
 
                 {{-- Border Radius Grid --}}
                 <div>
-                    <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-400">Border Radius</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach(['rounded-tl' => 'TL', 'rounded-tr' => 'TR', 'rounded-bl' => 'BL', 'rounded-br' => 'BR'] as $prefix => $label)
-                        <div class="flex items-center gap-1">
-                            <span class="w-4 text-[10px] font-bold text-gray-400">{{ $label }}</span>
-                            <select @change="updateDirectionalClass('{{ $prefix }}', $event.target.value)" class="w-full rounded border border-gray-300 bg-white p-1 text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    <label class="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-400">Radius</label>
+                    <div class="grid grid-cols-2 gap-1">
+                        @foreach(['tl' => 'rounded-tl', 'tr' => 'rounded-tr', 'bl' => 'rounded-bl', 'br' => 'rounded-br'] as $side => $prefix)
+                        <div class="flex items-center gap-1 rounded bg-gray-50 px-2 transition hover:bg-gray-100">
+                            <span class="w-3 text-[10px] font-bold text-gray-400">{{ strtoupper($side) }}</span>
+                            <select @change="updateDirectionalClass('{{ $prefix }}', $event.target.value)" class="w-full cursor-pointer appearance-none border-none bg-transparent p-1 text-[11px] text-gray-700 outline-none focus:ring-0">
                                 <option value="">-</option>
-                                <option value="{{ $prefix }}-none" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-none')">Square</option>
-                                <option value="{{ $prefix }}-md" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-md')">Medium</option>
-                                <option value="{{ $prefix }}-lg" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-lg')">Large</option>
-                                <option value="{{ $prefix }}-full" :selected="(nodeData.classes || '').split(' ').includes('{{ $prefix }}-full')">Pill</option>
+                                <option value="{{ $prefix }}-none" :selected="getActiveBoxClass('rounded', '{{ $side }}') === 'rounded-{{ $side }}-none'">Sq</option>
+                                <option value="{{ $prefix }}-md" :selected="getActiveBoxClass('rounded', '{{ $side }}') === 'rounded-{{ $side }}-md'">Md</option>
+                                <option value="{{ $prefix }}-lg" :selected="getActiveBoxClass('rounded', '{{ $side }}') === 'rounded-{{ $side }}-lg'">Lg</option>
+                                <option value="{{ $prefix }}-full" :selected="getActiveBoxClass('rounded', '{{ $side }}') === 'rounded-{{ $side }}-full'">Pill</option>
                             </select>
                         </div>
                         @endforeach

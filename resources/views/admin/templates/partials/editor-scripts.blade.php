@@ -490,6 +490,39 @@
                 this.updateNodeProperty('classes', this.nodeData.classes);
             },
 
+            getActiveBoxClass(type, side) {
+                const classes = (this.nodeData.classes || '').split(' ');
+                
+                const findValue = (prefix) => {
+                    const match = classes.find(c => new RegExp('^-?' + prefix + '(?:-|$)').test(c));
+                    if (!match) return null;
+                    const replaceRegex = new RegExp('^-?' + prefix + '-?');
+                    return match.replace(replaceRegex, '');
+                };
+
+                if (type === 'p' || type === 'm') {
+                    const axis = (side === 't' || side === 'b') ? 'y' : 'x';
+                    const specific = findValue(type + side);
+                    if (specific !== null) return type + side + '-' + specific;
+                    
+                    const axisVal = findValue(type + axis);
+                    if (axisVal !== null) return type + side + '-' + axisVal;
+                    
+                    const globalVal = findValue(type);
+                    if (globalVal !== null) return type + side + '-' + globalVal;
+                }
+                
+                if (type === 'rounded') {
+                    const specific = findValue('rounded-' + side);
+                    if (specific !== null) return 'rounded-' + side + (specific ? '-' + specific : '');
+                    
+                    const globalVal = findValue('rounded');
+                    if (globalVal !== null) return 'rounded-' + side + (globalVal ? '-' + globalVal : '');
+                }
+
+                return '';
+            },
+
             init() {
                 const canvas = document.getElementById('visual-canvas');
                 if (canvas) {
