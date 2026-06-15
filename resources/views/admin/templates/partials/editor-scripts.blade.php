@@ -113,7 +113,9 @@
                 classes: '',
                 href: '',
                 src: '',
-                isDynamic: false
+                isDynamic: false,
+                textColor: '#000000',
+                bgColor: '#ffffff'
             },
 
             // Hover Block Control State
@@ -302,6 +304,14 @@
                 this.nodeData.href = this.selectedNode.getAttribute('href') || '';
                 this.nodeData.src = this.selectedNode.getAttribute('src') || '';
 
+                // Extract text color
+                const textMatch = cleanClasses.match(/text-\[\s*(#[0-9a-fA-F]{3,8})\s*\]/);
+                this.nodeData.textColor = textMatch ? textMatch[1] : '#000000';
+
+                // Extract bg color
+                const bgMatch = cleanClasses.match(/bg-\[\s*(#[0-9a-fA-F]{3,8})\s*\]/);
+                this.nodeData.bgColor = bgMatch ? bgMatch[1] : '#ffffff';
+
                 this.updateBreadcrumbs();
                 this.isInspectorOpen = true; // Open the Element Inspector drawer
             },
@@ -443,6 +453,24 @@
                 }
 
                 this.nodeData.classes = newClasses.join(' ');
+                this.updateNodeProperty('classes', this.nodeData.classes);
+            },
+
+            updateArbitraryColor(prefix, hex) {
+                if (!this.selectedNode) return;
+                let classes = (this.nodeData.classes || '').split(' ').filter(c => c.trim() !== '');
+                
+                const regex = new RegExp('^' + prefix + '-\\\\[#[0-9a-fA-F]{3,8}\\\\]$');
+                const staticColors = ['white', 'black', 'transparent'];
+                
+                classes = classes.filter(c => {
+                    const base = c.replace(prefix + '-', '');
+                    return !regex.test(c) && !staticColors.includes(base);
+                });
+                
+                classes.push(prefix + '-[' + hex + ']');
+                
+                this.nodeData.classes = classes.join(' ');
                 this.updateNodeProperty('classes', this.nodeData.classes);
             },
 

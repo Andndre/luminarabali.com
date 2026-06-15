@@ -126,8 +126,47 @@
             </div>
         </div>
 
+        {{-- Font Weight Dropdown --}}
+        <div>
+            <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-500">Font Weight</label>
+            <select
+                @change="toggleTailwindClass($event.target.value, ['font-thin', 'font-light', 'font-normal', 'font-medium', 'font-semibold', 'font-bold', 'font-extrabold', 'font-black'])"
+                class="w-full rounded border border-gray-300 bg-white p-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <option value="">Default (Inherit)</option>
+                <option value="font-thin" :selected="nodeData.classes.includes('font-thin')">Thin (100)</option>
+                <option value="font-light" :selected="nodeData.classes.includes('font-light')">Light (300)</option>
+                <option value="font-normal" :selected="nodeData.classes.includes('font-normal')">Normal (400)</option>
+                <option value="font-medium" :selected="nodeData.classes.includes('font-medium')">Medium (500)</option>
+                <option value="font-semibold" :selected="nodeData.classes.includes('font-semibold')">Semi Bold (600)</option>
+                <option value="font-bold" :selected="nodeData.classes.includes('font-bold')">Bold (700)</option>
+                <option value="font-extrabold" :selected="nodeData.classes.includes('font-extrabold')">Extra Bold (800)</option>
+            </select>
+        </div>
+
+        {{-- Color Pickers --}}
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-500">Text Color</label>
+                <div class="flex items-center gap-2 rounded border border-gray-300 bg-white p-1">
+                    <input type="color" x-model="nodeData.textColor" @input="updateArbitraryColor('text', $event.target.value)"
+                        class="h-7 w-8 cursor-pointer rounded border-0 bg-transparent p-0 outline-none">
+                    <input type="text" x-model="nodeData.textColor" @change="updateArbitraryColor('text', $event.target.value)"
+                        class="w-full border-none bg-transparent p-1 text-xs uppercase outline-none focus:ring-0">
+                </div>
+            </div>
+            <div>
+                <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-500">Bg Color</label>
+                <div class="flex items-center gap-2 rounded border border-gray-300 bg-white p-1">
+                    <input type="color" x-model="nodeData.bgColor" @input="updateArbitraryColor('bg', $event.target.value)"
+                        class="h-7 w-8 cursor-pointer rounded border-0 bg-transparent p-0 outline-none">
+                    <input type="text" x-model="nodeData.bgColor" @change="updateArbitraryColor('bg', $event.target.value)"
+                        class="w-full border-none bg-transparent p-1 text-xs uppercase outline-none focus:ring-0">
+                </div>
+            </div>
+        </div>
+
         {{-- Raw Tailwind Classes --}}
-        <div class="flex min-h-[150px] flex-1 flex-col">
+        <div class="flex min-h-[150px] flex-1 flex-col mt-4">
             <label
                 class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-500">Tailwind
                 Classes</label>
