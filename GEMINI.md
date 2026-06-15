@@ -165,13 +165,21 @@ composer test
     *   For the photobooth division, active bookings that contain Google Drive files (`link_drive`) are pulled and sorted into **Hari Ini** (today's events) and **Sebelumnya** (past events) directly on the landing page, offering quick, frictionless client access.
 
 *   **Hybrid No-Code Digital Invitation Editor**:
-    *   **Architecture**: Transitioned from a React-based block system to a **Pure HTML Hybrid Builder**. The system uses Monaco Editor as the underlying source of truth (`html_content`), while providing a fully interactive Visual Canvas powered by Alpine.js and SortableJS.
+    *   **Architecture**: Transitioned from a React-based block system to a **Pure HTML Hybrid Builder** utilizing a **Multi-Panel Split View Architecture**. The scripts are modularized into ES6 files compiled via the **Vite Pipeline** ([resources/js/editor/](file:///home/andndre/Code/luminarabali.com/resources/js/editor/)) and composed dynamically into a single Alpine.js context (`editorApp`). The modules are:
+        *   [app.js](file:///home/andndre/Code/luminarabali.com/resources/js/editor/app.js) (Entry point, Monaco settings, 2-way sync triggering, tab navigation, media picker bindings).
+        *   [core.js](file:///home/andndre/Code/luminarabali.com/resources/js/editor/core.js) (Basic panels visibility state, dummy invitation data, node inspector state variables).
+        *   [hover.js](file:///home/andndre/Code/luminarabali.com/resources/js/editor/hover.js) (Macro-block selection hover overlays, reordering, duplication, and deletion).
+        *   [inspector.js](file:///home/andndre/Code/luminarabali.com/resources/js/editor/inspector.js) (Micro-element property editor, breadcrumbs DOM tree, color/class mutators, and automatic 2-way container query conversion).
+        *   [box-model.js](file:///home/andndre/Code/luminarabali.com/resources/js/editor/box-model.js) (Margin, padding, border width, and border radius parsing and passive shorthand generator).
+        *   [init.js](file:///home/andndre/Code/luminarabali.com/resources/js/editor/init.js) (SortableJS setup, container queries conversion on setup, contenteditable text inputs, and dblclick image picker bindings).
     *   **Features**:
-        *   **2-Way Sync**: Edits in the Visual Canvas instantly reflect in Monaco, and vice-versa.
+        *   **2-Way Sync Mutex**: Real-time synchronization between the Visual Canvas and Monaco Editor. It uses a sync lock (`isSyncing`) to prevent infinite update loops. Modifications in the visual canvas trigger `syncToMonaco()`, while Monaco changes trigger `syncToCanvas()`.
+        *   **2-Way Container Query Conversion**: In the visual canvas, responsive utility classes (like `md:flex`) are run as container queries (`@md:flex`) for simulator rendering. In the Inspector properties panel, the `@` prefix is stripped automatically so users only see and edit clean `md:flex` classes. Upon saving, it converts them back to `@md:flex` for the canvas.
         *   **Inline Editing**: Real-time contenteditable text elements (`h1`, `p`, etc.) with `blur` auto-save.
         *   **Macro-Block Hover Controls**: A floating UI that detects top-level blocks/sections for drag-and-drop reordering, duplication, and deletion.
-        *   **Micro-Element Properties**: A Right Sidebar that lets admins modify specific nodes, inject Tailwind classes dynamically, and change image/audio sources.
+        *   **Micro-Element Properties (Inspector Panel)**: A right-side panel that lets admins modify specific nodes, inject Tailwind classes dynamically, change text alignment, and alter image/audio sources.
         *   **DOM Breadcrumbs**: A bottom-up DOM tree navigator allowing users to precisely select specific layers in complex absolute/stacked layouts.
+        *   **Component Library**: A left-side panel with a searchable list of components that can be dragged into the Visual Canvas or inserted at the cursor position in the Code Editor.
     *   **Global Layout Utilities (`layout.blade.php`)**: The invitation system uses a master layout component that automatically provides the following global utilities to all template themes:
         *   **Scroll Animations**: Elements with the `data-reveal="up|down|left|right|fade|zoom"` attribute will automatically be animated via Intersection Observer. No manual CSS or JS is needed inside themes.
         *   **Countdown Alpine Data**: `x-data="countdown('HH:mm DD-MM-YYYY')"` provides an Alpine.js scope that automatically parses dates and exposes `days`, `hours`, `minutes`, and `seconds` variables for custom countdown UI.
@@ -456,74 +464,4 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 # Architecture Context: Template Editor Undangan
 
-Dokumen ini berisi rangkuman teknis (*Source of Truth*) mengenai arsitektur sistem "Template Editor Undangan" (Digital Invitation System) saat ini. Konteks ini sangat penting bagi AI/Developer untuk memahami struktur sistem sebelum merancang atau melakukan transisi ke arsitektur *No-Code/JSON-based*.
-
-## 1. Struktur Database (Models & Migrations)
-
-Sistem undangan digital menggunakan beberapa tabel utama untuk menyimpan kerangka (*blueprint*) dan data spesifik klien:
-
-- **`invitation_templates`**: Tabel ini adalah cetak biru (*blueprint*) dari sebuah tema undangan.
-  - **Penyimpanan Kode**: Saat ini, kode HTML/Blade mentah disimpan langsung di dalam kolom:
-    - `cover_content` (Tipe: `text/longtext`): Menyimpan string Blade untuk bagian sampul/depan undangan.
-    - `blade_content` (Tipe: `text/longtext`): Menyimpan string Blade untuk isi/konten utama undangan.
-    - `global_custom_css` (Tipe: `text/longtext`): Menyimpan custom CSS murni.
-  - **Relasi Utama**:
-    - `hasMany(InvitationPage::class)`: Satu template dapat digunakan oleh banyak halaman klien.
-    - `hasMany(InvitationSection::class)`: Disiapkan untuk arsitektur visual (*block-by-block*).
-    - `belongsTo(User::class, 'created_by')`: Merujuk pada admin pembuat.
-
-- **`invitation_pages`**: Tabel ini merepresentasikan halaman undangan milik satu klien spesifik.
-  - Menyimpan data dinamis seperti `groom_name`, `bride_name`, `event_date`, dan `slug` URL unik.
-  - Relasi: `belongsTo(InvitationTemplate::class)`.
-
-- **`invitation_sections`**: (Struktur transisi) Disiapkan untuk menyimpan state visual *builder* dalam bentuk array/JSON di kolom `props`, dengan relasi `parent_id` (hierarki).
-
-## 2. Backend Flow (Controllers)
-
-Pusat kendali editor saat ini di-handle oleh `TemplateEditorController`:
-
-- **Load Data ke Editor**:
-  - `editor($id)`: Mengambil data dari `invitation_templates` berdasarkan ID, kemudian me-return *view* `admin.templates.editor-native`.
-  - Halaman `editor-native.blade.php` memuat Monaco Editor (IDE Javascript) yang diinisialisasi menggunakan string dari hidden textarea yang berisi `$template->cover_content`, `$template->blade_content`, dan `$template->global_custom_css`.
-
-- **Alur Save (Penyimpanan)**:
-  - Saat tombol "Simpan" ditekan, fungsi Javascript menangkap isi (`getValue()`) dari model Monaco Editor.
-  - Data disisipkan ke *hidden form inputs* dan dikirim via AJAX POST ke method `saveSection(Request $request)`.
-  - Controller melakukan validasi dan langsung melakukan fungsi `update()` ke kolom `blade_content`, `cover_content`, `global_custom_css`, dan `meta_data` (JSON) di tabel `invitation_templates`.
-
-- **Injeksi Variabel (Server-side Rendering)**:
-  - Saat *Preview* atau *View* publik dipanggil, data eksternal disiapkan di Controller/View (sebagai object/model `$page`).
-  - Sistem kemudian menggunakan *facade* Laravel Blade untuk melakukan render string dari database secara dinamis.
-
-## 3. Frontend Rendering (Blade & Alpine.js)
-
-Pendekatan *rendering* HTML mentah dari database dieksekusi secara native menggunakan compiler bawaan Laravel Blade.
-
-- **Proses Render Iframe (Snippet)**:
-  Pada halaman `preview.blade.php`, template dirender dengan mem-*passing* objek `$page` ke dalam fungsi `Blade::render()`. Hal ini memungkinkan variabel seperti `{{ $page->groom_name }}` tereksekusi layaknya *file* blade fisik.
-  
-  ```php
-  @php
-      // Mocking variabel untuk preview
-      $page = new \stdClass();
-      $page->groom_name = 'Romeo';
-      $page->bride_name = 'Juliet';
-  @endphp
-  
-  <x-invitation.layout class="bg-gray-50" :skip-cover="request()->query('skip_cover') == 1">
-      <!-- Rendering Cover -->
-      @if (!empty($template->cover_content))
-          {!! \Illuminate\Support\Facades\Blade::render($template->cover_content, ['page' => $page]) !!}
-      @endif
-
-      <!-- Rendering Main Content -->
-      <div x-show="isOpen" style="display: none;" class="w-full">
-          {!! \Illuminate\Support\Facades\Blade::render($template->blade_content ?? '', ['page' => $page]) !!}
-      </div>
-  </x-invitation.layout>
-  ```
-
-- **Struktur State Alpine.js**:
-  Manajemen *state* (seperti transisi buka undangan, audio, scroll animasi, *lightbox*, dan *countdown*) ditangani secara global oleh master komponen `<x-invitation.layout>`.
-  - `x-data="{ isOpen: false, isPlaying: false }"`: Mengontrol visibilitas konten `blade_content` agar tersembunyi sampai tombol "Buka Undangan" pada `cover_content` ditekan (yang memicu fungsi `openInvitation()`).
-  - Di dalam *editor*, skrip Alpine yang mengatur `x-data="templateLibrary()"` digunakan untuk menampilkan laci (drawer) komponen (*Component Library*), melakukan *search*, dan menyuntikkan kode komponen ke dalam titik kursor Monaco Editor.
+For detailed technical documentation on the Digital Invitation System's Template Editor architecture (including the Multi-Panel Split View, 2-Way Sync Mutex, Blade partials, and Alpine.js states), please refer to the **[UNDANGAN_EDITOR.md](UNDANGAN_EDITOR.md)** document.
