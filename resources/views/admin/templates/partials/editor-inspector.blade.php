@@ -169,63 +169,204 @@
         <div class="mt-4 border-t border-gray-200 pt-4">
             <label class="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-500">Spacing and Borders</label>
             <div class="space-y-4">
-                {{-- Padding Grid --}}
+                                {{-- Padding Grid --}}
                 <div>
-                    <label class="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-400">Padding</label>
-                    <div class="grid grid-cols-2 gap-1">
-                        @foreach(['t' => 'pt', 'b' => 'pb', 'l' => 'pl', 'r' => 'pr'] as $side => $prefix)
-                        <div class="flex items-center gap-1 rounded bg-gray-50 px-2 transition hover:bg-gray-100">
-                            <span class="w-3 text-[10px] font-bold text-gray-400">{{ strtoupper($side) }}</span>
-                            <select @change="updateDirectionalClass('{{ $prefix }}', $event.target.value)" class="w-full cursor-pointer appearance-none border-none bg-transparent p-1 text-[11px] text-gray-700 outline-none focus:ring-0">
+                    <div class="mb-1 flex items-center justify-between">
+                        <label class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Padding</label>
+                        <svg @click="constraints.paddingGlobal = !constraints.paddingGlobal; if(constraints.paddingGlobal){constraints.paddingX=true; constraints.paddingY=true;}" :class="constraints.paddingGlobal ? 'text-blue-500' : 'text-gray-300'" class="h-3 w-3 cursor-pointer transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Lock All"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </div>
+                    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2">
+                        <!-- Top -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M4 4h16" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('pt', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
                                 <option value="">-</option>
-                                <option value="{{ $prefix }}-0" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-0'">0</option>
-                                <option value="{{ $prefix }}-2" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-2'">2</option>
-                                <option value="{{ $prefix }}-4" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-4'">4</option>
-                                <option value="{{ $prefix }}-8" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-8'">8</option>
-                                <option value="{{ $prefix }}-12" :selected="getActiveBoxClass('p', '{{ $side }}') === '{{ $prefix }}-12'">12</option>
+                                <option value="pt-0" :selected="getActiveBoxClass('p', 't') === 'pt-0'">0</option>
+                                <option value="pt-2" :selected="getActiveBoxClass('p', 't') === 'pt-2'">2</option>
+                                <option value="pt-4" :selected="getActiveBoxClass('p', 't') === 'pt-4'">4</option>
+                                <option value="pt-8" :selected="getActiveBoxClass('p', 't') === 'pt-8'">8</option>
+                                <option value="pt-12" :selected="getActiveBoxClass('p', 't') === 'pt-12'">12</option>
                             </select>
                         </div>
-                        @endforeach
+                        <!-- Lock Y -->
+                        <div class="flex justify-center">
+                            <svg @click="constraints.paddingY = !constraints.paddingY" :class="constraints.paddingY ? 'text-blue-500' : 'text-gray-300'" class="h-3 w-3 cursor-pointer transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        </div>
+                        <!-- Bottom -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M4 20h16" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('pb', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
+                                <option value="">-</option>
+                                <option value="pb-0" :selected="getActiveBoxClass('p', 'b') === 'pb-0'">0</option>
+                                <option value="pb-2" :selected="getActiveBoxClass('p', 'b') === 'pb-2'">2</option>
+                                <option value="pb-4" :selected="getActiveBoxClass('p', 'b') === 'pb-4'">4</option>
+                                <option value="pb-8" :selected="getActiveBoxClass('p', 'b') === 'pb-8'">8</option>
+                                <option value="pb-12" :selected="getActiveBoxClass('p', 'b') === 'pb-12'">12</option>
+                            </select>
+                        </div>
+
+                        <!-- Left -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M4 4v16" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('pl', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
+                                <option value="">-</option>
+                                <option value="pl-0" :selected="getActiveBoxClass('p', 'l') === 'pl-0'">0</option>
+                                <option value="pl-2" :selected="getActiveBoxClass('p', 'l') === 'pl-2'">2</option>
+                                <option value="pl-4" :selected="getActiveBoxClass('p', 'l') === 'pl-4'">4</option>
+                                <option value="pl-8" :selected="getActiveBoxClass('p', 'l') === 'pl-8'">8</option>
+                                <option value="pl-12" :selected="getActiveBoxClass('p', 'l') === 'pl-12'">12</option>
+                            </select>
+                        </div>
+                        <!-- Lock X -->
+                        <div class="flex justify-center">
+                            <svg @click="constraints.paddingX = !constraints.paddingX" :class="constraints.paddingX ? 'text-blue-500' : 'text-gray-300'" class="h-3 w-3 cursor-pointer transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        </div>
+                        <!-- Right -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M20 4v16" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('pr', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
+                                <option value="">-</option>
+                                <option value="pr-0" :selected="getActiveBoxClass('p', 'r') === 'pr-0'">0</option>
+                                <option value="pr-2" :selected="getActiveBoxClass('p', 'r') === 'pr-2'">2</option>
+                                <option value="pr-4" :selected="getActiveBoxClass('p', 'r') === 'pr-4'">4</option>
+                                <option value="pr-8" :selected="getActiveBoxClass('p', 'r') === 'pr-8'">8</option>
+                                <option value="pr-12" :selected="getActiveBoxClass('p', 'r') === 'pr-12'">12</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 {{-- Margin Grid --}}
                 <div>
-                    <label class="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-400">Margin</label>
-                    <div class="grid grid-cols-2 gap-1">
-                        @foreach(['t' => 'mt', 'b' => 'mb', 'l' => 'ml', 'r' => 'mr'] as $side => $prefix)
-                        <div class="flex items-center gap-1 rounded bg-gray-50 px-2 transition hover:bg-gray-100">
-                            <span class="w-3 text-[10px] font-bold text-gray-400">{{ strtoupper($side) }}</span>
-                            <select @change="updateDirectionalClass('{{ $prefix }}', $event.target.value)" class="w-full cursor-pointer appearance-none border-none bg-transparent p-1 text-[11px] text-gray-700 outline-none focus:ring-0">
+                    <div class="mb-1 flex items-center justify-between">
+                        <label class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Margin</label>
+                        <svg @click="constraints.marginGlobal = !constraints.marginGlobal; if(constraints.marginGlobal){constraints.marginX=true; constraints.marginY=true;}" :class="constraints.marginGlobal ? 'text-blue-500' : 'text-gray-300'" class="h-3 w-3 cursor-pointer transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Lock All"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </div>
+                    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2">
+                        <!-- Top -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M4 4h16" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('mt', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
                                 <option value="">-</option>
-                                <option value="{{ $prefix }}-0" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-0'">0</option>
-                                <option value="{{ $prefix }}-2" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-2'">2</option>
-                                <option value="{{ $prefix }}-4" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-4'">4</option>
-                                <option value="{{ $prefix }}-8" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-8'">8</option>
-                                <option value="-{{ $prefix }}-4" :selected="getActiveBoxClass('m', '{{ $side }}') === '-{{ $prefix }}-4'">-4</option>
-                                <option value="{{ $prefix }}-auto" :selected="getActiveBoxClass('m', '{{ $side }}') === '{{ $prefix }}-auto'">Auto</option>
+                                <option value="mt-0" :selected="getActiveBoxClass('m', 't') === 'mt-0'">0</option>
+                                <option value="mt-2" :selected="getActiveBoxClass('m', 't') === 'mt-2'">2</option>
+                                <option value="mt-4" :selected="getActiveBoxClass('m', 't') === 'mt-4'">4</option>
+                                <option value="mt-8" :selected="getActiveBoxClass('m', 't') === 'mt-8'">8</option>
+                                <option value="-mt-4" :selected="getActiveBoxClass('m', 't') === '-mt-4'">-4</option>
+                                <option value="mt-auto" :selected="getActiveBoxClass('m', 't') === 'mt-auto'">Auto</option>
                             </select>
                         </div>
-                        @endforeach
+                        <!-- Lock Y -->
+                        <div class="flex justify-center">
+                            <svg @click="constraints.marginY = !constraints.marginY" :class="constraints.marginY ? 'text-blue-500' : 'text-gray-300'" class="h-3 w-3 cursor-pointer transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        </div>
+                        <!-- Bottom -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M4 20h16" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('mb', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
+                                <option value="">-</option>
+                                <option value="mb-0" :selected="getActiveBoxClass('m', 'b') === 'mb-0'">0</option>
+                                <option value="mb-2" :selected="getActiveBoxClass('m', 'b') === 'mb-2'">2</option>
+                                <option value="mb-4" :selected="getActiveBoxClass('m', 'b') === 'mb-4'">4</option>
+                                <option value="mb-8" :selected="getActiveBoxClass('m', 'b') === 'mb-8'">8</option>
+                                <option value="-mb-4" :selected="getActiveBoxClass('m', 'b') === '-mb-4'">-4</option>
+                                <option value="mb-auto" :selected="getActiveBoxClass('m', 'b') === 'mb-auto'">Auto</option>
+                            </select>
+                        </div>
+
+                        <!-- Left -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M4 4v16" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('ml', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
+                                <option value="">-</option>
+                                <option value="ml-0" :selected="getActiveBoxClass('m', 'l') === 'ml-0'">0</option>
+                                <option value="ml-2" :selected="getActiveBoxClass('m', 'l') === 'ml-2'">2</option>
+                                <option value="ml-4" :selected="getActiveBoxClass('m', 'l') === 'ml-4'">4</option>
+                                <option value="ml-8" :selected="getActiveBoxClass('m', 'l') === 'ml-8'">8</option>
+                                <option value="-ml-4" :selected="getActiveBoxClass('m', 'l') === '-ml-4'">-4</option>
+                                <option value="ml-auto" :selected="getActiveBoxClass('m', 'l') === 'ml-auto'">Auto</option>
+                            </select>
+                        </div>
+                        <!-- Lock X -->
+                        <div class="flex justify-center">
+                            <svg @click="constraints.marginX = !constraints.marginX" :class="constraints.marginX ? 'text-blue-500' : 'text-gray-300'" class="h-3 w-3 cursor-pointer transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        </div>
+                        <!-- Right -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M20 4v16" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('mr', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
+                                <option value="">-</option>
+                                <option value="mr-0" :selected="getActiveBoxClass('m', 'r') === 'mr-0'">0</option>
+                                <option value="mr-2" :selected="getActiveBoxClass('m', 'r') === 'mr-2'">2</option>
+                                <option value="mr-4" :selected="getActiveBoxClass('m', 'r') === 'mr-4'">4</option>
+                                <option value="mr-8" :selected="getActiveBoxClass('m', 'r') === 'mr-8'">8</option>
+                                <option value="-mr-4" :selected="getActiveBoxClass('m', 'r') === '-mr-4'">-4</option>
+                                <option value="mr-auto" :selected="getActiveBoxClass('m', 'r') === 'mr-auto'">Auto</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 {{-- Border Radius Grid --}}
                 <div>
-                    <label class="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-400">Radius</label>
-                    <div class="grid grid-cols-2 gap-1">
-                        @foreach(['tl' => 'rounded-tl', 'tr' => 'rounded-tr', 'bl' => 'rounded-bl', 'br' => 'rounded-br'] as $side => $prefix)
-                        <div class="flex items-center gap-1 rounded bg-gray-50 px-2 transition hover:bg-gray-100">
-                            <span class="w-3 text-[10px] font-bold text-gray-400">{{ strtoupper($side) }}</span>
-                            <select @change="updateDirectionalClass('{{ $prefix }}', $event.target.value)" class="w-full cursor-pointer appearance-none border-none bg-transparent p-1 text-[11px] text-gray-700 outline-none focus:ring-0">
+                    <div class="mb-1 flex items-center justify-between">
+                        <label class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Radius</label>
+                        <svg @click="constraints.radiusGlobal = !constraints.radiusGlobal; if(constraints.radiusGlobal){constraints.radiusTop=true; constraints.radiusBottom=true;}" :class="constraints.radiusGlobal ? 'text-blue-500' : 'text-gray-300'" class="h-3 w-3 cursor-pointer transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Lock All"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </div>
+                    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2">
+                        <!-- TL -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M12 4H6a2 2 0 0 0-2 2v6" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('rounded-tl', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
                                 <option value="">-</option>
-                                <option value="{{ $prefix }}-none" :selected="getActiveBoxClass('rounded', '{{ $side }}') === 'rounded-{{ $side }}-none'">Sq</option>
-                                <option value="{{ $prefix }}-md" :selected="getActiveBoxClass('rounded', '{{ $side }}') === 'rounded-{{ $side }}-md'">Md</option>
-                                <option value="{{ $prefix }}-lg" :selected="getActiveBoxClass('rounded', '{{ $side }}') === 'rounded-{{ $side }}-lg'">Lg</option>
-                                <option value="{{ $prefix }}-full" :selected="getActiveBoxClass('rounded', '{{ $side }}') === 'rounded-{{ $side }}-full'">Pill</option>
+                                <option value="rounded-tl-none" :selected="getActiveBoxClass('rounded', 'tl') === 'rounded-tl-none'">Sq</option>
+                                <option value="rounded-tl-md" :selected="getActiveBoxClass('rounded', 'tl') === 'rounded-tl-md'">Md</option>
+                                <option value="rounded-tl-lg" :selected="getActiveBoxClass('rounded', 'tl') === 'rounded-tl-lg'">Lg</option>
+                                <option value="rounded-tl-full" :selected="getActiveBoxClass('rounded', 'tl') === 'rounded-tl-full'">Pill</option>
                             </select>
                         </div>
-                        @endforeach
+                        <!-- Lock Top -->
+                        <div class="flex justify-center">
+                            <svg @click="constraints.radiusTop = !constraints.radiusTop" :class="constraints.radiusTop ? 'text-blue-500' : 'text-gray-300'" class="h-3 w-3 cursor-pointer transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        </div>
+                        <!-- TR -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M12 4h6a2 2 0 0 1 2 2v6" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('rounded-tr', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
+                                <option value="">-</option>
+                                <option value="rounded-tr-none" :selected="getActiveBoxClass('rounded', 'tr') === 'rounded-tr-none'">Sq</option>
+                                <option value="rounded-tr-md" :selected="getActiveBoxClass('rounded', 'tr') === 'rounded-tr-md'">Md</option>
+                                <option value="rounded-tr-lg" :selected="getActiveBoxClass('rounded', 'tr') === 'rounded-tr-lg'">Lg</option>
+                                <option value="rounded-tr-full" :selected="getActiveBoxClass('rounded', 'tr') === 'rounded-tr-full'">Pill</option>
+                            </select>
+                        </div>
+
+                        <!-- BL -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M12 20H6a2 2 0 0 1-2-2v-6" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('rounded-bl', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
+                                <option value="">-</option>
+                                <option value="rounded-bl-none" :selected="getActiveBoxClass('rounded', 'bl') === 'rounded-bl-none'">Sq</option>
+                                <option value="rounded-bl-md" :selected="getActiveBoxClass('rounded', 'bl') === 'rounded-bl-md'">Md</option>
+                                <option value="rounded-bl-lg" :selected="getActiveBoxClass('rounded', 'bl') === 'rounded-bl-lg'">Lg</option>
+                                <option value="rounded-bl-full" :selected="getActiveBoxClass('rounded', 'bl') === 'rounded-bl-full'">Pill</option>
+                            </select>
+                        </div>
+                        <!-- Lock Bottom -->
+                        <div class="flex justify-center">
+                            <svg @click="constraints.radiusBottom = !constraints.radiusBottom" :class="constraints.radiusBottom ? 'text-blue-500' : 'text-gray-300'" class="h-3 w-3 cursor-pointer transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        </div>
+                        <!-- BR -->
+                        <div class="flex items-center justify-between">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" class="stroke-gray-200" /><path d="M12 20h6a2 2 0 0 0 2-2v-6" stroke-width="3" class="stroke-gray-500" /></svg>
+                            <select @change="updateDirectionalClass('rounded-br', $event.target.value)" class="w-8 cursor-pointer appearance-none border-b border-transparent bg-transparent px-0 text-center text-xs font-medium text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-blue-500 focus:ring-0">
+                                <option value="">-</option>
+                                <option value="rounded-br-none" :selected="getActiveBoxClass('rounded', 'br') === 'rounded-br-none'">Sq</option>
+                                <option value="rounded-br-md" :selected="getActiveBoxClass('rounded', 'br') === 'rounded-br-md'">Md</option>
+                                <option value="rounded-br-lg" :selected="getActiveBoxClass('rounded', 'br') === 'rounded-br-lg'">Lg</option>
+                                <option value="rounded-br-full" :selected="getActiveBoxClass('rounded', 'br') === 'rounded-br-full'">Pill</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -117,6 +117,12 @@
                 textColor: '#000000',
                 bgColor: '#ffffff'
             },
+            
+            constraints: {
+                paddingX: false, paddingY: false, paddingGlobal: false,
+                marginX: false, marginY: false, marginGlobal: false,
+                radiusTop: false, radiusBottom: false, radiusGlobal: false
+            },
 
             // Hover Block Control State
             hoveredNode: null,
@@ -478,12 +484,84 @@
                 if (!this.selectedNode) return;
                 let classes = (this.nodeData.classes || '').split(' ').filter(c => c.trim() !== '');
 
-                const regex = new RegExp('^-?' + prefix + '(?:-|$)');
+                let targetPrefix = prefix;
 
-                classes = classes.filter(c => !regex.test(c));
+                // Evaluate constraints to find the actual target shorthand
+                if (prefix === 'pl' || prefix === 'pr') {
+                    if (this.constraints.paddingGlobal) targetPrefix = 'p';
+                    else if (this.constraints.paddingX) targetPrefix = 'px';
+                } else if (prefix === 'pt' || prefix === 'pb') {
+                    if (this.constraints.paddingGlobal) targetPrefix = 'p';
+                    else if (this.constraints.paddingY) targetPrefix = 'py';
+                }
 
+                if (prefix === 'ml' || prefix === 'mr') {
+                    if (this.constraints.marginGlobal) targetPrefix = 'm';
+                    else if (this.constraints.marginX) targetPrefix = 'mx';
+                } else if (prefix === 'mt' || prefix === 'mb') {
+                    if (this.constraints.marginGlobal) targetPrefix = 'm';
+                    else if (this.constraints.marginY) targetPrefix = 'my';
+                }
+                
+                if (prefix === 'rounded-tl' || prefix === 'rounded-tr') {
+                    if (this.constraints.radiusGlobal) targetPrefix = 'rounded';
+                    else if (this.constraints.radiusTop) targetPrefix = 'rounded-t';
+                } else if (prefix === 'rounded-bl' || prefix === 'rounded-br') {
+                    if (this.constraints.radiusGlobal) targetPrefix = 'rounded';
+                    else if (this.constraints.radiusBottom) targetPrefix = 'rounded-b';
+                }
+
+                // Construct finalValue using the new targetPrefix
+                let finalValue = '';
                 if (newValue && newValue.trim() !== '') {
-                    classes.push(newValue);
+                    let baseTarget = targetPrefix;
+                    let isNeg = newValue.startsWith('-');
+                    let tempVal = newValue;
+                    if (isNeg) {
+                        baseTarget = '-' + targetPrefix;
+                        tempVal = tempVal.substring(1);
+                    }
+                    
+                    let parts = tempVal.split('-');
+                    let suffix = '';
+                    if (parts[0] === 'rounded') {
+                        if (parts.length > 2) suffix = parts.slice(2).join('-');
+                    } else {
+                        suffix = parts.slice(1).join('-');
+                    }
+                    
+                    if (suffix) {
+                        finalValue = baseTarget + '-' + suffix;
+                    } else {
+                        finalValue = baseTarget;
+                    }
+                }
+
+                // Define all prefixes that must be stripped out based on the target
+                const prefixesToRemove = [targetPrefix];
+                if (targetPrefix === 'px') prefixesToRemove.push('pl', 'pr');
+                if (targetPrefix === 'py') prefixesToRemove.push('pt', 'pb');
+                if (targetPrefix === 'p') prefixesToRemove.push('pt', 'pb', 'pl', 'pr', 'px', 'py');
+                
+                if (targetPrefix === 'mx') prefixesToRemove.push('ml', 'mr');
+                if (targetPrefix === 'my') prefixesToRemove.push('mt', 'mb');
+                if (targetPrefix === 'm') prefixesToRemove.push('mt', 'mb', 'ml', 'mr', 'mx', 'my');
+                
+                if (targetPrefix === 'rounded-t') prefixesToRemove.push('rounded-tl', 'rounded-tr');
+                if (targetPrefix === 'rounded-b') prefixesToRemove.push('rounded-bl', 'rounded-br');
+                if (targetPrefix === 'rounded') prefixesToRemove.push('rounded-tl', 'rounded-tr', 'rounded-bl', 'rounded-br', 'rounded-t', 'rounded-b', 'rounded-l', 'rounded-r');
+
+                // If not using constraints, still strip the atomic prefix itself
+                if (targetPrefix === prefix) {
+                    prefixesToRemove.push(prefix);
+                }
+
+                classes = classes.filter(c => {
+                    return !prefixesToRemove.some(p => new RegExp('^-?' + p + '(?:-|$)').test(c));
+                });
+
+                if (finalValue) {
+                    classes.push(finalValue);
                 }
 
                 this.nodeData.classes = classes.join(' ');
@@ -515,6 +593,21 @@
                 if (type === 'rounded') {
                     const specific = findValue('rounded-' + side);
                     if (specific !== null) return 'rounded-' + side + (specific ? '-' + specific : '');
+                    
+                    let edge1 = null, edge2 = null;
+                    if (side === 'tl') { edge1 = 't'; edge2 = 'l'; }
+                    else if (side === 'tr') { edge1 = 't'; edge2 = 'r'; }
+                    else if (side === 'bl') { edge1 = 'b'; edge2 = 'l'; }
+                    else if (side === 'br') { edge1 = 'b'; edge2 = 'r'; }
+
+                    if (edge1 !== null) {
+                        const val1 = findValue('rounded-' + edge1);
+                        if (val1 !== null) return 'rounded-' + side + (val1 ? '-' + val1 : '');
+                    }
+                    if (edge2 !== null) {
+                        const val2 = findValue('rounded-' + edge2);
+                        if (val2 !== null) return 'rounded-' + side + (val2 ? '-' + val2 : '');
+                    }
                     
                     const globalVal = findValue('rounded');
                     if (globalVal !== null) return 'rounded-' + side + (globalVal ? '-' + globalVal : '');
