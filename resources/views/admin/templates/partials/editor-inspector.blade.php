@@ -95,7 +95,7 @@
             <div class="flex rounded border border-gray-200 bg-gray-100 p-1">
                 <button
                     @click="toggleTailwindClass('text-left', ['text-center', 'text-right', 'text-justify'])"
-                    :class="nodeData.classes.includes('text-left') ? 'bg-white shadow text-blue-600' :
+                    :class="(nodeData.classes || '').split(' ').includes('text-left') ? 'bg-white shadow text-blue-600' :
                         'text-gray-500 hover:text-gray-700'"
                     class="flex flex-1 justify-center rounded py-1.5 transition">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +105,7 @@
                 </button>
                 <button
                     @click="toggleTailwindClass('text-center', ['text-left', 'text-right', 'text-justify'])"
-                    :class="nodeData.classes.includes('text-center') ? 'bg-white shadow text-blue-600' :
+                    :class="(nodeData.classes || '').split(' ').includes('text-center') ? 'bg-white shadow text-blue-600' :
                         'text-gray-500 hover:text-gray-700'"
                     class="flex flex-1 justify-center rounded py-1.5 transition">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +115,7 @@
                 </button>
                 <button
                     @click="toggleTailwindClass('text-right', ['text-left', 'text-center', 'text-justify'])"
-                    :class="nodeData.classes.includes('text-right') ? 'bg-white shadow text-blue-600' :
+                    :class="(nodeData.classes || '').split(' ').includes('text-right') ? 'bg-white shadow text-blue-600' :
                         'text-gray-500 hover:text-gray-700'"
                     class="flex flex-1 justify-center rounded py-1.5 transition">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,13 +133,13 @@
                 @change="toggleTailwindClass($event.target.value, ['font-thin', 'font-light', 'font-normal', 'font-medium', 'font-semibold', 'font-bold', 'font-extrabold', 'font-black'])"
                 class="w-full rounded border border-gray-300 bg-white p-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                 <option value="">Default (Inherit)</option>
-                <option value="font-thin" :selected="nodeData.classes.includes('font-thin')">Thin (100)</option>
-                <option value="font-light" :selected="nodeData.classes.includes('font-light')">Light (300)</option>
-                <option value="font-normal" :selected="nodeData.classes.includes('font-normal')">Normal (400)</option>
-                <option value="font-medium" :selected="nodeData.classes.includes('font-medium')">Medium (500)</option>
-                <option value="font-semibold" :selected="nodeData.classes.includes('font-semibold')">Semi Bold (600)</option>
-                <option value="font-bold" :selected="nodeData.classes.includes('font-bold')">Bold (700)</option>
-                <option value="font-extrabold" :selected="nodeData.classes.includes('font-extrabold')">Extra Bold (800)</option>
+                <option value="font-thin" :selected="(nodeData.classes || '').split(' ').includes('font-thin')">Thin (100)</option>
+                <option value="font-light" :selected="(nodeData.classes || '').split(' ').includes('font-light')">Light (300)</option>
+                <option value="font-normal" :selected="(nodeData.classes || '').split(' ').includes('font-normal')">Normal (400)</option>
+                <option value="font-medium" :selected="(nodeData.classes || '').split(' ').includes('font-medium')">Medium (500)</option>
+                <option value="font-semibold" :selected="(nodeData.classes || '').split(' ').includes('font-semibold')">Semi Bold (600)</option>
+                <option value="font-bold" :selected="(nodeData.classes || '').split(' ').includes('font-bold')">Bold (700)</option>
+                <option value="font-extrabold" :selected="(nodeData.classes || '').split(' ').includes('font-extrabold')">Extra Bold (800)</option>
             </select>
         </div>
 
@@ -161,6 +161,53 @@
                         class="h-7 w-8 cursor-pointer rounded border-0 bg-transparent p-0 outline-none">
                     <input type="text" x-model="nodeData.bgColor" @change="updateArbitraryColor('bg', $event.target.value)"
                         class="w-full border-none bg-transparent p-1 text-xs uppercase outline-none focus:ring-0">
+                </div>
+            </div>
+        </div>
+
+        {{-- Spacing and Borders --}}
+        <div class="mt-4 border-t border-gray-200 pt-4">
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-500">Spacing and Borders</label>
+            <div class="space-y-4">
+                {{-- Padding Dropdown --}}
+                <div>
+                    <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-400">Padding</label>
+                    <select
+                        @change="toggleTailwindClass($event.target.value, ['p-0', 'p-1', 'p-2', 'p-4', 'p-6', 'p-8', 'p-10', 'p-12'])"
+                        class="w-full rounded border border-gray-300 bg-white p-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <option value="">Default (Inherit)</option>
+                        <option value="p-0" :selected="(nodeData.classes || '').split(' ').includes('p-0')">None (p-0)</option>
+                        <option value="p-2" :selected="(nodeData.classes || '').split(' ').includes('p-2')">Small (p-2)</option>
+                        <option value="p-4" :selected="(nodeData.classes || '').split(' ').includes('p-4')">Medium (p-4)</option>
+                        <option value="p-8" :selected="(nodeData.classes || '').split(' ').includes('p-8')">Large (p-8)</option>
+                        <option value="p-12" :selected="(nodeData.classes || '').split(' ').includes('p-12')">Extra Large (p-12)</option>
+                    </select>
+                </div>
+                {{-- Margin Dropdown --}}
+                <div>
+                    <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-400">Margin</label>
+                    <select
+                        @change="toggleTailwindClass($event.target.value, ['m-0', 'm-2', 'm-4', 'm-8', 'm-12', 'my-4', 'my-8', 'mx-auto'])"
+                        class="w-full rounded border border-gray-300 bg-white p-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <option value="">Default (Inherit)</option>
+                        <option value="m-0" :selected="(nodeData.classes || '').split(' ').includes('m-0')">None (m-0)</option>
+                        <option value="my-4" :selected="(nodeData.classes || '').split(' ').includes('my-4')">Vertical Normal (my-4)</option>
+                        <option value="my-8" :selected="(nodeData.classes || '').split(' ').includes('my-8')">Vertical Large (my-8)</option>
+                        <option value="mx-auto" :selected="(nodeData.classes || '').split(' ').includes('mx-auto')">Center Horizontal (mx-auto)</option>
+                    </select>
+                </div>
+                {{-- Border Radius Dropdown --}}
+                <div>
+                    <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-400">Border Radius</label>
+                    <select
+                        @change="toggleTailwindClass($event.target.value, ['rounded-none', 'rounded-sm', 'rounded', 'rounded-md', 'rounded-lg', 'rounded-xl', 'rounded-2xl', 'rounded-full'])"
+                        class="w-full rounded border border-gray-300 bg-white p-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <option value="">Square (Inherit)</option>
+                        <option value="rounded-md" :selected="(nodeData.classes || '').split(' ').includes('rounded-md')">Rounded Medium</option>
+                        <option value="rounded-lg" :selected="(nodeData.classes || '').split(' ').includes('rounded-lg')">Rounded Large</option>
+                        <option value="rounded-2xl" :selected="(nodeData.classes || '').split(' ').includes('rounded-2xl')">Rounded 2XL</option>
+                        <option value="rounded-full" :selected="(nodeData.classes || '').split(' ').includes('rounded-full')">Pill / Circle</option>
+                    </select>
                 </div>
             </div>
         </div>
