@@ -103,6 +103,7 @@
             groom_name: 'Romeo',
             bride_name: 'Juliet',
             event_date: '2026-12-12T08:00:00',
+            guest_name: 'Budi (Tamu VIP)',
 
             // Node Inspector State
             selectedNode: null,
@@ -482,12 +483,6 @@
                                     const component = await response.json();
                                     
                                     let code = component.code;
-                                    if (component.variables && component.variables.length > 0) {
-                                        component.variables.forEach(v => {
-                                            const regex = new RegExp(`\\{\\{\\s*\\$${v.key}\\s*\\}\\}`, 'g');
-                                            code = code.replace(regex, v.default || `[${v.label}]`);
-                                        });
-                                    }
                                     evt.item.outerHTML = code;
                                     setTimeout(() => {
                                         const editorContainer = document.querySelector('[x-data="editorApp()"]');
@@ -629,13 +624,6 @@
                     const component = await response.json();
 
                     let code = component.code;
-                    if (component.variables && component.variables.length > 0) {
-                        component.variables.forEach(v => {
-                            const regex = new RegExp(`\\{\\{\\s*\\$${v.key}\\s*\\}\\}`,
-                                'g');
-                            code = code.replace(regex, v.default || `[${v.label}]`);
-                        });
-                    }
 
                     const editorAppContainer = document.querySelector('[x-data="editorApp()"]');
                     const editorApp = editorAppContainer ? Alpine.$data(editorAppContainer) : null;

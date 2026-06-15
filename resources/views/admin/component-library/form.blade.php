@@ -705,6 +705,7 @@
                         '<!DOCTYPE html><html><head>',
                         '<meta charset="utf-8">',
                         '<script src="https://cdn.tailwindcss.com"><\/script>',
+                        '<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"><\/script>',
                         '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" crossorigin="anonymous">',
                         '<style>',
                         'body { font-family: "Plus Jakarta Sans", sans-serif; margin: 0; background-color: #f8fafc; transform: translateZ(0); height: 100vh; overflow-y: auto; overflow-x: hidden; }',
@@ -758,27 +759,50 @@
 
                         let html = monacoEditorInstance.getValue();
 
-                        // Process/replace variables
+                        // 1. Collect all variables into a mockData object for Alpine
+                        let mockData = {
+                            isOpen: false,
+                            isPlaying: false,
+                            openInvitation: function() { this.isOpen = true; },
+                            toggleAudio: function() { this.isPlaying = !this.isPlaying; }
+                        };
                         if (this.form.variables && this.form.variables.length > 0) {
                             this.form.variables.forEach(v => {
                                 if (!v.key) return;
-                                const escapedKey = v.key.replace(/[-\/\\^$*+?.()|[\]{}]/g,
-                                    '\\$&');
-                                const pattern = '\\{' + '\\{\\s*\\$' + escapedKey + '\\s*\\}' +
-                                    '\\}';
-                                const regex = new RegExp(pattern, 'g');
-
-                                let replacement = v.default || ('[' + v.label + ']');
+                                
                                 if (v.type === 'search_param') {
-                                    replacement = new URLSearchParams(window.location.search)
-                                        .get(v.default) || 'Tamu Spesial';
+                                    mockData[v.key] = new URLSearchParams(window.location.search).get(v.default) || 'Tamu Spesial';
+                                } else {
+                                    mockData[v.key] = v.default || ('[' + v.label + ']');
                                 }
-
-                                html = html.replace(regex, replacement);
                             });
                         }
 
-                        container.innerHTML = html;
+                        // 2. Convert to JSON string and escape double quotes
+                        // We must serialize functions manually since JSON.stringify strips them
+                        let xDataString = '{';
+                        xDataString += 'isOpen: false, isPlaying: false, ';
+                        xDataString += 'openInvitation() { this.isOpen = true; }, ';
+                        xDataString += 'toggleAudio() { this.isPlaying = !this.isPlaying; }';
+                        
+                        // Add the rest of the dynamic variables
+                        const dynamicVars = {};
+                        Object.keys(mockData).forEach(k => {
+                            if (typeof mockData[k] !== 'function' && k !== 'isOpen' && k !== 'isPlaying') {
+                                dynamicVars[k] = mockData[k];
+                            }
+                        });
+                        
+                        if (Object.keys(dynamicVars).length > 0) {
+                            xDataString += ', ' + JSON.stringify(dynamicVars).slice(1, -1);
+                        }
+                        xDataString += '}';
+                        
+                        xDataString = xDataString.replace(/"/g, '&quot;');
+
+                        // 3. Wrap HTML with x-data state
+                        container.innerHTML = '<div x-data="' + xDataString + '" class="w-full h-full preview-wrapper">' + html + '</div>';
+
                     } catch (error) {
                         console.warn('Failed to update preview:', error);
                     }

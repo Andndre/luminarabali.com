@@ -22,6 +22,7 @@
 </style>
 
 <div x-data="{ 
+        ...(typeof window.invitationData !== 'undefined' ? window.invitationData : {}),
         isOpen: {{ $skipCover ? 'true' : 'false' }}, 
         isPlaying: false,
         init() {

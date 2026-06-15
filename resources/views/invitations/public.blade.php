@@ -100,6 +100,7 @@
         window.invitationData.bride_name = window.invitationData.bride_name || 'Juliet';
         window.invitationData.groom_name = window.invitationData.groom_name || 'Romeo';
         window.invitationData.event_date = window.invitationData.event_date || '2026-12-12T08:00:00';
+        window.invitationData.guest_name = new URLSearchParams(window.location.search).get('to') || 'Tamu Spesial';
     </script>
 
     <x-invitation.layout class="bg-gray-50 @container" x-data="window.invitationData">
