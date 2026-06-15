@@ -10,6 +10,7 @@
         content="{{ $page->meta_description ?? $page->groom_name . ' & ' . $page->bride_name . ' - Undangan Pernikahan Digital' }}">
     <meta name="robots" content="index, follow">
     <meta name="author" content="{{ $page->groom_name ?? '' }} & {{ $page->bride_name ?? '' }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- Open Graph / Facebook --}}
     <meta property="og:type" content="website">

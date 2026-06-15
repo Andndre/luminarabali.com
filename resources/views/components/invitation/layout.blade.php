@@ -149,5 +149,41 @@ document.addEventListener('alpine:init', () => {
             }, 1000);
         }
     }));
+
+    Alpine.data('rsvpForm', () => ({
+        formData: { guest_name: '', status: 'Hadir', comments: '' },
+        isSubmitting: false,
+        isSuccess: false,
+        errorMessage: '',
+        async submitRsvp() {
+            this.isSubmitting = true;
+            this.errorMessage = '';
+            try {
+                const metaCsrf = document.querySelector('meta[name=\'csrf-token\']');
+                const token = metaCsrf ? metaCsrf.getAttribute('content') : '';
+                const response = await fetch(window.location.pathname + '/rsvp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(this.formData)
+                });
+                
+                if (response.ok) {
+                    this.isSuccess = true;
+                    this.formData = { guest_name: '', status: 'Hadir', comments: '' };
+                } else {
+                    const data = await response.json();
+                    this.errorMessage = data.message || 'Terjadi kesalahan saat mengirim RSVP.';
+                }
+            } catch (err) {
+                this.errorMessage = 'Gagal terhubung ke server.';
+            } finally {
+                this.isSubmitting = false;
+            }
+        }
+    }));
 });
 </script>

@@ -26,5 +26,9 @@ template_issue.md
 plan.md
 /storage/app/google-calendar-service-account.json
 
+*.md
+!GEMINI.md
+!README.md
+
 _ide_helper*.php
 .phpstorm.meta.php

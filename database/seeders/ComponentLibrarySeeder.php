@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ComponentLibrarySeeder extends Seeder
 {
@@ -16,178 +16,193 @@ class ComponentLibrarySeeder extends Seeder
         if (!$superAdmin) return;
 
         $components = [
+            // 1. Premium Cover
             [
-                'name' => 'Classic Hero Section',
-                'slug' => 'classic-hero-section',
-                'category' => 'hero',
+                'name' => 'Premium Cover Section',
+                'slug' => 'premium-cover-section',
+                'category' => 'cover',
                 'type' => 'section',
-                'description' => 'A beautiful hero section with background image, title, and couple names.',
-                'code' => '<!-- Hero Section -->
-<section class="relative min-h-screen flex items-center justify-center pt-20 pb-16 px-4">
-    <!-- Background -->
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url(\'{{ $bg_image }}\');">
+                'description' => 'A full-screen cover section with background image, elegant typography, and a call-to-action button to open the invitation.',
+                'code' => '<!-- Premium Cover Section -->
+<section class="relative min-h-screen flex flex-col items-center justify-center p-6 text-center text-white" x-show="!isOpen">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover object-center" alt="Cover Background">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
     </div>
     
     <!-- Content -->
-    <div class="relative z-10 text-center max-w-4xl mx-auto space-y-8 animate-fade-in-up">
-        <div class="inline-block px-4 py-1.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-md text-white text-sm tracking-widest uppercase mb-4" x-text="eyebrow_text">
-            The Wedding Of
-        </div>
+    <div class="relative z-10 flex flex-col items-center justify-center space-y-6 w-full max-w-lg border border-white/20 p-10 backdrop-blur-sm bg-black/20 rounded-xl" data-reveal="fade">
+        <p class="text-sm tracking-[0.3em] uppercase font-light text-gray-200">The Wedding Of</p>
         
-        <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif text-white leading-tight drop-shadow-lg">
-            <span class="block italic font-light" x-text="bride_name">Sarah</span>
-            <span class="block text-4xl md:text-6xl my-2 text-yellow-400">&amp;</span>
-            <span class="block italic font-light" x-text="groom_name">Michael</span>
+        <h1 class="text-6xl md:text-7xl font-[\'Great_Vibes\'] font-normal leading-tight text-white drop-shadow-md">
+            <span x-text="groom_name">Romeo</span>
+            <span class="block text-4xl text-[#C5A059] my-2">&amp;</span>
+            <span x-text="bride_name">Juliet</span>
         </h1>
         
-        <p class="text-lg md:text-xl text-gray-200 mt-6 tracking-wide font-light" x-text="date_text">
-            Saturday, 24 August 2026
-        </p>
+        <div class="w-16 h-px bg-[#C5A059] my-6"></div>
+        
+        <div class="text-sm font-light text-gray-200 space-y-1">
+            <p>Kepada Yth. Bapak/Ibu/Saudara/i</p>
+            <p class="text-xl font-medium text-white tracking-wide mt-2" x-text="guest_name">Tamu Spesial</p>
+        </div>
+        
+        <button type="button" @click="$dispatch(\'tab-changed\', \'html\'); openInvitation()" class="mt-8 px-8 py-3 bg-[#C5A059] hover:bg-[#b08d4f] text-white text-sm tracking-widest uppercase rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg border border-white/10">
+            Buka Undangan
+        </button>
     </div>
 </section>',
-                'variables' => [
-                    ['key' => 'bg_image', 'label' => 'Background Image URL', 'type' => 'image', 'default' => 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2069&auto=format&fit=crop'],
-                    ['key' => 'eyebrow_text', 'label' => 'Top Small Text', 'type' => 'text', 'default' => 'The Wedding Of'],
-                    ['key' => 'bride_name', 'label' => 'Bride Name', 'type' => 'text', 'default' => 'Sarah'],
-                    ['key' => 'groom_name', 'label' => 'Groom Name', 'type' => 'text', 'default' => 'Michael'],
-                    ['key' => 'date_text', 'label' => 'Wedding Date Text', 'type' => 'text', 'default' => 'Saturday, 24 August 2026'],
-                ],
+                'variables' => [],
                 'is_public' => true,
                 'is_active' => true,
                 'created_by' => $superAdmin->id,
             ],
+            // 2. Elegant Hero
             [
-                'name' => 'Elegant Event Details',
-                'slug' => 'elegant-event-details',
-                'category' => 'event',
+                'name' => 'Elegant Hero Section',
+                'slug' => 'elegant-hero-section',
+                'category' => 'hero',
                 'type' => 'section',
-                'description' => 'Two column event details for Akad and Resepsi.',
-                'code' => '<!-- Event Details Section -->
-<section class="py-24 px-4 bg-white">
-    <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-16" data-aos="fade-up">
-            <h2 class="text-3xl md:text-5xl font-serif text-gray-900 mb-4">{{ $section_title }}</h2>
-            <div class="w-24 h-1 bg-yellow-500 mx-auto"></div>
+                'description' => 'A clean and elegant hero section with soft background, couple names, and date.',
+                'code' => '<!-- Elegant Hero Section -->
+<section class="relative py-24 px-6 bg-white text-center flex flex-col items-center justify-center min-h-[80vh]">
+    <div class="max-w-2xl mx-auto space-y-8" data-reveal="up">
+        <div class="w-20 h-20 mx-auto rounded-full bg-gray-50 flex items-center justify-center shadow-sm border border-gray-100">
+            <svg class="w-8 h-8 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div class="bg-gray-50 rounded-2xl p-8 md:p-12 text-center border border-gray-100 hover:shadow-xl transition duration-300 group" data-aos="fade-up" data-aos-delay="100">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition">
-                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-                <h3 class="text-2xl font-serif text-gray-900 mb-2" x-text="event1_title">Akad Nikah</h3>
-                <p class="text-gray-600 mb-6"><span x-text="event1_date">Sabtu, 24 Agustus 2026</span><br><span x-text="event1_time">08:00 - 10:00 WITA</span></p>
-                <div class="border-t border-gray-200 pt-6">
-                    <h4 class="font-bold text-gray-900 mb-1" x-text="event1_location_name">Masjid Agung</h4>
-                    <p class="text-sm text-gray-500 mb-6 leading-relaxed" x-text="event1_address">Jl. Sudirman No. 1, Denpasar, Bali</p>
-                    <a :href="event1_map_url" target="_blank" class="inline-block px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-yellow-600 transition">
-                        Google Maps
-                    </a>
-                </div>
-            </div>
-                        Google Maps
-                    </a>
-                </div>
-            </div>
-
-            <div class="bg-gray-50 rounded-2xl p-8 md:p-12 text-center border border-gray-100 hover:shadow-xl transition duration-300 group" data-aos="fade-up" data-aos-delay="200">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition">
-                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></circle></svg>
-                </div>
-                <h3 class="text-2xl font-serif text-gray-900 mb-2" x-text="event2_title">Resepsi Pernikahan</h3>
-                <p class="text-gray-600 mb-6"><span x-text="event2_date">Sabtu, 24 Agustus 2026</span><br><span x-text="event2_time">11:00 - 14:00 WITA</span></p>
-                <div class="border-t border-gray-200 pt-6">
-                    <h4 class="font-bold text-gray-900 mb-1" x-text="event2_location_name">Grand Ballroom Hotel</h4>
-                    <p class="text-sm text-gray-500 mb-6 leading-relaxed" x-text="event2_address">Jl. Gatot Subroto No. 99, Denpasar, Bali</p>
-                    <a :href="event2_map_url" target="_blank" class="inline-block px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-yellow-600 transition">
-                        Google Maps
-                    </a>
-                </div>
-            </div>
-                        Google Maps
-                    </a>
-                </div>
-            </div>
+        
+        <div class="space-y-4">
+            <p class="text-sm tracking-[0.2em] uppercase font-medium text-gray-500">We Are Getting Married</p>
+            <h2 class="text-5xl md:text-7xl font-[\'Great_Vibes\'] text-gray-900 leading-tight">
+                <span x-text="groom_name">Romeo</span>
+                <span class="mx-2 text-3xl text-gray-400 font-sans">&amp;</span>
+                <span x-text="bride_name">Juliet</span>
+            </h2>
+        </div>
+        
+        <div class="w-24 h-px bg-gray-200 mx-auto"></div>
+        
+        <div class="text-gray-600 font-light tracking-widest uppercase">
+            <span x-text="new Date(event_date).toLocaleDateString(\'id-ID\', { weekday: \'long\', year: \'numeric\', month: \'long\', day: \'numeric\' })">Sabtu, 24 Agustus 2026</span>
         </div>
     </div>
 </section>',
-                'variables' => [
-                    ['key' => 'section_title', 'label' => 'Section Title', 'type' => 'text', 'default' => 'Rangkaian Acara'],
-                    ['key' => 'event1_title', 'label' => 'Event 1 Title', 'type' => 'text', 'default' => 'Akad Nikah'],
-                    ['key' => 'event1_date', 'label' => 'Event 1 Date', 'type' => 'text', 'default' => 'Sabtu, 24 Agustus 2026'],
-                    ['key' => 'event1_time', 'label' => 'Event 1 Time', 'type' => 'text', 'default' => '08:00 - 10:00 WITA'],
-                    ['key' => 'event1_location_name', 'label' => 'Event 1 Location Name', 'type' => 'text', 'default' => 'Masjid Agung'],
-                    ['key' => 'event1_address', 'label' => 'Event 1 Address', 'type' => 'textarea', 'default' => 'Jl. Sudirman No. 1, Denpasar, Bali'],
-                    ['key' => 'event1_map_url', 'label' => 'Event 1 Maps URL', 'type' => 'text', 'default' => 'https://maps.google.com'],
-                    ['key' => 'event2_title', 'label' => 'Event 2 Title', 'type' => 'text', 'default' => 'Resepsi Pernikahan'],
-                    ['key' => 'event2_date', 'label' => 'Event 2 Date', 'type' => 'text', 'default' => 'Sabtu, 24 Agustus 2026'],
-                    ['key' => 'event2_time', 'label' => 'Event 2 Time', 'type' => 'text', 'default' => '11:00 - 14:00 WITA'],
-                    ['key' => 'event2_location_name', 'label' => 'Event 2 Location Name', 'type' => 'text', 'default' => 'Grand Ballroom Hotel'],
-                    ['key' => 'event2_address', 'label' => 'Event 2 Address', 'type' => 'textarea', 'default' => 'Jl. Gatot Subroto No. 99, Denpasar, Bali'],
-                    ['key' => 'event2_map_url', 'label' => 'Event 2 Maps URL', 'type' => 'text', 'default' => 'https://maps.google.com'],
-                ],
+                'variables' => [],
                 'is_public' => true,
                 'is_active' => true,
                 'created_by' => $superAdmin->id,
             ],
+            // 3. Countdown Timer
             [
-                'name' => 'RSVP & Greetings Form',
-                'slug' => 'rsvp-greetings-form',
+                'name' => 'Minimalist Countdown',
+                'slug' => 'minimalist-countdown',
+                'category' => 'countdown',
+                'type' => 'section',
+                'description' => 'A clean, 4-column grid displaying days, hours, minutes, and seconds until the event.',
+                'code' => '<!-- Countdown Section -->
+<section class="py-16 px-4 bg-gray-50 border-y border-gray-100" data-reveal="fade">
+    <div class="max-w-4xl mx-auto text-center">
+        <h3 class="text-2xl font-serif text-gray-800 mb-8">Menuju Hari Bahagia</h3>
+        
+        <div class="grid grid-cols-4 gap-4 md:gap-8 max-w-2xl mx-auto" x-data="countdown(event_date)">
+            <div class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                <span class="text-3xl md:text-5xl font-light text-gray-900" x-text="days">00</span>
+                <span class="text-xs tracking-wider uppercase text-gray-500 mt-2">Hari</span>
+            </div>
+            
+            <div class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                <span class="text-3xl md:text-5xl font-light text-gray-900" x-text="hours">00</span>
+                <span class="text-xs tracking-wider uppercase text-gray-500 mt-2">Jam</span>
+            </div>
+            
+            <div class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                <span class="text-3xl md:text-5xl font-light text-gray-900" x-text="minutes">00</span>
+                <span class="text-xs tracking-wider uppercase text-gray-500 mt-2">Menit</span>
+            </div>
+            
+            <div class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                <span class="text-3xl md:text-5xl font-light text-gray-900" x-text="seconds">00</span>
+                <span class="text-xs tracking-wider uppercase text-gray-500 mt-2">Detik</span>
+            </div>
+        </div>
+    </div>
+</section>',
+                'variables' => [],
+                'is_public' => true,
+                'is_active' => true,
+                'created_by' => $superAdmin->id,
+            ],
+            // 4. RSVP Form
+            [
+                'name' => 'Elegant RSVP Form',
+                'slug' => 'elegant-rsvp-form',
                 'category' => 'rsvp',
                 'type' => 'section',
-                'description' => 'Form for guests to confirm attendance and send wishes.',
+                'description' => 'A clean RSVP form with AJAX submission support via Alpine.js.',
                 'code' => '<!-- RSVP Section -->
-@if($meta_data[\'rsvp_enabled\'] ?? true)
-<section class="py-24 px-4 bg-gray-50" id="rsvp">
-    <div class="max-w-3xl mx-auto">
-        <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-3xl md:text-5xl font-serif text-gray-900 mb-4" x-text="section_title">RSVP & Ucapan</h2>
-            <p class="text-gray-600" x-text="section_subtitle">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir di acara pernikahan kami.</p>
+<section class="py-24 px-4 bg-white" id="rsvp" data-reveal="up">
+    <div class="max-w-xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-serif text-gray-900 mb-4">RSVP & Ucapan</h2>
+            <p class="text-gray-500 font-light">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir.</p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-gray-100" data-aos="fade-up" data-aos-delay="100">
-            <form action="{{ route(\'invitation.rsvp\', $page->slug) }}" method="POST" class="space-y-6">
-                @csrf
+        <div class="bg-gray-50 rounded-2xl shadow-sm p-8 border border-gray-100" 
+             x-data="rsvpForm()">
+             
+            <form @submit.prevent="submitRsvp" x-show="!isSuccess" class="space-y-6">
+                <div x-show="errorMessage" class="p-4 bg-red-50 text-red-600 rounded-lg text-sm" x-text="errorMessage" style="display: none;"></div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
-                        <input type="text" name="guest_name" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 py-3 px-4">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Kehadiran</label>
-                        <select name="status" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 py-3 px-4">
-                            <option value="Hadir">Hadir</option>
-                            <option value="Tidak Hadir">Maaf, Tidak Bisa Hadir</option>
-                            <option value="Masih Ragu">Masih Ragu</option>
-                        </select>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                    <input type="text" x-model="formData.guest_name" required class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm focus:border-[#C5A059] focus:outline-none focus:ring-1 focus:ring-[#C5A059]" placeholder="Contoh: Budi Santoso">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kehadiran</label>
+                    <select x-model="formData.status" required class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm focus:border-[#C5A059] focus:outline-none focus:ring-1 focus:ring-[#C5A059]">
+                        <option value="Hadir">Ya, Saya Akan Hadir</option>
+                        <option value="Tidak Hadir">Maaf, Tidak Bisa Hadir</option>
+                        <option value="Masih Ragu">Masih Ragu-ragu</option>
+                    </select>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Pesan & Doa (Opsional)</label>
-                    <textarea name="comments" rows="4" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 py-3 px-4" placeholder="Tuliskan ucapan dan doa untuk kedua mempelai..."></textarea>
+                    <textarea x-model="formData.comments" rows="4" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm focus:border-[#C5A059] focus:outline-none focus:ring-1 focus:ring-[#C5A059]" placeholder="Tuliskan ucapan untuk kedua mempelai..."></textarea>
                 </div>
 
-                <button type="submit" class="w-full py-4 bg-gray-900 text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                    Kirim Konfirmasi
+                <button type="submit" :disabled="isSubmitting" class="w-full py-4 bg-gray-900 hover:bg-[#C5A059] text-white text-sm font-bold tracking-widest uppercase rounded-lg transition-colors duration-300 disabled:opacity-50 flex items-center justify-center gap-2">
+                    <span x-show="!isSubmitting">Kirim RSVP</span>
+                    <svg x-show="isSubmitting" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="display: none;">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                 </button>
             </form>
+            
+            <div x-show="isSuccess" class="text-center py-8" style="display: none;">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-2xl font-serif text-gray-900 mb-2">Terima Kasih!</h3>
+                <p class="text-gray-500">Konfirmasi kehadiran Anda telah kami terima.</p>
+                <button type="button" @click="isSuccess = false" class="mt-6 text-sm text-[#C5A059] hover:underline">Kirim respons lain</button>
+            </div>
         </div>
     </div>
-</section>
-@endif',
-                'variables' => [
-                    ['key' => 'section_title', 'label' => 'Section Title', 'type' => 'text', 'default' => 'RSVP & Ucapan'],
-                    ['key' => 'section_subtitle', 'label' => 'Section Subtitle', 'type' => 'text', 'default' => 'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir di acara pernikahan kami.'],
-                ],
+</section>',
+                'variables' => [],
                 'is_public' => true,
                 'is_active' => true,
                 'created_by' => $superAdmin->id,
             ]
         ];
 
+        // Clean up old components that use Blade variables
+        \App\Models\ComponentLibrary::whereNotIn('slug', collect($components)->pluck('slug'))->delete();
+        
         foreach ($components as $component) {
             \App\Models\ComponentLibrary::updateOrCreate(
                 ['slug' => $component['slug']],

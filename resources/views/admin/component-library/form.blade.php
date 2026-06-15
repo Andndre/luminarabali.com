@@ -7,30 +7,20 @@
         if (!isset($component) && !old('code') && isset($category)) {
             switch ($category) {
                 case 'cover':
-                    $defaultCode = '<div id="invitation-cover" 
-     x-show="!isOpen" 
-     x-transition.opacity.duration.1000ms
-     class="z-100 fixed inset-0 flex items-center justify-center bg-gray-900 transition-transform duration-1000 ease-in-out">
-    <!-- Background Image -->
-    <div class="absolute inset-0">
-        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop" 
-             alt="Cover Image" class="h-full w-full object-cover opacity-60">
-        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-    </div>
+                    $defaultCode = '<!-- Cover Section -->
+<div class="invitation-cover relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-[#2C1E16] p-8 text-center" x-show="!isOpen">
+    <div class="fixed absolute inset-0 bg-cover bg-center opacity-40" style="background-image: url(\'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop\')"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-[#2C1E16] via-transparent to-transparent"></div>
     
-    <!-- Content -->
-    <div class="relative z-10 mx-auto max-w-lg translate-y-0 transform px-6 text-center transition-all duration-1000">
-        <p class="invitation-accent mb-6 text-sm uppercase tracking-[0.3em] text-gray-300">The Wedding Of</p>
-        
-        <h1 class="invitation-title mb-8 font-serif text-6xl text-white md:text-8xl">
-            {{ $groom_name }}<br>
-            <span class="invitation-accent text-4xl italic">&amp;</span><br>
-            {{ $bride_name }}
+    <div class="relative z-10 flex flex-col items-center justify-center">
+        <p class="invitation-accent mb-4 text-xs uppercase tracking-[0.3em] text-white/80">The Wedding Of</p>
+        <h1 class="invitation-title mb-8 font-serif text-5xl text-white md:text-7xl">
+            <span x-text="groom_name">Romeo</span> <br> <span class="invitation-accent my-4 block text-3xl italic text-[#C5A059]">&amp;</span> <span x-text="bride_name">Juliet</span>
         </h1>
         
         <div class="mb-12 mt-12">
             <p class="mb-2 text-sm uppercase tracking-widest text-gray-400">Kepada Yth.</p>
-            <p class="font-serif text-xl text-white">{{ $guest_name }}</p>
+            <p class="font-serif text-xl text-white" x-text="guest_name">Tamu Undangan</p>
         </div>
         
         <button @click="openInvitation()" 
@@ -42,29 +32,7 @@
         </button>
     </div>
 </div>';
-                    $defaultVariables = json_encode([
-                        [
-                            'key' => 'bride_name',
-                            'label' => 'Bride Name',
-                            'type' => 'text',
-                            'default' => 'Juliet',
-                            'description' => 'Nama mempelai wanita',
-                        ],
-                        [
-                            'key' => 'groom_name',
-                            'label' => 'Groom Name',
-                            'type' => 'text',
-                            'default' => 'Romeo',
-                            'description' => 'Nama mempelai pria',
-                        ],
-                        [
-                            'key' => 'guest_name',
-                            'label' => 'Guest Name',
-                            'type' => 'search_param',
-                            'default' => 'to',
-                            'description' => 'Parameter URL pencarian nama tamu (misal: ?to=Nama)',
-                        ],
-                    ]);
+                    $defaultVariables = '[]';
                     break;
                 case 'hero':
                     $defaultCode = '<!-- Hero Section -->
@@ -73,90 +41,60 @@
     <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white"></div>
     
     <div class="relative z-10 mx-auto max-w-2xl pt-32">
-        <p class="invitation-accent reveal-on-scroll mb-6 text-sm uppercase tracking-[0.3em]">We Are Getting Married</p>
-        <h2 class="invitation-title reveal-on-scroll mb-8 font-serif text-6xl text-gray-900 md:text-8xl" style="transition-delay: 200ms;">
-            {{ $groom_name }} <br> <span class="invitation-accent text-4xl italic">&amp;</span> <br> {{ $bride_name }}
+        <p class="invitation-accent mb-6 text-sm uppercase tracking-[0.3em]" data-reveal="up">We Are Getting Married</p>
+        <h2 class="invitation-title mb-8 font-serif text-6xl text-gray-900 md:text-8xl" data-reveal="up">
+            <span x-text="groom_name">Romeo</span> <br> <span class="invitation-accent text-4xl italic">&amp;</span> <br> <span x-text="bride_name">Juliet</span>
         </h2>
-        <div class="invitation-line animate-float reveal-on-scroll mx-auto mt-12 h-32 w-px bg-gray-400" style="transition-delay: 400ms;"></div>
+        <div class="invitation-line animate-float mx-auto mt-12 h-32 w-px bg-gray-400" data-reveal="up"></div>
     </div>
 </section>';
-                    $defaultVariables = json_encode([
-                        [
-                            'key' => 'bride_name',
-                            'label' => 'Bride Name',
-                            'type' => 'text',
-                            'default' => 'Juliet',
-                            'description' => 'Nama mempelai wanita',
-                        ],
-                        [
-                            'key' => 'groom_name',
-                            'label' => 'Groom Name',
-                            'type' => 'text',
-                            'default' => 'Romeo',
-                            'description' => 'Nama mempelai pria',
-                        ],
-                    ]);
+                    $defaultVariables = '[]';
                     break;
                 case 'text':
-                    $defaultCode = '<div class="mx-auto max-w-2xl p-8 text-center">
-    <h3 class="mb-3 text-2xl font-bold text-gray-800">{{ $title }}</h3>
-    <p class="leading-relaxed text-gray-600">{{ $content }}</p>
+                    $defaultCode = '<div class="mx-auto max-w-2xl p-8 text-center" data-reveal="up">
+    <h3 class="mb-3 text-2xl font-bold text-gray-800">Judul Text</h3>
+    <p class="leading-relaxed text-gray-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 </div>';
-                    $defaultVariables = json_encode([
-                        [
-                            'key' => 'title',
-                            'label' => 'Title',
-                            'type' => 'text',
-                            'default' => 'Judul Text',
-                            'description' => '',
-                        ],
-                        [
-                            'key' => 'content',
-                            'label' => 'Content',
-                            'type' => 'textarea',
-                            'default' => 'Lorem ipsum dolor sit amet.',
-                            'description' => '',
-                        ],
-                    ]);
+                    $defaultVariables = '[]';
                     break;
                 case 'button':
-                    $defaultCode = '<div class="p-4 text-center">
+                    $defaultCode = '<div class="p-4 text-center" data-reveal="up">
     <button class="rounded-full bg-gray-900 px-6 py-3 font-medium text-white shadow-md transition-colors hover:bg-gray-800">
-        {{ $button_text }}
+        Click Me
     </button>
 </div>';
-                    $defaultVariables = json_encode([
-                        [
-                            'key' => 'button_text',
-                            'label' => 'Button Text',
-                            'type' => 'text',
-                            'default' => 'Click Me',
-                            'description' => '',
-                        ],
-                    ]);
+                    $defaultVariables = '[]';
                     break;
                 case 'rsvp':
-                    $defaultCode = '<div class="mx-auto max-w-xl rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                    $defaultCode = '<div class="mx-auto max-w-xl rounded-2xl border border-gray-100 bg-white p-6 shadow-sm" x-data="rsvpForm()" data-reveal="up">
     <h3 class="mb-6 text-center text-2xl font-bold text-gray-800">RSVP</h3>
-    <form class="space-y-4">
+    <form class="space-y-4" @submit.prevent="submitRsvp" x-show="!isSuccess">
         <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Nama Lengkap</label>
-            <input type="text" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ketik nama Anda...">
+            <input type="text" x-model="formData.guest_name" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ketik nama Anda...">
         </div>
         <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Kehadiran</label>
-            <select class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                <option value="1">Ya, Saya akan hadir</option>
-                <option value="0">Maaf, tidak bisa hadir</option>
+            <select x-model="formData.status" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                <option value="Hadir">Ya, Saya akan hadir</option>
+                <option value="Tidak Hadir">Maaf, tidak bisa hadir</option>
             </select>
         </div>
         <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Pesan & Doa (Opsional)</label>
-            <textarea class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="3" placeholder="Tuliskan ucapan..."></textarea>
+            <textarea x-model="formData.comments" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="3" placeholder="Tuliskan ucapan..."></textarea>
         </div>
-        <button type="button" class="w-full rounded-xl bg-gray-900 py-3 font-medium text-white transition hover:bg-gray-800">Kirim RSVP</button>
+        <button type="submit" :disabled="isSubmitting" class="w-full flex items-center justify-center rounded-xl bg-gray-900 py-3 font-medium text-white transition hover:bg-gray-800">
+            <span x-show="!isSubmitting">Kirim RSVP</span>
+            <span x-show="isSubmitting">Mengirim...</span>
+        </button>
     </form>
+    <div x-show="isSuccess" class="text-center py-8" style="display: none;">
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Terima Kasih!</h3>
+        <p class="text-gray-600">Kehadiran Anda sangat berarti bagi kami.</p>
+    </div>
 </div>';
+                    $defaultVariables = '[]';
                     break;
                 case 'event':
                     $defaultCode = '<div class="mx-auto grid max-w-3xl grid-cols-1 gap-6 p-6 md:grid-cols-2">
@@ -551,7 +489,7 @@
                                 </button>
                             </div>
                         </div>
-                        <textarea id="raw_code" class="hidden">{!! old('code', $component->code ?? $defaultCode) !!}</textarea>
+                        <textarea id="raw_code" class="hidden">{{ old('code', $component->code ?? $defaultCode) }}</textarea>
                     </div>
 
                 </div>
@@ -711,7 +649,18 @@
                         'body { font-family: "Plus Jakarta Sans", sans-serif; margin: 0; background-color: #f8fafc; transform: translateZ(0); height: 100vh; overflow-y: auto; overflow-x: hidden; }',
                         '#preview-container { padding: 20px; min-height: 100%; }',
                         '<\/style>',
-                        '<\/head><body>',
+                        '<script>',
+                        'window.event_date = "2026-08-24T12:00:00";',
+                        'document.addEventListener("alpine:init", () => {',
+                        '    Alpine.data("countdown", (target) => ({ days: "12", hours: "08", minutes: "45", seconds: "00", init() {} }));',
+                        '    Alpine.data("rsvpForm", () => ({',
+                        '        formData: { guest_name: "", status: "Hadir", comments: "" },',
+                        '        isSubmitting: false, isSuccess: false, errorMessage: "",',
+                        '        async submitRsvp() { this.isSubmitting = true; setTimeout(() => { this.isSubmitting = false; this.isSuccess = true; }, 1000); }',
+                        '    }));',
+                        '});',
+                        '<\/script>',
+                        '<\/head><body x-data=\'{ groom_name: "Romeo", bride_name: "Juliet", event_date: "2026-08-24T12:00:00", guest_name: "Tamu Spesial" }\'>',
                         '<div id="preview-container"><\/div>',
                         '<\/body><\/html>'
                     ].join('');
