@@ -77,6 +77,16 @@
 
     <!-- Header Section -->
     <header class="relative z-10 mx-auto max-w-7xl px-6 pb-8 pt-10 text-center">
+        <!-- Back Button -->
+        <button onclick="goBack()"
+            class="absolute left-4 top-4 z-20 h-10 w-10 cursor-pointer rounded-full bg-white/10 text-white backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105"
+            title="Kembali">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        </button>
+
         <!-- Logo Branding matching Linktree -->
         <div
             class="mx-auto mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white shadow-lg">
@@ -939,6 +949,23 @@
                 minute: '2-digit',
                 hour12: false
             }) + ' WITA';
+        }
+    </script>
+
+    <script>
+        function goBack() {
+            const params = new URLSearchParams(window.location.search);
+            const division = params.get('d');
+
+            if (document.referrer === '') {
+                if (division === 'visual') {
+                    window.location.href = '/linkto/LuminaraVisual';
+                } else {
+                    window.location.href = '/linkto/LuminaraPhotobooth';
+                }
+            } else {
+                window.history.back();
+            }
         }
     </script>
 </body>
