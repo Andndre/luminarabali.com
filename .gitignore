@@ -30,5 +30,6 @@ plan.md
 !GEMINI.md
 !README.md
 
+/.sisyphus
 _ide_helper*.php
 .phpstorm.meta.php
