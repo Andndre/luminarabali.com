@@ -30,15 +30,15 @@ class InvitationCacheBustTest extends TestCase
             'published_status' => 'published', 'created_by' => $admin->id,
         ]);
 
-        Cache::put('invitation:a-and-b', 'stale-cached-value', 3600);
-        $this->assertTrue(Cache::has('invitation:a-and-b'));
+        Cache::put("invitation:{$page->slug}", 'stale-cached-value', 3600);
+        $this->assertTrue(Cache::has("invitation:{$page->slug}"));
 
         $this->actingAs($admin)->postJson('/admin/api/templates/sections', [
             'template_id' => $template->id,
             'html_content' => '<p>updated</p>',
         ])->assertOk();
 
-        $this->assertFalse(Cache::has('invitation:a-and-b'));
+        $this->assertFalse(Cache::has("invitation:{$page->slug}"));
     }
 
     public function test_updating_invitation_metadata_busts_cache_for_old_and_new_slug(): void

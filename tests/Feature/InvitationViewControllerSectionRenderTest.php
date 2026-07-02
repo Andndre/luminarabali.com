@@ -71,7 +71,12 @@ class InvitationViewControllerSectionRenderTest extends TestCase
         $response = $this->get("/invitation/{$page->slug}");
 
         $response->assertOk();
-        $response->assertSee('Nested child text');
+        $html = $response->getContent();
+        $containerPos = strpos($html, 'section-one-col');
+        $childPos = strpos($html, 'Nested child text');
+        $this->assertNotFalse($containerPos);
+        $this->assertNotFalse($childPos);
+        $this->assertGreaterThan($containerPos, $childPos, 'Nested child text must render inside the parent container.');
     }
 
     public function test_theme_style_block_is_present_when_page_uses_sections(): void

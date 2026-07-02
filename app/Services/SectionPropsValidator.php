@@ -26,6 +26,8 @@ class SectionPropsValidator
                 'number' => $this->validateNumber($key, $value, $errors),
                 'boolean' => $this->validateBoolean($key, $value, $errors),
                 'select' => $this->validateSelect($key, $value, $field['options'] ?? [], $errors),
+                'url' => $this->validateUrl($key, $value, $errors),
+                'text' => $this->validateText($key, $value, $errors),
                 default => null,
             };
 
@@ -64,6 +66,21 @@ class SectionPropsValidator
     {
         if (!in_array($value, $options, true)) {
             $errors["props.{$key}"] = ["{$key} harus salah satu dari: ".implode(', ', $options).'.'];
+        }
+    }
+
+    protected function validateUrl(string $key, mixed $value, array &$errors): void
+    {
+        if ($value !== null && $value !== '' && $value !== '#'
+            && (!is_string($value) || !filter_var($value, FILTER_VALIDATE_URL))) {
+            $errors["props.{$key}"] = ["{$key} harus berupa URL yang valid."];
+        }
+    }
+
+    protected function validateText(string $key, mixed $value, array &$errors): void
+    {
+        if ($value !== null && !is_string($value)) {
+            $errors["props.{$key}"] = ["{$key} harus berupa teks."];
         }
     }
 }

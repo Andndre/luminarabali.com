@@ -5,7 +5,8 @@ $props = $props ?? [];
 $backgroundValue = $props['background_image'] ?? null;
 $overlayEnabled = $props['overlay_enabled'] ?? false;
 $overlayColor = $props['overlay_color'] ?? '#000000';
-$overlayOpacity = ($props['overlay_opacity'] ?? 40) / 100;
+$overlayOpacityPercent = is_numeric($props['overlay_opacity'] ?? null) ? (float) $props['overlay_opacity'] : 40.0;
+$overlayOpacity = max(0, min(1, $overlayOpacityPercent / 100));
 
 $title = $props['title'] ?? 'The Wedding Of';
 $groomName = $page->groom_name ?? 'Groom';

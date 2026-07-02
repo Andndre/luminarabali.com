@@ -46,12 +46,13 @@ class InvitationRenderer
     protected function mergeTheme(InvitationPage $page): array
     {
         $default = config('invitation.default_theme');
-        $templateTheme = $page->template->theme ?? [];
-        $overrides = $page->theme_overrides ?? [];
+        $templateTheme = is_array($page->template->theme ?? null) ? $page->template->theme : [];
+        $overrides = is_array($page->theme_overrides ?? null) ? $page->theme_overrides : [];
+        $part = fn (array $theme, string $key): array => is_array($theme[$key] ?? null) ? $theme[$key] : [];
 
         return [
-            'colors' => array_merge($default['colors'], $templateTheme['colors'] ?? [], $overrides['colors'] ?? []),
-            'fonts' => array_merge($default['fonts'], $templateTheme['fonts'] ?? [], $overrides['fonts'] ?? []),
+            'colors' => array_merge($default['colors'], $part($templateTheme, 'colors'), $part($overrides, 'colors')),
+            'fonts' => array_merge($default['fonts'], $part($templateTheme, 'fonts'), $part($overrides, 'fonts')),
         ];
     }
 
@@ -83,7 +84,7 @@ class InvitationRenderer
         $curated = collect(config('invitation.fonts'));
         $links = '';
 
-        foreach (array_unique($theme['fonts']) as $fontName) {
+        foreach (array_unique(array_filter($theme['fonts'], 'is_string')) as $fontName) {
             $font = $curated->firstWhere('name', $fontName);
             if ($font) {
                 $links .= '<link rel="stylesheet" href="'.e($font['url']).'">';

@@ -167,13 +167,18 @@ class InvitationEditorController extends Controller
             'is_visible' => $request->input('is_visible', $section->is_visible),
         ]);
 
+        Cache::forget("invitation:{$section->page->slug}");
+
         return response()->json(['success' => true, 'section' => $section]);
     }
 
     public function deleteSection($id)
     {
         $section = InvitationSection::findOrFail($id);
+        $slug = $section->page->slug;
         $section->delete();
+
+        Cache::forget("invitation:{$slug}");
 
         return response()->json(['success' => true, 'message' => 'Section deleted']);
     }
@@ -190,6 +195,7 @@ class InvitationEditorController extends Controller
             $section = InvitationSection::find($sectionData['id']);
             if ($section) {
                 $section->update(['order_index' => $sectionData['order_index']]);
+                Cache::forget("invitation:{$section->page->slug}");
             }
         }
 
