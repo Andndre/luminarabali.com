@@ -250,6 +250,7 @@ function mediaLibrary() {
         uploadStatus: '',
         uploadedFiles: [],
         searchTimeout: null,
+        pageId: new URLSearchParams(window.location.search).get('page_id') || '',
         newAssetName: '',
         renaming: false,
 
@@ -264,7 +265,8 @@ function mediaLibrary() {
                 const params = new URLSearchParams({
                     page: page,
                     ...(this.filterType && { file_type: this.filterType }),
-                    ...(this.search && { search: this.search })
+                    ...(this.search && { search: this.search }),
+                    ...(this.pageId && { page_id: this.pageId })
                 });
 
                 const response = await fetch(`/admin/api/assets?${params}`);
@@ -332,6 +334,9 @@ function mediaLibrary() {
                 const file = files[i];
                 const formData = new FormData();
                 formData.append('file', file);
+                if (this.pageId) {
+                    formData.append('page_id', this.pageId);
+                }
 
                 try {
                     this.uploadStatus = `Uploading ${file.name}...`;
@@ -374,7 +379,7 @@ function mediaLibrary() {
                 window.parent.postMessage({
                     type: 'assetSelected',
                     asset: rawAsset
-                }, '*');
+                }, window.location.origin);
             }
         },
 
