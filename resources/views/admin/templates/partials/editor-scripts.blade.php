@@ -9,7 +9,7 @@
         window.isSyncing = true;
         
         const canvas = document.getElementById('visual-canvas');
-        if (!canvas || typeof htmlModel === 'undefined') {
+        if (!canvas || typeof window.htmlCodeModel === 'undefined') {
             window.isSyncing = false;
             return;
         }
@@ -61,7 +61,7 @@
 
         // Update Monaco Model
         let cleanHTML = clone.innerHTML.trim();
-        const activeModel = window.activeTab === 'cover' ? coverModel : htmlModel;
+        const activeModel = window.activeTab === 'cover' ? window.coverCodeModel : window.htmlCodeModel;
         
         if (window.globalEditor) {
             const fullRange = activeModel.getFullModelRange();
