@@ -10,7 +10,7 @@
     $columnRatio = $props['column_ratio'] ?? '50-50';
     $verticalAlign = $props['vertical_align'] ?? 'top';
     $alignItems = $verticalAlign === 'center' ? 'center' : ($verticalAlign === 'bottom' ? 'flex-end' : 'flex-start');
-    $backgroundColor = $props['background_color'] ?? '#ffffff';
+    $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
     $marginTop = $props['margin_top'] ?? 0;
     $marginBottom = $props['margin_bottom'] ?? 0;
     $marginLeft = $props['margin_left'] ?? 0;

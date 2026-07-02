@@ -4,16 +4,17 @@
 $title = $props['title'] ?? 'RSVP';
 $subtitle = $props['subtitle'] ?? 'Please confirm your attendance';
 $buttonText = $props['button_text'] ?? 'Kirim Konfirmasi';
-$buttonColor = $props['button_color'] ?? '#d4af37';
+$buttonColor = $props['button_color'] ?? 'var(--color-accent, #d4af37)';
 $successMessage = $props['success_message'] ?? 'Terima kasih atas konfirmasi Anda!';
 $whatsappEnabled = $props['whatsapp_enabled'] ?? false;
 $whatsappPhone = $props['whatsapp_phone'] ?? '';
-$backgroundColor = $props['background_color'] ?? '#ffffff';
+$backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
+$titleColor = $props['title_color'] ?? 'var(--color-primary, #111827)';
+$subtitleColor = $props['subtitle_color'] ?? 'var(--color-text, #4b5563)';
 $paddingTop = $props['padding_top'] ?? 80;
 $paddingBottom = $props['padding_bottom'] ?? 80;
 @endphp
 
-@section('rsvp_styles')
 <style>
   .rsvp-section-{{ $section->id }} {
     background: {{ $backgroundColor }};
@@ -30,17 +31,16 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
     filter: brightness(0.9);
   }
 </style>
-@endsection
 
 <section class="rsvp-section-{{ $section->id }}">
   <div class="container mx-auto px-4">
     <div class="max-w-md mx-auto">
       <div class="text-center mb-8">
         @if($title)
-          <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ $title }}</h2>
+          <h2 class="text-3xl font-bold mb-2" style="color: {{ $titleColor }};">{{ $title }}</h2>
         @endif
         @if($subtitle)
-          <p class="text-gray-600">{{ $subtitle }}</p>
+          <p style="color: {{ $subtitleColor }};">{{ $subtitle }}</p>
         @endif
       </div>
 

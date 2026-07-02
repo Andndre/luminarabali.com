@@ -87,8 +87,6 @@
     @endif
 
     {!! $themeStyle ?? '' !!}
-
-    @stack('rsvp_styles')
 </head>
 
 <body class="bg-white">

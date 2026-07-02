@@ -6,9 +6,9 @@ $groomName = $page->groom_name ?? 'Groom';
 $brideName = $page->bride_name ?? 'Bride';
 $eventDate = $page->event_date ?? null;
 $buttonText = $props['button_text'] ?? 'Buka Undangan';
-$buttonColor = $props['button_color'] ?? '#d4af37';
-$fontFamily = $props['font_family'] ?? 'Playfair Display';
-$textColor = $props['text_color'] ?? '#ffffff';
+$buttonColor = $props['button_color'] ?? 'var(--color-accent, #d4af37)';
+$fontFamily = isset($props['font_family']) ? "'{$props['font_family']}', serif" : "var(--font-heading, 'Playfair Display'), serif";
+$textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
 $overlayEnabled = filter_var($props['overlay_enabled'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
 
 $bgImage = $props['background_image'] ?? null;
@@ -54,16 +54,16 @@ $targetName = request()->query('to') ?? null;
   }
 
   .cover-section-{{ $section->id ?? 'default' }} .cover-title {
-    font-family: '{{ $fontFamily }}', serif;
+    font-family: {{ $fontFamily }};
     margin-bottom: 1rem;
   }
 
   .cover-section-{{ $section->id ?? 'default' }} .cover-names {
-    font-family: '{{ $fontFamily }}', serif;
+    font-family: {{ $fontFamily }};
   }
 
   .cover-section-{{ $section->id ?? 'default' }} .cover-date {
-    font-family: '{{ $fontFamily }}', serif;
+    font-family: {{ $fontFamily }};
   }
 
   /* Prevent scrolling when cover is active */

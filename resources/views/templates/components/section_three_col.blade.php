@@ -7,7 +7,7 @@
     $paddingRight = $props['padding_right'] ?? 20;
     $maxWidth = $props['max_width'] ?? 1200;
     $columnGap = $props['column_gap'] ?? 20;
-    $backgroundColor = $props['background_color'] ?? '#ffffff';
+    $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
     $marginTop = $props['margin_top'] ?? 0;
     $marginBottom = $props['margin_bottom'] ?? 0;
     $marginLeft = $props['margin_left'] ?? 0;
