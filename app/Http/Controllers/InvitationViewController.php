@@ -15,15 +15,26 @@ class InvitationViewController extends Controller
         $page = Cache::remember("invitation:{$slug}", 3600, function () use ($slug) {
             return InvitationPage::where('slug', $slug)
                 ->where('published_status', 'published')
-                ->with(['assets', 'template'])
+                ->with(['assets', 'template', 'sections' => fn ($query) => $query->orderBy('order_index')])
                 ->firstOrFail();
         });
 
-        $content = $page->template->html_content ?? '';
+        $usesSections = $page->sections->isNotEmpty();
+
+        if ($usesSections) {
+            $renderer = new InvitationRenderer();
+            $content = $renderer->render($page);
+            $themeStyle = $renderer->themeStyle($page);
+        } else {
+            $content = $page->template->html_content ?? '';
+            $themeStyle = '';
+        }
 
         return view('invitations.public', [
             'page' => $page,
-            'content' => $content
+            'content' => $content,
+            'themeStyle' => $themeStyle,
+            'usesSections' => $usesSections,
         ]);
     }
 

@@ -18,27 +18,33 @@ class InvitationRenderer
             ->where('is_visible', true)
             ->get();
 
-        $html = '';
+        $byParent = $this->sections->groupBy('parent_id');
+        $topLevel = $byParent->get(null, collect());
 
-        foreach ($this->sections as $section) {
-            $html .= $this->renderSection($section);
+        $html = '';
+        foreach ($topLevel as $section) {
+            $html .= $this->renderSection($section, $byParent);
         }
 
         return $html;
     }
 
-    protected function renderSection(InvitationSection $section): string
+    protected function renderSection(InvitationSection $section, \Illuminate\Support\Collection $byParent): string
     {
         $viewPath = "templates.components.{$section->section_type}";
 
         if (!view()->exists($viewPath)) {
+            \Illuminate\Support\Facades\Log::warning("Invitation component view not found: {$section->section_type}", [
+                'section_id' => $section->id,
+            ]);
             return "<!-- Component {$section->section_type} not found -->";
         }
 
         return view($viewPath, [
-            'props' => $section->props,
+            'props' => $section->props ?? [],
             'section' => $section,
-            'page' => $this->page
+            'page' => $this->page,
+            'elements' => $byParent->get($section->id, collect())->all(),
         ])->render();
     }
 
