@@ -39,7 +39,7 @@ class FlagshipTemplateSeeder extends Seeder
             ['section_type' => 'text', 'props' => [
                 'content' => 'Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir di hari pernikahan kami.',
                 'tag' => 'p', 'align' => 'center',
-                'font_family' => 'playfair-display', 'line_height' => 1.8,
+                'line_height' => 1.8,
             ]],
             ['section_type' => 'rsvp', 'props' => [
                 'title' => 'RSVP', 'subtitle' => 'Mohon konfirmasi kehadiran Anda',
@@ -70,7 +70,7 @@ class FlagshipTemplateSeeder extends Seeder
             ['section_type' => 'text', 'props' => [
                 'content' => 'Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri.',
                 'tag' => 'p', 'align' => 'center',
-                'font_family' => 'open-sans', 'line_height' => 1.8,
+                'line_height' => 1.8,
             ]],
             ['section_type' => 'countdown', 'props' => [
                 'title' => 'Counting Down',

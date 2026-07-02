@@ -121,7 +121,7 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertOk();
         $response->assertSee('var(--color-accent, #d4af37)', false);
         $response->assertSee('var(--color-text, #212529)', false);
-        $response->assertSee('var(--color-surface, #f8f9fa)', false);
+        $response->assertSee('var(--color-surface, #ffffff)', false);
         $response->assertSee('var(--color-primary, #212529)', false);
     }
 

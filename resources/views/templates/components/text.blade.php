@@ -7,7 +7,7 @@
     $color = $props['color'] ?? 'var(--color-text, #000000)';
     $fontSize = $props['font_size'] ?? null;
     $marginBottom = $props['margin_bottom'] ?? 0;
-    $fontFamily = $props['font_family'] ?? 'lato';
+    $fontFamily = $props['font_family'] ?? null;
     $lineHeight = $props['line_height'] ?? 1.5;
     $letterSpacing = $props['letter_spacing'] ?? 0;
     $elementId = $props['element_id'] ?? null;
@@ -22,7 +22,9 @@
         'great-vibes' => "'Great Vibes', cursive",
         'open-sans' => "'Open Sans', sans-serif",
     ];
-    $fontFamilyValue = $fontFamilyMap[$fontFamily] ?? "'Lato', sans-serif";
+    $fontFamilyValue = $fontFamily
+        ? ($fontFamilyMap[$fontFamily] ?? "'Lato', sans-serif")
+        : 'var(--font-body, \'Lato\', sans-serif)';
 
     // Build inline style
     $inlineStyle =
