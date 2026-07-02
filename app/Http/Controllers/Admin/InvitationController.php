@@ -109,6 +109,7 @@ class InvitationController extends Controller
             'bride_name' => 'required|string|max:255',
             'event_date' => 'required|date',
             'meta_data' => 'nullable|string',
+            'published_status' => 'required|in:draft,published,archived',
         ]);
 
         $metaData = null;
@@ -125,6 +126,7 @@ class InvitationController extends Controller
             'bride_name' => $request->bride_name,
             'event_date' => $request->event_date,
             'meta_data' => $metaData,
+            'published_status' => $request->published_status,
         ]);
 
         Cache::forget("invitation:{$invitation->slug}");
