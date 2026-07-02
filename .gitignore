@@ -32,5 +32,6 @@ plan.md
 
 /.sisyphus
 /.superpowers
+/.claude
 _ide_helper*.php
 .phpstorm.meta.php
