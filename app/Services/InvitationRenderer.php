@@ -74,15 +74,18 @@ class InvitationRenderer
     {
         $curatedFontNames = collect(config('invitation.fonts'))->pluck('name')->all();
         $vars = [];
+        $safeKey = '/^[a-zA-Z0-9_-]+$/';
 
         foreach ($theme['colors'] as $key => $value) {
-            if (is_string($value) && preg_match('/^#[0-9a-fA-F]{3,8}$/', $value)) {
+            if (is_string($key) && preg_match($safeKey, $key)
+                && is_string($value) && preg_match('/^#[0-9a-fA-F]{3,8}$/', $value)) {
                 $vars[] = '--color-'.$key.': '.$value.';';
             }
         }
 
         foreach ($theme['fonts'] as $key => $value) {
-            if (in_array($value, $curatedFontNames, true)) {
+            if (is_string($key) && preg_match($safeKey, $key)
+                && in_array($value, $curatedFontNames, true)) {
                 $vars[] = '--font-'.$key.": '".$value."';";
             }
         }
