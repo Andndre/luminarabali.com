@@ -222,6 +222,11 @@ require(['vs/editor/editor.main'], function() {
     htmlCodeModel = monaco.editor.createModel(rawMainHtmlString, "html");
     cssCodeModel = monaco.editor.createModel(rawCustomCssString, "css");
 
+    // Expose to window so editor-scripts.blade.php's syncToMonaco() can reach them
+    window.coverCodeModel = coverCodeModel;
+    window.htmlCodeModel = htmlCodeModel;
+    window.cssCodeModel = cssCodeModel;
+
     // Inisialisasi Monaco Editor Instance
     globalMonacoEditor = monaco.editor.create(document.getElementById('monaco-container'), {
         model: htmlCodeModel, // Default model di awal adalah Main Content (HTML)
