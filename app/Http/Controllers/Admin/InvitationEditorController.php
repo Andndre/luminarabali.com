@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\InvitationPage;
 use App\Models\InvitationSection;
+use App\Services\SectionPropsValidator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -121,7 +122,10 @@ class InvitationEditorController extends Controller
                     'parent_id' => $parentId,
                     'section_type' => $sectionData['section_type'],
                     'order_index' => $sectionData['order_index'],
-                    'props' => $sectionData['props'] ?? [],
+                    'props' => app(SectionPropsValidator::class)->validate(
+                        $sectionData['section_type'],
+                        $sectionData['props'] ?? []
+                    ),
                     'custom_css' => $sectionData['custom_css'] ?? null,
                     'is_visible' => $sectionData['is_visible'] ?? true,
                 ];
@@ -152,7 +156,16 @@ class InvitationEditorController extends Controller
     public function updateSection(Request $request, $id)
     {
         $section = InvitationSection::findOrFail($id);
-        $section->update($request->only(['props', 'custom_css', 'is_visible']));
+
+        $props = $request->has('props')
+            ? app(SectionPropsValidator::class)->validate($section->section_type, $request->input('props'))
+            : $section->props;
+
+        $section->update([
+            'props' => $props,
+            'custom_css' => $request->input('custom_css', $section->custom_css),
+            'is_visible' => $request->input('is_visible', $section->is_visible),
+        ]);
 
         return response()->json(['success' => true, 'section' => $section]);
     }
