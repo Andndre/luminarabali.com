@@ -3,7 +3,7 @@
 @php
 $targetDate = $page && $page->event_date ? $page->event_date->toIso8601String() : null;
 $title = $props['title'] ?? 'Counting Down To';
-$backgroundColor = $props['background_color'] ?? 'var(--color-surface, #f8f9fa)';
+$backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
 $textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
 $titleColor = $props['title_color'] ?? 'var(--color-primary, #212529)';
 $accentColor = $props['accent_color'] ?? 'var(--color-accent, #d4af37)';
