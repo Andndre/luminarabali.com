@@ -105,17 +105,29 @@ export default function EditorHover() {
          * Menghapus blok makro yang sedang di-hover dari kanvas visual.
          * Jika blok yang dihapus sedang dibuka di panel Inspector mikro, panel Inspector akan ditutup terlebih dahulu.
          */
-        deleteHoveredNode() {
-            if (this.hoveredNode) {
-                // Jika elemen yang dihapus adalah elemen yang sedang aktif di-inspect (atau berisi elemen tersebut), tutup inspector
-                if (this.selectedNode === this.hoveredNode || this.hoveredNode.contains(this.selectedNode)) {
-                    this.closeInspector();
-                }
-                this.hoveredNode.remove();
-                this.hoverMenuVisible = false;
-                this.hoveredNode = null;
-                window.syncToMonaco();
+        async deleteHoveredNode() {
+            if (!this.hoveredNode) return;
+
+            const result = await Swal.fire({
+                title: 'Hapus Blok Ini?',
+                text: 'Blok yang dihapus tidak dapat dikembalikan.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            });
+
+            if (!result.isConfirmed) return;
+
+            // Jika elemen yang dihapus adalah elemen yang sedang aktif di-inspect (atau berisi elemen tersebut), tutup inspector
+            if (this.selectedNode === this.hoveredNode || this.hoveredNode.contains(this.selectedNode)) {
+                this.closeInspector();
             }
+            this.hoveredNode.remove();
+            this.hoverMenuVisible = false;
+            this.hoveredNode = null;
+            window.syncToMonaco();
         },
 
         /**
