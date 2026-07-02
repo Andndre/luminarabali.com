@@ -102,4 +102,24 @@ class SectionPropsValidatorTest extends TestCase
 
         $this->assertSame(['content' => 'Hi', 'color' => '#ff0000'], $result);
     }
+
+    public function test_whatsapp_phone_with_script_breaking_characters_throws_validation_exception(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        (new SectionPropsValidator())->validate('rsvp', [
+            'whatsapp_phone' => "not a valid <script>alert(1)</script>` phone",
+        ], 'content');
+    }
+
+    public function test_whatsapp_phone_with_valid_formats_passes_through_unchanged(): void
+    {
+        $validator = new SectionPropsValidator();
+
+        $result1 = $validator->validate('rsvp', ['whatsapp_phone' => '+62812345678'], 'content');
+        $result2 = $validator->validate('rsvp', ['whatsapp_phone' => '0812-3456-789'], 'content');
+
+        $this->assertSame('+62812345678', $result1['whatsapp_phone']);
+        $this->assertSame('0812-3456-789', $result2['whatsapp_phone']);
+    }
 }

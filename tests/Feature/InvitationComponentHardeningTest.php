@@ -88,4 +88,26 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertOk();
         $response->assertSee($eventDate->toIso8601String(), false);
     }
+
+    public function test_rsvp_whatsapp_phone_is_safely_escaped_in_script_context(): void
+    {
+        $malicious = "'); alert(document.cookie); (`";
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'rsvp', 'order_index' => 0,
+            'props' => [
+                'whatsapp_enabled' => true,
+                'whatsapp_phone' => $malicious,
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        // The raw malicious payload must never appear unescaped inside the script.
+        $response->assertDontSee($malicious, false);
+        // It must be embedded via Js::from(), i.e. as a JSON-escaped string literal.
+        $response->assertSee(\Illuminate\Support\Js::from($malicious)->toHtml(), false);
+    }
 }
