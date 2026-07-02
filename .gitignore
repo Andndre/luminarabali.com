@@ -31,5 +31,6 @@ plan.md
 !README.md
 
 /.sisyphus
+/.superpowers
 _ide_helper*.php
 .phpstorm.meta.php
