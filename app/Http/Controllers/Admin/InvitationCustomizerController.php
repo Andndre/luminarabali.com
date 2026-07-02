@@ -27,6 +27,15 @@ class InvitationCustomizerController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        $this->authorizeSuperAdmin();
+
+        $page = InvitationPage::findOrFail($id);
+
+        return view('admin.invitations.customizer', compact('page'));
+    }
+
     public function load($id)
     {
         $this->authorizeSuperAdmin();

@@ -79,7 +79,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     // Invitations Routes
     Route::get('/invitations/{id}/preview', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'preview'])->name('admin.invitations.customizer-preview');
-    Route::get('/invitations/{id}/editor', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'editor'])->name('admin.invitations.editor');
+    Route::get('/invitations/{id}/customizer', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'show'])->name('admin.invitations.customizer');
+    // Layar editor per-undangan lama digantikan customizer (spec fase 2 §8).
+    Route::get('/invitations/{id}/editor', fn ($id) => redirect()->route('admin.invitations.customizer', $id))->name('admin.invitations.editor');
     Route::resource('invitations', \App\Http\Controllers\Admin\InvitationController::class)->names('admin.invitations');
 
     // Media Library Routes
