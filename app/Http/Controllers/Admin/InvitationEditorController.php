@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\InvitationPage;
 use App\Models\InvitationSection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -82,6 +83,7 @@ class InvitationEditorController extends Controller
             $metaData = $page->meta_data ?? [];
             $metaData['global_custom_css'] = $globalCustomCss;
             $page->update(['meta_data' => $metaData]);
+            Cache::forget("invitation:{$page->slug}");
 
             $existingSections = InvitationSection::where('page_id', $pageId)
                 ->get()

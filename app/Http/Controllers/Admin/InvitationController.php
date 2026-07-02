@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\InvitationPage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -110,6 +111,8 @@ class InvitationController extends Controller
             $metaData = json_decode($request->meta_data, true);
         }
 
+        Cache::forget("invitation:{$invitation->slug}");
+
         $invitation->update([
             'title' => $request->title,
             'slug' => Str::slug($request->slug),
@@ -118,6 +121,8 @@ class InvitationController extends Controller
             'event_date' => $request->event_date,
             'meta_data' => $metaData,
         ]);
+
+        Cache::forget("invitation:{$invitation->slug}");
 
         return redirect()->route('admin.invitations.index')->with('success', 'Undangan berhasil diperbarui.');
     }
