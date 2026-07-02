@@ -16,6 +16,7 @@ class InvitationTemplate extends Model
         'html_content',
         'cover_content',
         'meta_data',
+        'theme',
         'is_active',
         'created_by'
     ];
@@ -25,6 +26,7 @@ class InvitationTemplate extends Model
         return [
             'is_active' => 'boolean',
             'meta_data' => 'array',
+            'theme' => 'array',
         ];
     }
 
