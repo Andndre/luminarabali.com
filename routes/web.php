@@ -78,6 +78,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('/templates/{id}/publish', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'publish'])->name('admin.templates.publish');
 
     // Invitations Routes
+    Route::get('/invitations/{id}/preview', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'preview'])->name('admin.invitations.customizer-preview');
     Route::get('/invitations/{id}/editor', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'editor'])->name('admin.invitations.editor');
     Route::resource('invitations', \App\Http\Controllers\Admin\InvitationController::class)->names('admin.invitations');
 
