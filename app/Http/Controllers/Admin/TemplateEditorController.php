@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\InvitationPage;
 use App\Models\InvitationTemplate;
 use App\Models\InvitationSection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
@@ -75,6 +77,10 @@ class TemplateEditorController extends Controller
             'cover_content' => $request->cover_content,
             'meta_data' => $metaData,
         ]);
+
+        InvitationPage::where('template_id', $templateId)
+            ->pluck('slug')
+            ->each(fn ($slug) => Cache::forget("invitation:{$slug}"));
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Berhasil disimpan!']);
