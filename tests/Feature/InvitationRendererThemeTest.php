@@ -89,4 +89,16 @@ class InvitationRendererThemeTest extends TestCase
 
         $this->assertSame(1, substr_count($style, 'family=Lora'));
     }
+
+    public function test_malicious_color_key_is_dropped_not_injected(): void
+    {
+        $maliciousKey = 'primary; } body { display:none } .x{color';
+
+        $page = $this->pageWithTheme(['colors' => [$maliciousKey => '#fff']], null);
+
+        $style = (new InvitationRenderer())->themeStyle($page);
+
+        $this->assertStringNotContainsString($maliciousKey, $style);
+        $this->assertStringNotContainsString('display:none', $style);
+    }
 }
