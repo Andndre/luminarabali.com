@@ -6,7 +6,7 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/css/app.css', 
+                'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/js/editor/app.js'
             ],
@@ -14,10 +14,6 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
-    esbuild: {
-        jsx: 'automatic',
-        jsxImportSource: 'react',
-    },
     server: {
         watch: {
             ignored: ['**/storage/framework/views/**'],

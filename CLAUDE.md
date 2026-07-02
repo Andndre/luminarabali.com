@@ -37,9 +37,9 @@ npm run build
 The app has two separate frontend stacks sharing the same Laravel backend:
 
 1. **Blade + TailwindCSS v4** — booking pages, admin dashboard, invoices. Entry via `resources/js/app.js`. Rendered server-side via Laravel routes.
-2. **React + Zustand + react-dnd** — invitation/template visual editor. Entry via `resources/js/editor/main.jsx`, loaded at `/admin/templates/{id}/editor-react`. Served as a standalone React SPA embedded in a Blade shell.
+2. **Alpine.js + Monaco Editor** — invitation/template visual editor. Entry via `resources/js/editor/app.js`, loaded at `/admin/templates/{id}/editor`. A Blade page (`editor-native.blade.php`) with an Alpine.js component (`editorApp()`) combining a Monaco code editor and a live visual canvas kept in sync with each other.
 
-Vite is configured with two separate entry points in `vite.config.js`.
+Vite is configured with two separate entry points in `vite.config.js`. (A React-based editor was planned — the route `/admin/templates/{id}/editor-react` and some now-removed dependencies referenced it — but it was never built; the route redirects to the real Alpine/Monaco editor.)
 
 ### Invitation/Template Rendering Pipeline
 
@@ -53,16 +53,9 @@ The React editor writes to `InvitationTemplate` / `InvitationSection` DB tables.
 
 ### Editor State and Persistence
 
-The React editor in `resources/js/editor/` follows a layered pattern:
-- `stores/templateStore.ts` — Zustand store holding the full section tree (`sections[]`) and a flattened `allSections` lookup. Both are kept in sync on mutations.
-- `services/componentSchemas.ts` — defines all draggable component types (text, image, etc.) with their default props and property schemas
-- `services/api.ts` — talks to `/admin/api/*` endpoints for section CRUD and reorder
-- `components/` — Canvas (drop target), SectionWrapper, DraggableComponent, PropertiesPanel, Sidebar, Header, AccordionGroup, FieldRenderer
+The live editor in `resources/js/editor/` is a set of plain Alpine.js modules merged into one `editorApp()` component (`app.js` composes `core.js`, `hover.js`, `inspector.js`, `box-model.js`, `init.js`). It edits one big HTML blob per template (`html_content`, `cover_content`, `global_custom_css` columns on `invitation_templates`), not a structured section tree — the visual canvas and the Monaco code editor are kept in sync via `window.syncToMonaco()` / `window.syncToCanvas()`.
 
-When adding a new section/component type, update all layers together:
-- TypeScript types in `types/index.ts`
-- Component schema in `services/componentSchemas.ts`
-- Default Blade view in `resources/views/templates/components/`
+A structured, section-tree-based data model (`InvitationSection` rows with JSON `props`, rendered via `templates.components.*` Blade partials driven by `config/invitation_components.php`) exists alongside this and is the direction template rendering is migrating toward — see `docs/superpowers/specs/2026-07-02-template-data-model-design.md`. `InvitationEditorController` and `TemplateEditorController`'s section CRUD endpoints implement it, but no frontend currently drives it.
 
 ### Admin API (within web routes)
 
