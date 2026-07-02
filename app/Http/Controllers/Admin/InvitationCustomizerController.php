@@ -10,6 +10,7 @@ use App\Services\SectionPropsValidator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class InvitationCustomizerController extends Controller
@@ -134,17 +135,19 @@ class InvitationCustomizerController extends Controller
             $sectionWrites[] = [$section, $validated];
         }
 
-        $page->update([
-            'title' => $request->title,
-            'groom_name' => $request->groom_name,
-            'bride_name' => $request->bride_name,
-            'event_date' => $request->event_date,
-            'theme_overrides' => $overrides,
-        ]);
+        DB::transaction(function () use ($page, $request, $overrides, $sectionWrites) {
+            $page->update([
+                'title' => $request->title,
+                'groom_name' => $request->groom_name,
+                'bride_name' => $request->bride_name,
+                'event_date' => $request->event_date,
+                'theme_overrides' => $overrides,
+            ]);
 
-        foreach ($sectionWrites as [$section, $validated]) {
-            $section->update(['props' => array_merge($section->props ?? [], $validated)]);
-        }
+            foreach ($sectionWrites as [$section, $validated]) {
+                $section->update(['props' => array_merge($section->props ?? [], $validated)]);
+            }
+        });
 
         Cache::forget("invitation:{$page->slug}");
 

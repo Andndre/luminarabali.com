@@ -36,6 +36,7 @@ class SectionPropsValidator
                 'select' => $this->validateSelect($key, $value, $field['options'] ?? [], $errors),
                 'url' => $this->validateUrl($key, $value, $errors),
                 'text' => $this->validateText($key, $value, $errors),
+                'image' => $this->validateImage($key, $value, $errors),
                 default => null,
             };
 
@@ -89,6 +90,13 @@ class SectionPropsValidator
     {
         if ($value !== null && !is_string($value)) {
             $errors["props.{$key}"] = ["{$key} harus berupa teks."];
+        }
+    }
+
+    protected function validateImage(string $key, mixed $value, array &$errors): void
+    {
+        if ($value !== null && !is_string($value)) {
+            $errors["props.{$key}"] = ["{$key} harus berupa path gambar (teks)."];
         }
     }
 }
