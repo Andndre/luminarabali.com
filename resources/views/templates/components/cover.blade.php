@@ -2,9 +2,9 @@
 
 @php
 $title = $props['title'] ?? 'The Wedding Of';
-$groomName = $props['groom_name'] ?? 'Groom';
-$brideName = $props['bride_name'] ?? 'Bride';
-$eventDate = $props['event_date'] ?? null;
+$groomName = $page->groom_name ?? 'Groom';
+$brideName = $page->bride_name ?? 'Bride';
+$eventDate = $page->event_date ?? null;
 $buttonText = $props['button_text'] ?? 'Buka Undangan';
 $buttonColor = $props['button_color'] ?? '#d4af37';
 $fontFamily = $props['font_family'] ?? 'Playfair Display';

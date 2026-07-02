@@ -2,16 +2,15 @@
 
 @php
 $props = $props ?? [];
-$background = $props['background'] ?? [];
-$backgroundValue = $background['value'] ?? null;
-$overlayEnabled = $background['overlay']['enabled'] ?? false;
-$overlayColor = $background['overlay']['color'] ?? '#000000';
-$overlayOpacity = ($background['overlay']['opacity'] ?? 40) / 100;
+$backgroundValue = $props['background_image'] ?? null;
+$overlayEnabled = $props['overlay_enabled'] ?? false;
+$overlayColor = $props['overlay_color'] ?? '#000000';
+$overlayOpacity = ($props['overlay_opacity'] ?? 40) / 100;
 
 $title = $props['title'] ?? 'The Wedding Of';
-$groomName = $props['groom_name'] ?? 'Groom';
-$brideName = $props['bride_name'] ?? 'Bride';
-$eventDate = $props['event_date'] ?? null;
+$groomName = $page->groom_name ?? 'Groom';
+$brideName = $page->bride_name ?? 'Bride';
+$eventDate = $page->event_date ?? null;
 $fontFamily = $props['font_family'] ?? 'Playfair Display';
 $textColor = $props['text_color'] ?? '#ffffff';
 $alignment = $props['alignment'] ?? 'center';

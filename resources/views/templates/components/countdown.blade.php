@@ -1,9 +1,8 @@
 @props(['props' => [], 'section' => null, 'page' => null])
 
 @php
-$targetDate = $props['target_date'] ?? null;
+$targetDate = optional($page->event_date)->toIso8601String();
 $title = $props['title'] ?? 'Counting Down To';
-$theme = $props['theme'] ?? 'elegant';
 $backgroundColor = $props['background_color'] ?? '#f8f9fa';
 $textColor = $props['text_color'] ?? '#212529';
 $accentColor = $props['accent_color'] ?? '#d4af37';
