@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\InvitationPage;
-use App\Models\InvitationSection;
 
 class InvitationRenderer
 {
@@ -21,30 +20,10 @@ class InvitationRenderer
         $byParent = $this->sections->groupBy('parent_id');
         $topLevel = $byParent->get(null, collect());
 
-        $html = '';
-        foreach ($topLevel as $section) {
-            $html .= $this->renderSection($section, $byParent);
-        }
-
-        return $html;
-    }
-
-    protected function renderSection(InvitationSection $section, \Illuminate\Support\Collection $byParent): string
-    {
-        $viewPath = "templates.components.{$section->section_type}";
-
-        if (!view()->exists($viewPath)) {
-            \Illuminate\Support\Facades\Log::warning("Invitation component view not found: {$section->section_type}", [
-                'section_id' => $section->id,
-            ]);
-            return "<!-- Component {$section->section_type} not found -->";
-        }
-
-        return view($viewPath, [
-            'props' => $section->props ?? [],
-            'section' => $section,
-            'page' => $this->page,
-            'elements' => $byParent->get($section->id, collect())->all(),
+        return view('templates.section-tree', [
+            'sections' => $topLevel,
+            'byParent' => $byParent,
+            'page' => $page,
         ])->render();
     }
 

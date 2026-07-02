@@ -98,6 +98,13 @@
         // Exclude the raw legacy HTML blob from the client-side data dump; it is never
         // read by Alpine and would otherwise leak into every page's inline script tag.
         $page->template?->makeHidden('html_content');
+        $page->sections->each(fn ($section) => $section->makeHidden('props'));
+
+        // $content is passed in as a deferred closure (see InvitationViewController)
+        // so the section tree renders nested inside this view's own top-level
+        // render pass, keeping @push('scripts') content from section partials
+        // alive through to @stack('scripts') below.
+        $content = is_callable($content ?? null) ? $content() : ($content ?? '');
     @endphp
 
     <script>

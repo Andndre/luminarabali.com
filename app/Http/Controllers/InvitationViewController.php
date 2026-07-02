@@ -20,13 +20,22 @@ class InvitationViewController extends Controller
         });
 
         $usesSections = $page->sections->isNotEmpty();
+        $renderer = new InvitationRenderer();
 
         if ($usesSections) {
-            $renderer = new InvitationRenderer();
-            $content = $renderer->render($page);
+            // Defer the section-tree render: it must execute *nested inside* the
+            // outer `invitations.public` view's own render pass (i.e. while
+            // `{!! $content !!}` is being evaluated), not as its own standalone
+            // top-level render here. Blade's Factory flushes @push/@stack state
+            // whenever a top-level render() call completes; calling
+            // $renderer->render($page) eagerly at this point in the controller
+            // makes it a separate top-level render that finishes (and flushes)
+            // before `invitations.public` (and its @stack('scripts')) even starts,
+            // silently dropping every @push('scripts') block from section partials.
+            $content = fn () => $renderer->render($page);
             $themeStyle = $renderer->themeStyle($page);
         } else {
-            $content = $page->template->html_content ?? '';
+            $content = fn () => $page->template->html_content ?? '';
             $themeStyle = '';
         }
 
