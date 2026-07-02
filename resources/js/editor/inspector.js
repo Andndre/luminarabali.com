@@ -272,8 +272,20 @@ export default function EditorInspector() {
         /**
          * Menghapus elemen mikro terpilih dari DOM kanvas visual dan menutup drawer Inspector.
          */
-        deleteSelectedNode() {
+        async deleteSelectedNode() {
             if (!this.selectedNode) return;
+
+            const result = await Swal.fire({
+                title: 'Hapus Elemen Ini?',
+                text: 'Elemen yang dihapus tidak dapat dikembalikan.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            });
+
+            if (!result.isConfirmed) return;
 
             this.selectedNode.remove();
             this.closeInspector();
