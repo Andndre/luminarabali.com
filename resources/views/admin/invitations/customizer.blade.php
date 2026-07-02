@@ -145,8 +145,8 @@ function customizerApp() {
             this.form = data.page;
             this.themeBase = data.theme_base;
             this.overrides = {
-                colors: (data.theme_overrides && data.theme_overrides.colors) || {},
-                fonts: (data.theme_overrides && data.theme_overrides.fonts) || {},
+                colors: { ...(data.theme_overrides?.colors || {}) },
+                fonts: { ...(data.theme_overrides?.fonts || {}) },
             };
             this.fonts = data.fonts;
             this.sections = data.sections;
@@ -206,7 +206,7 @@ function customizerApp() {
                 });
 
                 if (!res.ok) {
-                    const err = await res.json();
+                    const err = await res.json().catch(() => ({}));
                     const firstError = Object.values(err.errors || {})[0]?.[0] || 'Gagal menyimpan.';
                     Swal.fire('Validasi gagal', firstError, 'error');
                     return;
