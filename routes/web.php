@@ -102,6 +102,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
         // Invitations API
         Route::get('/invitations/{id}/load', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'load']);
+        Route::get('/invitations/{id}/customizer', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'load']);
+        Route::put('/invitations/{id}/customizer', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'save']);
 
         // Sections API (for invitations)
         Route::post('/sections', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'saveSection']);
