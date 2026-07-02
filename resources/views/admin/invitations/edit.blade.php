@@ -79,15 +79,15 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <div class="px-4 py-2 border rounded-lg bg-gray-50">
-                            @if($invitation->published_status === 'published')
-                                <span class="text-green-800 font-medium">Published</span>
-                            @elseif($invitation->published_status === 'draft')
-                                <span class="text-yellow-800 font-medium">Draft</span>
-                            @else
-                                <span class="text-gray-800 font-medium">Archived</span>
-                            @endif
-                        </div>
+                        <select name="published_status"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            @foreach (['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived'] as $value => $label)
+                                <option value="{{ $value }}" @selected(old('published_status', $invitation->published_status) === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('published_status')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 

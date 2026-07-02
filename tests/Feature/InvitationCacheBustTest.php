@@ -55,6 +55,7 @@ class InvitationCacheBustTest extends TestCase
         $this->actingAs($admin)->put("/admin/invitations/{$page->id}", [
             'title' => 'A & B', 'slug' => 'new-slug',
             'groom_name' => 'A', 'bride_name' => 'B', 'event_date' => now()->addMonth()->toDateString(),
+            'published_status' => 'published',
         ])->assertRedirect();
 
         $this->assertFalse(Cache::has('invitation:old-slug'));
