@@ -57,6 +57,21 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertDontSee('Ignored');
     }
 
+    public function test_cover_has_opaque_fallback_background_when_no_image_set(): void
+    {
+        $page = $this->publishedPage();
+        $section = InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'cover', 'order_index' => 0,
+            'props' => ['background_image' => null], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee(".cover-section-{$section->id} {", false);
+        $response->assertSee('background-color: #1a1a1a;', false);
+    }
+
     public function test_hero_reads_groom_bride_and_flat_background_props(): void
     {
         $page = $this->publishedPage(['groom_name' => 'Romeo', 'bride_name' => 'Juliet']);

@@ -19,6 +19,7 @@ $targetName = request()->query('to') ?? null;
 
 <style>
   .cover-section-{{ $section->id ?? 'default' }} {
+    background-color: #1a1a1a;
     @if($bgImage)
     background-image: url('{{ str_starts_with($bgImage, 'http') ? $bgImage : Storage::url($bgImage) }}');
     @endif
