@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\InvitationAsset;
+use App\Models\InvitationSection;
+use App\Models\InvitationTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -123,6 +125,38 @@ class InvitationAssetController extends Controller
         }
 
         $asset = InvitationAsset::findOrFail($id);
+
+        $path = $asset->file_path;
+
+        // JSON columns may store forward slashes escaped (e.g. sqlite stores the raw
+        // PHP json_encode() output, which escapes "/" to "\/"; MySQL's native JSON
+        // type normalizes this away). Match both forms so the check is portable.
+        $escapedPath = str_replace('/', '\/', $path);
+
+        $sectionUsers = InvitationSection::where('props', 'like', "%{$path}%")
+            ->orWhere('props', 'like', "%{$escapedPath}%")
+            ->with('page:id,title')
+            ->get()
+            ->map(fn ($s) => [
+                'type' => 'section',
+                'section_id' => $s->id,
+                'section_type' => $s->section_type,
+                'page_title' => $s->page?->title,
+            ]);
+
+        $templateUsers = InvitationTemplate::where('html_content', 'like', "%{$path}%")
+            ->orWhere('cover_content', 'like', "%{$path}%")
+            ->get(['id', 'name'])
+            ->map(fn ($t) => ['type' => 'template', 'template_id' => $t->id, 'name' => $t->name]);
+
+        $usedBy = $sectionUsers->concat($templateUsers)->values();
+
+        if ($usedBy->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Aset masih dipakai dan tidak bisa dihapus.',
+                'used_by' => $usedBy,
+            ], 409);
+        }
 
         // Delete file from storage
         if (Storage::disk('public')->exists($asset->file_path)) {
