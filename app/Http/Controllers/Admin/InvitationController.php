@@ -56,8 +56,7 @@ class InvitationController extends Controller
             'template_id' => 'nullable|exists:invitation_templates,id',
         ]);
 
-        $invitation = InvitationPage::create([
-            'template_id' => $request->template_id,
+        $attributes = [
             'title' => $request->title,
             'slug' => Str::slug($request->slug),
             'groom_name' => $request->groom_name,
@@ -65,9 +64,15 @@ class InvitationController extends Controller
             'event_date' => $request->event_date,
             'published_status' => 'draft',
             'created_by' => $currentUserId,
-        ]);
+        ];
 
-        // No need to duplicate sections since sections belong to the template now.
+        if ($request->template_id) {
+            $template = \App\Models\InvitationTemplate::findOrFail($request->template_id);
+            $invitation = app(\App\Services\TemplateInstantiator::class)
+                ->instantiate($template, $attributes);
+        } else {
+            $invitation = InvitationPage::create($attributes);
+        }
 
         return redirect()->route('admin.invitations.edit', $invitation->id)
             ->with('success', 'Undangan berhasil dibuat.');
