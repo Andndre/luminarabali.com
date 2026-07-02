@@ -35,7 +35,9 @@ class SectionPropsValidator
                 'boolean' => $this->validateBoolean($key, $value, $errors),
                 'select' => $this->validateSelect($key, $value, $field['options'] ?? [], $errors),
                 'url' => $this->validateUrl($key, $value, $errors),
-                'text' => $this->validateText($key, $value, $errors),
+                'text' => str_ends_with($key, '_phone')
+                    ? $this->validatePhone($key, $value, $errors)
+                    : $this->validateText($key, $value, $errors),
                 'image' => $this->validateImage($key, $value, $errors),
                 default => null,
             };
@@ -90,6 +92,17 @@ class SectionPropsValidator
     {
         if ($value !== null && !is_string($value)) {
             $errors["props.{$key}"] = ["{$key} harus berupa teks."];
+        }
+    }
+
+    protected function validatePhone(string $key, mixed $value, array &$errors): void
+    {
+        if ($value === null || $value === '') {
+            return;
+        }
+
+        if (!is_string($value) || !preg_match('/^[0-9+\-() ]*$/', $value)) {
+            $errors["props.{$key}"] = ["{$key} hanya boleh berisi angka, spasi, +, -, ( dan )."];
         }
     }
 

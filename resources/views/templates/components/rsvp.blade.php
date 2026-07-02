@@ -128,8 +128,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         @if($whatsappEnabled && $whatsappPhone)
           // Forward to WhatsApp
+          const whatsappPhone = {!! \Illuminate\Support\Js::from($whatsappPhone) !!};
           const whatsappMessage = `RSVP dari ${data.guest_name}%0AStatus: ${data.attendance_status}%0AJumlah: ${data.number_of_guests}%0APesan: ${data.message || '-'}`;
-          window.open(`https://wa.me/{{ $whatsappPhone }}?text=${whatsappMessage}`, '_blank');
+          window.open(`https://wa.me/${whatsappPhone}?text=${whatsappMessage}`, '_blank');
         @endif
       } else {
         alert('Terjadi kesalahan. Silakan coba lagi.');
