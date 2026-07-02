@@ -20,6 +20,11 @@ class InvitationViewController extends Controller
         });
 
         $usesSections = $page->sections->isNotEmpty();
+
+        if (! $usesSections && empty($page->template?->html_content)) {
+            return response()->view('invitations.not-ready', ['page' => $page]);
+        }
+
         $renderer = new InvitationRenderer();
 
         if ($usesSections) {
