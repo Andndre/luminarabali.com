@@ -6,9 +6,17 @@ use Illuminate\Validation\ValidationException;
 
 class SectionPropsValidator
 {
-    public function validate(string $sectionType, array $props): array
+    public function validate(string $sectionType, array $props, ?string $onlyGroup = null): array
     {
         $schema = config("invitation_components.{$sectionType}", []);
+
+        if ($onlyGroup !== null) {
+            $schema = array_values(array_filter(
+                $schema,
+                fn ($field) => ($field['group'] ?? null) === $onlyGroup
+            ));
+        }
+
         $validated = [];
         $errors = [];
 

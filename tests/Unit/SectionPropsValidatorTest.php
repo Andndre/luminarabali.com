@@ -72,4 +72,34 @@ class SectionPropsValidatorTest extends TestCase
 
         $this->assertSame([], $result);
     }
+
+    public function test_only_group_filter_drops_design_props(): void
+    {
+        $validator = new SectionPropsValidator();
+
+        $result = $validator->validate('text', [
+            'content' => 'Hello',        // group: content
+            'color' => '#ff0000',        // group: design -> harus dibuang
+            'custom_css' => 'color:red', // group: design -> harus dibuang
+        ], 'content');
+
+        $this->assertSame(['content' => 'Hello'], $result);
+    }
+
+    public function test_only_group_filter_still_validates_types(): void
+    {
+        $validator = new SectionPropsValidator();
+
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $validator->validate('cover', ['title' => ['not-a-string']], 'content');
+    }
+
+    public function test_without_group_filter_behavior_is_unchanged(): void
+    {
+        $validator = new SectionPropsValidator();
+
+        $result = $validator->validate('text', ['content' => 'Hi', 'color' => '#ff0000']);
+
+        $this->assertSame(['content' => 'Hi', 'color' => '#ff0000'], $result);
+    }
 }
