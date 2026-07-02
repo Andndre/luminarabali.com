@@ -4,7 +4,7 @@
     $content = $props['content'] ?? 'Tulis teks anda di sini...';
     $tag = $props['tag'] ?? 'p'; // h1, h2, h3, h4, h5, h6, p
     $align = $props['align'] ?? 'left'; // left, center, right
-    $color = $props['color'] ?? '#000000';
+    $color = $props['color'] ?? 'var(--color-text, #000000)';
     $fontSize = $props['font_size'] ?? null;
     $marginBottom = $props['margin_bottom'] ?? 0;
     $fontFamily = $props['font_family'] ?? 'lato';

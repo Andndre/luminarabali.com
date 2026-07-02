@@ -12,8 +12,8 @@ $title = $props['title'] ?? 'The Wedding Of';
 $groomName = $page->groom_name ?? 'Groom';
 $brideName = $page->bride_name ?? 'Bride';
 $eventDate = $page->event_date ?? null;
-$fontFamily = $props['font_family'] ?? 'Playfair Display';
-$textColor = $props['text_color'] ?? '#ffffff';
+$fontFamily = isset($props['font_family']) ? "'{$props['font_family']}', serif" : "var(--font-heading, 'Playfair Display'), serif";
+$textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
 $alignment = $props['alignment'] ?? 'center';
 $paddingTop = $props['padding_top'] ?? 120;
 $paddingBottom = $props['padding_bottom'] ?? 120;
@@ -49,17 +49,17 @@ $paddingBottom = $props['padding_bottom'] ?? 120;
   }
 
   .hero-section-{{ $section->id ?? 'default' }} .hero-title {
-    font-family: {{ $fontFamily }}, serif;
+    font-family: {{ $fontFamily }};
     color: {{ $textColor }};
   }
 
   .hero-section-{{ $section->id ?? 'default' }} .hero-names {
-    font-family: {{ $fontFamily }}, serif;
+    font-family: {{ $fontFamily }};
     color: {{ $textColor }};
   }
 
   .hero-section-{{ $section->id ?? 'default' }} .hero-date {
-    font-family: {{ $fontFamily }}, serif;
+    font-family: {{ $fontFamily }};
     color: {{ $textColor }};
   }
 </style>

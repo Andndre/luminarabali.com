@@ -104,6 +104,56 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertSee($eventDate->toIso8601String(), false);
     }
 
+    public function test_components_without_explicit_color_consume_theme_tokens(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'countdown', 'order_index' => 0,
+            'props' => ['title' => 'Menuju Hari Bahagia'], 'is_visible' => true,
+        ]);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'button', 'order_index' => 1,
+            'props' => ['text' => 'RSVP'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('var(--color-accent, #d4af37)', false);
+        $response->assertSee('var(--color-text, #212529)', false);
+        $response->assertSee('var(--color-surface, #f8f9fa)', false);
+        $response->assertSee('var(--color-primary, #212529)', false);
+    }
+
+    public function test_explicit_section_color_prop_wins_over_theme_token(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'countdown', 'order_index' => 0,
+            'props' => ['title' => 'Menuju Hari Bahagia', 'accent_color' => '#123456'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('color: #123456;', false);
+        $response->assertDontSee('var(--color-accent', false);
+    }
+
+    public function test_rsvp_button_style_block_is_actually_rendered(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'rsvp', 'order_index' => 0,
+            'props' => [], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('.rsvp-button {', false);
+    }
+
     public function test_rsvp_whatsapp_phone_is_safely_escaped_in_script_context(): void
     {
         $malicious = "'); alert(document.cookie); (`";

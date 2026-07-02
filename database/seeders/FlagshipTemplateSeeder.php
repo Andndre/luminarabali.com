@@ -25,29 +25,26 @@ class FlagshipTemplateSeeder extends Seeder
         ], [
             ['section_type' => 'cover', 'props' => [
                 'title' => 'The Wedding Of', 'button_text' => 'Buka Undangan',
-                'button_color' => '#d97b4f', 'font_family' => 'Playfair Display',
-                'text_color' => '#ffffff', 'overlay_enabled' => true,
+                'overlay_enabled' => true,
             ]],
             ['section_type' => 'hero', 'props' => [
                 'title' => 'The Wedding Of', 'overlay_enabled' => true,
                 'overlay_color' => '#33261f', 'overlay_opacity' => 45,
-                'font_family' => 'Playfair Display', 'text_color' => '#ffffff',
                 'alignment' => 'center', 'padding_top' => 140, 'padding_bottom' => 140,
             ]],
             ['section_type' => 'countdown', 'props' => [
-                'title' => 'Menuju Hari Bahagia', 'background_color' => '#fdf6ef',
-                'text_color' => '#33261f', 'accent_color' => '#d97b4f',
+                'title' => 'Menuju Hari Bahagia',
                 'padding_top' => 72, 'padding_bottom' => 72,
             ]],
             ['section_type' => 'text', 'props' => [
                 'content' => 'Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir di hari pernikahan kami.',
-                'tag' => 'p', 'align' => 'center', 'color' => '#33261f',
+                'tag' => 'p', 'align' => 'center',
                 'font_family' => 'playfair-display', 'line_height' => 1.8,
             ]],
             ['section_type' => 'rsvp', 'props' => [
                 'title' => 'RSVP', 'subtitle' => 'Mohon konfirmasi kehadiran Anda',
-                'button_text' => 'Kirim Konfirmasi', 'button_color' => '#d97b4f',
-                'background_color' => '#fdf6ef', 'padding_top' => 80, 'padding_bottom' => 80,
+                'button_text' => 'Kirim Konfirmasi',
+                'padding_top' => 80, 'padding_bottom' => 80,
             ]],
         ]);
 
@@ -63,33 +60,30 @@ class FlagshipTemplateSeeder extends Seeder
         ], [
             ['section_type' => 'cover', 'props' => [
                 'title' => 'Undangan Pernikahan', 'button_text' => 'Buka Undangan',
-                'button_color' => '#4a5d43', 'font_family' => 'Lora',
-                'text_color' => '#ffffff', 'overlay_enabled' => true,
+                'overlay_enabled' => true,
             ]],
             ['section_type' => 'hero', 'props' => [
                 'title' => 'Undangan Pernikahan', 'overlay_enabled' => true,
                 'overlay_color' => '#2c332a', 'overlay_opacity' => 35,
-                'font_family' => 'Lora', 'text_color' => '#ffffff',
                 'alignment' => 'center', 'padding_top' => 120, 'padding_bottom' => 120,
             ]],
             ['section_type' => 'text', 'props' => [
                 'content' => 'Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri.',
-                'tag' => 'p', 'align' => 'center', 'color' => '#2c332a',
+                'tag' => 'p', 'align' => 'center',
                 'font_family' => 'open-sans', 'line_height' => 1.8,
             ]],
             ['section_type' => 'countdown', 'props' => [
-                'title' => 'Counting Down', 'background_color' => '#f6f8f3',
-                'text_color' => '#2c332a', 'accent_color' => '#4a5d43',
+                'title' => 'Counting Down',
                 'padding_top' => 64, 'padding_bottom' => 64,
             ]],
             ['section_type' => 'gallery', 'props' => [
                 'images' => [], 'layout' => 'grid', 'columns' => 3,
-                'gap' => 16, 'lightbox' => true, 'background_color' => '#f6f8f3',
+                'gap' => 16, 'lightbox' => true,
             ]],
             ['section_type' => 'rsvp', 'props' => [
                 'title' => 'Konfirmasi Kehadiran', 'subtitle' => 'Kami menantikan kehadiran Anda',
-                'button_text' => 'Kirim', 'button_color' => '#4a5d43',
-                'background_color' => '#ffffff', 'padding_top' => 80, 'padding_bottom' => 80,
+                'button_text' => 'Kirim',
+                'padding_top' => 80, 'padding_bottom' => 80,
             ]],
         ]);
     }

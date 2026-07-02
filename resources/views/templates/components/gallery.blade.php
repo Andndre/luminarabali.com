@@ -8,7 +8,7 @@ $lightbox = $props['lightbox'] ?? true;
 $images = $props['images'] ?? [];
 @endphp
 
-<section class="gallery-section py-12" style="background: {{ $props['background_color'] ?? '#ffffff' }};">
+<section class="gallery-section py-12" style="background: {{ $props['background_color'] ?? 'var(--color-surface, #ffffff)' }};">
     <div class="container mx-auto px-4">
         @if($layout === 'grid')
             <div class="grid gap-4" style="grid-template-columns: repeat({{ $columns }}, minmax(0, 1fr));">

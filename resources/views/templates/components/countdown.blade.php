@@ -3,9 +3,10 @@
 @php
 $targetDate = $page && $page->event_date ? $page->event_date->toIso8601String() : null;
 $title = $props['title'] ?? 'Counting Down To';
-$backgroundColor = $props['background_color'] ?? '#f8f9fa';
-$textColor = $props['text_color'] ?? '#212529';
-$accentColor = $props['accent_color'] ?? '#d4af37';
+$backgroundColor = $props['background_color'] ?? 'var(--color-surface, #f8f9fa)';
+$textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
+$titleColor = $props['title_color'] ?? 'var(--color-primary, #212529)';
+$accentColor = $props['accent_color'] ?? 'var(--color-accent, #d4af37)';
 $paddingTop = $props['padding_top'] ?? 64;
 $paddingBottom = $props['padding_bottom'] ?? 64;
 @endphp
@@ -43,7 +44,7 @@ $paddingBottom = $props['padding_bottom'] ?? 64;
 <section class="countdown-section-{{ $section->id }}">
   <div class="container mx-auto px-4 text-center">
     @if($title)
-      <h2 class="text-2xl md:text-3xl font-bold mb-8" style="color: {{ $textColor }};">
+      <h2 class="text-2xl md:text-3xl font-bold mb-8" style="color: {{ $titleColor }};">
         {{ $title }}
       </h2>
     @endif

@@ -7,8 +7,8 @@
     $style = $props['variant'] ?? ($props['style'] ?? 'primary');
     $size = $props['size'] ?? 'medium';
     $alignment = $props['align'] ?? ($props['alignment'] ?? 'center');
-    $backgroundColor = $props['background_color'] ?? '#d4af37';
-    $textColor = $props['text_color'] ?? '#ffffff';
+    $backgroundColor = $props['background_color'] ?? 'var(--color-accent, #d4af37)';
+    $textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
     $borderRadius = $props['border_radius'] ?? 8;
     $borderWidth = $props['border_width'] ?? 0;
     $borderColor = $props['border_color'] ?? $backgroundColor;
