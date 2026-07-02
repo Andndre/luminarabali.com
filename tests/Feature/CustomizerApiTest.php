@@ -174,6 +174,60 @@ class CustomizerApiTest extends TestCase
         $this->assertSame('invitations/mine.webp', $imageSection->refresh()->props['src']);
     }
 
+    public function test_save_rejects_array_value_for_image_prop(): void
+    {
+        $imageSection = InvitationSection::create([
+            'page_id' => $this->page->id, 'section_type' => 'image', 'order_index' => 1,
+            'props' => ['src' => 'invitations/original.webp'], 'is_visible' => true,
+        ]);
+        InvitationAsset::create([
+            'page_id' => $this->page->id, 'asset_name' => 'mine', 'file_path' => 'invitations/mine.webp',
+            'file_type' => 'image', 'mime_type' => 'image/webp', 'file_size' => 100,
+        ]);
+
+        $this->actingAs($this->admin)
+            ->putJson("/admin/api/invitations/{$this->page->id}/customizer", $this->validPayload([
+                'sections' => [
+                    ['id' => $imageSection->id, 'props' => ['src' => ['invitations/mine.webp', 'evil-payload']]],
+                ],
+            ]))
+            ->assertStatus(422);
+
+        $this->assertSame('invitations/original.webp', $imageSection->refresh()->props['src']);
+    }
+
+    public function test_save_rejects_image_owned_by_a_different_page(): void
+    {
+        $otherPage = InvitationPage::create([
+            'title' => 'C & D', 'slug' => 'other-page-assets',
+            'groom_name' => 'C', 'bride_name' => 'D', 'event_date' => now()->addMonth(),
+            'published_status' => 'draft', 'created_by' => $this->admin->id,
+        ]);
+        $otherAsset = InvitationAsset::create([
+            'page_id' => $otherPage->id, 'asset_name' => 'theirs', 'file_path' => 'invitations/theirs.webp',
+            'file_type' => 'image', 'mime_type' => 'image/webp', 'file_size' => 100,
+        ]);
+        $otherSection = InvitationSection::create([
+            'page_id' => $otherPage->id, 'section_type' => 'image', 'order_index' => 0,
+            'props' => ['src' => 'invitations/theirs.webp'], 'is_visible' => true,
+        ]);
+
+        $imageSection = InvitationSection::create([
+            'page_id' => $this->page->id, 'section_type' => 'image', 'order_index' => 1,
+            'props' => [], 'is_visible' => true,
+        ]);
+
+        $this->actingAs($this->admin)
+            ->putJson("/admin/api/invitations/{$this->page->id}/customizer", $this->validPayload([
+                'sections' => [['id' => $imageSection->id, 'props' => ['src' => 'invitations/theirs.webp']]],
+            ]))
+            ->assertStatus(422);
+
+        $this->assertArrayNotHasKey('src', $imageSection->refresh()->props ?? []);
+        $this->assertSame('invitations/theirs.webp', $otherAsset->refresh()->file_path);
+        $this->assertSame('invitations/theirs.webp', $otherSection->refresh()->props['src']);
+    }
+
     public function test_endpoints_require_super_admin(): void
     {
         $user = User::factory()->create(['division' => 'photobooth']);
