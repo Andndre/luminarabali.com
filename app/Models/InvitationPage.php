@@ -15,11 +15,13 @@ class InvitationPage extends Model
         'event_date',
         'published_status',
         'meta_data',
+        'theme_overrides',
         'created_by'
     ];
 
     protected $casts = [
         'meta_data' => 'array',
+        'theme_overrides' => 'array',
         'event_date' => 'datetime'
     ];
 
