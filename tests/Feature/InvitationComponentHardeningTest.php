@@ -1,0 +1,91 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\InvitationPage;
+use App\Models\InvitationSection;
+use App\Models\InvitationTemplate;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class InvitationComponentHardeningTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function publishedPage(array $pageAttrs = []): InvitationPage
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'is_active' => true, 'created_by' => $admin->id,
+        ]);
+
+        return InvitationPage::create(array_merge([
+            'template_id' => $template->id, 'title' => 'A & B', 'slug' => 'a-and-b-'.uniqid(),
+            'groom_name' => 'Romeo', 'bride_name' => 'Juliet', 'event_date' => now()->addMonth(),
+            'published_status' => 'published', 'created_by' => $admin->id,
+        ], $pageAttrs));
+    }
+
+    public function test_text_component_escapes_html_in_content_prop(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'text', 'order_index' => 0,
+            'props' => ['content' => '<script>alert(1)</script>'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertDontSee('<script>alert(1)</script>', false);
+        $response->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
+    }
+
+    public function test_cover_reads_groom_bride_and_date_from_page_not_props(): void
+    {
+        $page = $this->publishedPage(['groom_name' => 'Romeo', 'bride_name' => 'Juliet']);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'cover', 'order_index' => 0,
+            'props' => ['groom_name' => 'Ignored', 'bride_name' => 'AlsoIgnored'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('Romeo &amp; Juliet', false);
+        $response->assertDontSee('Ignored');
+    }
+
+    public function test_hero_reads_groom_bride_and_flat_background_props(): void
+    {
+        $page = $this->publishedPage(['groom_name' => 'Romeo', 'bride_name' => 'Juliet']);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => ['background_image' => 'templates/bg.jpg', 'overlay_enabled' => true],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('Romeo');
+        $response->assertSee('Juliet');
+        $response->assertSee('templates/bg.jpg', false);
+    }
+
+    public function test_countdown_reads_target_date_from_page_event_date(): void
+    {
+        $eventDate = now()->addDays(10);
+        $page = $this->publishedPage(['event_date' => $eventDate]);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'countdown', 'order_index' => 0,
+            'props' => ['title' => 'Menuju Hari Bahagia'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee($eventDate->toIso8601String(), false);
+    }
+}
