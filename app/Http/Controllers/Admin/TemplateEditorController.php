@@ -133,7 +133,7 @@ class TemplateEditorController extends Controller
         }
 
         $template = InvitationTemplate::findOrFail($id);
-        $template->update(['is_active' => true]);
+        $template->update(['status' => 'published']);
 
         return response()->json(['success' => true, 'message' => 'Template published']);
     }

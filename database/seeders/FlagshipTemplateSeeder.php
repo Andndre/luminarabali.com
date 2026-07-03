@@ -97,7 +97,7 @@ class FlagshipTemplateSeeder extends Seeder
         }
 
         $template = InvitationTemplate::create(array_merge($templateData, [
-            'is_active' => true,
+            'status' => 'published',
             'created_by' => $adminId,
         ]));
 

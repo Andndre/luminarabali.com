@@ -54,12 +54,15 @@
                                         <p class="text-sm text-gray-500">{{ $template->category }}</p>
                                     @endif
                                 </div>
-                                @if ($template->is_active)
+                                @if ($template->status === 'published')
                                     <span
-                                        class="whitespace-nowrap rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">Active</span>
+                                        class="whitespace-nowrap rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">Published</span>
+                                @elseif ($template->status === 'archived')
+                                    <span
+                                        class="whitespace-nowrap rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">Archived</span>
                                 @else
                                     <span
-                                        class="whitespace-nowrap rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">Inactive</span>
+                                        class="whitespace-nowrap rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800">Draft</span>
                                 @endif
                             </div>
 

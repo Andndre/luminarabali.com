@@ -54,7 +54,7 @@ class AssetReferenceSafeDeleteTest extends TestCase
         $admin = $this->superAdmin();
         $asset = $this->makeAsset();
         InvitationTemplate::create([
-            'name' => 'Legacy', 'slug' => 'legacy-ref', 'is_active' => true,
+            'name' => 'Legacy', 'slug' => 'legacy-ref', 'status' => 'published',
             'created_by' => $admin->id,
             'html_content' => '<img src="/storage/'.$asset->file_path.'">',
         ]);

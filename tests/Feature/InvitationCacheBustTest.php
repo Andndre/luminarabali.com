@@ -22,7 +22,7 @@ class InvitationCacheBustTest extends TestCase
     {
         $admin = $this->superAdmin();
         $template = InvitationTemplate::create([
-            'name' => 'Rustic', 'slug' => 'rustic', 'is_active' => true, 'created_by' => $admin->id,
+            'name' => 'Rustic', 'slug' => 'rustic', 'status' => 'published', 'created_by' => $admin->id,
         ]);
         $page = InvitationPage::create([
             'template_id' => $template->id, 'title' => 'A & B', 'slug' => 'a-and-b',

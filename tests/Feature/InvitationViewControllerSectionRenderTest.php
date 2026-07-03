@@ -17,7 +17,7 @@ class InvitationViewControllerSectionRenderTest extends TestCase
     {
         $admin = User::factory()->create(['division' => 'super_admin']);
         $template = InvitationTemplate::create([
-            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'is_active' => true, 'created_by' => $admin->id,
+            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'status' => 'published', 'created_by' => $admin->id,
         ]);
 
         return InvitationPage::create([

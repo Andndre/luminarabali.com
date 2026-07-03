@@ -17,14 +17,13 @@ class InvitationTemplate extends Model
         'cover_content',
         'meta_data',
         'theme',
-        'is_active',
+        'status',
         'created_by'
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
             'meta_data' => 'array',
             'theme' => 'array',
         ];
