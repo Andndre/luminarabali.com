@@ -232,17 +232,52 @@ class TemplateEditorController extends Controller
 
     public function publish(Request $request, $id)
     {
-        $currentUserId = Auth::id();
-        $currentUser = \App\Models\User::find($currentUserId);
+        $this->authorizeSuperAdmin();
 
-        if ($currentUser->division !== 'super_admin') {
-            abort(403, 'Unauthorized action.');
+        $template = InvitationTemplate::with(['sections' => function ($query) {
+            $query->where('is_visible', true);
+        }])->findOrFail($id);
+
+        $errors = $this->lintTemplate($template);
+
+        if (!empty($errors)) {
+            return response()->json(['success' => false, 'errors' => $errors], 422);
         }
 
-        $template = InvitationTemplate::findOrFail($id);
         $template->update(['status' => 'published']);
 
         return response()->json(['success' => true, 'message' => 'Template published']);
+    }
+
+    private function lintTemplate(InvitationTemplate $template): array
+    {
+        $errors = [];
+
+        $hasCover = $template->sections->contains(fn ($section) => $section->section_type === 'cover');
+        if (!$hasCover) {
+            $errors[] = 'Template harus memiliki section cover.';
+        }
+
+        foreach ($template->sections as $section) {
+            $schema = config("invitation_components.{$section->section_type}", []);
+            foreach ($schema as $field) {
+                if (($field['group'] ?? null) !== 'content') {
+                    continue;
+                }
+                if (($field['type'] ?? null) === 'image') {
+                    // Image content fields are optional by design: cover/hero always render an
+                    // opaque fallback background when no image is set (see Task 6 brief scope
+                    // note), so an empty image field must not block publishing.
+                    continue;
+                }
+                $effective = $section->props[$field['key']] ?? $field['default'] ?? null;
+                if ($effective === null || $effective === '') {
+                    $errors[] = "Section \"{$section->section_type}\" (#{$section->id}): field \"{$field['label']}\" wajib diisi.";
+                }
+            }
+        }
+
+        return $errors;
     }
 
     public function preview($id)
