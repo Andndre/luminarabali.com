@@ -264,10 +264,14 @@ class TemplateEditorController extends Controller
                 if (($field['group'] ?? null) !== 'content') {
                     continue;
                 }
-                if (($field['type'] ?? null) === 'image') {
-                    // Image content fields are optional by design: cover/hero always render an
-                    // opaque fallback background when no image is set (see Task 6 brief scope
-                    // note), so an empty image field must not block publishing.
+                if ($section->section_type === 'cover' && $field['key'] === 'background_image') {
+                    // Cover's background_image is optional by design: cover.blade.php always
+                    // renders an opaque #1a1a1a fallback background unconditionally (see Task 6
+                    // brief scope note), so an empty cover background image must not block
+                    // publishing. This exemption is intentionally narrow: hero.blade.php has no
+                    // equivalent fallback (an unset background_image just renders `url('')`), and
+                    // other image-type content fields (e.g. image.src) have no fallback either, so
+                    // they are NOT exempted here.
                     continue;
                 }
                 $effective = $section->props[$field['key']] ?? $field['default'] ?? null;
