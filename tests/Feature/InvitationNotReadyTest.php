@@ -16,7 +16,7 @@ class InvitationNotReadyTest extends TestCase
     {
         $admin = User::factory()->create(['division' => 'super_admin']);
         $template = InvitationTemplate::create([
-            'name' => 'Empty', 'slug' => 'empty-t', 'is_active' => true, 'created_by' => $admin->id,
+            'name' => 'Empty', 'slug' => 'empty-t', 'status' => 'published', 'created_by' => $admin->id,
         ]);
         $page = InvitationPage::create([
             'template_id' => $template->id, 'title' => 'A & B', 'slug' => 'not-ready-page',

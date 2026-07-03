@@ -18,7 +18,7 @@ class InvitationTemplateThemeCastTest extends TestCase
         $template = InvitationTemplate::create([
             'name' => 'Rustic Garden',
             'slug' => 'rustic-garden',
-            'is_active' => true,
+            'status' => 'published',
             'created_by' => $admin->id,
             'theme' => [
                 'colors' => ['primary' => '#3b2f2f', 'accent' => '#b5654d'],
@@ -38,7 +38,7 @@ class InvitationTemplateThemeCastTest extends TestCase
         $admin = User::factory()->create(['division' => 'super_admin']);
 
         $template = InvitationTemplate::create([
-            'name' => 'No Theme', 'slug' => 'no-theme', 'is_active' => true, 'created_by' => $admin->id,
+            'name' => 'No Theme', 'slug' => 'no-theme', 'status' => 'published', 'created_by' => $admin->id,
         ]);
 
         $this->assertNull($template->fresh()->theme);

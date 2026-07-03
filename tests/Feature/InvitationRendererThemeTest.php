@@ -18,7 +18,7 @@ class InvitationRendererThemeTest extends TestCase
         $admin = User::factory()->create(['division' => 'super_admin']);
 
         $template = InvitationTemplate::create([
-            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'is_active' => true,
+            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'status' => 'published',
             'created_by' => $admin->id, 'theme' => $templateTheme,
         ]);
 

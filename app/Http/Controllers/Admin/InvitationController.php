@@ -34,7 +34,7 @@ class InvitationController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $templates = \App\Models\InvitationTemplate::where('is_active', true)->get();
+        $templates = \App\Models\InvitationTemplate::where('status', 'published')->get();
         return view('admin.invitations.create', compact('templates'));
     }
 

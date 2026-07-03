@@ -20,7 +20,7 @@ class TemplateInstantiatorTest extends TestCase
 
         return InvitationTemplate::create([
             'name' => 'Flagship', 'slug' => 'flagship-'.uniqid(),
-            'is_active' => true, 'created_by' => $admin->id,
+            'status' => 'published', 'created_by' => $admin->id,
         ]);
     }
 
@@ -121,7 +121,7 @@ class TemplateInstantiatorTest extends TestCase
     {
         $admin = User::factory()->create(['division' => 'super_admin']);
         $template = InvitationTemplate::create([
-            'name' => 'Flagship', 'slug' => 'flagship-store', 'is_active' => true, 'created_by' => $admin->id,
+            'name' => 'Flagship', 'slug' => 'flagship-store', 'status' => 'published', 'created_by' => $admin->id,
         ]);
         InvitationSection::create([
             'template_id' => $template->id, 'section_type' => 'text',

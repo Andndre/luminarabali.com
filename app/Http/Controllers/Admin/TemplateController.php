@@ -64,7 +64,7 @@ class TemplateController extends Controller
             'thumbnail' => $thumbnailPath,
             'description' => $request->description,
             'category' => $request->category,
-            'is_active' => $request->is_active ?? true,
+            'status' => $request->status ?? 'draft',
             'created_by' => $currentUserId,
         ]);
 
@@ -120,7 +120,7 @@ class TemplateController extends Controller
             'thumbnail' => $thumbnailPath,
             'description' => $request->description,
             'category' => $request->category,
-            'is_active' => $request->is_active ?? true,
+            'status' => $request->status ?? 'draft',
         ]);
 
         return redirect()->route('admin.templates.index')->with('success', 'Template berhasil diperbarui.');

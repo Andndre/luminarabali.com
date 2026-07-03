@@ -89,9 +89,13 @@ use Illuminate\Support\Facades\Storage;
                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">{{ old('description', $template->description) }}</textarea>
             </div>
 
-            <div class="flex items-center">
-                <input type="checkbox" name="is_active" value="1" id="is_active" {{ old('is_active', $template->is_active) ? 'checked' : '' }} class="w-4 h-4 text-yellow-500 rounded focus:ring-yellow-500">
-                <label for="is_active" class="ml-2 text-sm text-gray-700">Template Aktif</label>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select name="status" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                    <option value="draft" {{ old('status', $template->status) === 'draft' ? 'selected' : '' }}>Draft</option>
+                    <option value="published" {{ old('status', $template->status) === 'published' ? 'selected' : '' }}>Published</option>
+                    <option value="archived" {{ old('status', $template->status) === 'archived' ? 'selected' : '' }}>Archived</option>
+                </select>
             </div>
         </div>
 

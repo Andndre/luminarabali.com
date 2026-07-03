@@ -21,7 +21,7 @@ class FullInvitationTemplateSeeder extends Seeder
             'slug' => 'rustic-elegance-demo',
             'description' => 'A full custom template showcasing the new architecture.',
             'category' => 'rustic',
-            'is_active' => true,
+            'status' => 'published',
             'created_by' => 1,
             'meta_data' => [
                 'bg_music' => 'https://www.soundhelix.com/architectureplay/SoundHelix-Song-1.mp3', // Backup URL
