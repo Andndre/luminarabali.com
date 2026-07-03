@@ -175,4 +175,15 @@ class InvitationComponentHardeningTest extends TestCase
         // It must be embedded via Js::from(), i.e. as a JSON-escaped string literal.
         $response->assertSee(\Illuminate\Support\Js::from($malicious)->toHtml(), false);
     }
+
+    public function test_custom_class_prop_is_no_longer_in_the_component_schema(): void
+    {
+        foreach (['text', 'image', 'button', 'divider', 'spacer'] as $sectionType) {
+            $fields = collect(config('invitation_components.' . $sectionType));
+            $this->assertFalse(
+                $fields->contains(fn ($field) => $field['key'] === 'custom_class'),
+                "Expected {$sectionType} schema to no longer declare custom_class"
+            );
+        }
+    }
 }

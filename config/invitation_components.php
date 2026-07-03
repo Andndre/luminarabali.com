@@ -56,7 +56,6 @@ return [
         ['key' => 'line_height', 'type' => 'number', 'label' => 'Line Height', 'group' => 'design', 'default' => 1.5],
         ['key' => 'letter_spacing', 'type' => 'number', 'label' => 'Letter Spacing', 'group' => 'design', 'default' => 0],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'design', 'default' => null],
-        ['key' => 'custom_class', 'type' => 'text', 'label' => 'Custom Class', 'group' => 'design', 'default' => ''],
         ['key' => 'custom_css', 'type' => 'text', 'label' => 'Custom CSS', 'group' => 'design', 'default' => ''],
     ],
 
@@ -72,7 +71,6 @@ return [
         ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
         ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'design', 'default' => null],
-        ['key' => 'custom_class', 'type' => 'text', 'label' => 'Custom Class', 'group' => 'design', 'default' => ''],
         ['key' => 'custom_css', 'type' => 'text', 'label' => 'Custom CSS', 'group' => 'design', 'default' => ''],
     ],
 
@@ -91,7 +89,6 @@ return [
         ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
         ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'design', 'default' => null],
-        ['key' => 'custom_class', 'type' => 'text', 'label' => 'Custom Class', 'group' => 'design', 'default' => ''],
         ['key' => 'custom_css', 'type' => 'text', 'label' => 'Custom CSS', 'group' => 'design', 'default' => ''],
     ],
 
@@ -104,14 +101,12 @@ return [
         ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 24],
         ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'design', 'default' => null],
-        ['key' => 'custom_class', 'type' => 'text', 'label' => 'Custom Class', 'group' => 'design', 'default' => ''],
         ['key' => 'custom_css', 'type' => 'text', 'label' => 'Custom CSS', 'group' => 'design', 'default' => ''],
     ],
 
     'spacer' => [
         ['key' => 'height', 'type' => 'number', 'label' => 'Tinggi', 'group' => 'design', 'default' => 50],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'design', 'default' => null],
-        ['key' => 'custom_class', 'type' => 'text', 'label' => 'Custom Class', 'group' => 'design', 'default' => ''],
         ['key' => 'custom_css', 'type' => 'text', 'label' => 'Custom CSS', 'group' => 'design', 'default' => ''],
     ],
 
