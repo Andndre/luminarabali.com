@@ -93,6 +93,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         // Templates API
         Route::get('/templates/{id}/load', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'load']);
         Route::post('/templates/sections', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'saveSection'])->name('templates.sections.save');
+        Route::put('/templates/sections/{id}', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'updateSection'])->name('templates.sections.update');
         Route::delete('/templates/sections/{id}', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'deleteSection'])->name('templates.sections.delete');
         Route::post('/templates/sections/reorder', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'reorderSections'])->name('templates.sections.reorder');
 
