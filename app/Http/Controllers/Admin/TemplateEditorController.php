@@ -128,6 +128,50 @@ class TemplateEditorController extends Controller
         return response()->json(['success' => true, 'section' => $section], 201);
     }
 
+    public function renderSection(Request $request)
+    {
+        $this->authorizeSuperAdmin();
+
+        $request->validate([
+            'section_type' => ['required', 'string', function ($attribute, $value, $fail) {
+                if (!is_array(config("invitation_components.{$value}"))) {
+                    $fail('Tipe section tidak dikenal.');
+                }
+            }],
+            'props' => 'nullable|array',
+            'section_id' => 'nullable',
+        ]);
+
+        $validatedProps = (new \App\Services\SectionPropsValidator())->validate(
+            $request->section_type,
+            $request->input('props', [])
+        );
+
+        $section = new InvitationSection([
+            'section_type' => $request->section_type,
+            'props' => $validatedProps,
+        ]);
+        if ($request->filled('section_id')) {
+            $section->id = $request->section_id;
+        }
+
+        $placeholderPage = new InvitationPage([
+            'groom_name' => 'Romeo',
+            'bride_name' => 'Juliet',
+            'event_date' => now()->addMonths(6),
+        ]);
+
+        $viewPath = "templates.components.{$request->section_type}";
+        $html = view($viewPath, [
+            'props' => $validatedProps,
+            'section' => $section,
+            'page' => $placeholderPage,
+            'elements' => [],
+        ])->render();
+
+        return response()->json(['html' => $html]);
+    }
+
     public function deleteSection($id)
     {
         $this->authorizeSuperAdmin();

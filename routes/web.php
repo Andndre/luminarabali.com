@@ -100,6 +100,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::prefix('studio')->name('studio.')->group(function () {
             Route::post('/templates/{templateId}/sections', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'storeSection'])
                 ->name('templates.sections.store');
+            Route::post('/render-section', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'renderSection'])
+                ->name('render-section');
         });
 
         // Invitations API
