@@ -30,6 +30,8 @@ class TemplateEditorController extends Controller
 
     public function load($id)
     {
+        $this->authorizeSuperAdmin();
+
         $template = InvitationTemplate::with(['sections' => function ($query) {
             $query->orderBy('order_index');
         }])->findOrFail($id);
@@ -78,14 +80,25 @@ class TemplateEditorController extends Controller
 
     public function updateSection(Request $request, $id)
     {
+        $this->authorizeSuperAdmin();
+
         $section = InvitationSection::findOrFail($id);
-        $section->update($request->only(['props', 'custom_css', 'is_visible']));
+        $validated = (new \App\Services\SectionPropsValidator())->validate(
+            $section->section_type,
+            $request->input('props', $section->props ?? [])
+        );
+        $section->update(array_merge(
+            $request->only(['custom_css', 'is_visible']),
+            ['props' => $validated]
+        ));
 
         return response()->json(['success' => true, 'section' => $section]);
     }
 
     public function deleteSection($id)
     {
+        $this->authorizeSuperAdmin();
+
         $section = InvitationSection::findOrFail($id);
         $section->delete();
 
@@ -94,6 +107,8 @@ class TemplateEditorController extends Controller
 
     public function reorderSections(Request $request)
     {
+        $this->authorizeSuperAdmin();
+
         $request->validate([
             'sections' => 'required|array',
             'sections.*.id' => 'required|exists:invitation_sections,id',
@@ -170,6 +185,15 @@ class TemplateEditorController extends Controller
         }
 
         return (int) $parentId;
+    }
+
+    private function authorizeSuperAdmin(): void
+    {
+        $currentUser = \App\Models\User::find(\Illuminate\Support\Facades\Auth::id());
+
+        if (!$currentUser || $currentUser->division !== 'super_admin') {
+            abort(403, 'Unauthorized action.');
+        }
     }
 
     private function allowedSectionTypes(): array
