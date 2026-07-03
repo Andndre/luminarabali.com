@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\InvitationPage;
+use App\Models\InvitationTemplate;
 
 class InvitationRenderer
 {
@@ -17,7 +18,25 @@ class InvitationRenderer
             ->where('is_visible', true)
             ->get();
 
-        $byParent = $this->sections->groupBy('parent_id');
+        return $this->renderSections($this->sections, $page);
+    }
+
+    public function renderTemplate(InvitationTemplate $template): string
+    {
+        $sections = $template->sections()->where('is_visible', true)->get();
+
+        $placeholderPage = new InvitationPage([
+            'groom_name' => 'Romeo',
+            'bride_name' => 'Juliet',
+            'event_date' => now()->addMonths(6),
+        ]);
+
+        return $this->renderSections($sections, $placeholderPage);
+    }
+
+    protected function renderSections($sections, InvitationPage $page): string
+    {
+        $byParent = $sections->groupBy('parent_id');
         $topLevel = $byParent->get(null, collect());
 
         return view('templates.section-tree', [
@@ -38,22 +57,31 @@ class InvitationRenderer
 
     public function themeStyle(InvitationPage $page): string
     {
-        $theme = $this->mergeTheme($page);
-
-        return $this->buildStyleBlock($theme) . $this->buildFontLinks($theme);
-    }
-
-    protected function mergeTheme(InvitationPage $page): array
-    {
         $default = config('invitation.default_theme');
         $templateTheme = is_array($page->template->theme ?? null) ? $page->template->theme : [];
         $overrides = is_array($page->theme_overrides ?? null) ? $page->theme_overrides : [];
+
+        return $this->buildStyleAndFonts($default, $templateTheme, $overrides);
+    }
+
+    public function templateThemeStyle(InvitationTemplate $template): string
+    {
+        $default = config('invitation.default_theme');
+        $templateTheme = is_array($template->theme ?? null) ? $template->theme : [];
+
+        return $this->buildStyleAndFonts($default, $templateTheme, []);
+    }
+
+    protected function buildStyleAndFonts(array $default, array $templateTheme, array $overrides): string
+    {
         $part = fn (array $theme, string $key): array => is_array($theme[$key] ?? null) ? $theme[$key] : [];
 
-        return [
+        $theme = [
             'colors' => array_merge($default['colors'], $part($templateTheme, 'colors'), $part($overrides, 'colors')),
             'fonts' => array_merge($default['fonts'], $part($templateTheme, 'fonts'), $part($overrides, 'fonts')),
         ];
+
+        return $this->buildStyleBlock($theme) . $this->buildFontLinks($theme);
     }
 
     protected function buildStyleBlock(array $theme): string
