@@ -48,6 +48,7 @@ class TemplateController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:invitation_templates',
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
+            'status' => 'nullable|in:draft,published,archived',
         ]);
 
         // Handle thumbnail upload
@@ -99,6 +100,7 @@ class TemplateController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:invitation_templates,slug,' . $id,
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
+            'status' => 'nullable|in:draft,published,archived',
         ]);
 
         // Handle thumbnail upload
