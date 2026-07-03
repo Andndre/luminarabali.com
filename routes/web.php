@@ -102,6 +102,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
                 ->name('templates.sections.store');
             Route::post('/render-section', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'renderSection'])
                 ->name('render-section');
+            Route::patch('/templates/{templateId}/theme', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'updateTheme'])
+                ->name('templates.theme.update');
         });
 
         // Invitations API

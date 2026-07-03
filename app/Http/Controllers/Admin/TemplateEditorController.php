@@ -172,6 +172,34 @@ class TemplateEditorController extends Controller
         return response()->json(['html' => $html]);
     }
 
+    public function updateTheme(Request $request, $templateId)
+    {
+        $this->authorizeSuperAdmin();
+
+        $curatedFontNames = collect(config('invitation.fonts'))->pluck('name')->all();
+
+        $request->validate([
+            'colors' => 'required|array',
+            'colors.primary' => 'required|regex:/^#[0-9a-fA-F]{3,8}$/',
+            'colors.accent' => 'required|regex:/^#[0-9a-fA-F]{3,8}$/',
+            'colors.surface' => 'required|regex:/^#[0-9a-fA-F]{3,8}$/',
+            'colors.text' => 'required|regex:/^#[0-9a-fA-F]{3,8}$/',
+            'fonts' => 'required|array',
+            'fonts.heading' => ['required', \Illuminate\Validation\Rule::in($curatedFontNames)],
+            'fonts.body' => ['required', \Illuminate\Validation\Rule::in($curatedFontNames)],
+        ]);
+
+        $template = InvitationTemplate::findOrFail($templateId);
+        $template->update([
+            'theme' => [
+                'colors' => $request->colors,
+                'fonts' => $request->fonts,
+            ],
+        ]);
+
+        return response()->json(['success' => true, 'theme' => $template->theme]);
+    }
+
     public function deleteSection($id)
     {
         $this->authorizeSuperAdmin();
