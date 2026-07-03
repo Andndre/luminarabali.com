@@ -12,7 +12,6 @@
     $marginTop = $props['margin_top'] ?? 0;
     $marginBottom = $props['margin_bottom'] ?? 24;
     $elementId = $props['element_id'] ?? null;
-    $customClass = $props['custom_class'] ?? '';
     $customCss = $props['custom_css'] ?? '';
 
     if (!empty($src) && !\Illuminate\Support\Str::startsWith($src, ['http://', 'https://', '/'])) {
@@ -35,7 +34,7 @@
             <img @if ($elementId) id="{{ $elementId }}" @endif src="{{ $src }}"
                 alt="{{ $alt }}"
                 style="width: {{ $width }}%; border-radius: {{ $borderRadius }}px; border: {{ $borderWidth }}px solid {{ $borderColor }}; box-shadow: {{ $boxShadow }}; {{ $customCss }}"
-                class="{{ $customClass }} inline-block" loading="lazy">
+                class="inline-block" loading="lazy">
         </div>
     </div>
 </section>

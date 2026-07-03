@@ -3,11 +3,10 @@
 @php
     $height = $props['height'] ?? 50;
     $elementId = $props['element_id'] ?? null;
-    $customClass = $props['custom_class'] ?? '';
     $customCss = $props['custom_css'] ?? '';
 @endphp
 
 <section @if ($elementId) id="{{ $elementId }}" @endif
-    class="spacer-section-{{ $section->id ?? 'default' }} {{ $customClass }}"
+    class="spacer-section-{{ $section->id ?? 'default' }}"
     style="height: {{ $height }}px; {{ $customCss }}">
 </section>
