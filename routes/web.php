@@ -71,9 +71,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         return view('admin.templates.test');
     })->name('admin.templates.test');
     Route::get('/templates/{id}/editor', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'editor'])->name('admin.templates.editor');
-    Route::get('/templates/{id}/editor-react', function ($id) {
-        return redirect()->route('admin.templates.editor', $id);
-    })->name('admin.templates.editor-react');
     Route::get('/templates/{id}/preview', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'preview'])->name('admin.templates.preview');
     Route::post('/templates/{id}/publish', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'publish'])->name('admin.templates.publish');
 
