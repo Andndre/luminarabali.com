@@ -28,19 +28,6 @@ class TemplateEditorController extends Controller
         return view('admin.templates.editor-native', compact('template'));
     }
 
-    public function editorReact($id)
-    {
-        $currentUserId = Auth::id();
-        $currentUser = \App\Models\User::find($currentUserId);
-
-        if ($currentUser->division !== 'super_admin') {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $template = InvitationTemplate::with(['sections', 'creator'])->findOrFail($id);
-        return view('admin.templates.editor-native', compact('template'));
-    }
-
     public function load($id)
     {
         $template = InvitationTemplate::with(['sections' => function ($query) {
