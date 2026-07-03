@@ -95,6 +95,39 @@ class TemplateEditorController extends Controller
         return response()->json(['success' => true, 'section' => $section]);
     }
 
+    public function storeSection(Request $request, $templateId)
+    {
+        $this->authorizeSuperAdmin();
+
+        $request->validate([
+            'section_type' => ['required', 'string', function ($attribute, $value, $fail) {
+                if (!is_array(config("invitation_components.{$value}"))) {
+                    $fail('Tipe section tidak dikenal.');
+                }
+            }],
+            'parent_id' => 'nullable|exists:invitation_sections,id',
+        ]);
+
+        $template = InvitationTemplate::findOrFail($templateId);
+
+        $schema = config("invitation_components.{$request->section_type}", []);
+        $defaultProps = collect($schema)->pluck('default', 'key')->all();
+
+        $nextOrderIndex = $template->sections()->count() > 0
+            ? 1 + (int) $template->sections()->max('order_index')
+            : 0;
+
+        $section = $template->sections()->create([
+            'parent_id' => $request->parent_id,
+            'section_type' => $request->section_type,
+            'order_index' => $nextOrderIndex,
+            'props' => $defaultProps,
+            'is_visible' => true,
+        ]);
+
+        return response()->json(['success' => true, 'section' => $section], 201);
+    }
+
     public function deleteSection($id)
     {
         $this->authorizeSuperAdmin();

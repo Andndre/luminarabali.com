@@ -97,6 +97,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::delete('/templates/sections/{id}', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'deleteSection'])->name('templates.sections.delete');
         Route::post('/templates/sections/reorder', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'reorderSections'])->name('templates.sections.reorder');
 
+        Route::prefix('studio')->name('studio.')->group(function () {
+            Route::post('/templates/{templateId}/sections', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'storeSection'])
+                ->name('templates.sections.store');
+        });
+
         // Invitations API
         Route::get('/invitations/{id}/load', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'load']);
         Route::get('/invitations/{id}/customizer', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'load']);
