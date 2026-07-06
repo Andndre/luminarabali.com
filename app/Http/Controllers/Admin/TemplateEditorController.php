@@ -301,6 +301,40 @@ class TemplateEditorController extends Controller
         return view('admin.templates.preview', compact('template'));
     }
 
+    public function studioPreview($id)
+    {
+        $this->authorizeSuperAdmin();
+
+        $template = InvitationTemplate::with(['sections' => function ($query) {
+            $query->orderBy('order_index');
+        }])->findOrFail($id);
+
+        $renderer = new \App\Services\InvitationRenderer();
+
+        // Stub page (never persisted): invitations.public reads title/names/slug/
+        // meta_data off $page, and the rsvp partial reads $page->slug ?? ''.
+        $page = new InvitationPage([
+            'title' => 'Studio Preview: '.$template->name,
+            'slug' => 'studio-preview',
+            'groom_name' => 'Romeo',
+            'bride_name' => 'Juliet',
+            'event_date' => now()->addMonths(6),
+        ]);
+        $page->setRelation('template', $template);
+        $page->setRelation('sections', $template->sections);
+
+        return response()
+            ->view('invitations.public', [
+                'page' => $page,
+                // Deferred closure: must render nested inside invitations.public's own
+                // render pass so section partials' @push('scripts') survive to @stack.
+                'content' => fn () => $renderer->renderTemplate($template),
+                'themeStyle' => $renderer->templateThemeStyle($template),
+                'usesSections' => true,
+            ])
+            ->header('Cache-Control', 'no-store, private');
+    }
+
     private function transformSection(InvitationSection $section): array
     {
         return [
