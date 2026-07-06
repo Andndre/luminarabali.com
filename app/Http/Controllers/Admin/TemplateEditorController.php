@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class TemplateEditorController extends Controller
@@ -83,12 +84,16 @@ class TemplateEditorController extends Controller
         $this->authorizeSuperAdmin();
 
         $section = InvitationSection::findOrFail($id);
-        $validated = (new \App\Services\SectionPropsValidator())->validate(
+        $validated = array_merge($section->props ?? [], (new \App\Services\SectionPropsValidator())->validate(
             $section->section_type,
-            $request->input('props', $section->props ?? [])
-        );
+            $request->input('props', [])
+        ));
+        $validatedFields = $request->validate([
+            'custom_css' => 'sometimes|nullable|string',
+            'is_visible' => 'sometimes|boolean',
+        ]);
         $section->update(array_merge(
-            $request->only(['custom_css', 'is_visible']),
+            $validatedFields,
             ['props' => $validated]
         ));
 
@@ -105,7 +110,10 @@ class TemplateEditorController extends Controller
                     $fail('Tipe section tidak dikenal.');
                 }
             }],
-            'parent_id' => 'nullable|exists:invitation_sections,id',
+            'parent_id' => [
+                'nullable',
+                Rule::exists('invitation_sections', 'id')->where(fn ($query) => $query->where('template_id', $templateId)),
+            ],
         ]);
 
         $template = InvitationTemplate::findOrFail($templateId);
@@ -180,10 +188,10 @@ class TemplateEditorController extends Controller
 
         $request->validate([
             'colors' => 'required|array',
-            'colors.primary' => 'required|regex:/^#[0-9a-fA-F]{3,8}$/',
-            'colors.accent' => 'required|regex:/^#[0-9a-fA-F]{3,8}$/',
-            'colors.surface' => 'required|regex:/^#[0-9a-fA-F]{3,8}$/',
-            'colors.text' => 'required|regex:/^#[0-9a-fA-F]{3,8}$/',
+            'colors.primary' => ['required', 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/'],
+            'colors.accent' => ['required', 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/'],
+            'colors.surface' => ['required', 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/'],
+            'colors.text' => ['required', 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/'],
             'fonts' => 'required|array',
             'fonts.heading' => ['required', \Illuminate\Validation\Rule::in($curatedFontNames)],
             'fonts.body' => ['required', \Illuminate\Validation\Rule::in($curatedFontNames)],

@@ -75,6 +75,8 @@ class TemplateSectionApiAuthorizationTest extends TestCase
             'props' => ['align' => 'center'],
         ])->assertOk();
 
-        $this->assertEquals('center', $section->fresh()->props['align']);
+        $fresh = $section->fresh();
+        $this->assertEquals('center', $fresh->props['align']);
+        $this->assertEquals('hi', $fresh->props['content']);
     }
 }
