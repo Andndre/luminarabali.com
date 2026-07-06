@@ -20,9 +20,55 @@
                     x-text="status"></span>
             </div>
             <h1 class="font-bold text-gray-900 truncate" title="{{ $template->name }}">{{ $template->name }}</h1>
+            <div class="flex gap-1 pt-1">
+                <button @click="panel = 'sections'"
+                    class="flex-1 text-xs font-semibold rounded-lg px-2 py-1.5"
+                    :class="panel === 'sections' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    Struktur
+                </button>
+                <button @click="panel = 'theme'"
+                    class="flex-1 text-xs font-semibold rounded-lg px-2 py-1.5"
+                    :class="panel === 'theme' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    Theme
+                </button>
+            </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-3 space-y-1" x-ref="sectionList">
+        {{-- Panel Theme (brand kit) --}}
+        <div x-show="panel === 'theme'" x-cloak class="flex-1 overflow-y-auto p-4 space-y-6">
+            <section>
+                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Warna</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <template x-for="key in Object.keys(theme.colors)" :key="key">
+                        <label class="block">
+                            <span class="text-xs text-gray-600 capitalize" x-text="key"></span>
+                            <input type="color" :value="theme.colors[key]"
+                                @input="setColor(key, $event.target.value)"
+                                class="mt-1 w-full h-9 border rounded cursor-pointer">
+                        </label>
+                    </template>
+                </div>
+            </section>
+            <section>
+                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Font</h2>
+                <div class="space-y-3">
+                    <template x-for="key in Object.keys(theme.fonts)" :key="key">
+                        <label class="block">
+                            <span class="text-xs text-gray-600 capitalize" x-text="key"></span>
+                            <select :value="theme.fonts[key]" @change="setFont(key, $event.target.value)"
+                                class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                                <template x-for="font in fonts" :key="font">
+                                    <option :value="font" x-text="font"></option>
+                                </template>
+                            </select>
+                        </label>
+                    </template>
+                </div>
+            </section>
+            <p class="text-xs text-gray-400">Perubahan tersimpan otomatis dan langsung terlihat di preview.</p>
+        </div>
+
+        <div x-show="panel === 'sections'" class="flex-1 overflow-y-auto p-3 space-y-1" x-ref="sectionList">
             <template x-for="s in sections" :key="s.id">
                 <div :data-id="s.id" @click="selectedId = s.id"
                     class="group flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer select-none"
@@ -43,7 +89,7 @@
             </p>
         </div>
 
-        <div class="p-3 border-t border-gray-200">
+        <div x-show="panel === 'sections'" class="p-3 border-t border-gray-200">
             <button @click="addOpen = true"
                 class="w-full rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-600 hover:border-black hover:text-black">
                 + Tambah Section
@@ -114,6 +160,11 @@ function studioApp() {
         device: 'mobile',
         loaded: false,
         addOpen: false,
+        panel: 'sections',
+        theme: @json($themeBase),
+        fonts: @json($fonts),
+        themeSaveTimer: null,
+        fontsDirty: false,
         typeLabels: @json($sectionTypes),
 
         async init() {
@@ -208,6 +259,33 @@ function studioApp() {
                 sections: this.sections.map((s, i) => ({ id: s.id, order_index: i })),
             });
             this.reloadPreview();
+        },
+
+        setColor(key, value) {
+            this.theme.colors[key] = value;
+            this.$refs.preview.contentWindow?.document?.documentElement
+                ?.style.setProperty(`--color-${key}`, value);
+            this.queueThemeSave();
+        },
+
+        setFont(key, value) {
+            this.theme.fonts[key] = value;
+            this.fontsDirty = true;
+            this.$refs.preview.contentWindow?.document?.documentElement
+                ?.style.setProperty(`--font-${key}`, `'${value}'`);
+            this.queueThemeSave();
+        },
+
+        queueThemeSave() {
+            clearTimeout(this.themeSaveTimer);
+            this.themeSaveTimer = setTimeout(async () => {
+                await this.api('PATCH', `/admin/api/studio/templates/{{ $template->id }}/theme`, this.theme);
+                if (this.fontsDirty) {
+                    // Font baru butuh <link> Google Fonts dari templateThemeStyle() — reload sekali.
+                    this.fontsDirty = false;
+                    this.reloadPreview();
+                }
+            }, 600);
         },
     };
 }
