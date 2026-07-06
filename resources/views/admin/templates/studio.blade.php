@@ -157,6 +157,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
 <script>
+function escapeHtml(s) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+}
+
 function studioApp() {
     return {
         status: @json($template->status),
@@ -313,7 +319,7 @@ function studioApp() {
                 Swal.fire({ icon: 'success', title: 'Template dipublish', timer: 1500, showConfirmButton: false });
             } catch (err) {
                 const items = (err.errors ?? ['Gagal mempublish template.'])
-                    .map(e => `<li>${e}</li>`).join('');
+                    .map(e => `<li>${escapeHtml(e)}</li>`).join('');
                 Swal.fire({
                     icon: 'error',
                     title: 'Belum bisa dipublish',
