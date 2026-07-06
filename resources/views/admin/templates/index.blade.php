@@ -68,6 +68,15 @@
 
                             <!-- Actions -->
                             <div class="space-y-2">
+                                <a href="{{ route('admin.templates.studio', $template->id) }}"
+                                    class="flex w-full items-center justify-center gap-2 rounded-lg bg-black px-4 py-2.5 font-medium text-white transition hover:bg-gray-800">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 6h16M4 12h10M4 18h7" />
+                                    </svg>
+                                    Studio
+                                </a>
+
                                 <a href="{{ route('admin.templates.editor', $template->id) }}"
                                     class="flex w-full items-center justify-center gap-2 rounded-lg bg-yellow-500 px-4 py-2.5 font-medium text-black transition hover:bg-yellow-600">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
