@@ -238,6 +238,44 @@ class TemplateEditorController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function duplicateSection($id)
+    {
+        $this->authorizeSuperAdmin();
+
+        $section = InvitationSection::findOrFail($id);
+
+        if (!$section->template_id) {
+            return response()->json([
+                'success' => false, 'message' => 'Hanya section template yang bisa diduplikat dari Studio.',
+            ], 422);
+        }
+
+        $copy = null;
+
+        DB::transaction(function () use ($section, &$copy) {
+            InvitationSection::where('template_id', $section->template_id)
+                ->where(fn ($q) => $section->parent_id === null
+                    ? $q->whereNull('parent_id')
+                    : $q->where('parent_id', $section->parent_id))
+                ->where('order_index', '>', $section->order_index)
+                ->increment('order_index');
+
+            $copy = $section->replicate();
+            $copy->order_index = $section->order_index + 1;
+            $copy->save();
+
+            // ponytail: depth-1 child copy — the section tree never nests deeper today;
+            // make this recursive if a partial ever renders grandchildren.
+            foreach ($section->children()->orderBy('order_index')->get() as $child) {
+                $childCopy = $child->replicate();
+                $childCopy->parent_id = $copy->id;
+                $childCopy->save();
+            }
+        });
+
+        return response()->json(['success' => true, 'section' => $copy], 201);
+    }
+
     public function publish(Request $request, $id)
     {
         $this->authorizeSuperAdmin();
