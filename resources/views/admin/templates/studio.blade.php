@@ -30,11 +30,44 @@
                     <span class="drag-handle cursor-grab text-gray-300 group-hover:text-gray-400">⠿</span>
                     <span class="flex-1 text-sm truncate" :class="{ 'opacity-40': !s.is_visible }"
                         x-text="typeLabel(s.section_type)"></span>
+                    <div class="hidden group-hover:flex items-center gap-1 text-gray-400">
+                        <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'"
+                            class="hover:text-gray-900" x-text="s.is_visible ? '👁' : '🚫'"></button>
+                        <button @click.stop="duplicateSection(s)" title="Duplikat" class="hover:text-gray-900">⧉</button>
+                        <button @click.stop="removeSection(s)" title="Hapus" class="hover:text-red-600">✕</button>
+                    </div>
                 </div>
             </template>
             <p x-show="loaded && sections.length === 0" class="text-sm text-gray-400 px-2 py-4 text-center">
                 Belum ada section.
             </p>
+        </div>
+
+        <div class="p-3 border-t border-gray-200">
+            <button @click="addOpen = true"
+                class="w-full rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-600 hover:border-black hover:text-black">
+                + Tambah Section
+            </button>
+        </div>
+    </div>
+
+    {{-- Modal galeri tipe section --}}
+    <div x-show="addOpen" x-cloak
+        class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8"
+        @click.self="addOpen = false" @keydown.escape.window="addOpen = false">
+        <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-bold text-gray-900">Tambah Section</h2>
+                <button @click="addOpen = false" class="text-gray-400 hover:text-gray-900">✕</button>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <template x-for="(label, type) in typeLabels" :key="type">
+                    <button @click="addSection(type)"
+                        class="border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
+                        <span class="font-medium" x-text="label"></span>
+                    </button>
+                </template>
+            </div>
         </div>
     </div>
 
@@ -80,6 +113,7 @@ function studioApp() {
         selectedId: null,
         device: 'mobile',
         loaded: false,
+        addOpen: false,
         typeLabels: @json($sectionTypes),
 
         async init() {
@@ -87,6 +121,7 @@ function studioApp() {
             const data = await res.json();
             this.sections = data.sections.filter(s => !s.parent_id);
             this.loaded = true;
+            this.initSortable();
         },
 
         get selected() {
@@ -115,6 +150,64 @@ function studioApp() {
                 throw await res.json().catch(() => ({}));
             }
             return res.json();
+        },
+
+        async addSection(type) {
+            const data = await this.api('POST', `/admin/api/studio/templates/{{ $template->id }}/sections`, {
+                section_type: type,
+            });
+            this.sections.push({ ...data.section, id: String(data.section.id) });
+            this.addOpen = false;
+            this.selectedId = String(data.section.id);
+            this.reloadPreview();
+        },
+
+        async duplicateSection(s) {
+            const data = await this.api('POST', `/admin/api/studio/sections/${s.id}/duplicate`);
+            const index = this.sections.findIndex(x => x.id === s.id);
+            this.sections.splice(index + 1, 0, { ...data.section, id: String(data.section.id) });
+            this.reloadPreview();
+        },
+
+        async removeSection(s) {
+            const confirmed = await Swal.fire({
+                title: 'Hapus section?',
+                text: `Section ${this.typeLabel(s.section_type)} akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batal',
+            });
+            if (!confirmed.isConfirmed) return;
+            await this.api('DELETE', `/admin/api/templates/sections/${s.id}`);
+            this.sections = this.sections.filter(x => x.id !== s.id);
+            if (this.selectedId === s.id) this.selectedId = null;
+            this.reloadPreview();
+        },
+
+        async toggleVisible(s) {
+            s.is_visible = !s.is_visible;
+            await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { is_visible: s.is_visible });
+            this.reloadPreview();
+        },
+
+        initSortable() {
+            new Sortable(this.$refs.sectionList, {
+                handle: '.drag-handle',
+                animation: 150,
+                onEnd: () => this.persistOrder(),
+            });
+        },
+
+        async persistOrder() {
+            // Read the new order off the DOM, re-sync the Alpine array to it
+            // (keyed x-for then leaves the DOM untouched), persist, re-render.
+            const ids = [...this.$refs.sectionList.querySelectorAll('[data-id]')].map(el => el.dataset.id);
+            this.sections = ids.map(id => this.sections.find(s => s.id === id));
+            await this.api('POST', '/admin/api/templates/sections/reorder', {
+                sections: this.sections.map((s, i) => ({ id: s.id, order_index: i })),
+            });
+            this.reloadPreview();
         },
     };
 }
