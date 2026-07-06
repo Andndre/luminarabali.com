@@ -16,6 +16,25 @@ use Illuminate\Validation\ValidationException;
 
 class TemplateEditorController extends Controller
 {
+    private const SECTION_TYPE_LABELS = [
+        'cover' => 'Cover',
+        'hero' => 'Hero',
+        'text' => 'Teks',
+        'image' => 'Gambar',
+        'button' => 'Tombol',
+        'divider' => 'Pembatas',
+        'spacer' => 'Spasi',
+        'countdown' => 'Hitung Mundur',
+        'gallery' => 'Galeri',
+        'map' => 'Peta',
+        'music' => 'Musik',
+        'rsvp' => 'RSVP',
+        'video' => 'Video',
+        'section_one_col' => 'Kontainer 1 Kolom',
+        'section_two_col' => 'Kontainer 2 Kolom',
+        'section_three_col' => 'Kontainer 3 Kolom',
+    ];
+
     public function editor($id)
     {
         $currentUserId = Auth::id();
@@ -27,6 +46,26 @@ class TemplateEditorController extends Controller
 
         $template = InvitationTemplate::with(['sections', 'creator'])->findOrFail($id);
         return view('admin.templates.editor-native', compact('template'));
+    }
+
+    public function studio($id)
+    {
+        $this->authorizeSuperAdmin();
+
+        $template = InvitationTemplate::findOrFail($id);
+
+        $default = config('invitation.default_theme');
+        $themeBase = [
+            'colors' => array_merge($default['colors'], $template->theme['colors'] ?? []),
+            'fonts' => array_merge($default['fonts'], $template->theme['fonts'] ?? []),
+        ];
+
+        return view('admin.templates.studio', [
+            'template' => $template,
+            'themeBase' => $themeBase,
+            'fonts' => collect(config('invitation.fonts'))->pluck('name')->values(),
+            'sectionTypes' => self::SECTION_TYPE_LABELS,
+        ]);
     }
 
     public function load($id)
