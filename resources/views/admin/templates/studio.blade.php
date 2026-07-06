@@ -19,7 +19,12 @@
                     }[status]"
                     x-text="status"></span>
             </div>
-            <h1 class="font-bold text-gray-900 truncate" title="{{ $template->name }}">{{ $template->name }}</h1>
+            <div class="flex items-center gap-2">
+                <h1 class="flex-1 font-bold text-gray-900 truncate" title="{{ $template->name }}">{{ $template->name }}</h1>
+                <button @click="publish()" :disabled="publishing"
+                    class="shrink-0 rounded-lg bg-black px-3 py-1.5 text-xs font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
+                    x-text="publishing ? '…' : (status === 'published' ? 'Publish Ulang' : 'Publish')"></button>
+            </div>
             <div class="flex gap-1 pt-1">
                 <button @click="panel = 'sections'"
                     class="flex-1 text-xs font-semibold rounded-lg px-2 py-1.5"
@@ -165,6 +170,7 @@ function studioApp() {
         fonts: @json($fonts),
         themeSaveTimer: null,
         fontsDirty: false,
+        publishing: false,
         typeLabels: @json($sectionTypes),
 
         async init() {
@@ -286,6 +292,36 @@ function studioApp() {
                     this.reloadPreview();
                 }
             }, 600);
+        },
+
+        async publish() {
+            if (this.status === 'published') {
+                const confirmed = await Swal.fire({
+                    title: 'Publish ulang?',
+                    text: 'Perubahan akan langsung terlihat oleh pembeli yang meng-instantiate template ini.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Publish Ulang',
+                    cancelButtonText: 'Batal',
+                });
+                if (!confirmed.isConfirmed) return;
+            }
+            this.publishing = true;
+            try {
+                await this.api('POST', `/admin/templates/{{ $template->id }}/publish`);
+                this.status = 'published';
+                Swal.fire({ icon: 'success', title: 'Template dipublish', timer: 1500, showConfirmButton: false });
+            } catch (err) {
+                const items = (err.errors ?? ['Gagal mempublish template.'])
+                    .map(e => `<li>${e}</li>`).join('');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Belum bisa dipublish',
+                    html: `<ul class="text-left text-sm list-disc pl-5">${items}</ul>`,
+                });
+            } finally {
+                this.publishing = false;
+            }
         },
     };
 }

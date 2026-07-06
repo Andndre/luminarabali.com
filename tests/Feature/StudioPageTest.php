@@ -40,4 +40,18 @@ class StudioPageTest extends TestCase
 
         $this->get("/admin/templates/{$template->id}/studio")->assertForbidden();
     }
+
+    public function test_templates_index_links_to_the_studio(): void
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'status' => 'draft', 'created_by' => $admin->id,
+        ]);
+
+        $this->actingAs($admin);
+
+        $this->get('/admin/templates')
+            ->assertOk()
+            ->assertSee(route('admin.templates.studio', $template->id), false);
+    }
 }
