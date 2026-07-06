@@ -396,6 +396,7 @@ class TemplateEditorController extends Controller
             'groom_name' => 'Romeo',
             'bride_name' => 'Juliet',
             'event_date' => now()->addMonths(6),
+            'meta_data' => [],
         ]);
         $page->setRelation('template', $template);
         $page->setRelation('sections', $template->sections);
