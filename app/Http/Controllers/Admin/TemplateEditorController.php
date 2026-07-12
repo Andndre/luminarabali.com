@@ -123,10 +123,20 @@ class TemplateEditorController extends Controller
         $this->authorizeSuperAdmin();
 
         $section = InvitationSection::findOrFail($id);
+
+        // null eksplisit = "hapus override ini" (kembali ke theme/default partial).
+        $incoming = $request->input('props', []);
+        $nullKeys = array_keys(array_filter($incoming, fn ($v) => $v === null));
+        $incoming = array_diff_key($incoming, array_flip($nullKeys));
+
         $validated = array_merge($section->props ?? [], (new \App\Services\SectionPropsValidator())->validate(
             $section->section_type,
-            $request->input('props', [])
+            $incoming
         ));
+        foreach ($nullKeys as $key) {
+            unset($validated[$key]);
+        }
+
         $validatedFields = $request->validate([
             'custom_css' => 'sometimes|nullable|string',
             'is_visible' => 'sometimes|boolean',
