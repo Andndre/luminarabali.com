@@ -38,4 +38,13 @@ class StudioInspectorTest extends TestCase
         $this->studioResponse()
             ->assertDontSee('Form properti section hadir di Fase A2c', false);
     }
+
+    public function test_inspector_has_the_token_chip_color_control(): void
+    {
+        $this->studioResponse()
+            ->assertOk()
+            ->assertSee('hasOverride', false)   // mode Theme vs Custom
+            ->assertSee('override', false)      // badge override
+            ->assertSee('resetProp', false);    // tombol reset ke theme
+    }
 }

@@ -65,7 +65,38 @@
                                 class="w-full border rounded-lg px-3 py-2 text-sm">
                         </template>
 
-                        {{-- color / media dirender oleh blok Task 5 & 6 --}}
+                        {{-- color dengan token: chip dua mode (Theme ↔ Custom) — spec §4.6 --}}
+                        <template x-if="field.type === 'color' && field.token">
+                            <div>
+                                <template x-if="!hasOverride(field.key)">
+                                    <button type="button" @click="setProp(field, theme.colors[field.token])"
+                                        title="Klik untuk override manual"
+                                        class="w-full flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-sm text-left hover:border-black">
+                                        <span class="w-5 h-5 rounded border border-gray-300 shrink-0"
+                                            :style="`background:${theme.colors[field.token]}`"></span>
+                                        <span class="flex-1 text-gray-700">Theme — <span class="capitalize" x-text="field.token"></span></span>
+                                        <span class="text-xs text-gray-400">ubah…</span>
+                                    </button>
+                                </template>
+                                <template x-if="hasOverride(field.key)">
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" :value="val(field)"
+                                            @input="setProp(field, $event.target.value)"
+                                            class="h-9 w-14 border rounded cursor-pointer">
+                                        <span class="text-[10px] font-semibold uppercase bg-yellow-100 text-yellow-800 rounded px-1.5 py-0.5">override</span>
+                                        <button type="button" @click="resetProp(field)" title="Reset ke theme"
+                                            class="ml-auto text-gray-400 hover:text-gray-900">⟲</button>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        {{-- color tanpa token: picker polos (partial-nya tidak punya fallback token) --}}
+                        <template x-if="field.type === 'color' && !field.token">
+                            <input type="color" :value="val(field) ?? '#000000'"
+                                @input="setProp(field, $event.target.value)"
+                                class="h-9 w-14 border rounded cursor-pointer">
+                        </template>
 
                         <p x-show="fieldErrors[field.key]" x-text="fieldErrors[field.key]"
                             class="text-xs text-red-600 mt-1"></p>

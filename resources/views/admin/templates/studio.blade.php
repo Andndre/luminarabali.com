@@ -214,6 +214,11 @@ function studioApp() {
             return this.selected?.props?.[field.key] ?? field.default;
         },
 
+        hasOverride(key) {
+            const v = this.selected?.props?.[key];
+            return v !== undefined && v !== null;
+        },
+
         setProp(field, value) {
             this.selected.props[field.key] = value;
             this.queuePropSave();
