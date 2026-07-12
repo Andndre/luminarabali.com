@@ -234,9 +234,10 @@ function studioApp() {
             try {
                 const data = await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { props: s.props });
                 s.props = data.section.props ?? {}; // sinkron kanonik (key null sudah hilang)
-                this.fieldErrors = {};
+                if (this.selectedId === s.id) this.fieldErrors = {};
                 await this.swapSection(s);
             } catch (err) {
+                if (this.selectedId !== s.id) return; // respons basi — user sudah pindah section
                 if (err.errors) {
                     this.fieldErrors = Object.fromEntries(
                         Object.entries(err.errors).map(([k, v]) => [k.replace(/^props\./, ''), v[0]])
