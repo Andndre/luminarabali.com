@@ -1,0 +1,41 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\InvitationTemplate;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class StudioInspectorTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function studioResponse()
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'status' => 'draft', 'created_by' => $admin->id,
+        ]);
+        $this->actingAs($admin);
+
+        return $this->get("/admin/templates/{$template->id}/studio");
+    }
+
+    public function test_studio_page_renders_the_schema_driven_inspector(): void
+    {
+        $this->studioResponse()
+            ->assertOk()
+            ->assertSee('inspectorTab', false)     // state tab aktif
+            ->assertSee('fieldsFor', false)        // loop field dari skema
+            ->assertSee('Lanjutan', false)         // tab advanced
+            ->assertSee('swapSection', false)      // pipeline fragment swap
+            ->assertSee('fieldErrors', false);     // error inline per field
+    }
+
+    public function test_placeholder_copy_is_gone(): void
+    {
+        $this->studioResponse()
+            ->assertDontSee('Form properti section hadir di Fase A2c', false);
+    }
+}

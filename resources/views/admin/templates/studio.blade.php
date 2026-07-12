@@ -139,20 +139,7 @@
         </div>
     </div>
 
-    {{-- Panel kanan: Inspector (placeholder — form skema hadir di Fase A2c) --}}
-    <div class="w-80 shrink-0 border-l border-gray-200 bg-white p-5 overflow-y-auto">
-        <template x-if="!selected">
-            <p class="text-sm text-gray-400">Pilih section di panel kiri untuk mengedit.</p>
-        </template>
-        <template x-if="selected">
-            <div>
-                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide"
-                    x-text="typeLabel(selected.section_type)"></h2>
-                <p class="text-xs text-gray-400 mt-1" x-text="'Section #' + selected.id"></p>
-                <p class="text-sm text-gray-500 mt-4">Form properti section hadir di Fase A2c.</p>
-            </div>
-        </template>
-    </div>
+    @include('admin.templates.studio._inspector')
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
@@ -178,13 +165,28 @@ function studioApp() {
         fontsDirty: false,
         publishing: false,
         typeLabels: @json($sectionTypes),
+        schema: @json($schema),
+        inspectorTab: 'content',
+        fieldErrors: {},
+        hasChildren: {},
+        propSaveTimer: null,
 
         async init() {
             const res = await fetch(`/admin/api/templates/{{ $template->id }}/load`);
             const data = await res.json();
-            this.sections = data.sections.filter(s => !s.parent_id);
+            this.hasChildren = {};
+            data.sections.forEach(s => {
+                if (s.parent_id) this.hasChildren[String(s.parent_id)] = true;
+            });
+            this.sections = data.sections
+                .filter(s => !s.parent_id)
+                .map(s => ({ ...s, props: s.props ?? {} }));
             this.loaded = true;
             this.initSortable();
+            this.$watch('selectedId', () => {
+                this.fieldErrors = {};
+                this.inspectorTab = this.availableTabs[0]?.id ?? 'design';
+            });
         },
 
         get selected() {
@@ -193,6 +195,72 @@ function studioApp() {
 
         typeLabel(type) {
             return this.typeLabels[type] ?? type;
+        },
+
+        get availableTabs() {
+            if (!this.selected) return [];
+            return [
+                { id: 'content', label: 'Konten' },
+                { id: 'design', label: 'Desain' },
+                { id: 'advanced', label: 'Lanjutan' },
+            ].filter(t => this.fieldsFor(this.selected.section_type, t.id).length > 0);
+        },
+
+        fieldsFor(type, group) {
+            return (this.schema[type] ?? []).filter(f => f.group === group);
+        },
+
+        val(field) {
+            return this.selected?.props?.[field.key] ?? field.default;
+        },
+
+        setProp(field, value) {
+            this.selected.props[field.key] = value;
+            this.queuePropSave();
+        },
+
+        resetProp(field) {
+            this.selected.props[field.key] = null; // null = unset di server (kembali ke theme/default)
+            this.queuePropSave();
+        },
+
+        queuePropSave() {
+            clearTimeout(this.propSaveTimer);
+            const s = this.selected; // tangkap sekarang — user bisa pindah section saat debounce
+            this.propSaveTimer = setTimeout(() => this.saveProps(s), 300);
+        },
+
+        async saveProps(s) {
+            try {
+                const data = await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { props: s.props });
+                s.props = data.section.props ?? {}; // sinkron kanonik (key null sudah hilang)
+                this.fieldErrors = {};
+                await this.swapSection(s);
+            } catch (err) {
+                if (err.errors) {
+                    this.fieldErrors = Object.fromEntries(
+                        Object.entries(err.errors).map(([k, v]) => [k.replace(/^props\./, ''), v[0]])
+                    );
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal menyimpan', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
+                }
+            }
+        },
+
+        async swapSection(s) {
+            // ponytail: section beranak fallback full reload — render-section me-render elements: []
+            if (this.hasChildren[s.id]) return this.reloadPreview();
+            try {
+                const data = await this.api('POST', '/admin/api/studio/render-section', {
+                    section_type: s.section_type, props: s.props, section_id: s.id,
+                });
+                const wrapper = this.$refs.preview.contentWindow?.document
+                    ?.querySelector(`[data-section-id="${s.id}"]`);
+                if (!wrapper) return this.reloadPreview(); // mis. section hidden → tidak dirender
+                wrapper.innerHTML = data.html;
+            } catch {
+                this.reloadPreview();
+            }
         },
 
         reloadPreview() {
