@@ -98,6 +98,74 @@
                                 class="h-9 w-14 border rounded cursor-pointer">
                         </template>
 
+                        {{-- image: thumbnail + upload + URL manual --}}
+                        <template x-if="field.type === 'image'">
+                            <div class="space-y-2">
+                                <img x-show="val(field)" :src="mediaUrl(val(field))"
+                                    class="w-full h-24 object-cover rounded border border-gray-200">
+                                <div class="flex gap-2">
+                                    <label class="flex-1 text-center text-xs border border-gray-300 rounded-lg px-2 py-1.5 cursor-pointer hover:border-black">
+                                        Upload
+                                        <input type="file" accept="image/*" class="hidden" @change="uploadToProp(field, $event)">
+                                    </label>
+                                    <button type="button" x-show="hasOverride(field.key)" @click="resetProp(field)"
+                                        class="text-xs text-gray-400 hover:text-red-600">Hapus</button>
+                                </div>
+                                <input type="text" placeholder="atau path/URL manual…" :value="val(field) ?? ''"
+                                    @change="setProp(field, $event.target.value || null)"
+                                    class="w-full border rounded-lg px-2 py-1.5 text-xs">
+                            </div>
+                        </template>
+
+                        {{-- image_list (gallery.images): item {url, alt} --}}
+                        <template x-if="field.type === 'image_list'">
+                            <div class="space-y-2">
+                                <template x-for="(img, i) in (val(field) ?? [])" :key="i">
+                                    <div class="flex items-center gap-2">
+                                        <img :src="img.url" class="w-10 h-10 object-cover rounded border border-gray-200 shrink-0">
+                                        <span class="flex-1 text-xs text-gray-500 truncate" x-text="img.alt || img.url"></span>
+                                        <button type="button" @click="moveListItem(field, i, -1)" :disabled="i === 0"
+                                            class="text-gray-400 hover:text-gray-900 disabled:opacity-30">↑</button>
+                                        <button type="button" @click="moveListItem(field, i, 1)"
+                                            :disabled="i === (val(field) ?? []).length - 1"
+                                            class="text-gray-400 hover:text-gray-900 disabled:opacity-30">↓</button>
+                                        <button type="button" @click="removeListItem(field, i)"
+                                            class="text-gray-400 hover:text-red-600">✕</button>
+                                    </div>
+                                </template>
+                                <label class="block text-center text-xs border border-dashed border-gray-300 rounded-lg px-2 py-1.5 cursor-pointer hover:border-black">
+                                    + Upload foto
+                                    <input type="file" accept="image/*" class="hidden" @change="appendListItem(field, $event)">
+                                </label>
+                            </div>
+                        </template>
+
+                        {{-- audio / video: upload + URL + preview player native --}}
+                        <template x-if="field.type === 'audio'">
+                            <div class="space-y-2">
+                                <audio x-show="val(field)" controls :src="mediaUrl(val(field))" class="w-full h-8"></audio>
+                                <label class="block text-center text-xs border border-gray-300 rounded-lg px-2 py-1.5 cursor-pointer hover:border-black">
+                                    Upload audio
+                                    <input type="file" accept="audio/*" class="hidden" @change="uploadToProp(field, $event)">
+                                </label>
+                                <input type="text" placeholder="atau path/URL manual…" :value="val(field) ?? ''"
+                                    @change="setProp(field, $event.target.value || null)"
+                                    class="w-full border rounded-lg px-2 py-1.5 text-xs">
+                            </div>
+                        </template>
+                        <template x-if="field.type === 'video'">
+                            <div class="space-y-2">
+                                <video x-show="val(field)" controls :src="mediaUrl(val(field))" class="w-full rounded border border-gray-200"></video>
+                                <label class="block text-center text-xs border border-gray-300 rounded-lg px-2 py-1.5 cursor-pointer hover:border-black">
+                                    Upload video
+                                    <input type="file" accept="video/*" class="hidden" @change="uploadToProp(field, $event)">
+                                </label>
+                                <input type="text" placeholder="atau path/URL manual…" :value="val(field) ?? ''"
+                                    @change="setProp(field, $event.target.value || null)"
+                                    class="w-full border rounded-lg px-2 py-1.5 text-xs">
+                            </div>
+                        </template>
+
                         <p x-show="fieldErrors[field.key]" x-text="fieldErrors[field.key]"
                             class="text-xs text-red-600 mt-1"></p>
                     </div>

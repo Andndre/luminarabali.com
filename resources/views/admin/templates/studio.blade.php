@@ -229,6 +229,69 @@ function studioApp() {
             this.queuePropSave();
         },
 
+        mediaUrl(v) {
+            if (!v) return '';
+            return /^(https?:)?\//.test(v) ? v : '/storage/' + v.replace(/^\/+/, '');
+        },
+
+        async uploadFile(file) {
+            const fd = new FormData();
+            fd.append('file', file);
+            const res = await fetch('/admin/api/assets/upload', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: fd, // tanpa Content-Type manual — browser set boundary multipart sendiri
+            });
+            if (!res.ok) throw await res.json().catch(() => ({}));
+            return (await res.json()).asset;
+        },
+
+        async uploadToProp(field, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                this.setProp(field, (await this.uploadFile(file)).file_path);
+            } catch {
+                Swal.fire({ icon: 'error', title: 'Upload gagal', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
+            }
+            event.target.value = '';
+        },
+
+        listOf(field) {
+            return [...(this.selected.props[field.key] ?? [])];
+        },
+
+        async appendListItem(field, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                const asset = await this.uploadFile(file);
+                this.setProp(field, [...this.listOf(field), {
+                    url: '/storage/' + asset.file_path,
+                    alt: asset.asset_name ?? '',
+                }]);
+            } catch {
+                Swal.fire({ icon: 'error', title: 'Upload gagal', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
+            }
+            event.target.value = '';
+        },
+
+        removeListItem(field, i) {
+            const list = this.listOf(field);
+            list.splice(i, 1);
+            this.setProp(field, list);
+        },
+
+        moveListItem(field, i, delta) {
+            const list = this.listOf(field);
+            const [item] = list.splice(i, 1);
+            list.splice(i + delta, 0, item);
+            this.setProp(field, list);
+        },
+
         queuePropSave() {
             clearTimeout(this.propSaveTimer);
             const s = this.selected; // tangkap sekarang — user bisa pindah section saat debounce

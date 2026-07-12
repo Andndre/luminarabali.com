@@ -47,4 +47,13 @@ class StudioInspectorTest extends TestCase
             ->assertSee('override', false)      // badge override
             ->assertSee('resetProp', false);    // tombol reset ke theme
     }
+
+    public function test_inspector_has_media_upload_controls(): void
+    {
+        $this->studioResponse()
+            ->assertOk()
+            ->assertSee('uploadToProp', false)
+            ->assertSee('assets/upload', false)
+            ->assertSee('appendListItem', false); // image_list (gallery)
+    }
 }
