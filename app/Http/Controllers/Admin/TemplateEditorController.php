@@ -65,6 +65,7 @@ class TemplateEditorController extends Controller
             'themeBase' => $themeBase,
             'fonts' => collect(config('invitation.fonts'))->pluck('name')->values(),
             'sectionTypes' => self::SECTION_TYPE_LABELS,
+            'schema' => config('invitation_components'),
         ]);
     }
 
