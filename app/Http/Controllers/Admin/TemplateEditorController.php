@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class TemplateEditorController extends Controller
 {
@@ -522,31 +521,6 @@ class TemplateEditorController extends Controller
         ];
     }
 
-    private function resolveParentId(?string $parentId, array $tempIdMapping, array $persistedIds): ?int
-    {
-        if (empty($parentId)) {
-            return null;
-        }
-
-        if (str_starts_with($parentId, 'temp-')) {
-            if (!isset($tempIdMapping[$parentId])) {
-                throw ValidationException::withMessages([
-                    'sections' => ['Invalid section structure: parent must be created before child.'],
-                ]);
-            }
-
-            return (int) $tempIdMapping[$parentId];
-        }
-
-        if (!in_array($parentId, $persistedIds, true)) {
-            throw ValidationException::withMessages([
-                'sections' => ['Invalid parent_id reference found in sections payload.'],
-            ]);
-        }
-
-        return (int) $parentId;
-    }
-
     private function authorizeSuperAdmin(): void
     {
         $currentUser = \App\Models\User::find(\Illuminate\Support\Facades\Auth::id());
@@ -554,36 +528,5 @@ class TemplateEditorController extends Controller
         if (!$currentUser || $currentUser->division !== 'super_admin') {
             abort(403, 'Unauthorized action.');
         }
-    }
-
-    private function allowedSectionTypes(): array
-    {
-        return [
-            'cover',
-            'section_one_col',
-            'section_two_col',
-            'section_three_col',
-            'hero',
-            'text',
-            'image',
-            'button',
-            'divider',
-            'spacer',
-            'countdown',
-            'gallery',
-            'map',
-            'music',
-            'rsvp',
-            'video',
-            'couple',
-            'event_details',
-            'gift',
-            'quote',
-            'love_story',
-            'live_stream',
-            'closing',
-            'wishes',
-            'code',
-        ];
     }
 }
