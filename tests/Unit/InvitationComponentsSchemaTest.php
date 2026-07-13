@@ -12,7 +12,7 @@ class InvitationComponentsSchemaTest extends TestCase
         'countdown', 'gallery', 'map', 'music', 'rsvp', 'video',
     ];
 
-    private const VALID_TYPES = ['text', 'select', 'color', 'number', 'boolean', 'image', 'audio', 'video', 'image_list', 'url'];
+    private const VALID_TYPES = ['text', 'select', 'color', 'number', 'boolean', 'image', 'audio', 'video', 'image_list', 'url', 'repeater', 'ornament', 'code'];
     private const VALID_GROUPS = ['content', 'design', 'advanced'];
 
     public function test_schema_has_an_entry_for_every_allowed_section_type(): void

@@ -21,7 +21,13 @@ $containerFields = [
 
 $curatedFontNames = ['Playfair Display', 'Lora', 'Lato', 'Montserrat', 'Great Vibes', 'Open Sans'];
 
-return [
+// Animasi entrance — di-merge ke SEMUA tipe section (dirender _section-shell).
+$animationFields = [
+    ['key' => 'animation', 'type' => 'select', 'label' => 'Animasi Masuk', 'group' => 'design', 'options' => ['none', 'fade-up', 'fade-in', 'zoom-in', 'slide-left', 'slide-right'], 'default' => 'none'],
+    ['key' => 'animation_delay', 'type' => 'number', 'label' => 'Delay Animasi (ms)', 'group' => 'design', 'default' => 0],
+];
+
+$components = [
     'cover' => [
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
         ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Sampul', 'group' => 'content', 'default' => null],
@@ -174,6 +180,105 @@ return [
         ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
     ],
 
+    'couple' => [
+        ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Mempelai'],
+        ['key' => 'groom_photo', 'type' => 'image', 'label' => 'Foto Mempelai Pria', 'group' => 'content', 'default' => null],
+        ['key' => 'bride_photo', 'type' => 'image', 'label' => 'Foto Mempelai Wanita', 'group' => 'content', 'default' => null],
+        ['key' => 'groom_parents', 'type' => 'text', 'label' => 'Orang Tua Mempelai Pria', 'group' => 'content', 'default' => 'Putra dari Bapak … & Ibu …'],
+        ['key' => 'bride_parents', 'type' => 'text', 'label' => 'Orang Tua Mempelai Wanita', 'group' => 'content', 'default' => 'Putri dari Bapak … & Ibu …'],
+        ['key' => 'groom_instagram', 'type' => 'url', 'label' => 'Instagram Mempelai Pria', 'group' => 'design', 'default' => null],
+        ['key' => 'bride_instagram', 'type' => 'url', 'label' => 'Instagram Mempelai Wanita', 'group' => 'design', 'default' => null],
+        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
+        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
+        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
+    ],
+
+    'event_details' => [
+        ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Rangkaian Acara'],
+        ['key' => 'events', 'type' => 'repeater', 'label' => 'Acara', 'group' => 'content', 'fields' => [
+            ['key' => 'name', 'type' => 'text', 'label' => 'Nama Acara', 'default' => 'Acara'],
+            ['key' => 'date_text', 'type' => 'text', 'label' => 'Tanggal', 'default' => ''],
+            ['key' => 'time_text', 'type' => 'text', 'label' => 'Waktu', 'default' => ''],
+            ['key' => 'venue', 'type' => 'text', 'label' => 'Tempat', 'default' => ''],
+            ['key' => 'address', 'type' => 'text', 'label' => 'Alamat', 'default' => ''],
+            ['key' => 'maps_url', 'type' => 'url', 'label' => 'Link Google Maps', 'default' => ''],
+        ], 'default' => [
+            ['name' => 'Akad Nikah', 'date_text' => 'Sabtu, 1 Januari 2027', 'time_text' => '08.00 WITA', 'venue' => 'Nama Gedung', 'address' => '', 'maps_url' => ''],
+            ['name' => 'Resepsi', 'date_text' => 'Sabtu, 1 Januari 2027', 'time_text' => '18.00 WITA', 'venue' => 'Nama Gedung', 'address' => '', 'maps_url' => ''],
+        ]],
+        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
+        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
+        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
+    ],
+
+    'gift' => [
+        ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Amplop Digital'],
+        ['key' => 'accounts', 'type' => 'repeater', 'label' => 'Rekening', 'group' => 'content', 'fields' => [
+            ['key' => 'bank', 'type' => 'text', 'label' => 'Bank / E-Wallet', 'default' => 'BCA'],
+            ['key' => 'number', 'type' => 'text', 'label' => 'Nomor Rekening', 'default' => ''],
+            ['key' => 'holder', 'type' => 'text', 'label' => 'Atas Nama', 'default' => ''],
+        ], 'default' => [
+            ['bank' => 'BCA', 'number' => '', 'holder' => ''],
+        ]],
+        ['key' => 'message', 'type' => 'text', 'label' => 'Pesan', 'group' => 'design', 'default' => 'Tanpa mengurangi rasa hormat, bagi Anda yang ingin memberikan tanda kasih:'],
+        ['key' => 'gift_address', 'type' => 'text', 'label' => 'Alamat Kirim Kado', 'group' => 'design', 'default' => ''],
+        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
+        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
+        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
+    ],
+
+    'quote' => [
+        ['key' => 'content', 'type' => 'text', 'label' => 'Kutipan', 'group' => 'content', 'default' => 'Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri, supaya kamu mendapat ketenangan hati.'],
+        ['key' => 'attribution', 'type' => 'text', 'label' => 'Sumber', 'group' => 'content', 'default' => 'Q.S. Ar-Rum: 21'],
+        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
+        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
+        ['key' => 'font_family', 'type' => 'select', 'label' => 'Font', 'group' => 'design', 'options' => $curatedFontNames, 'default' => 'Playfair Display'],
+    ],
+
+    'love_story' => [
+        ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Kisah Kami'],
+        ['key' => 'stories', 'type' => 'repeater', 'label' => 'Kisah', 'group' => 'content', 'fields' => [
+            ['key' => 'year', 'type' => 'text', 'label' => 'Tahun / Waktu', 'default' => ''],
+            ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'default' => ''],
+            ['key' => 'story', 'type' => 'text', 'label' => 'Cerita', 'default' => ''],
+            ['key' => 'photo', 'type' => 'image', 'label' => 'Foto', 'default' => null],
+        ], 'default' => [
+            ['year' => '2020', 'title' => 'Pertama Bertemu', 'story' => 'Ceritakan momen pertama kalian bertemu…', 'photo' => null],
+        ]],
+        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
+        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
+        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
+    ],
+
+    'live_stream' => [
+        ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Live Streaming'],
+        ['key' => 'youtube_url', 'type' => 'url', 'label' => 'URL YouTube', 'group' => 'content', 'default' => ''],
+        ['key' => 'schedule_text', 'type' => 'text', 'label' => 'Jadwal', 'group' => 'content', 'default' => ''],
+        ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Tonton'],
+        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
+        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
+    ],
+
+    'closing' => [
+        ['key' => 'message', 'type' => 'text', 'label' => 'Pesan', 'group' => 'content', 'default' => 'Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.'],
+        ['key' => 'photo', 'type' => 'image', 'label' => 'Foto', 'group' => 'design', 'default' => null],
+        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
+        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
+        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
+    ],
+
+    'wishes' => [
+        ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Ucapan & Doa'],
+        ['key' => 'limit', 'type' => 'number', 'label' => 'Jumlah Ucapan Ditampilkan', 'group' => 'design', 'default' => 50],
+        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
+        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
+        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
+    ],
+
+    'code' => [
+        ['key' => 'html', 'type' => 'code', 'label' => 'HTML', 'group' => 'advanced', 'default' => ''],
+    ],
+
     'section_one_col' => $containerFields,
 
     'section_two_col' => array_merge($containerFields, [
@@ -187,3 +292,24 @@ return [
         ['key' => 'vertical_align', 'type' => 'select', 'label' => 'Perataan Vertikal', 'group' => 'design', 'options' => ['top', 'center', 'bottom'], 'default' => 'top'],
     ]),
 ];
+
+foreach ($components as $type => $fields) {
+    $components[$type] = array_merge($fields, $animationFields);
+}
+
+// Ornamen — hanya section "utama" (bukan blok generic text/image/spacer/divider/kontainer).
+$ornamentFields = [
+    ['key' => 'ornament_top', 'type' => 'ornament', 'label' => 'Ornamen Atas', 'group' => 'design', 'default' => null],
+    ['key' => 'ornament_top_position', 'type' => 'select', 'label' => 'Posisi Ornamen Atas', 'group' => 'design', 'options' => ['corner-tl', 'corner-tr', 'center', 'full-width'], 'default' => 'corner-tl'],
+    ['key' => 'ornament_top_scale', 'type' => 'number', 'label' => 'Skala Ornamen Atas (%)', 'group' => 'design', 'default' => 100],
+    ['key' => 'ornament_bottom', 'type' => 'ornament', 'label' => 'Ornamen Bawah', 'group' => 'design', 'default' => null],
+    ['key' => 'ornament_bottom_position', 'type' => 'select', 'label' => 'Posisi Ornamen Bawah', 'group' => 'design', 'options' => ['corner-bl', 'corner-br', 'center', 'full-width'], 'default' => 'corner-bl'],
+    ['key' => 'ornament_bottom_scale', 'type' => 'number', 'label' => 'Skala Ornamen Bawah (%)', 'group' => 'design', 'default' => 100],
+];
+foreach (['cover', 'hero', 'quote', 'couple', 'event_details', 'gift', 'rsvp', 'countdown', 'closing', 'love_story'] as $type) {
+    if (isset($components[$type])) {
+        $components[$type] = array_merge($components[$type], $ornamentFields);
+    }
+}
+
+return $components;

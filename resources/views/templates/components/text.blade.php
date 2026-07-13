@@ -53,37 +53,37 @@
 
 <section class="text-block-{{ $section->id ?? 'default' }}">
     @if ($tag === 'h1')
-        <h1 @if ($elementId) id="{{ $elementId }}" @endif
+        <h1 @if ($elementId) id="{{ $elementId }}" @endif data-editable="content"
             style="{{ $inlineStyle }}">
             {{ $content }}
         </h1>
     @elseif($tag === 'h2')
-        <h2 @if ($elementId) id="{{ $elementId }}" @endif
+        <h2 @if ($elementId) id="{{ $elementId }}" @endif data-editable="content"
             style="{{ $inlineStyle }}">
             {{ $content }}
         </h2>
     @elseif($tag === 'h3')
-        <h3 @if ($elementId) id="{{ $elementId }}" @endif
+        <h3 @if ($elementId) id="{{ $elementId }}" @endif data-editable="content"
             style="{{ $inlineStyle }}">
             {{ $content }}
         </h3>
     @elseif($tag === 'h4')
-        <h4 @if ($elementId) id="{{ $elementId }}" @endif
+        <h4 @if ($elementId) id="{{ $elementId }}" @endif data-editable="content"
             style="{{ $inlineStyle }}">
             {{ $content }}
         </h4>
     @elseif($tag === 'h5')
-        <h5 @if ($elementId) id="{{ $elementId }}" @endif
+        <h5 @if ($elementId) id="{{ $elementId }}" @endif data-editable="content"
             style="{{ $inlineStyle }}">
             {{ $content }}
         </h5>
     @elseif($tag === 'h6')
-        <h6 @if ($elementId) id="{{ $elementId }}" @endif
+        <h6 @if ($elementId) id="{{ $elementId }}" @endif data-editable="content"
             style="{{ $inlineStyle }}">
             {{ $content }}
         </h6>
     @else
-        <p @if ($elementId) id="{{ $elementId }}" @endif
+        <p @if ($elementId) id="{{ $elementId }}" @endif data-editable="content"
             style="{{ $inlineStyle }}">
             {{ $content }}
         </p>

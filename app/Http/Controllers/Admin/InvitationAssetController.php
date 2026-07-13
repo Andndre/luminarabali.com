@@ -51,6 +51,11 @@ class InvitationAssetController extends Controller
             $query->where('page_id', $request->page_id);
         }
 
+        // Filter by collection (prefix match, e.g. "ornament" matches "ornament/floral")
+        if ($request->filled('collection')) {
+            $query->where('collection', 'like', $request->input('collection') . '%');
+        }
+
         $assets = $query->latest()->paginate(50);
 
         return response()->json($assets);
@@ -68,6 +73,7 @@ class InvitationAssetController extends Controller
         $request->validate([
             'file' => 'required|file|max:10240', // Max 10MB
             'page_id' => 'nullable|exists:invitation_pages,id',
+            'collection' => 'nullable|string|max:255',
         ]);
 
         $file = $request->file('file');
@@ -110,6 +116,11 @@ class InvitationAssetController extends Controller
             'mime_type' => $mimeType,
             'file_size' => $file->getSize(),
             'dimensions' => $dimensions,
+            'uploaded_by' => $currentUserId,
+            // ponytail: satu designer hari ini — semua upload 'team'; enforcement
+            // visibilitas antar-user menunggu role designer (proposal §8).
+            'visibility' => 'team',
+            'collection' => $request->input('collection'),
         ]);
 
         return response()->json(['success' => true, 'asset' => $asset]);
@@ -177,8 +188,13 @@ class InvitationAssetController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $request->validate([
+            'visibility' => 'sometimes|in:private,team',
+            'collection' => 'sometimes|nullable|string|max:255',
+        ]);
+
         $asset = InvitationAsset::findOrFail($id);
-        $asset->update($request->only(['asset_name', 'alt_text']));
+        $asset->update($request->only(['asset_name', 'alt_text', 'visibility', 'collection']));
 
         return response()->json(['success' => true, 'asset' => $asset]);
     }

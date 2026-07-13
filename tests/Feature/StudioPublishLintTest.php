@@ -69,7 +69,8 @@ class StudioPublishLintTest extends TestCase
 
         $this->actingAs($admin);
 
-        $response = $this->postJson("/admin/templates/{$template->id}/publish");
+        // force=true: lewati konfirmasi warning (mis. tanpa section RSVP) — uji jalur lint error, bukan warning.
+        $response = $this->postJson("/admin/templates/{$template->id}/publish", ['force' => true]);
 
         $response->assertOk();
         $this->assertEquals('published', $template->fresh()->status);
@@ -93,7 +94,7 @@ class StudioPublishLintTest extends TestCase
 
         $this->actingAs($admin);
 
-        $this->postJson("/admin/templates/{$template->id}/publish")->assertOk();
+        $this->postJson("/admin/templates/{$template->id}/publish", ['force' => true])->assertOk();
         $this->assertEquals('published', $template->fresh()->status);
     }
 

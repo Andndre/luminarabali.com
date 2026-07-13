@@ -30,23 +30,19 @@ class TemplateEditorController extends Controller
         'music' => 'Musik',
         'rsvp' => 'RSVP',
         'video' => 'Video',
+        'couple' => 'Mempelai',
+        'event_details' => 'Rangkaian Acara',
+        'gift' => 'Amplop Digital',
+        'quote' => 'Kutipan',
+        'love_story' => 'Kisah Kami',
+        'live_stream' => 'Live Streaming',
+        'closing' => 'Penutup',
+        'wishes' => 'Ucapan & Doa',
+        'code' => '⚠ Kode (HTML)',
         'section_one_col' => 'Kontainer 1 Kolom',
         'section_two_col' => 'Kontainer 2 Kolom',
         'section_three_col' => 'Kontainer 3 Kolom',
     ];
-
-    public function editor($id)
-    {
-        $currentUserId = Auth::id();
-        $currentUser = \App\Models\User::find($currentUserId);
-
-        if ($currentUser->division !== 'super_admin') {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $template = InvitationTemplate::with(['sections', 'creator'])->findOrFail($id);
-        return view('admin.templates.editor-native', compact('template'));
-    }
 
     public function studio($id)
     {
@@ -139,7 +135,8 @@ class TemplateEditorController extends Controller
         }
 
         $validatedFields = $request->validate([
-            'custom_css' => 'sometimes|nullable|string',
+            // tolak < > — mencegah penutupan tag <style> saat di-inline oleh _section-shell
+            'custom_css' => 'sometimes|nullable|string|not_regex:/[<>]/',
             'is_visible' => 'sometimes|boolean',
         ]);
         $section->update(array_merge(
@@ -164,12 +161,19 @@ class TemplateEditorController extends Controller
                 'nullable',
                 Rule::exists('invitation_sections', 'id')->where(fn ($query) => $query->where('template_id', $templateId)),
             ],
+            'props' => 'nullable|array',
         ]);
 
         $template = InvitationTemplate::findOrFail($templateId);
 
         $schema = config("invitation_components.{$request->section_type}", []);
         $defaultProps = collect($schema)->pluck('default', 'key')->all();
+
+        // props opsional (dari preset): merge di atas default, tervalidasi skema
+        $defaultProps = array_merge($defaultProps, (new \App\Services\SectionPropsValidator())->validate(
+            $request->section_type,
+            $request->input('props', [])
+        ));
 
         $nextOrderIndex = $template->sections()->count() > 0
             ? 1 + (int) $template->sections()->max('order_index')
@@ -205,13 +209,19 @@ class TemplateEditorController extends Controller
             $request->input('props', [])
         );
 
-        $section = new InvitationSection([
-            'section_type' => $request->section_type,
-            'props' => $validatedProps,
-        ]);
-        if ($request->filled('section_id')) {
-            $section->id = $request->section_id;
+        // Section persisted → ambil dari DB untuk atribut shell (custom_css);
+        // props tetap dari request (state terbaru di studio, sudah divalidasi).
+        $section = $request->filled('section_id')
+            ? InvitationSection::find($request->section_id)
+            : null;
+        if (!$section) {
+            $section = new InvitationSection(['section_type' => $request->section_type]);
+            if ($request->filled('section_id')) {
+                $section->id = $request->section_id;
+            }
         }
+        $section->section_type = $request->section_type;
+        $section->props = $validatedProps;
 
         $placeholderPage = new InvitationPage([
             'groom_name' => 'Romeo',
@@ -219,9 +229,8 @@ class TemplateEditorController extends Controller
             'event_date' => now()->addMonths(6),
         ]);
 
-        $viewPath = "templates.components.{$request->section_type}";
-        $html = view($viewPath, [
-            'props' => $validatedProps,
+        // Render via shell → respons = wrapper [data-section-id] LENGKAP (swap outerHTML).
+        $html = view('templates._section-shell', [
             'section' => $section,
             'page' => $placeholderPage,
             'elements' => [],
@@ -340,9 +349,84 @@ class TemplateEditorController extends Controller
             return response()->json(['success' => false, 'errors' => $errors], 422);
         }
 
+        // Warning tidak memblokir, tapi minta konfirmasi (force) sekali.
+        $warnings = $this->lintWarnings($template);
+        if (!empty($warnings) && !$request->boolean('force')) {
+            return response()->json(['success' => false, 'warnings' => $warnings], 409);
+        }
+
         $template->update(['status' => 'published']);
 
         return response()->json(['success' => true, 'message' => 'Template published']);
+    }
+
+    private function lintWarnings(InvitationTemplate $template): array
+    {
+        $warnings = [];
+
+        // 1) Terlalu banyak override warna literal (mengabaikan theme buyer).
+        $colorOverrides = 0;
+        foreach ($template->sections as $section) {
+            $schema = config("invitation_components.{$section->section_type}", []);
+            foreach ($schema as $field) {
+                if (($field['type'] ?? null) === 'color' && array_key_exists($field['key'], $section->props ?? [])
+                    && $section->props[$field['key']] !== null) {
+                    $colorOverrides++;
+                }
+            }
+        }
+        if ($colorOverrides > 5) {
+            $warnings[] = "{$colorOverrides} override warna literal — theme buyer tidak akan berpengaruh pada field ini.";
+        }
+
+        // 2) CSS/HTML kustom.
+        $hasCustom = $template->sections->contains(fn ($s) => trim((string) $s->custom_css) !== '' || $s->section_type === 'code');
+        if ($hasCustom) {
+            $warnings[] = 'Template memakai CSS/HTML kustom — pastikan tetap rapi di semua perangkat.';
+        }
+
+        // 3) Tidak ada RSVP.
+        if (!$template->sections->contains(fn ($s) => $s->section_type === 'rsvp')) {
+            $warnings[] = 'Template belum memiliki section RSVP.';
+        }
+
+        // 4) Kontras WCAG dari 4 token theme.
+        $default = config('invitation.default_theme.colors');
+        $colors = array_merge($default, $template->theme['colors'] ?? []);
+        if ($this->contrastRatio($colors['text'], $colors['surface']) < 4.5) {
+            $warnings[] = 'Kontras teks vs latar rendah (< 4.5) — teks bisa sulit dibaca.';
+        }
+        if ($this->contrastRatio($colors['accent'], $colors['surface']) < 3.0) {
+            $warnings[] = 'Kontras aksen vs latar rendah (< 3.0) — elemen aksen bisa kurang terlihat.';
+        }
+
+        return $warnings;
+    }
+
+    private function contrastRatio(string $hex1, string $hex2): float
+    {
+        $lum = function (string $hex): float {
+            $hex = ltrim($hex, '#');
+            if (strlen($hex) === 3) {
+                $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+            }
+            if (strlen($hex) < 6) {
+                return 1.0; // hex tak valid → anggap terang, jangan false-alarm
+            }
+            $channel = function (float $c): float {
+                $c /= 255;
+                return $c <= 0.03928 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4;
+            };
+
+            return 0.2126 * $channel((float) hexdec(substr($hex, 0, 2)))
+                + 0.7152 * $channel((float) hexdec(substr($hex, 2, 2)))
+                + 0.0722 * $channel((float) hexdec(substr($hex, 4, 2)));
+        };
+
+        $l1 = $lum($hex1);
+        $l2 = $lum($hex2);
+
+        return (max($l1, $l2) + 0.05) / (min($l1, $l2) + 0.05);
     }
 
     private function lintTemplate(InvitationTemplate $template): array
@@ -420,6 +504,7 @@ class TemplateEditorController extends Controller
                 'content' => fn () => $renderer->renderTemplate($template),
                 'themeStyle' => $renderer->templateThemeStyle($template),
                 'usesSections' => true,
+                'studioMode' => true,
             ])
             ->header('Cache-Control', 'no-store, private');
     }
@@ -490,6 +575,15 @@ class TemplateEditorController extends Controller
             'music',
             'rsvp',
             'video',
+            'couple',
+            'event_details',
+            'gift',
+            'quote',
+            'love_story',
+            'live_stream',
+            'closing',
+            'wishes',
+            'code',
         ];
     }
 }

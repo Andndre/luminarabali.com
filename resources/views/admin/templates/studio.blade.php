@@ -1,10 +1,9 @@
-@extends('layouts.admin')
+@extends('layouts.studio')
 
 @section('title', 'Studio — ' . $template->name)
 
 @section('content')
-<style>[x-cloak]{display:none!important}</style>
-<div x-data="studioApp()" x-init="init()" class="h-[calc(100vh-4rem)] flex">
+<div x-data="studioApp()" x-init="init()" class="h-screen flex">
 
     {{-- Panel kiri: Struktur --}}
     <div class="w-72 shrink-0 flex flex-col border-r border-gray-200 bg-white">
@@ -81,10 +80,13 @@
                     <span class="drag-handle cursor-grab text-gray-300 group-hover:text-gray-400">⠿</span>
                     <span class="flex-1 text-sm truncate" :class="{ 'opacity-40': !s.is_visible }"
                         x-text="typeLabel(s.section_type)"></span>
+                    <span x-show="s.custom_css" title="Section ini punya CSS kustom"
+                        class="text-[9px] font-semibold bg-purple-100 text-purple-700 rounded px-1">CSS</span>
                     <div class="hidden group-hover:flex items-center gap-1 text-gray-400">
                         <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'"
                             class="hover:text-gray-900" x-text="s.is_visible ? '👁' : '🚫'"></button>
                         <button @click.stop="duplicateSection(s)" title="Duplikat" class="hover:text-gray-900">⧉</button>
+                        <button @click.stop="savePreset(s)" title="Simpan sebagai preset" class="hover:text-gray-900">☆</button>
                         <button @click.stop="removeSection(s)" title="Hapus" class="hover:text-red-600">✕</button>
                     </div>
                 </div>
@@ -111,13 +113,42 @@
                 <h2 class="font-bold text-gray-900">Tambah Section</h2>
                 <button @click="addOpen = false" class="text-gray-400 hover:text-gray-900">✕</button>
             </div>
-            <div class="grid grid-cols-3 gap-3">
+            <div class="flex gap-1 mb-4">
+                <button @click="addTab = 'types'"
+                    class="text-xs font-semibold rounded-lg px-3 py-1.5"
+                    :class="addTab === 'types' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    Tipe Section
+                </button>
+                <button @click="addTab = 'presets'"
+                    class="text-xs font-semibold rounded-lg px-3 py-1.5"
+                    :class="addTab === 'presets' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    Presets
+                </button>
+            </div>
+            <div x-show="addTab === 'types'" class="grid grid-cols-3 gap-3">
                 <template x-for="(label, type) in typeLabels" :key="type">
                     <button @click="addSection(type)"
                         class="border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
                         <span class="font-medium" x-text="label"></span>
                     </button>
                 </template>
+            </div>
+            <div x-show="addTab === 'presets'" x-cloak>
+                <div class="grid grid-cols-3 gap-3" x-show="presets.length > 0">
+                    <template x-for="p in presets" :key="p.id">
+                        <div class="group relative border border-gray-200 rounded-xl p-4 text-sm hover:border-black hover:bg-gray-50 cursor-pointer"
+                            @click="addSection(p.section_type, p.props)">
+                            <span class="block font-medium" x-text="p.name"></span>
+                            <span class="block text-xs text-gray-400 mt-1"
+                                x-text="(p.category ? p.category + ' · ' : '') + typeLabel(p.section_type)"></span>
+                            <button @click.stop="deletePreset(p)" title="Hapus preset"
+                                class="absolute top-2 right-2 hidden group-hover:block text-gray-300 hover:text-red-600">✕</button>
+                        </div>
+                    </template>
+                </div>
+                <p x-show="presetsLoaded && presets.length === 0" class="text-sm text-gray-400 text-center py-6">
+                    Belum ada preset. Simpan section sebagai preset lewat tombol ☆ di panel struktur.
+                </p>
             </div>
         </div>
     </div>
@@ -158,6 +189,10 @@ function studioApp() {
         device: 'mobile',
         loaded: false,
         addOpen: false,
+        addTab: 'types',
+        presets: [],
+        presetsLoaded: false,
+        ornaments: [],
         panel: 'sections',
         theme: @json($themeBase),
         fonts: @json($fonts),
@@ -170,6 +205,11 @@ function studioApp() {
         fieldErrors: {},
         hasChildren: {},
         propSaveTimer: null,
+        undoStack: [],
+        redoStack: [],
+        restoring: false,
+        cssSaveTimer: null,
+        cssError: null,
 
         async init() {
             const res = await fetch(`/admin/api/templates/{{ $template->id }}/load`);
@@ -185,7 +225,39 @@ function studioApp() {
             this.initSortable();
             this.$watch('selectedId', () => {
                 this.fieldErrors = {};
+                this.cssError = null;
                 this.inspectorTab = this.availableTabs[0]?.id ?? 'design';
+            });
+            this.$watch('addOpen', open => {
+                if (open && !this.presetsLoaded) this.loadPresets();
+            });
+            // Galeri ornamen untuk kontrol tipe 'ornament' (gagal = kontrol tetap bisa path manual)
+            fetch('/admin/api/assets?collection=ornament', { headers: { 'Accept': 'application/json' } })
+                .then(r => r.json())
+                .then(d => { this.ornaments = d.data ?? []; })
+                .catch(() => {});
+            // Pesan dari iframe preview (mode studio): klik-pilih & inline edit.
+            window.addEventListener('message', e => {
+                if (e.origin !== window.location.origin || !e.data?.type) return;
+                if (e.data.type === 'studio:select') {
+                    this.panel = 'sections';
+                    this.selectedId = String(e.data.id);
+                }
+                if (e.data.type === 'studio:edit') {
+                    const s = this.sections.find(x => x.id === String(e.data.id));
+                    if (!s) return;
+                    this.pushUndo();
+                    s.props[e.data.key] = e.data.value;
+                    this.saveProps(s); // blur = final, tanpa debounce
+                }
+            });
+            // Ctrl/Cmd+Z = undo, +Shift = redo (abaikan saat fokus di input)
+            window.addEventListener('keydown', e => {
+                if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z') return;
+                const t = e.target;
+                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+                e.preventDefault();
+                e.shiftKey ? this.redo() : this.undo();
             });
         },
 
@@ -203,7 +275,9 @@ function studioApp() {
                 { id: 'content', label: 'Konten' },
                 { id: 'design', label: 'Desain' },
                 { id: 'advanced', label: 'Lanjutan' },
-            ].filter(t => this.fieldsFor(this.selected.section_type, t.id).length > 0);
+            ].filter(t =>
+                t.id === 'advanced' // selalu ada: CSS kustom section berlaku untuk semua tipe
+                || this.fieldsFor(this.selected.section_type, t.id).length > 0);
         },
 
         fieldsFor(type, group) {
@@ -220,11 +294,13 @@ function studioApp() {
         },
 
         setProp(field, value) {
+            if (!this.propSaveTimer) this.pushUndo(); // snapshot pra-mutasi, sekali per burst
             this.selected.props[field.key] = value;
             this.queuePropSave();
         },
 
         resetProp(field) {
+            if (!this.propSaveTimer) this.pushUndo();
             this.selected.props[field.key] = null; // null = unset di server (kembali ke theme/default)
             this.queuePropSave();
         },
@@ -292,10 +368,116 @@ function studioApp() {
             this.setProp(field, list);
         },
 
+        // repeater: item = objek per sub-field (events, accounts, stories, …)
+        repItems(field) {
+            return (this.val(field) ?? []).map(item => ({ ...item }));
+        },
+
+        addRepItem(field) {
+            const item = Object.fromEntries((field.fields ?? []).map(f => [f.key, f.default ?? '']));
+            this.setProp(field, [...this.repItems(field), item]);
+        },
+
+        setRepItem(field, i, subkey, value) {
+            const list = this.repItems(field);
+            list[i] = { ...list[i], [subkey]: value };
+            this.setProp(field, list);
+        },
+
+        removeRepItem(field, i) {
+            const list = this.repItems(field);
+            list.splice(i, 1);
+            this.setProp(field, list);
+        },
+
+        moveRepItem(field, i, delta) {
+            const list = this.repItems(field);
+            const [item] = list.splice(i, 1);
+            list.splice(i + delta, 0, item);
+            this.setProp(field, list);
+        },
+
+        async uploadRepImage(field, i, subkey, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                this.setRepItem(field, i, subkey, (await this.uploadFile(file)).file_path);
+            } catch {
+                this.toastError('Upload gagal');
+            }
+            event.target.value = '';
+        },
+
+        // ===== Undo/redo — scope: props + theme saja (add/delete/reorder tidak masuk stack) =====
+        snapshot() {
+            return JSON.parse(JSON.stringify({
+                theme: this.theme,
+                props: Object.fromEntries(this.sections.map(s => [s.id, s.props])),
+            }));
+        },
+
+        pushUndo() {
+            if (this.restoring) return;
+            this.undoStack.push(this.snapshot());
+            if (this.undoStack.length > 50) this.undoStack.shift();
+            this.redoStack = [];
+        },
+
+        undo() {
+            const snap = this.undoStack.pop();
+            if (!snap) return;
+            this.redoStack.push(this.snapshot());
+            this.applySnapshot(snap);
+        },
+
+        redo() {
+            const snap = this.redoStack.pop();
+            if (!snap) return;
+            this.undoStack.push(this.snapshot());
+            this.applySnapshot(snap);
+        },
+
+        async applySnapshot(snap) {
+            this.restoring = true;
+            try {
+                if (JSON.stringify(snap.theme) !== JSON.stringify(this.theme)) {
+                    this.theme = JSON.parse(JSON.stringify(snap.theme));
+                    const doc = this.$refs.preview.contentWindow?.document?.documentElement;
+                    if (doc) {
+                        Object.entries(this.theme.colors).forEach(([k, v]) => doc.style.setProperty(`--color-${k}`, v));
+                        Object.entries(this.theme.fonts).forEach(([k, v]) => doc.style.setProperty(`--font-${k}`, `'${v}'`));
+                    }
+                    this.queueThemeSave();
+                }
+                for (const s of this.sections) {
+                    const snapProps = snap.props[s.id];
+                    if (snapProps === undefined) continue; // section baru pasca-snapshot — biarkan
+                    if (JSON.stringify(snapProps) === JSON.stringify(s.props)) continue;
+                    // payload restore: props snapshot + null untuk key yang harus di-unset
+                    const payload = { ...snapProps };
+                    for (const key of Object.keys(s.props)) {
+                        if (!(key in snapProps)) payload[key] = null;
+                    }
+                    s.props = JSON.parse(JSON.stringify(snapProps));
+                    try {
+                        await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { props: payload });
+                        await this.swapSection(s);
+                    } catch {
+                        this.toastError('Gagal memulihkan section');
+                    }
+                }
+            } finally {
+                this.restoring = false;
+            }
+        },
+
         queuePropSave() {
             clearTimeout(this.propSaveTimer);
             const s = this.selected; // tangkap sekarang — user bisa pindah section saat debounce
-            this.propSaveTimer = setTimeout(() => this.saveProps(s), 300);
+            this.propSaveTimer = setTimeout(() => {
+                this.propSaveTimer = null;
+                this.saveProps(s);
+            }, 300);
         },
 
         async saveProps(s) {
@@ -316,6 +498,22 @@ function studioApp() {
             }
         },
 
+        setCustomCss(value) {
+            this.selected.custom_css = value;
+            clearTimeout(this.cssSaveTimer);
+            const s = this.selected;
+            this.cssSaveTimer = setTimeout(async () => {
+                try {
+                    await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { custom_css: s.custom_css || null });
+                    if (this.selectedId === s.id) this.cssError = null;
+                    await this.swapSection(s);
+                } catch (err) {
+                    if (this.selectedId !== s.id) return;
+                    this.cssError = err.errors?.custom_css?.[0] ?? 'Gagal menyimpan CSS';
+                }
+            }, 500);
+        },
+
         async swapSection(s) {
             // ponytail: section beranak fallback full reload — render-section me-render elements: []
             if (this.hasChildren[s.id]) return this.reloadPreview();
@@ -326,7 +524,7 @@ function studioApp() {
                 const wrapper = this.$refs.preview.contentWindow?.document
                     ?.querySelector(`[data-section-id="${s.id}"]`);
                 if (!wrapper) return this.reloadPreview(); // mis. section hidden → tidak dirender
-                wrapper.innerHTML = data.html;
+                wrapper.outerHTML = data.html; // respons = wrapper lengkap dari _section-shell
             } catch {
                 this.reloadPreview();
             }
@@ -334,6 +532,10 @@ function studioApp() {
 
         reloadPreview() {
             this.$refs.preview.contentWindow.location.reload();
+        },
+
+        toastError(title = 'Terjadi kesalahan') {
+            Swal.fire({ icon: 'error', title, toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
         },
 
         async api(method, url, body = null) {
@@ -352,21 +554,90 @@ function studioApp() {
             return res.json();
         },
 
-        async addSection(type) {
-            const data = await this.api('POST', `/admin/api/studio/templates/{{ $template->id }}/sections`, {
-                section_type: type,
+        async addSection(type, props = null) {
+            if (type === 'code') {
+                const ok = await Swal.fire({
+                    title: 'Tambah section Kode?',
+                    text: 'Section ini menyisipkan HTML mentah tanpa validasi. Gunakan hanya bila paham risikonya.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Tambah',
+                    cancelButtonText: 'Batal',
+                });
+                if (!ok.isConfirmed) return;
+            }
+            try {
+                const data = await this.api('POST', `/admin/api/studio/templates/{{ $template->id }}/sections`, {
+                    section_type: type,
+                    ...(props ? { props } : {}),
+                });
+                this.sections.push({ ...data.section, id: String(data.section.id) });
+                this.addOpen = false;
+                this.selectedId = String(data.section.id);
+                this.reloadPreview();
+            } catch {
+                this.toastError('Gagal menambah section');
+            }
+        },
+
+        async loadPresets() {
+            try {
+                this.presets = (await this.api('GET', '/admin/api/studio/presets')).presets;
+                this.presetsLoaded = true;
+            } catch {
+                this.toastError('Gagal memuat presets');
+            }
+        },
+
+        async savePreset(s) {
+            const res = await Swal.fire({
+                title: 'Simpan sebagai preset',
+                html: '<input id="preset-name" class="swal2-input" placeholder="Nama preset">' +
+                    '<input id="preset-category" class="swal2-input" placeholder="Kategori (opsional)">',
+                showCancelButton: true,
+                confirmButtonText: 'Simpan',
+                cancelButtonText: 'Batal',
+                preConfirm: () => {
+                    const name = document.getElementById('preset-name').value.trim();
+                    if (!name) {
+                        Swal.showValidationMessage('Nama wajib diisi');
+                        return false;
+                    }
+                    return { name, category: document.getElementById('preset-category').value.trim() || null };
+                },
             });
-            this.sections.push({ ...data.section, id: String(data.section.id) });
-            this.addOpen = false;
-            this.selectedId = String(data.section.id);
-            this.reloadPreview();
+            if (!res.isConfirmed) return;
+            try {
+                await this.api('POST', '/admin/api/studio/presets', {
+                    ...res.value,
+                    section_type: s.section_type,
+                    props: s.props,
+                });
+                this.presetsLoaded = false; // fetch ulang saat modal dibuka lagi
+                Swal.fire({ icon: 'success', title: 'Preset tersimpan', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
+            } catch {
+                this.toastError('Gagal menyimpan preset');
+            }
+        },
+
+        async deletePreset(p) {
+            try {
+                await this.api('DELETE', `/admin/api/studio/presets/${p.id}`);
+                this.presets = this.presets.filter(x => x.id !== p.id);
+            } catch {
+                this.toastError('Gagal menghapus preset');
+            }
         },
 
         async duplicateSection(s) {
-            const data = await this.api('POST', `/admin/api/studio/sections/${s.id}/duplicate`);
-            const index = this.sections.findIndex(x => x.id === s.id);
-            this.sections.splice(index + 1, 0, { ...data.section, id: String(data.section.id) });
-            this.reloadPreview();
+            try {
+                const data = await this.api('POST', `/admin/api/studio/sections/${s.id}/duplicate`);
+                const index = this.sections.findIndex(x => x.id === s.id);
+                this.sections.splice(index + 1, 0, { ...data.section, id: String(data.section.id) });
+                this.reloadPreview();
+            } catch {
+                this.toastError('Gagal menduplikat section');
+            }
         },
 
         async removeSection(s) {
@@ -379,16 +650,25 @@ function studioApp() {
                 cancelButtonText: 'Batal',
             });
             if (!confirmed.isConfirmed) return;
-            await this.api('DELETE', `/admin/api/templates/sections/${s.id}`);
-            this.sections = this.sections.filter(x => x.id !== s.id);
-            if (this.selectedId === s.id) this.selectedId = null;
-            this.reloadPreview();
+            try {
+                await this.api('DELETE', `/admin/api/templates/sections/${s.id}`);
+                this.sections = this.sections.filter(x => x.id !== s.id);
+                if (this.selectedId === s.id) this.selectedId = null;
+                this.reloadPreview();
+            } catch {
+                this.toastError('Gagal menghapus section');
+            }
         },
 
         async toggleVisible(s) {
             s.is_visible = !s.is_visible;
-            await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { is_visible: s.is_visible });
-            this.reloadPreview();
+            try {
+                await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { is_visible: s.is_visible });
+                this.reloadPreview();
+            } catch {
+                s.is_visible = !s.is_visible; // revert optimistic flip
+                this.toastError('Gagal mengubah visibilitas');
+            }
         },
 
         initSortable() {
@@ -404,13 +684,18 @@ function studioApp() {
             // (keyed x-for then leaves the DOM untouched), persist, re-render.
             const ids = [...this.$refs.sectionList.querySelectorAll('[data-id]')].map(el => el.dataset.id);
             this.sections = ids.map(id => this.sections.find(s => s.id === id));
-            await this.api('POST', '/admin/api/templates/sections/reorder', {
-                sections: this.sections.map((s, i) => ({ id: s.id, order_index: i })),
-            });
-            this.reloadPreview();
+            try {
+                await this.api('POST', '/admin/api/templates/sections/reorder', {
+                    sections: this.sections.map((s, i) => ({ id: s.id, order_index: i })),
+                });
+                this.reloadPreview();
+            } catch {
+                this.toastError('Gagal menyimpan urutan');
+            }
         },
 
         setColor(key, value) {
+            if (!this.themeSaveTimer) this.pushUndo();
             this.theme.colors[key] = value;
             this.$refs.preview.contentWindow?.document?.documentElement
                 ?.style.setProperty(`--color-${key}`, value);
@@ -418,6 +703,7 @@ function studioApp() {
         },
 
         setFont(key, value) {
+            if (!this.themeSaveTimer) this.pushUndo();
             this.theme.fonts[key] = value;
             this.fontsDirty = true;
             this.$refs.preview.contentWindow?.document?.documentElement
@@ -428,11 +714,16 @@ function studioApp() {
         queueThemeSave() {
             clearTimeout(this.themeSaveTimer);
             this.themeSaveTimer = setTimeout(async () => {
-                await this.api('PATCH', `/admin/api/studio/templates/{{ $template->id }}/theme`, this.theme);
-                if (this.fontsDirty) {
-                    // Font baru butuh <link> Google Fonts dari templateThemeStyle() — reload sekali.
-                    this.fontsDirty = false;
-                    this.reloadPreview();
+                this.themeSaveTimer = null;
+                try {
+                    await this.api('PATCH', `/admin/api/studio/templates/{{ $template->id }}/theme`, this.theme);
+                    if (this.fontsDirty) {
+                        // Font baru butuh <link> Google Fonts dari templateThemeStyle() — reload sekali.
+                        this.fontsDirty = false;
+                        this.reloadPreview();
+                    }
+                } catch {
+                    this.toastError('Gagal menyimpan theme');
                 }
             }, 600);
         },
@@ -451,10 +742,32 @@ function studioApp() {
             }
             this.publishing = true;
             try {
-                await this.api('POST', `/admin/templates/{{ $template->id }}/publish`);
+                await this.doPublish(false);
+            } finally {
+                this.publishing = false;
+            }
+        },
+
+        async doPublish(force) {
+            try {
+                await this.api('POST', `/admin/templates/{{ $template->id }}/publish`, force ? { force: true } : null);
                 this.status = 'published';
                 Swal.fire({ icon: 'success', title: 'Template dipublish', timer: 1500, showConfirmButton: false });
             } catch (err) {
+                // 409 → hanya warning: tawarkan publish paksa
+                if (err.warnings) {
+                    const items = err.warnings.map(w => `<li>${escapeHtml(w)}</li>`).join('');
+                    const ok = await Swal.fire({
+                        icon: 'warning',
+                        title: 'Ada peringatan',
+                        html: `<ul class="text-left text-sm list-disc pl-5">${items}</ul>`,
+                        showCancelButton: true,
+                        confirmButtonText: 'Publish Saja',
+                        cancelButtonText: 'Perbaiki Dulu',
+                    });
+                    if (ok.isConfirmed) await this.doPublish(true);
+                    return;
+                }
                 const items = (err.errors ?? ['Gagal mempublish template.'])
                     .map(e => `<li>${escapeHtml(e)}</li>`).join('');
                 Swal.fire({
@@ -462,8 +775,6 @@ function studioApp() {
                     title: 'Belum bisa dipublish',
                     html: `<ul class="text-left text-sm list-disc pl-5">${items}</ul>`,
                 });
-            } finally {
-                this.publishing = false;
             }
         },
     };

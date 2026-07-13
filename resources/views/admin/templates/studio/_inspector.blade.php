@@ -19,6 +19,10 @@
                 </div>
             </div>
             <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                <p x-show="inspectorTab === 'content'"
+                    class="rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-700">
+                    Field di tab ini bisa diedit pembeli lewat Customizer.
+                </p>
                 <template x-for="field in fieldsFor(selected.section_type, inspectorTab)" :key="selected.id + ':' + field.key">
                     <div>
                         <label class="block text-xs text-gray-600 mb-1" x-text="field.label"></label>
@@ -140,6 +144,116 @@
                             </div>
                         </template>
 
+                        {{-- code: HTML mentah super admin — bypass sistem props (escape hatch level 3) --}}
+                        <template x-if="field.type === 'code'">
+                            <div class="space-y-2">
+                                <div class="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
+                                    HTML mentah — hanya super admin, bypass sistem props. Salah tulis bisa merusak tampilan.
+                                </div>
+                                <textarea rows="10" spellcheck="false" :value="val(field) ?? ''"
+                                    @input="setProp(field, $event.target.value)"
+                                    class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></textarea>
+                            </div>
+                        </template>
+
+                        {{-- ornament: grid thumbnail dari media library (collection=ornament) --}}
+                        <template x-if="field.type === 'ornament'">
+                            <div class="space-y-2">
+                                <img x-show="val(field)" :src="mediaUrl(val(field))"
+                                    class="w-full h-16 object-contain rounded border border-gray-200 bg-gray-50">
+                                <div class="grid grid-cols-4 gap-1" x-show="ornaments.length > 0">
+                                    <template x-for="o in ornaments" :key="o.id">
+                                        <button type="button" @click="setProp(field, o.file_path)" :title="o.asset_name"
+                                            class="border rounded p-0.5 hover:border-black"
+                                            :class="val(field) === o.file_path ? 'border-black' : 'border-gray-200'">
+                                            <img :src="mediaUrl(o.file_path)" class="w-full h-10 object-contain">
+                                        </button>
+                                    </template>
+                                </div>
+                                <button type="button" x-show="hasOverride(field.key)" @click="resetProp(field)"
+                                    class="text-xs text-gray-400 hover:text-red-600">✕ Tanpa ornamen</button>
+                                <input type="text" placeholder="atau path/URL manual…" :value="val(field) ?? ''"
+                                    @change="setProp(field, $event.target.value || null)"
+                                    class="w-full border rounded-lg px-2 py-1.5 text-xs">
+                            </div>
+                        </template>
+
+                        {{-- repeater: daftar item terstruktur (events, accounts, stories, …) --}}
+                        <template x-if="field.type === 'repeater'">
+                            <div class="space-y-3">
+                                <template x-for="(item, i) in (val(field) ?? [])" :key="selected.id + ':' + field.key + ':' + i">
+                                    <div class="border border-gray-200 rounded-lg p-2 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-semibold text-gray-400" x-text="'Item ' + (i + 1)"></span>
+                                            <div class="flex items-center gap-1 text-gray-400">
+                                                <button type="button" @click="moveRepItem(field, i, -1)" :disabled="i === 0"
+                                                    class="hover:text-gray-900 disabled:opacity-30">↑</button>
+                                                <button type="button" @click="moveRepItem(field, i, 1)"
+                                                    :disabled="i === (val(field) ?? []).length - 1"
+                                                    class="hover:text-gray-900 disabled:opacity-30">↓</button>
+                                                <button type="button" @click="removeRepItem(field, i)"
+                                                    class="hover:text-red-600">✕</button>
+                                            </div>
+                                        </div>
+                                        <template x-for="sub in field.fields" :key="sub.key">
+                                            <div>
+                                                <label class="block text-[10px] text-gray-500 mb-0.5" x-text="sub.label"></label>
+                                                <template x-if="sub.type === 'text' && ['content', 'story', 'address', 'message'].includes(sub.key)">
+                                                    <textarea rows="2" :value="item[sub.key] ?? ''"
+                                                        @input="setRepItem(field, i, sub.key, $event.target.value)"
+                                                        class="w-full border rounded px-2 py-1 text-xs"></textarea>
+                                                </template>
+                                                <template x-if="sub.type === 'text' && !['content', 'story', 'address', 'message'].includes(sub.key)">
+                                                    <input type="text" :value="item[sub.key] ?? ''"
+                                                        @input="setRepItem(field, i, sub.key, $event.target.value)"
+                                                        class="w-full border rounded px-2 py-1 text-xs">
+                                                </template>
+                                                <template x-if="sub.type === 'url'">
+                                                    <input type="url" placeholder="https://…" :value="item[sub.key] ?? ''"
+                                                        @change="setRepItem(field, i, sub.key, $event.target.value)"
+                                                        class="w-full border rounded px-2 py-1 text-xs">
+                                                </template>
+                                                <template x-if="sub.type === 'number'">
+                                                    <input type="number" step="any" :value="item[sub.key] ?? ''"
+                                                        @input="setRepItem(field, i, sub.key, $event.target.value === '' ? null : Number($event.target.value))"
+                                                        class="w-full border rounded px-2 py-1 text-xs">
+                                                </template>
+                                                <template x-if="sub.type === 'select'">
+                                                    <select :value="item[sub.key]" @change="setRepItem(field, i, sub.key, $event.target.value)"
+                                                        class="w-full border rounded px-2 py-1 text-xs">
+                                                        <template x-for="opt in sub.options" :key="opt">
+                                                            <option :value="opt" x-text="opt" :selected="opt === item[sub.key]"></option>
+                                                        </template>
+                                                    </select>
+                                                </template>
+                                                <template x-if="sub.type === 'image'">
+                                                    <div class="space-y-1">
+                                                        <img x-show="item[sub.key]" :src="mediaUrl(item[sub.key])"
+                                                            class="w-full h-16 object-cover rounded border border-gray-200">
+                                                        <label class="block text-center text-[10px] border border-gray-300 rounded px-1 py-1 cursor-pointer hover:border-black">
+                                                            Upload
+                                                            <input type="file" accept="image/*" class="hidden"
+                                                                @change="uploadRepImage(field, i, sub.key, $event)">
+                                                        </label>
+                                                        <input type="text" placeholder="path/URL…" :value="item[sub.key] ?? ''"
+                                                            @change="setRepItem(field, i, sub.key, $event.target.value)"
+                                                            class="w-full border rounded px-1.5 py-1 text-[10px]">
+                                                    </div>
+                                                </template>
+                                                <p x-show="fieldErrors[field.key + '.' + i + '.' + sub.key]"
+                                                    x-text="fieldErrors[field.key + '.' + i + '.' + sub.key]"
+                                                    class="text-[10px] text-red-600 mt-0.5"></p>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <button type="button" @click="addRepItem(field)"
+                                    class="w-full text-center text-xs border border-dashed border-gray-300 rounded-lg px-2 py-1.5 text-gray-600 hover:border-black hover:text-black">
+                                    + Tambah item
+                                </button>
+                            </div>
+                        </template>
+
                         {{-- audio / video: upload + URL + preview player native --}}
                         <template x-if="field.type === 'audio'">
                             <div class="space-y-2">
@@ -168,6 +282,19 @@
 
                         <p x-show="fieldErrors[field.key]" x-text="fieldErrors[field.key]"
                             class="text-xs text-red-600 mt-1"></p>
+                    </div>
+                </template>
+
+                {{-- CSS kustom per section (kolom custom_css — discope server via [data-section-id]) --}}
+                <template x-if="inspectorTab === 'advanced'">
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">CSS Kustom Section</label>
+                        <textarea rows="5" spellcheck="false" :value="selected.custom_css ?? ''"
+                            @input="setCustomCss($event.target.value)"
+                            placeholder="color: red;&#10;.judul { font-size: 2rem; }"
+                            class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></textarea>
+                        <p class="text-[10px] text-gray-400 mt-1">Berlaku hanya untuk section ini. Tulis rule CSS polos, tanpa tag.</p>
+                        <p x-show="cssError" x-text="cssError" class="text-xs text-red-600 mt-1"></p>
                     </div>
                 </template>
             </div>

@@ -14,7 +14,10 @@ class InvitationAsset extends Model
         'mime_type',
         'file_size',
         'dimensions',
-        'alt_text'
+        'alt_text',
+        'uploaded_by',
+        'visibility',
+        'collection'
     ];
 
     protected $casts = [

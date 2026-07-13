@@ -70,7 +70,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/templates/test', function () {
         return view('admin.templates.test');
     })->name('admin.templates.test');
-    Route::get('/templates/{id}/editor', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'editor'])->name('admin.templates.editor');
     Route::get('/templates/{id}/preview', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'preview'])->name('admin.templates.preview');
     Route::post('/templates/{id}/publish', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'publish'])->name('admin.templates.publish');
     Route::get('/templates/{id}/studio', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'studio'])->name('admin.templates.studio');
@@ -108,6 +107,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
                 ->name('templates.theme.update');
             Route::post('/sections/{id}/duplicate', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'duplicateSection'])
                 ->name('sections.duplicate');
+            Route::get('/presets', [\App\Http\Controllers\Admin\DesignPresetController::class, 'index'])->name('presets.index');
+            Route::post('/presets', [\App\Http\Controllers\Admin\DesignPresetController::class, 'store'])->name('presets.store');
+            Route::delete('/presets/{id}', [\App\Http\Controllers\Admin\DesignPresetController::class, 'destroy'])->name('presets.destroy');
         });
 
         // Invitations API
@@ -120,6 +122,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::put('/sections/{id}', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'updateSection']);
         Route::delete('/sections/{id}', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'deleteSection']);
         Route::post('/sections/reorder', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'reorderSections']);
+
+        // RSVP moderation (section wishes)
+        Route::patch('/rsvp/{id}/toggle-hidden', [\App\Http\Controllers\Admin\InvitationController::class, 'toggleRsvpHidden'])->name('rsvp.toggle-hidden');
 
         // Assets API
         Route::get('/assets', [\App\Http\Controllers\Admin\InvitationAssetController::class, 'index']);
@@ -146,6 +151,7 @@ Route::get('/linkto/{division}', [\App\Http\Controllers\LinktreeController::clas
 Route::get('/gallery/drive/{folderId}', [\App\Http\Controllers\LinktreeController::class, 'driveGallery'])->name('gallery.drive');
 
 Route::get('/temp-login', function () {
+    abort_unless(app()->environment('local'), 404);
     auth()->login(\App\Models\User::first());
 
     return redirect()->route('admin.dashboard');

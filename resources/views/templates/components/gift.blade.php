@@ -1,0 +1,61 @@
+@props(['props' => [], 'section' => null, 'page' => null])
+
+@php
+    $heading = $props['heading'] ?? 'Amplop Digital';
+    $message = $props['message'] ?? '';
+    $accounts = $props['accounts'] ?? [];
+    $giftAddress = $props['gift_address'] ?? '';
+    $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
+    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #d4af37)';
+    $textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
+@endphp
+
+<section style="background: {{ $backgroundColor }}; color: {{ $textColor }}; padding: 64px 16px;">
+  <div class="container mx-auto max-w-xl text-center">
+    <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family: var(--font-heading, serif); color: {{ $accentColor }};">
+      {{ $heading }}
+    </h2>
+    @if($message)
+      <p class="text-sm opacity-80 mb-8">{{ $message }}</p>
+    @endif
+    <div class="space-y-4">
+      @foreach($accounts as $i => $account)
+        <div class="rounded-xl p-5 text-left flex items-center gap-4" style="border: 1px solid {{ $accentColor }};">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs uppercase tracking-wide opacity-70">{{ $account['bank'] ?? '' }}</p>
+            <p class="font-mono font-semibold truncate" id="gift-number-{{ $section->id }}-{{ $i }}">{{ $account['number'] ?? '' }}</p>
+            @if(!empty($account['holder']))
+              <p class="text-sm opacity-80">a.n. {{ $account['holder'] }}</p>
+            @endif
+          </div>
+          @if(!empty($account['number']))
+            <button type="button" class="gift-copy-{{ $section->id }} shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold"
+                data-number="{{ $account['number'] }}"
+                style="background: {{ $accentColor }}; color: {{ $backgroundColor }};">
+              Salin
+            </button>
+          @endif
+        </div>
+      @endforeach
+    </div>
+    @if($giftAddress)
+      <p class="mt-8 text-sm opacity-80">Kirim kado ke: <span class="font-medium">{{ $giftAddress }}</span></p>
+    @endif
+  </div>
+</section>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.gift-copy-{{ $section->id }}').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      navigator.clipboard.writeText(btn.dataset.number).then(function () {
+        const original = btn.textContent;
+        btn.textContent = 'Tersalin!';
+        setTimeout(function () { btn.textContent = original; }, 1500);
+      });
+    });
+  });
+});
+</script>
+@endpush

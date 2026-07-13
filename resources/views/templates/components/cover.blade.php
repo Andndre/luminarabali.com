@@ -80,7 +80,7 @@ $targetName = request()->query('to') ?? null;
   
   <div class="cover-content">
     @if($title)
-      <p class="cover-title text-xl md:text-2xl">{{ $title }}</p>
+      <p class="cover-title text-xl md:text-2xl" data-editable="title">{{ $title }}</p>
     @endif
 
     <h1 class="cover-names text-5xl md:text-7xl font-bold mb-6 mt-4">

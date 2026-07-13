@@ -67,7 +67,7 @@ $paddingBottom = $props['padding_bottom'] ?? 120;
 <section class="hero-section-{{ $section->id ?? 'default' }}">
   <div class="hero-content text-{{ $alignment }} px-4">
     @if($title)
-      <p class="hero-title text-lg md:text-xl mb-4">{{ $title }}</p>
+      <p class="hero-title text-lg md:text-xl mb-4" data-editable="title">{{ $title }}</p>
     @endif
 
     <h1 class="hero-names text-4xl md:text-6xl lg:text-7xl font-bold mb-4">

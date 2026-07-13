@@ -137,6 +137,81 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @stack('scripts')
+
+    {{-- Animasi entrance per-section (props animation/animation_delay via _section-shell) --}}
+    <style>
+        [data-animate] { opacity: 0; }
+        [data-animate].anim-in { animation-duration: .8s; animation-timing-function: ease-out; animation-fill-mode: forwards; }
+        [data-animate="fade-up"].anim-in { animation-name: anim-fade-up; }
+        [data-animate="fade-in"].anim-in { animation-name: anim-fade-in; }
+        [data-animate="zoom-in"].anim-in { animation-name: anim-zoom-in; }
+        [data-animate="slide-left"].anim-in { animation-name: anim-slide-left; }
+        [data-animate="slide-right"].anim-in { animation-name: anim-slide-right; }
+        @keyframes anim-fade-up { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: none; } }
+        @keyframes anim-fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes anim-zoom-in { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+        @keyframes anim-slide-left { from { opacity: 0; transform: translateX(48px); } to { opacity: 1; transform: none; } }
+        @keyframes anim-slide-right { from { opacity: 0; transform: translateX(-48px); } to { opacity: 1; transform: none; } }
+    </style>
+    <script>
+        (function () {
+            const observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    const el = entry.target;
+                    el.style.animationDelay = (parseInt(el.dataset.animateDelay, 10) || 0) + 'ms';
+                    el.classList.add('anim-in');
+                    observer.unobserve(el);
+                });
+            }, { threshold: 0.15 });
+            const scan = function () {
+                document.querySelectorAll('[data-animate]:not(.anim-in)').forEach(el => observer.observe(el));
+            };
+            scan();
+            // Fragment swap di Studio menyisipkan node baru — pantau supaya tetap teranimasi.
+            new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>
+
+    @if (!empty($studioMode))
+        {{-- Mode Studio (iframe editor): klik = pilih section, dblclick = edit teks inline --}}
+        <style>
+            [data-section-id] > *:hover { outline: 2px dashed rgba(0, 0, 0, .25); outline-offset: -2px; }
+            [data-editable][contenteditable="true"] { outline: 2px solid #3b82f6; outline-offset: 2px; }
+        </style>
+        <script>
+            (function () {
+                const origin = window.location.origin;
+
+                document.addEventListener('click', function (e) {
+                    const el = e.target.closest('[data-section-id]');
+                    if (!el) return;
+                    window.parent.postMessage({ type: 'studio:select', id: el.dataset.sectionId }, origin);
+                });
+
+                document.addEventListener('dblclick', function (e) {
+                    const el = e.target.closest('[data-editable]');
+                    if (!el) return;
+                    el.contentEditable = true;
+                    el.focus();
+                    el.addEventListener('blur', function () {
+                        el.contentEditable = false;
+                        const wrapper = el.closest('[data-section-id]');
+                        if (!wrapper) return;
+                        window.parent.postMessage({
+                            type: 'studio:edit',
+                            id: wrapper.dataset.sectionId,
+                            key: el.dataset.editable,
+                            value: el.textContent.trim(),
+                        }, origin);
+                    }, { once: true });
+                    el.addEventListener('keydown', function (ev) {
+                        if (ev.key === 'Enter') { ev.preventDefault(); el.blur(); }
+                    });
+                });
+            })();
+        </script>
+    @endif
 </body>
 
 </html>

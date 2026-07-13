@@ -14,12 +14,14 @@ class InvitationRsvpResponse extends Model
         'attendance_status',
         'number_of_guests',
         'message',
-        'submitted_at'
+        'submitted_at',
+        'is_hidden'
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
-        'number_of_guests' => 'integer'
+        'number_of_guests' => 'integer',
+        'is_hidden' => 'boolean'
     ];
 
     public function page()
