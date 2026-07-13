@@ -44,7 +44,7 @@ class InvitationPage extends Model
 
     public function rsvpResponses()
     {
-        return $this->hasMany(InvitationRsvpResponse::class);
+        return $this->hasMany(InvitationRsvpResponse::class, 'page_id');
     }
 
     public function creator()

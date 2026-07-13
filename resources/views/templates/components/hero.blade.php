@@ -3,6 +3,10 @@
 @php
 $props = $props ?? [];
 $backgroundValue = $props['background_image'] ?? null;
+// http(s)/absolut dipakai apa adanya; path relatif → /storage/ (konsisten dgn cover/couple).
+$heroBg = $backgroundValue
+    ? (\Illuminate\Support\Str::startsWith($backgroundValue, ['http://', 'https://', '/']) ? $backgroundValue : '/storage/' . $backgroundValue)
+    : '';
 $overlayEnabled = $props['overlay_enabled'] ?? false;
 $overlayColor = $props['overlay_color'] ?? '#000000';
 $overlayOpacityPercent = is_numeric($props['overlay_opacity'] ?? null) ? (float) $props['overlay_opacity'] : 40.0;
@@ -21,7 +25,7 @@ $paddingBottom = $props['padding_bottom'] ?? 120;
 
 <style>
   .hero-section-{{ $section->id ?? 'default' }} {
-    background-image: url('{{ $backgroundValue ? '/storage/' . $backgroundValue : '' }}');
+    background-image: url('{{ $heroBg }}');
     background-size: cover;
     background-position: center;
     padding-top: {{ $paddingTop }}px;

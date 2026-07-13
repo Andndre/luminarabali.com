@@ -146,6 +146,15 @@
                 <p class="text-gray-400 text-xs mt-2">Maksimal 10MB per file. Format: JPG, PNG, WEBP, MP4, MP3</p>
             </div>
 
+            <!-- Koleksi (mis. ornament → muncul di picker ornamen Studio) -->
+            <div class="mt-4">
+                <label class="block text-sm text-gray-600 mb-1">Koleksi (opsional)</label>
+                <select x-model="uploadCollection" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="">— Tanpa koleksi —</option>
+                    <option value="ornament">Ornamen</option>
+                </select>
+            </div>
+
             <!-- Upload Progress -->
             <div x-show="uploading" class="mt-4">
                 <div class="flex justify-between text-sm mb-2">
@@ -249,6 +258,7 @@ function mediaLibrary() {
         uploadProgress: 0,
         uploadStatus: '',
         uploadedFiles: [],
+        uploadCollection: '',
         searchTimeout: null,
         pageId: new URLSearchParams(window.location.search).get('page_id') || '',
         newAssetName: '',
@@ -336,6 +346,9 @@ function mediaLibrary() {
                 formData.append('file', file);
                 if (this.pageId) {
                     formData.append('page_id', this.pageId);
+                }
+                if (this.uploadCollection) {
+                    formData.append('collection', this.uploadCollection);
                 }
 
                 try {
