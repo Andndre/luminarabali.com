@@ -315,6 +315,12 @@
         };
         let isFlatStructure = false;
 
+        // Drive thumbnailLink ends in a size param (=s220). Swap it for the size we want.
+        // ponytail: this serves every image from lh3 CDN instead of the googleapis alt=media
+        // endpoint, which streams the multi-MB original and is not CDN-cached. Only the
+        // Download button should ever touch alt=media.
+        const thumbUrl = (file, size) => file.thumbnailLink ? file.thumbnailLink.replace(/=[^=/]+$/, `=${size}`) : '';
+
         // Initialize gallery on load
         window.addEventListener('DOMContentLoaded', () => {
             if (!API_KEY || API_KEY === '' || !PARENT_FOLDER_ID || PARENT_FOLDER_ID === '') {
@@ -468,7 +474,7 @@
                 }
 
                 // Use Drive's built-in thumbnail link to save bandwidth, pagination prevents 429 rate limit
-                const gridThumbnail = file.thumbnailLink ? file.thumbnailLink.replace(/=s220$/, '=w500') : '';
+                const gridThumbnail = thumbUrl(file, 'w400');
 
                 let mediaContent = '';
                 if (isFolder) {
@@ -489,7 +495,7 @@
                         </div>
                     ` : '';
                     mediaContent = `
-                        <img src="${gridThumbnail}" onerror="handleExpiredSession(this)" alt="${file.name}" loading="lazy" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                        <img src="${gridThumbnail}" onerror="handleExpiredSession(this)" alt="${file.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="w-full h-full object-cover">
                         ${videoOverlay}
                     `;
                 }
@@ -585,10 +591,8 @@
                     <video src="https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}" type="video/mp4" controls autoplay loop crossorigin="anonymous" class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain"></video>
                 `;
             } else {
-                // High-resolution image (official API alt=media endpoint for maximum reliability)
-                const highResUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`;
-                const lowResUrl = file.thumbnailLink ? file.thumbnailLink.replace(/=s220$/, '=w1000') : highResUrl;
-                renderProgressiveImage(mediaContainer, lowResUrl, highResUrl, file.name);
+                // Viewing resolution from the CDN. Full original stays behind the Download button.
+                renderProgressiveImage(mediaContainer, thumbUrl(file, 'w400'), thumbUrl(file, 'w1600'), file.name);
             }
 
             // Always run dynamic session files matching
@@ -623,9 +627,9 @@
             const printThumb = document.createElement('div');
             printThumb.className =
                 "session-thumb flex-none relative aspect-[3/4] h-20 rounded-lg overflow-hidden border border-pink-500 cursor-pointer transition-all duration-300";
-            const printThumbUrl = printFile.thumbnailLink ? printFile.thumbnailLink.replace(/=s220$/, '=s150') : '';
+            const printThumbUrl = thumbUrl(printFile, 's150');
             printThumb.innerHTML = `
-                <img src="${printThumbUrl}" alt="Prints Collage" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                <img src="${printThumbUrl}" alt="Prints Collage" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="w-full h-full object-cover">
                 <div class="absolute bottom-0 inset-x-0 bg-black/60 py-0.5 text-center">
                     <span class="text-[9px] font-bold text-white uppercase tracking-wider">Prints</span>
                 </div>
@@ -633,10 +637,7 @@
             printThumb.onclick = () => {
                 setActiveThumb(printThumb);
                 const mediaContainer = document.getElementById('lightbox-media-container');
-                const highResUrl = `https://www.googleapis.com/drive/v3/files/${printFile.id}?alt=media&key=${API_KEY}`;
-                mediaContainer.innerHTML = `
-                    <img src="${highResUrl}" alt="${printFile.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none">
-                `;
+                renderProgressiveImage(mediaContainer, thumbUrl(printFile, 'w400'), thumbUrl(printFile, 'w1600'), printFile.name);
                 currentDownloadFile = { id: printFile.id, name: printFile.name };
                 document.getElementById('lightbox-filename').innerText = printFile.name;
             };
@@ -656,9 +657,9 @@
                 const origThumb = document.createElement('div');
                 origThumb.className =
                     "session-thumb flex-none relative aspect-[3/4] h-20 rounded-lg overflow-hidden border border-white/10 cursor-pointer transition-all duration-300";
-                const origThumbUrl = orig.thumbnailLink ? orig.thumbnailLink.replace(/=s220$/, '=s150') : '';
+                const origThumbUrl = thumbUrl(orig, 's150');
                 origThumb.innerHTML = `
-                    <img src="${origThumbUrl}" onerror="handleExpiredSession(this)" alt="${orig.name}" crossorigin="anonymous" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                    <img src="${origThumbUrl}" onerror="handleExpiredSession(this)" alt="${orig.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="w-full h-full object-cover">
                     <div class="absolute bottom-0 inset-x-0 bg-black/60 py-0.5 text-center">
                         <span class="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Originals</span>
                     </div>
@@ -666,13 +667,7 @@
                 origThumb.onclick = () => {
                     setActiveThumb(origThumb);
                     const mediaContainer = document.getElementById('lightbox-media-container');
-                    const highResUrl =
-                        `https://www.googleapis.com/drive/v3/files/${orig.id}?alt=media&key=${API_KEY}`;
-                    const lowResUrl = orig.thumbnailLink ? orig.thumbnailLink.replace(/=s220$/, '=w1000') :
-                        highResUrl;
-
-                    renderProgressiveImage(mediaContainer, lowResUrl, highResUrl, orig.name);
-
+                    renderProgressiveImage(mediaContainer, thumbUrl(orig, 'w400'), thumbUrl(orig, 'w1600'), orig.name);
                     currentDownloadFile = { id: orig.id, name: orig.name };
                     document.getElementById('lightbox-filename').innerText = orig.name;
                 };
@@ -804,7 +799,7 @@
             // Render the low resolution image first with a blur effect
             containerElement.innerHTML = `
                 <div class="relative h-full w-full max-h-full max-w-full flex items-center justify-center">
-                    <img src="${lowResUrl}" onerror="handleExpiredSession(this)" alt="${altText}" crossorigin="anonymous" referrerpolicy="no-referrer" class="lightbox-dynamic-img h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none filter blur-sm transition-all duration-700">
+                    <img src="${lowResUrl}" onerror="handleExpiredSession(this)" alt="${altText}" decoding="async" referrerpolicy="no-referrer" class="lightbox-dynamic-img h-full w-full max-h-full max-w-full rounded-xl border border-white/10 shadow-2xl object-contain select-none filter blur-sm transition-all duration-700">
                     <div class="lightbox-loader absolute inset-0 flex items-center justify-center bg-black/10 rounded-xl">
                          <svg class="h-10 w-10 animate-spin text-white/50 drop-shadow-lg" fill="none" viewBox="0 0 24 24">
                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -819,8 +814,8 @@
 
             // Preload the high-resolution image in the background
             const imgLoader = new Image();
+            imgLoader.referrerPolicy = "no-referrer";
             imgLoader.src = highResUrl;
-            imgLoader.crossOrigin = "anonymous";
             imgLoader.onload = () => {
                 // Ensure the img element we created is still in the DOM (user hasn't clicked next/prev)
                 if (document.body.contains(imgElement)) {
