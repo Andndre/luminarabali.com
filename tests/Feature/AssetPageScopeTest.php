@@ -42,6 +42,25 @@ class AssetPageScopeTest extends TestCase
         $this->assertSame($page->id, InvitationAsset::first()->page_id);
     }
 
+    public function test_upload_svg_stores_as_is_without_webp_conversion(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $admin = $this->superAdmin();
+
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>';
+        $response = $this->actingAs($admin)->postJson('/admin/api/assets/upload', [
+            'file' => UploadedFile::fake()->createWithContent('ornament.svg', $svg),
+            'collection' => 'ornament',
+        ]);
+
+        $response->assertOk();
+        $asset = InvitationAsset::first();
+        $this->assertSame('image/svg+xml', $asset->mime_type);
+        $this->assertSame('ornament', $asset->collection);
+        $this->assertStringEndsWith('.svg', $asset->file_path);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($asset->file_path);
+    }
+
     public function test_index_filters_by_page_id(): void
     {
         $admin = $this->superAdmin();

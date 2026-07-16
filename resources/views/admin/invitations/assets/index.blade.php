@@ -143,7 +143,7 @@
                 </svg>
                 <p class="text-gray-600 mb-2">Drag & drop files di sini</p>
                 <p class="text-gray-400 text-sm">atau klik untuk memilih file</p>
-                <p class="text-gray-400 text-xs mt-2">Maksimal 10MB per file. Format: JPG, PNG, WEBP, MP4, MP3</p>
+                <p class="text-gray-400 text-xs mt-2">Maksimal 10MB per file. Format: JPG, PNG, WEBP, SVG, MP4, MP3</p>
             </div>
 
             <!-- Koleksi (mis. ornament → muncul di picker ornamen Studio) -->

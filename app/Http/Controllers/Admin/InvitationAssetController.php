@@ -80,8 +80,14 @@ class InvitationAssetController extends Controller
         $mimeType = $file->getMimeType();
         $fileType = $this->getFileType($mimeType);
 
+        // SVG: vektor, GD tidak bisa membacanya — simpan apa adanya tanpa konversi WebP.
+        // Aman karena endpoint ini super_admin-only dan ornamen dirender via <img> (script tidak dieksekusi).
+        if ($mimeType === 'image/svg+xml') {
+            $fileName = time() . '_' . uniqid() . '.svg';
+            $filePath = $file->storeAs('invitations', $fileName, 'public');
+            $dimensions = null;
         // Process image - convert to WebP
-        if ($fileType === 'image' && str_starts_with($mimeType, 'image/')) {
+        } elseif ($fileType === 'image' && str_starts_with($mimeType, 'image/')) {
             $fileName = time() . '_' . uniqid() . '.webp';
             $filePath = 'invitations/' . $fileName;
 

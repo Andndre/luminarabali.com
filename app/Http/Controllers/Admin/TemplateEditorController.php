@@ -80,6 +80,8 @@ class TemplateEditorController extends Controller
 
     public function saveSection(Request $request)
     {
+        $this->authorizeSuperAdmin();
+
         $request->validate([
             'template_id' => 'required|exists:invitation_templates,id',
             'global_custom_css' => 'nullable|string',
@@ -465,6 +467,8 @@ class TemplateEditorController extends Controller
 
     public function preview($id)
     {
+        $this->authorizeSuperAdmin();
+
         $template = InvitationTemplate::with(['sections' => function ($query) {
             $query->orderBy('order_index');
         }])->findOrFail($id);

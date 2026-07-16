@@ -203,8 +203,19 @@ class WahDemoSeeder extends Seeder
             ]],
         ];
 
+        // Tulis dua salinan: master template (sumber instantiate + editable di Studio)
+        // dan salinan page john-silvia (yang tampil di /invitation/john-silvia).
+        InvitationSection::where('template_id', $template->id)->whereNull('page_id')->delete();
         InvitationSection::where('page_id', $page->id)->delete();
         foreach ($sections as $i => [$type, $props]) {
+            InvitationSection::create([
+                'page_id' => null,
+                'template_id' => $template->id,
+                'section_type' => $type,
+                'order_index' => $i,
+                'props' => $props,
+                'is_visible' => true,
+            ]);
             InvitationSection::create([
                 'page_id' => $page->id,
                 'template_id' => null,
