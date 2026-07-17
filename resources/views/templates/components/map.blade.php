@@ -7,6 +7,14 @@ $longitude = $props['longitude'] ?? '';
 $zoom = $props['zoom'] ?? 15;
 $height = $props['height'] ?? 400;
 $showButton = $props['show_button'] ?? true;
+
+// Koordinat kosong → pakai alamat sebagai query supaya peta zoom ke lokasi,
+// bukan fallback ke peta dunia (q=,).
+$hasCoords = $latitude !== '' && $longitude !== '';
+$mapQuery = $hasCoords ? "{$latitude},{$longitude}" : $address;
+$dirDestination = $hasCoords ? "{$latitude},{$longitude}" : $address;
+
+$accent = $props['button_color'] ?? 'var(--color-accent, #d4af37)';
 @endphp
 
 <section class="map-section py-12" style="background: {{ $props['background_color'] ?? '#f8f9fa' }};">
@@ -19,6 +27,7 @@ $showButton = $props['show_button'] ?? true;
 
         <div class="max-w-4xl mx-auto">
             <!-- Google Maps Embed -->
+            @if($mapQuery)
             <div class="rounded-lg overflow-hidden shadow-lg" style="height: {{ $height }}px;">
                 <iframe
                     width="100%"
@@ -28,25 +37,27 @@ $showButton = $props['show_button'] ?? true;
                     loading="lazy"
                     allowfullscreen
                     referrerpolicy="no-referrer-when-downgrade"
-                    src="https://maps.google.com/maps?q={{ $latitude }},{{ $longitude }}&z={{ $zoom }}&output=embed">
+                    src="https://maps.google.com/maps?q={{ urlencode($mapQuery) }}&z={{ $zoom }}&output=embed">
                 </iframe>
             </div>
+            @endif
 
             <!-- Address -->
             @if($address)
                 <div class="mt-6 text-center">
-                    <p class="text-gray-700">{{ $address }}</p>
+                    <p style="color: {{ $props['title_color'] ?? 'var(--color-text, #333333)' }};">{{ $address }}</p>
                 </div>
             @endif
 
             <!-- Directions Button -->
-            @if($showButton)
+            @if($showButton && $dirDestination)
                 <div class="mt-6 text-center">
                     <a
-                        href="https://www.google.com/maps/dir/?api=1&destination={{ $latitude }},{{ $longitude }}"
+                        href="https://www.google.com/maps/dir/?api=1&destination={{ urlencode($dirDestination) }}"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+                        class="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg hover:opacity-90 transition"
+                        style="background: {{ $accent }};"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>

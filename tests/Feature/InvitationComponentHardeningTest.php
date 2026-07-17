@@ -42,6 +42,36 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
     }
 
+    public function test_map_falls_back_to_address_when_coordinates_empty(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'map', 'order_index' => 0,
+            'props' => ['address' => 'Ubud, Bali', 'latitude' => '', 'longitude' => ''], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        // Alamat di-encode sebagai query — bukan q=, yang bikin peta dunia.
+        $response->assertSee('maps.google.com/maps?q=Ubud%2C+Bali', false);
+        $response->assertDontSee('maps.google.com/maps?q=,', false);
+    }
+
+    public function test_map_uses_coordinates_when_present(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'map', 'order_index' => 0,
+            'props' => ['address' => 'Ubud', 'latitude' => '-8.5', 'longitude' => '115.2'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('q=-8.5%2C115.2', false);
+    }
+
     public function test_cover_reads_groom_bride_and_date_from_page_not_props(): void
     {
         $page = $this->publishedPage(['groom_name' => 'Romeo', 'bride_name' => 'Juliet']);

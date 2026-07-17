@@ -13,8 +13,8 @@ $images = $props['images'] ?? [];
         @if($layout === 'grid')
             <div class="grid gap-4" style="grid-template-columns: repeat({{ $columns }}, minmax(0, 1fr));">
                 @foreach($images as $image)
-                    <div class="gallery-item relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition" @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
-                        <img src="{{ $image['url'] ?? '' }}" alt="{{ $image['alt'] ?? '' }}" class="w-full h-64 object-cover">
+                    <div class="gallery-item relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition bg-gray-100" @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
+                        <img src="{{ $image['url'] ?? '' }}" alt="{{ $image['alt'] ?? '' }}" loading="lazy" class="block w-full h-64 object-cover">
                         @if($lightbox)
                             <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition flex items-center justify-center">
                                 <svg class="w-8 h-8 text-white opacity-0 hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,8 +28,8 @@ $images = $props['images'] ?? [];
         @elseif($layout === 'masonry')
             <div style="columns: {{ max(1, (int) $columns) }}; column-gap: {{ $gap }}px;">
                 @foreach($images as $image)
-                    <div class="gallery-item mb-4 break-inside-avoid rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition" @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
-                        <img src="{{ $image['url'] ?? '' }}" alt="{{ $image['alt'] ?? '' }}" class="w-full">
+                    <div class="gallery-item mb-4 break-inside-avoid rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition bg-gray-100" @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
+                        <img src="{{ $image['url'] ?? '' }}" alt="{{ $image['alt'] ?? '' }}" loading="lazy" class="block w-full">
                     </div>
                 @endforeach
             </div>
