@@ -17,7 +17,9 @@ $showControls = $props['show_controls'] ?? true;
 ></audio>
 
 @if($showControls)
-    <!-- Floating Music Control Button -->
+    <!-- Floating Music Control Button — teleport ke body: container-type di .invite-content
+         menjebak position:fixed di dalamnya (containment), FAB harus lepas dari situ. -->
+    <template x-teleport="body">
     <div class="fixed bottom-6 right-6 z-40" x-data="{ playing: {{ $autoplay ? 'true' : 'false' }} }">
         <button
             @click="playing = !playing; document.getElementById('bg-music-{{ $section->id ?? 'default' }}').{{ $autoplay ? 'pause' : 'play' }}()"
@@ -44,6 +46,7 @@ $showControls = $props['show_controls'] ?? true;
             </div>
         </div>
     </div>
+    </template>
 
     @push('scripts')
     <script>
