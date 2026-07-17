@@ -26,6 +26,9 @@
         isOpen: {{ $skipCover ? 'true' : 'false' }},
         isPlaying: false,
         init() {
+            // Tanpa gate (page tanpa section cover) tidak ada yang membuka kunci scroll — buka langsung.
+            if (!this.isOpen && !document.querySelector('.invite-gate')) this.isOpen = true;
+
             // Setup Intersection Observer for global reveal animations
             let observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {

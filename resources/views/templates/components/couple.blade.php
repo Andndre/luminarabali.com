@@ -31,7 +31,7 @@
       data-editable="heading">
       {{ $heading }}
     </h2>
-    <div class="grid gap-10 md:grid-cols-2">
+    <div class="grid gap-10 @md:grid-cols-2">
       @foreach($people as $person)
         <div>
           @if($person['photo'])

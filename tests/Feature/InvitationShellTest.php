@@ -82,6 +82,18 @@ class InvitationShellTest extends TestCase
         $this->assertStringNotContainsString('cover-active', $html);
     }
 
+    public function test_page_without_cover_renders_card_without_gate(): void
+    {
+        $page = $this->makePublishedPage(); // hanya section 'text', tanpa cover
+
+        $res = $this->get('/invitation/'.$page->slug);
+        $res->assertOk();
+        $html = $res->getContent();
+        // JS init layout memuat selector '.invite-gate' — assert bentuk markup-nya saja.
+        $this->assertStringNotContainsString('class="invite-gate', $html);
+        $this->assertStringContainsString('invite-card', $html);
+    }
+
     public function test_studio_preview_skips_preloader(): void
     {
         $admin = User::factory()->create(['division' => 'super_admin']);

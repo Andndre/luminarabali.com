@@ -13,7 +13,7 @@
     <h2 class="text-2xl md:text-3xl font-bold mb-10" style="font-family: var(--font-heading, serif); color: {{ $accentColor }};">
       {{ $heading }}
     </h2>
-    <div class="grid gap-6 {{ count($events) > 1 ? 'md:grid-cols-2' : '' }}">
+    <div class="grid gap-6 {{ count($events) > 1 ? '@md:grid-cols-2' : '' }}">
       @foreach($events as $event)
         <div class="rounded-xl p-6" style="border: 1px solid {{ $accentColor }};">
           <h3 class="text-lg font-semibold" style="font-family: var(--font-heading, serif); color: {{ $accentColor }};">

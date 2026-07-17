@@ -12,6 +12,7 @@
 
 .invite-card {
     position: relative;
+    height: 100vh;
     height: 100dvh;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -24,10 +25,13 @@
     position: relative;
     z-index: 1;
     background: var(--color-surface, #fff);
+    /* Container query untuk grid section (@md:grid-cols-2) — jangan di .invite-card:
+       containment akan menjebak .invite-gate yang position:fixed. */
+    container-type: inline-size;
 }
 
 @media (min-width: 1024px) {
-    .invite-shell { display: flex; height: 100dvh; overflow: hidden; }
+    .invite-shell { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
     .invite-hero {
         display: flex; flex: 1; align-items: center; justify-content: center;
         position: relative; background-size: cover; background-position: center;
@@ -62,10 +66,14 @@
 
 .invite-cover-sticky {
     position: sticky; top: 0; z-index: 0;
+    height: 100vh;
     height: 100dvh;
     display: flex; align-items: center; justify-content: center;
 }
 .invite-cover-sticky-content { position: relative; text-align: center; padding: 2rem; }
+
+/* Cover di tengah daftar (di dalam .invite-content) tidak boleh pin — hanya cover pertama (di luar) yang sticky. */
+.invite-content .invite-cover-sticky { position: static; }
 
 /* ===== Preloader ===== */
 .invite-preloader {
