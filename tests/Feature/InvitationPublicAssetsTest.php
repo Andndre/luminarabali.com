@@ -33,6 +33,10 @@ class InvitationPublicAssetsTest extends TestCase
 
     public function test_public_page_uses_vite_bundle_not_dev_cdns(): void
     {
+        // Abaikan public/hot: saat Vite dev server jalan, @vite merender URL dev
+        // dan assertion /build/assets gagal padahal bukan regresi.
+        \Illuminate\Support\Facades\Vite::useHotFile(storage_path('framework/testing/vite-hot-absent'));
+
         $res = $this->get('/invitation/'.$this->makePublishedPage()->slug);
         $res->assertOk();
         $html = $res->getContent();

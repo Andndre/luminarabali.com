@@ -94,6 +94,24 @@ class InvitationShellTest extends TestCase
         $this->assertStringContainsString('invite-card', $html);
     }
 
+    public function test_shell_x_data_attribute_survives_html_parsing(): void
+    {
+        // Regresi: kutip ganda di dalam x-data="..." memotong atribut saat browser parse
+        // (string test biasa tidak menangkapnya karena HTML mentah terlihat "benar").
+        $page = $this->makePublishedPage();
+        $html = $this->get('/invitation/'.$page->slug)->getContent();
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+        $xpath = new \DOMXPath($dom);
+        $shell = $xpath->query('//*[contains(@class, "invite-shell")]')->item(0);
+
+        $this->assertNotNull($shell, 'invite-shell tidak ditemukan setelah parsing DOM');
+        $xData = $shell->getAttribute('x-data');
+        $this->assertStringContainsString('openInvitation', $xData);
+        $this->assertStringContainsString('toggleAudio', $xData, 'atribut x-data terpotong — ada kutip ganda mentah di dalamnya?');
+    }
+
     public function test_studio_preview_skips_preloader(): void
     {
         $admin = User::factory()->create(['division' => 'super_admin']);

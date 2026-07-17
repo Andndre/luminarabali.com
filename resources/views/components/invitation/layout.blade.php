@@ -60,7 +60,8 @@
             }
 
             if (!audio) {
-                var bg = document.querySelector('audio[id^="bg-music-"]');
+                {{-- tanpa kutip di selector: kutip ganda memotong atribut x-data --}}
+                var bg = document.querySelector('audio[id^=bg-music-]');
                 if (bg) { bg.play().catch(function () {}); }
             }
         },
