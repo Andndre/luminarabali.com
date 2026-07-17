@@ -3,36 +3,48 @@
 @section('title', 'Studio — ' . $template->name)
 
 @section('content')
-<div x-data="studioApp()" x-init="init()" class="h-screen flex">
+<div x-data="studioApp()" x-init="init()" class="h-screen flex flex-col">
+    {{-- Toolbar --}}
+    <header class="h-14 shrink-0 flex items-center gap-3 px-4 border-b border-gray-200 bg-white">
+        <a href="{{ route('admin.templates.index') }}" class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900" title="Kembali">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+        </a>
+        <h1 class="font-bold text-gray-900 truncate max-w-xs" title="{{ $template->name }}">{{ $template->name }}</h1>
+        <span class="text-xs font-semibold rounded-full px-2 py-0.5 capitalize"
+            :class="{ draft: 'bg-yellow-100 text-yellow-800', published: 'bg-green-100 text-green-800', archived: 'bg-gray-100 text-gray-800' }[status]"
+            x-text="status"></span>
+
+        <div class="flex-1"></div>
+
+        {{-- Device toggle (ikon, bukan emoji) --}}
+        <div class="flex rounded-lg bg-gray-100 p-0.5">
+            <button @click="device = 'mobile'" title="Preview mobile" class="p-1.5 rounded-md" :class="device === 'mobile' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
+            </button>
+            <button @click="device = 'desktop'" title="Preview desktop" class="p-1.5 rounded-md" :class="device === 'desktop' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/></svg>
+            </button>
+        </div>
+
+        <button @click="publish()" :disabled="publishing"
+            class="rounded-lg bg-black px-4 py-1.5 text-xs font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
+            x-text="publishing ? '…' : (status === 'published' ? 'Publish Ulang' : 'Publish')"></button>
+    </header>
+
+    <div class="flex-1 flex min-h-0">
 
     {{-- Panel kiri: Struktur --}}
     <div class="w-72 shrink-0 flex flex-col border-r border-gray-200 bg-white">
-        <div class="p-4 border-b border-gray-200 space-y-2">
-            <div class="flex items-center justify-between">
-                <a href="{{ route('admin.templates.index') }}" class="text-sm text-gray-500 hover:text-gray-900">&larr; Kembali</a>
-                <span class="text-xs font-semibold rounded-full px-2 py-1 capitalize"
-                    :class="{
-                        draft: 'bg-yellow-100 text-yellow-800',
-                        published: 'bg-green-100 text-green-800',
-                        archived: 'bg-gray-100 text-gray-800',
-                    }[status]"
-                    x-text="status"></span>
-            </div>
-            <div class="flex items-center gap-2">
-                <h1 class="flex-1 font-bold text-gray-900 truncate" title="{{ $template->name }}">{{ $template->name }}</h1>
-                <button @click="publish()" :disabled="publishing"
-                    class="shrink-0 rounded-lg bg-black px-3 py-1.5 text-xs font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
-                    x-text="publishing ? '…' : (status === 'published' ? 'Publish Ulang' : 'Publish')"></button>
-            </div>
-            <div class="flex gap-1 pt-1">
+        <div class="p-3 border-b border-gray-200">
+            <div class="flex gap-1 rounded-lg bg-gray-100 p-0.5">
                 <button @click="panel = 'sections'"
-                    class="flex-1 text-xs font-semibold rounded-lg px-2 py-1.5"
-                    :class="panel === 'sections' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    class="flex-1 text-xs font-semibold rounded-md px-2 py-1.5"
+                    :class="panel === 'sections' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
                     Struktur
                 </button>
                 <button @click="panel = 'theme'"
-                    class="flex-1 text-xs font-semibold rounded-lg px-2 py-1.5"
-                    :class="panel === 'theme' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    class="flex-1 text-xs font-semibold rounded-md px-2 py-1.5"
+                    :class="panel === 'theme' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
                     Theme
                 </button>
             </div>
@@ -73,27 +85,44 @@
         </div>
 
         <div x-show="panel === 'sections'" class="flex-1 overflow-y-auto p-3 space-y-1" x-ref="sectionList">
+            <template x-if="!loaded">
+                <div class="space-y-2 p-1">
+                    <div class="h-9 rounded-lg bg-gray-100 animate-pulse"></div>
+                    <div class="h-9 rounded-lg bg-gray-100 animate-pulse"></div>
+                    <div class="h-9 rounded-lg bg-gray-100 animate-pulse"></div>
+                </div>
+            </template>
             <template x-for="s in sections" :key="s.id">
                 <div :data-id="s.id" @click="selectedId = s.id"
-                    class="group flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer select-none"
+                    class="group flex items-center gap-2 rounded-lg border px-2.5 py-2 cursor-pointer select-none"
                     :class="selectedId === s.id ? 'border-black bg-gray-50' : 'border-gray-200 hover:bg-gray-50'">
-                    <span class="drag-handle cursor-grab text-gray-300 group-hover:text-gray-400">⠿</span>
-                    <span class="flex-1 text-sm truncate" :class="{ 'opacity-40': !s.is_visible }"
-                        x-text="typeLabel(s.section_type)"></span>
-                    <span x-show="s.custom_css" title="Section ini punya CSS kustom"
-                        class="text-[9px] font-semibold bg-purple-100 text-purple-700 rounded px-1">CSS</span>
-                    <div class="hidden group-hover:flex items-center gap-1 text-gray-400">
-                        <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'"
-                            class="hover:text-gray-900" x-text="s.is_visible ? '👁' : '🚫'"></button>
-                        <button @click.stop="duplicateSection(s)" title="Duplikat" class="hover:text-gray-900">⧉</button>
-                        <button @click.stop="savePreset(s)" title="Simpan sebagai preset" class="hover:text-gray-900">☆</button>
-                        <button @click.stop="removeSection(s)" title="Hapus" class="hover:text-red-600">✕</button>
+                    <span class="drag-handle cursor-grab text-gray-300 group-hover:text-gray-400 shrink-0">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
+                    </span>
+                    <span class="shrink-0 text-gray-400" x-html="typeIcon(s.section_type)"></span>
+                    <span class="flex-1 text-sm truncate" :class="{ 'opacity-40': !s.is_visible }" x-text="typeLabel(s.section_type)"></span>
+                    <span x-show="s.custom_css" title="Section ini punya CSS kustom" class="text-[9px] font-semibold bg-purple-100 text-purple-700 rounded px-1">CSS</span>
+                    <div class="hidden group-hover:flex items-center gap-0.5 text-gray-400">
+                        <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
+                            <svg x-show="s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <svg x-show="!s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                        </button>
+                        <button @click.stop="duplicateSection(s)" title="Duplikat" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-8.25A2.25 2.25 0 017.5 18v-7.5a2.25 2.25 0 012.25-2.25h6.75z"/></svg>
+                        </button>
+                        <button @click.stop="savePreset(s)" title="Simpan sebagai preset" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                        </button>
+                        <button @click.stop="removeSection(s)" title="Hapus" class="p-1 rounded hover:bg-red-50 hover:text-red-600">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                        </button>
                     </div>
                 </div>
             </template>
-            <p x-show="loaded && sections.length === 0" class="text-sm text-gray-400 px-2 py-4 text-center">
-                Belum ada section.
-            </p>
+            <div x-show="loaded && sections.length === 0" class="flex flex-col items-center gap-2 text-center px-2 py-8 text-gray-400">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
+                <p class="text-sm">Belum ada section.</p>
+            </div>
         </div>
 
         <div x-show="panel === 'sections'" class="p-3 border-t border-gray-200">
@@ -111,24 +140,26 @@
         <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-bold text-gray-900">Tambah Section</h2>
-                <button @click="addOpen = false" class="text-gray-400 hover:text-gray-900">✕</button>
+                <button @click="addOpen = false" class="p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-900">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-            <div class="flex gap-1 mb-4">
+            <div class="flex gap-1 mb-4 rounded-lg bg-gray-100 p-0.5 w-fit">
                 <button @click="addTab = 'types'"
-                    class="text-xs font-semibold rounded-lg px-3 py-1.5"
-                    :class="addTab === 'types' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    class="text-xs font-semibold rounded-md px-3 py-1.5"
+                    :class="addTab === 'types' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
                     Tipe Section
                 </button>
                 <button @click="addTab = 'presets'"
-                    class="text-xs font-semibold rounded-lg px-3 py-1.5"
-                    :class="addTab === 'presets' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    class="text-xs font-semibold rounded-md px-3 py-1.5"
+                    :class="addTab === 'presets' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
                     Presets
                 </button>
             </div>
             <div x-show="addTab === 'types'" class="grid grid-cols-3 gap-3">
                 <template x-for="(label, type) in typeLabels" :key="type">
-                    <button @click="addSection(type)"
-                        class="border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
+                    <button @click="addSection(type)" class="flex flex-col items-start gap-2 border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
+                        <span class="text-gray-400" x-html="typeIcon(type)"></span>
                         <span class="font-medium" x-text="label"></span>
                     </button>
                 </template>
@@ -142,12 +173,14 @@
                             <span class="block text-xs text-gray-400 mt-1"
                                 x-text="(p.category ? p.category + ' · ' : '') + typeLabel(p.section_type)"></span>
                             <button @click.stop="deletePreset(p)" title="Hapus preset"
-                                class="absolute top-2 right-2 hidden group-hover:block text-gray-300 hover:text-red-600">✕</button>
+                                class="absolute top-2 right-2 hidden group-hover:block p-1 rounded text-gray-300 hover:bg-red-50 hover:text-red-600">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
                         </div>
                     </template>
                 </div>
                 <p x-show="presetsLoaded && presets.length === 0" class="text-sm text-gray-400 text-center py-6">
-                    Belum ada preset. Simpan section sebagai preset lewat tombol ☆ di panel struktur.
+                    Belum ada preset. Simpan section sebagai preset lewat tombol simpan di panel struktur.
                 </p>
             </div>
         </div>
@@ -155,15 +188,7 @@
 
     {{-- Panel tengah: Preview --}}
     <div class="flex-1 bg-gray-100 flex flex-col min-w-0">
-        <div class="p-2 flex justify-center gap-1">
-            <button @click="device = 'mobile'"
-                class="text-sm px-3 py-1.5 rounded-lg"
-                :class="device === 'mobile' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200'">📱 Mobile</button>
-            <button @click="device = 'desktop'"
-                class="text-sm px-3 py-1.5 rounded-lg"
-                :class="device === 'desktop' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200'">🖥 Desktop</button>
-        </div>
-        <div class="flex-1 px-4 pb-4 flex justify-center min-h-0">
+        <div class="flex-1 p-4 flex justify-center min-h-0">
             <iframe x-ref="preview" src="{{ route('admin.templates.studio.preview', $template->id) }}"
                 class="h-full rounded-xl border border-gray-300 bg-white transition-all duration-300"
                 :class="device === 'mobile' ? 'w-[375px]' : 'w-full'"></iframe>
@@ -171,6 +196,7 @@
     </div>
 
     @include('admin.templates.studio._inspector')
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
@@ -267,6 +293,38 @@ function studioApp() {
 
         typeLabel(type) {
             return this.typeLabels[type] ?? type;
+        },
+
+        typeIcon(type) {
+            const p = {
+                cover: 'M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25z',
+                hero: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z',
+                text: 'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12',
+                image: 'M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z',
+                countdown: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z',
+                gallery: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z',
+                map: 'M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z',
+                music: 'M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z',
+                video: 'M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z',
+                couple: 'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z',
+                event_details: 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5',
+                gift: 'M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H4.5a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z',
+                quote: 'M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z',
+                love_story: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25',
+                live_stream: 'M9.348 14.651a3.75 3.75 0 010-5.303m5.304 0a3.75 3.75 0 010 5.303m-7.425 2.122a6.75 6.75 0 010-9.546m9.546 0a6.75 6.75 0 010 9.546M5.106 18.894c-3.808-3.808-3.808-9.98 0-13.789m13.788 0c3.808 3.808 3.808 9.981 0 13.79M12 12h.008v.007H12V12z',
+                wishes: 'M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155',
+                rsvp: 'M21.75 9v.906a2.25 2.25 0 01-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 001.183 1.981l6.478 3.488m8.839 2.51l-4.66-2.51m0 0l-1.023-.55a2.25 2.25 0 00-2.134 0l-1.022.55m0 0l-4.661 2.51m16.5 1.615a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V8.844a2.25 2.25 0 011.183-1.98l7.5-4.04a2.25 2.25 0 012.134 0l7.5 4.04a2.25 2.25 0 011.183 1.98V19.5z',
+                closing: 'M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5',
+                code: 'M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5',
+                divider: 'M19.5 12h-15',
+                spacer: 'M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5',
+                button: 'M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5',
+                section_one_col: 'M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z',
+            };
+            p.section_two_col = p.section_one_col;
+            p.section_three_col = p.section_one_col;
+            const d = p[type] ?? p.gallery;
+            return `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${d}"/></svg>`;
         },
 
         get availableTabs() {
