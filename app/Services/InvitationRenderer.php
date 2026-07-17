@@ -46,6 +46,19 @@ class InvitationRenderer
         ])->render();
     }
 
+    public function coverImage($sections): ?string
+    {
+        $props = $sections->firstWhere('section_type', 'cover')?->props ?? [];
+        $src = $props['background_image'] ?? null;
+        if (! $src) {
+            return null;
+        }
+
+        return \Illuminate\Support\Str::startsWith($src, ['http://', 'https://', '/'])
+            ? $src
+            : '/storage/'.ltrim($src, '/');
+    }
+
     public function toArray(InvitationPage $page): array
     {
         return [

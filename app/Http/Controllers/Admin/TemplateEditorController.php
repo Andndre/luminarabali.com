@@ -491,6 +491,7 @@ class TemplateEditorController extends Controller
                 // render pass so section partials' @push('scripts') survive to @stack.
                 'content' => fn () => $renderer->renderTemplate($template),
                 'themeStyle' => $renderer->templateThemeStyle($template),
+                'coverImage' => $renderer->coverImage($template->sections),
                 'studioMode' => true,
             ])
             ->header('Cache-Control', 'no-store, private');

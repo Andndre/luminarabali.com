@@ -34,6 +34,7 @@ class InvitationViewController extends Controller
             // here would silently drop every @push('scripts') block from section partials.
             'content' => fn () => $renderer->render($page),
             'themeStyle' => $renderer->themeStyle($page),
+            'coverImage' => $renderer->coverImage($page->sections) ?? $page->og_image,
         ]);
     }
 

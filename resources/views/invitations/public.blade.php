@@ -105,9 +105,8 @@
         window.invitationData.guest_name = new URLSearchParams(window.location.search).get('to') || 'Tamu Spesial';
     </script>
 
-    <x-invitation.layout class="bg-gray-50 @container" x-data="window.invitationData">
+    <x-invitation.layout :page="$page" :cover-image="$coverImage ?? null" :skip-cover="!empty($studioMode)" class="bg-gray-50 @container">
         <x-invitation.audio :src="$music" />
-
         {!! $content ?? '' !!}
     </x-invitation.layout>
 

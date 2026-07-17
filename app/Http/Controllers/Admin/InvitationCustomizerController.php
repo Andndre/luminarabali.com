@@ -216,6 +216,7 @@ class InvitationCustomizerController extends Controller
             // (lihat komentar panjang di InvitationViewController::show).
             'content' => fn () => $renderer->render($page),
             'themeStyle' => $renderer->themeStyle($page),
+            'coverImage' => $renderer->coverImage($page->sections) ?? $page->og_image,
         ]);
     }
 }
