@@ -57,9 +57,11 @@ The Studio editor writes to `InvitationTemplate` / `InvitationSection` (JSON `pr
 
 The rendered invitation is wrapped by `resources/views/components/invitation/layout.blade.php`:
 - `invite-shell` — outer split-pane layout (desktop: `invite-hero` pane on the left with cover photo/couple names, `invite-card` as the sole scroll container on the right)
+- `invite-preloader` — image/font preload splash (skipped in Studio, see below)
+
+The cover *section component* (`resources/views/templates/components/cover.blade.php`, rendered inside the shell's slot as the first section) contributes:
 - `invite-gate` — full-viewport cover gate the guest taps through
 - `invite-cover-sticky` — sticky reveal screen shown after the gate opens
-- `invite-preloader` — image/font preload splash (skipped in Studio, see below)
 
 In Studio preview (`studioPreview` → `skipCover=true`), `isOpen` starts `true` so the gate never shows in the canvas; the sticky cover screen stays visible and editable there.
 
