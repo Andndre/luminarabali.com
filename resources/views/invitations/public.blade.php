@@ -36,13 +36,7 @@
         href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
-    @vite(['resources/css/app.css'])
-
-    <!-- Tailwind CSS (CDN for dynamic DB templates) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/invitation.css', 'resources/js/invitation.js'])
 
     <style>
         * {
@@ -116,9 +110,6 @@
 
         {!! $content ?? '' !!}
     </x-invitation.layout>
-
-    <!-- SweetAlert2 for notifications -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @stack('scripts')
 

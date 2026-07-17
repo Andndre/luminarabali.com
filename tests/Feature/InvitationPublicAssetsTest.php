@@ -1,0 +1,50 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\InvitationPage;
+use App\Models\InvitationSection;
+use App\Models\InvitationTemplate;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class InvitationPublicAssetsTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function makePublishedPage(): InvitationPage
+    {
+        $user = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'T', 'slug' => 't-'.uniqid(), 'status' => 'published', 'created_by' => $user->id,
+        ]);
+        $page = InvitationPage::create([
+            'title' => 'P', 'slug' => 'p-'.uniqid(), 'published_status' => 'published',
+            'template_id' => $template->id, 'created_by' => $user->id,
+            'groom_name' => 'Romeo', 'bride_name' => 'Juliet', 'event_date' => now()->addMonth(),
+        ]);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'text', 'order_index' => 1,
+            'is_visible' => true, 'props' => ['content' => 'Halo'],
+        ]);
+        return $page;
+    }
+
+    public function test_public_page_uses_vite_bundle_not_dev_cdns(): void
+    {
+        $res = $this->get('/invitation/'.$this->makePublishedPage()->slug);
+        $res->assertOk();
+        $html = $res->getContent();
+
+        // Verify dev CDNs are removed
+        $this->assertStringNotContainsString('cdn.tailwindcss.com', $html);
+        $this->assertStringNotContainsString('cdn.jsdelivr.net/npm/alpinejs', $html);
+        $this->assertStringNotContainsString('sweetalert2', $html);
+
+        // Verify Vite bundle is used (check for hashed asset references)
+        $this->assertStringContainsString('/build/assets/invitation-', $html);
+        $this->assertTrue((bool) preg_match('/\/build\/assets\/invitation-[a-zA-Z0-9]+\.css/', $html), 'Invitation CSS asset should be present');
+        $this->assertTrue((bool) preg_match('/\/build\/assets\/invitation-[a-zA-Z0-9]+\.js/', $html), 'Invitation JS asset should be present');
+    }
+}
