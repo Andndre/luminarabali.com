@@ -26,7 +26,7 @@ $images = $props['images'] ?? [];
                 @endforeach
             </div>
         @elseif($layout === 'masonry')
-            <div class="columns-{{ $columns }} gap-4" style="column-gap: {{ $gap }}px;">
+            <div style="columns: {{ max(1, (int) $columns) }}; column-gap: {{ $gap }}px;">
                 @foreach($images as $image)
                     <div class="gallery-item mb-4 break-inside-avoid rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition" @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
                         <img src="{{ $image['url'] ?? '' }}" alt="{{ $image['alt'] ?? '' }}" class="w-full">

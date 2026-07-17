@@ -3,3 +3,4 @@
 @source '../views/templates/**/*.blade.php';
 @source '../views/invitations/**/*.blade.php';
 @source '../views/components/invitation/**/*.blade.php';
+@source inline("text-left text-center text-right");

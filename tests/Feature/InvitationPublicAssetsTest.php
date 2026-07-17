@@ -46,5 +46,23 @@ class InvitationPublicAssetsTest extends TestCase
         $this->assertStringContainsString('/build/assets/invitation-', $html);
         $this->assertTrue((bool) preg_match('/\/build\/assets\/invitation-[a-zA-Z0-9]+\.css/', $html), 'Invitation CSS asset should be present');
         $this->assertTrue((bool) preg_match('/\/build\/assets\/invitation-[a-zA-Z0-9]+\.js/', $html), 'Invitation JS asset should be present');
+
+        // Verify Google Fonts stays
+        $this->assertStringContainsString('fonts.googleapis.com', $html);
+    }
+
+    public function test_masonry_gallery_renders_inline_columns_for_arbitrary_counts(): void
+    {
+        $page = $this->makePublishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'gallery', 'order_index' => 2,
+            'is_visible' => true, 'props' => ['layout' => 'masonry', 'columns' => 4, 'images' => [], 'gap' => 16],
+        ]);
+
+        $res = $this->get('/invitation/'.$page->slug);
+        $res->assertOk();
+        $html = $res->getContent();
+
+        $this->assertStringContainsString('columns: 4', $html);
     }
 }
