@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\InvitationAsset;
 use App\Models\InvitationPage;
 use App\Models\InvitationSection;
-use App\Models\InvitationTemplate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -46,22 +45,6 @@ class AssetReferenceSafeDeleteTest extends TestCase
 
         $response->assertStatus(409);
         $response->assertJsonStructure(['message', 'used_by']);
-        $this->assertDatabaseHas('invitation_assets', ['id' => $asset->id]);
-    }
-
-    public function test_asset_referenced_by_legacy_template_blob_is_rejected_with_409(): void
-    {
-        $admin = $this->superAdmin();
-        $asset = $this->makeAsset();
-        InvitationTemplate::create([
-            'name' => 'Legacy', 'slug' => 'legacy-ref', 'status' => 'published',
-            'created_by' => $admin->id,
-            'html_content' => '<img src="/storage/'.$asset->file_path.'">',
-        ]);
-
-        $response = $this->actingAs($admin)->deleteJson("/admin/api/assets/{$asset->id}");
-
-        $response->assertStatus(409);
         $this->assertDatabaseHas('invitation_assets', ['id' => $asset->id]);
     }
 

@@ -203,30 +203,19 @@ class InvitationCustomizerController extends Controller
         $page = InvitationPage::with(['assets', 'template', 'sections' => fn ($q) => $q->orderBy('order_index')])
             ->findOrFail($id);
 
-        $usesSections = $page->sections->isNotEmpty();
-
-        if (! $usesSections && empty($page->template?->html_content)) {
+        if ($page->sections->isEmpty()) {
             return response()->view('invitations.not-ready', ['page' => $page]);
         }
 
         $renderer = new InvitationRenderer();
 
-        if ($usesSections) {
+        return view('invitations.public', [
+            'page' => $page,
             // Deferred closure: harus dievaluasi di dalam render pass
             // invitations.public agar @push/@stack section tidak hilang
             // (lihat komentar panjang di InvitationViewController::show).
-            $content = fn () => $renderer->render($page);
-            $themeStyle = $renderer->themeStyle($page);
-        } else {
-            $content = fn () => $page->template->html_content ?? '';
-            $themeStyle = '';
-        }
-
-        return view('invitations.public', [
-            'page' => $page,
-            'content' => $content,
-            'themeStyle' => $themeStyle,
-            'usesSections' => $usesSections,
+            'content' => fn () => $renderer->render($page),
+            'themeStyle' => $renderer->themeStyle($page),
         ]);
     }
 }

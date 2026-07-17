@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\InvitationAsset;
 use App\Models\InvitationSection;
-use App\Models\InvitationTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -161,12 +160,7 @@ class InvitationAssetController extends Controller
                 'page_title' => $s->page?->title,
             ]);
 
-        $templateUsers = InvitationTemplate::where('html_content', 'like', "%{$path}%")
-            ->orWhere('cover_content', 'like', "%{$path}%")
-            ->get(['id', 'name'])
-            ->map(fn ($t) => ['type' => 'template', 'template_id' => $t->id, 'name' => $t->name]);
-
-        $usedBy = $sectionUsers->concat($templateUsers)->values();
+        $usedBy = $sectionUsers->values();
 
         if ($usedBy->isNotEmpty()) {
             return response()->json([

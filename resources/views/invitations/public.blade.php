@@ -93,9 +93,6 @@
     @php
         $music = $page->meta_data['bg_music'] ?? '';
         $rsvpEnabled = $page->meta_data['rsvp_enabled'] ?? true;
-        // Exclude the raw legacy HTML blob from the client-side data dump; it is never
-        // read by Alpine and would otherwise leak into every page's inline script tag.
-        $page->template?->makeHidden('html_content');
         $page->sections->each(fn ($section) => $section->makeHidden('props'));
 
         // $content is passed in as a deferred closure (see InvitationViewController)
@@ -117,20 +114,7 @@
     <x-invitation.layout class="bg-gray-50 @container" x-data="window.invitationData">
         <x-invitation.audio :src="$music" />
 
-        @if ($usesSections ?? false)
-            {!! $content ?? '' !!}
-        @else
-            @if (!empty($page->template->cover_content))
-                {!! $page->template->cover_content !!}
-            @else
-                <x-invitation.cover :groom="$page->groom_name ?? 'Romeo'" :bride="$page->bride_name ?? 'Juliet'" :guest="request()->query('to', 'Tamu Spesial')"
-                    image="{{ $page->og_image ?? 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop' }}" />
-            @endif
-
-            <div x-show="isOpen" style="display: none;" class="w-full">
-                {!! $content ?? '' !!}
-            </div>
-        @endif
+        {!! $content ?? '' !!}
     </x-invitation.layout>
 
     <!-- SweetAlert2 for notifications -->

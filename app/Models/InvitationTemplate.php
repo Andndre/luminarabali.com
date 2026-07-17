@@ -13,8 +13,6 @@ class InvitationTemplate extends Model
         'description',
         'category',
         'global_custom_css',
-        'html_content',
-        'cover_content',
         'meta_data',
         'theme',
         'status',

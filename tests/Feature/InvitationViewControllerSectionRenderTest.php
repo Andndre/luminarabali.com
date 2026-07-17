@@ -27,21 +27,19 @@ class InvitationViewControllerSectionRenderTest extends TestCase
         ]);
     }
 
-    public function test_page_without_sections_falls_back_to_legacy_html_content(): void
+    public function test_page_without_sections_shows_not_ready(): void
     {
         $page = $this->publishedPage();
-        $page->template->update(['html_content' => '<p id="legacy-marker">legacy blob</p>']);
 
         $response = $this->get("/invitation/{$page->slug}");
 
         $response->assertOk();
-        $response->assertSee('legacy-marker', false);
+        $response->assertSee('Undangan belum siap');
     }
 
-    public function test_page_with_sections_renders_section_tree_instead_of_legacy_blob(): void
+    public function test_page_with_sections_renders_section_tree(): void
     {
         $page = $this->publishedPage();
-        $page->template->update(['html_content' => '<p id="legacy-marker">should not appear</p>']);
 
         InvitationSection::create([
             'page_id' => $page->id, 'section_type' => 'text', 'order_index' => 0,
@@ -52,7 +50,6 @@ class InvitationViewControllerSectionRenderTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Hello from section tree');
-        $response->assertDontSee('legacy-marker', false);
     }
 
     public function test_nested_sections_render_inside_their_parent_container(): void

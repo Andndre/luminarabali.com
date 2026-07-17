@@ -85,8 +85,6 @@ class TemplateEditorController extends Controller
         $request->validate([
             'template_id' => 'required|exists:invitation_templates,id',
             'global_custom_css' => 'nullable|string',
-            'html_content' => 'nullable|string',
-            'cover_content' => 'nullable|string',
             'meta_data' => 'nullable|string',
         ]);
 
@@ -100,8 +98,6 @@ class TemplateEditorController extends Controller
 
         $template->update([
             'global_custom_css' => $request->global_custom_css,
-            'html_content' => $request->html_content,
-            'cover_content' => $request->cover_content,
             'meta_data' => $metaData,
         ]);
 
@@ -465,17 +461,6 @@ class TemplateEditorController extends Controller
         return $errors;
     }
 
-    public function preview($id)
-    {
-        $this->authorizeSuperAdmin();
-
-        $template = InvitationTemplate::with(['sections' => function ($query) {
-            $query->orderBy('order_index');
-        }])->findOrFail($id);
-
-        return view('admin.templates.preview', compact('template'));
-    }
-
     public function studioPreview($id)
     {
         $this->authorizeSuperAdmin();
@@ -506,7 +491,6 @@ class TemplateEditorController extends Controller
                 // render pass so section partials' @push('scripts') survive to @stack.
                 'content' => fn () => $renderer->renderTemplate($template),
                 'themeStyle' => $renderer->templateThemeStyle($template),
-                'usesSections' => true,
                 'studioMode' => true,
             ])
             ->header('Cache-Control', 'no-store, private');

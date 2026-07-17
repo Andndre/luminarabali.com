@@ -67,10 +67,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Invitation Templates Routes
     Route::resource('templates', \App\Http\Controllers\Admin\TemplateController::class)->names('admin.templates');
     Route::post('/templates/{id}/duplicate', [\App\Http\Controllers\Admin\TemplateController::class, 'duplicate'])->name('admin.templates.duplicate');
-    Route::get('/templates/test', function () {
-        return view('admin.templates.test');
-    })->name('admin.templates.test');
-    Route::get('/templates/{id}/preview', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'preview'])->name('admin.templates.preview');
     Route::post('/templates/{id}/publish', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'publish'])->name('admin.templates.publish');
     Route::get('/templates/{id}/studio', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'studio'])->name('admin.templates.studio');
     Route::get('/templates/{id}/studio/preview', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'studioPreview'])->name('admin.templates.studio.preview');
