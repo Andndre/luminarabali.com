@@ -134,10 +134,14 @@
                                         <img :src="img.url" class="w-10 h-10 object-cover rounded border border-gray-200 shrink-0">
                                         <span class="flex-1 text-xs text-gray-500 truncate" x-text="img.alt || img.url"></span>
                                         <button type="button" @click="moveListItem(field, i, -1)" :disabled="i === 0"
-                                            class="text-gray-400 hover:text-gray-900 disabled:opacity-30">↑</button>
+                                            class="text-gray-400 hover:text-gray-900 disabled:opacity-30">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
+                                        </button>
                                         <button type="button" @click="moveListItem(field, i, 1)"
                                             :disabled="i === (val(field) ?? []).length - 1"
-                                            class="text-gray-400 hover:text-gray-900 disabled:opacity-30">↓</button>
+                                            class="text-gray-400 hover:text-gray-900 disabled:opacity-30">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                                        </button>
                                         <button type="button" @click="removeListItem(field, i)"
                                             class="p-1 rounded text-gray-400 hover:bg-red-50 hover:text-red-600">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -197,10 +201,14 @@
                                             <span class="text-[10px] font-semibold text-gray-400" x-text="'Item ' + (i + 1)"></span>
                                             <div class="flex items-center gap-1 text-gray-400">
                                                 <button type="button" @click="moveRepItem(field, i, -1)" :disabled="i === 0"
-                                                    class="hover:text-gray-900 disabled:opacity-30">↑</button>
+                                                    class="hover:text-gray-900 disabled:opacity-30">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
+                                                </button>
                                                 <button type="button" @click="moveRepItem(field, i, 1)"
                                                     :disabled="i === (val(field) ?? []).length - 1"
-                                                    class="hover:text-gray-900 disabled:opacity-30">↓</button>
+                                                    class="hover:text-gray-900 disabled:opacity-30">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                                                </button>
                                                 <button type="button" @click="removeRepItem(field, i)"
                                                     class="p-0.5 rounded hover:bg-red-50 hover:text-red-600">
                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
