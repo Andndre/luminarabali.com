@@ -57,6 +57,11 @@
                     this.isPlaying = false;
                 });
             }
+
+            if (!audio) {
+                var bg = document.querySelector('audio[id^="bg-music-"]');
+                if (bg) { bg.play().catch(function () {}); }
+            }
         },
         toggleAudio() {
             let audio = this.$refs.bgAudio;

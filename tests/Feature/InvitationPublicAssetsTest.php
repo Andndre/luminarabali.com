@@ -42,10 +42,12 @@ class InvitationPublicAssetsTest extends TestCase
         $this->assertStringNotContainsString('cdn.jsdelivr.net/npm/alpinejs', $html);
         $this->assertStringNotContainsString('sweetalert2', $html);
 
-        // Verify Vite bundle is used (check for hashed asset references)
+        // Verify Vite bundle is used (check for hashed asset references).
+        // Rollup content hashes are base64url, so they may legitimately contain
+        // "-" and "_" alongside alphanumerics — the charset class must allow both.
         $this->assertStringContainsString('/build/assets/invitation-', $html);
-        $this->assertTrue((bool) preg_match('/\/build\/assets\/invitation-[a-zA-Z0-9]+\.css/', $html), 'Invitation CSS asset should be present');
-        $this->assertTrue((bool) preg_match('/\/build\/assets\/invitation-[a-zA-Z0-9]+\.js/', $html), 'Invitation JS asset should be present');
+        $this->assertTrue((bool) preg_match('/\/build\/assets\/invitation-[\w-]+\.css/', $html), 'Invitation CSS asset should be present');
+        $this->assertTrue((bool) preg_match('/\/build\/assets\/invitation-[\w-]+\.js/', $html), 'Invitation JS asset should be present');
 
         // Verify Google Fonts stays
         $this->assertStringContainsString('fonts.googleapis.com', $html);

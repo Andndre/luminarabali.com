@@ -56,6 +56,32 @@ class InvitationShellTest extends TestCase
         $this->assertNull($renderer->coverImage(collect()));
     }
 
+    public function test_cover_renders_gate_and_sticky_screen(): void
+    {
+        $user = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'T', 'slug' => 't-'.uniqid(), 'status' => 'published', 'created_by' => $user->id,
+        ]);
+        $page = InvitationPage::create([
+            'title' => 'P', 'slug' => 'p-'.uniqid(), 'published_status' => 'published',
+            'template_id' => $template->id, 'created_by' => $user->id,
+            'groom_name' => 'Romeo', 'bride_name' => 'Juliet', 'event_date' => now()->addMonth(),
+        ]);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'cover', 'order_index' => 0,
+            'is_visible' => true, 'props' => [],
+        ]);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'quote', 'order_index' => 1,
+            'is_visible' => true, 'props' => ['content' => 'Halo'],
+        ]);
+
+        $html = $this->get('/invitation/'.$page->slug)->getContent();
+        $this->assertStringContainsString('invite-gate', $html);
+        $this->assertStringContainsString('invite-cover-sticky', $html);
+        $this->assertStringNotContainsString('cover-active', $html);
+    }
+
     public function test_studio_preview_skips_preloader(): void
     {
         $admin = User::factory()->create(['division' => 'super_admin']);

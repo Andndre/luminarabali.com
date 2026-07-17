@@ -68,7 +68,7 @@ class InvitationComponentHardeningTest extends TestCase
         $response = $this->get("/invitation/{$page->slug}");
 
         $response->assertOk();
-        $response->assertSee(".cover-section-{$section->id} {", false);
+        $response->assertSee(".cover-visual-{$section->id} {", false);
         $response->assertSee('background-color: #1a1a1a;', false);
     }
 
