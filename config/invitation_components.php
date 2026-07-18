@@ -189,9 +189,6 @@ $components = [
         ['key' => 'bride_parents', 'type' => 'text', 'label' => 'Orang Tua Mempelai Wanita', 'group' => 'content', 'default' => 'Putri dari Bapak … & Ibu …'],
         ['key' => 'groom_instagram', 'type' => 'url', 'label' => 'Instagram Mempelai Pria', 'group' => 'design', 'default' => null],
         ['key' => 'bride_instagram', 'type' => 'url', 'label' => 'Instagram Mempelai Wanita', 'group' => 'design', 'default' => null],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
-        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
     ],
 
     'event_details' => [
@@ -208,9 +205,6 @@ $components = [
             ['name' => 'Akad Nikah', 'date_text' => 'Sabtu, 1 Januari 2027', 'time_text' => '08.00 WITA', 'venue' => 'Nama Gedung', 'address' => '', 'maps_url' => ''],
             ['name' => 'Resepsi', 'date_text' => 'Sabtu, 1 Januari 2027', 'time_text' => '18.00 WITA', 'venue' => 'Nama Gedung', 'address' => '', 'maps_url' => ''],
         ]],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
-        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
     ],
 
     'gift' => [
