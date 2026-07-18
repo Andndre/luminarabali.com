@@ -1,54 +1,59 @@
 @props(['props' => [], 'section' => null, 'page' => null])
 
 @php
+    $variant = $props['variant'] ?? 'centered-stacked';
     $heading = $props['heading'] ?? 'Mempelai';
     $groomParents = $props['groom_parents'] ?? '';
     $brideParents = $props['bride_parents'] ?? '';
     $groomInstagram = $props['groom_instagram'] ?? null;
     $brideInstagram = $props['bride_instagram'] ?? null;
-    $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
-    $textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
-    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #d4af37)';
 
     $resolvePath = function ($src) {
         if (empty($src)) return null;
         return \Illuminate\Support\Str::startsWith($src, ['http://', 'https://', '/'])
-            ? $src
-            : '/storage/' . ltrim($src, '/');
+            ? $src : '/storage/' . ltrim($src, '/');
     };
-    $groomPhoto = $resolvePath($props['groom_photo'] ?? null);
-    $bridePhoto = $resolvePath($props['bride_photo'] ?? null);
 
     $people = [
-        ['name' => $page->groom_name ?? 'Mempelai Pria', 'photo' => $groomPhoto, 'parents' => $groomParents, 'instagram' => $groomInstagram],
-        ['name' => $page->bride_name ?? 'Mempelai Wanita', 'photo' => $bridePhoto, 'parents' => $brideParents, 'instagram' => $brideInstagram],
+        ['name' => $page->groom_name ?? 'Mempelai Pria', 'photo' => $resolvePath($props['groom_photo'] ?? null), 'parents' => $groomParents, 'instagram' => $groomInstagram],
+        ['name' => $page->bride_name ?? 'Mempelai Wanita', 'photo' => $resolvePath($props['bride_photo'] ?? null), 'parents' => $brideParents, 'instagram' => $brideInstagram],
     ];
 @endphp
 
-<section style="background: {{ $backgroundColor }}; color: {{ $textColor }}; padding: 64px 16px;">
-  <div class="container mx-auto max-w-4xl text-center">
-    <h2 class="text-2xl md:text-3xl font-bold mb-10" style="font-family: var(--font-heading, serif); color: {{ $accentColor }};"
-      data-editable="heading">
-      {{ $heading }}
-    </h2>
-    <div class="grid gap-10 @md:grid-cols-2">
-      @foreach($people as $person)
-        <div>
-          @if($person['photo'])
-            <img src="{{ $person['photo'] }}" alt="{{ $person['name'] }}"
-                class="w-40 h-40 mx-auto rounded-full object-cover mb-4"
-                style="border: 3px solid {{ $accentColor }};">
-          @endif
-          <h3 class="text-xl font-semibold" style="font-family: var(--font-heading, serif);">{{ $person['name'] }}</h3>
-          @if($person['parents'])
-            <p class="mt-2 text-sm opacity-80">{{ $person['parents'] }}</p>
-          @endif
-          @if($person['instagram'])
-            <a href="{{ $person['instagram'] }}" target="_blank" rel="noopener"
-                class="inline-block mt-2 text-sm underline" style="color: {{ $accentColor }};">Instagram</a>
-          @endif
-        </div>
-      @endforeach
-    </div>
+<section class="couple couple--{{ $variant }}" style="padding: var(--section-y, 64px) 20px;">
+  <div class="couple-inner">
+    <h2 class="couple-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px); color: var(--color-accent, #b5654d);"
+        data-editable="heading">{{ $heading }}</h2>
+
+    @if ($variant === 'side-alternating')
+      <div class="couple-list">
+        @foreach ($people as $i => $person)
+          <div class="couple-row {{ $i % 2 ? 'is-rev' : '' }}">
+            @if ($person['photo'])
+              <img class="couple-photo-rect" src="{{ $person['photo'] }}" alt="{{ $person['name'] }}">
+            @endif
+            <div class="couple-meta">
+              <h3 style="font-family: var(--font-heading, serif); font-size: var(--step-xl, 26px);">{{ $person['name'] }}</h3>
+              @if ($person['parents'])<p class="couple-sub">{{ $person['parents'] }}</p>@endif
+              @if ($person['instagram'])<a class="couple-ig" href="{{ $person['instagram'] }}" target="_blank" rel="noopener" style="color: var(--color-accent, #b5654d);">Instagram</a>@endif
+            </div>
+          </div>
+        @endforeach
+      </div>
+    @else
+      <div class="couple-grid">
+        @foreach ($people as $person)
+          <div class="couple-card">
+            @if ($person['photo'])
+              <img class="couple-photo-round" src="{{ $person['photo'] }}" alt="{{ $person['name'] }}"
+                   style="border: 3px solid var(--color-accent, #b5654d);">
+            @endif
+            <h3 style="font-family: var(--font-heading, serif); font-size: var(--step-xl, 26px);">{{ $person['name'] }}</h3>
+            @if ($person['parents'])<p class="couple-sub">{{ $person['parents'] }}</p>@endif
+            @if ($person['instagram'])<a class="couple-ig" href="{{ $person['instagram'] }}" target="_blank" rel="noopener" style="color: var(--color-accent, #b5654d);">Instagram</a>@endif
+          </div>
+        @endforeach
+      </div>
+    @endif
   </div>
 </section>

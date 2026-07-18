@@ -181,6 +181,7 @@ $components = [
     ],
 
     'couple' => [
+        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['centered-stacked', 'side-alternating'], 'default' => 'centered-stacked'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Mempelai'],
         ['key' => 'groom_photo', 'type' => 'image', 'label' => 'Foto Mempelai Pria', 'group' => 'content', 'default' => null],
         ['key' => 'bride_photo', 'type' => 'image', 'label' => 'Foto Mempelai Wanita', 'group' => 'content', 'default' => null],
@@ -194,6 +195,7 @@ $components = [
     ],
 
     'event_details' => [
+        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['bordered-cards', 'divider-list'], 'default' => 'bordered-cards'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Rangkaian Acara'],
         ['key' => 'events', 'type' => 'repeater', 'label' => 'Acara', 'group' => 'content', 'fields' => [
             ['key' => 'name', 'type' => 'text', 'label' => 'Nama Acara', 'default' => 'Acara'],
