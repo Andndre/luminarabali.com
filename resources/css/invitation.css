@@ -90,3 +90,15 @@
     animation: invite-spin .8s linear infinite;
 }
 @keyframes invite-spin { to { transform: rotate(360deg); } }
+
+/* --- Section treatment (Lapis 2) --- */
+.sec-treat { position: relative; }
+.sec-treat--contrast { background: var(--color-surface_alt, #f3ece1); }
+.sec-treat--dark { background: var(--color-ink, #20302a); color: var(--color-on_dark, #f5f1e8); }
+.sec-treat--dark :is(h1,h2,h3,h4,h5,h6) { color: inherit; }
+
+.sec-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.sec-bg-img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.sec-bg-overlay { position: absolute; inset: 0; background: #14201c; }
+.sec-treat--image { color: var(--color-on_dark, #f5f1e8); }
+.sec-treat--image > :not(.sec-bg) { position: relative; z-index: 1; }

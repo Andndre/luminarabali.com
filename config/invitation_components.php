@@ -293,8 +293,15 @@ $components = [
     ]),
 ];
 
+// Treatment latar — di-merge ke SEMUA tipe section (dirender _section-shell).
+$treatmentFields = [
+    ['key' => 'treatment', 'type' => 'select', 'label' => 'Latar Section', 'group' => 'design', 'options' => ['surface', 'contrast', 'dark', 'image'], 'default' => 'surface'],
+    ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'design', 'default' => null],
+    ['key' => 'bg_overlay', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'default' => 45],
+];
+
 foreach ($components as $type => $fields) {
-    $components[$type] = array_merge($fields, $animationFields);
+    $components[$type] = array_merge($fields, $animationFields, $treatmentFields);
 }
 
 // Ornamen — hanya section "utama" (bukan blok generic text/image/spacer/divider/kontainer).

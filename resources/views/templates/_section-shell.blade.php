@@ -20,6 +20,11 @@
     $ornamentTop = $resolveOrnament($props['ornament_top'] ?? null);
     $ornamentBottom = $resolveOrnament($props['ornament_bottom'] ?? null);
 
+    $treatment = $props['treatment'] ?? 'surface';
+    $bgImage = $resolveOrnament($props['bg_image'] ?? null); // reuse resolver path
+    $bgOverlay = max(0, min(100, (int) ($props['bg_overlay'] ?? 45)));
+    $hasTreatment = $treatment !== 'surface' || $bgImage;
+
     $ornamentStyle = function (string $position, $scale, string $edge) {
         $width = is_numeric($scale) ? (float) $scale : 100;
         $style = "position:absolute;{$edge}:0;pointer-events:none;z-index:10;";
@@ -31,7 +36,7 @@
         };
     };
 
-    $needsShell = $ornamentTop || $ornamentBottom || $animation !== 'none' || $customCss !== '';
+    $needsShell = $ornamentTop || $ornamentBottom || $animation !== 'none' || $customCss !== '' || $hasTreatment;
 @endphp
 
 @if (!view()->exists($viewPath))
@@ -47,8 +52,14 @@
         ])
     </div>
 @else
-    <div style="position: relative; overflow: hidden" data-section-id="{{ $section->id }}"
+    <div class="sec-treat sec-treat--{{ $treatment }}" style="position: relative; overflow: hidden" data-section-id="{{ $section->id }}"
         @if ($animation !== 'none') data-animate="{{ $animation }}" data-animate-delay="{{ $animationDelay }}" @endif>
+        @if ($hasTreatment && $treatment === 'image' && $bgImage)
+            <div class="sec-bg" aria-hidden="true">
+                <div class="sec-bg-img" style="background-image:url('{{ $bgImage }}')"></div>
+                <div class="sec-bg-overlay" style="opacity:{{ rtrim(rtrim(number_format($bgOverlay/100, 2, '.', ''), '0'), '.') }}"></div>
+            </div>
+        @endif
         @if ($customCss !== '')
             {{-- Scoping via CSS nesting native — server yang membungkus (proposal §5.4);
                  updateSection menolak payload dengan <> sehingga tag tidak bisa ditutup. --}}
