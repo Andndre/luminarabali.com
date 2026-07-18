@@ -92,6 +92,7 @@ class InvitationRenderer
         $theme = [
             'colors' => array_merge($default['colors'], $part($templateTheme, 'colors'), $part($overrides, 'colors')),
             'fonts' => array_merge($default['fonts'], $part($templateTheme, 'fonts'), $part($overrides, 'fonts')),
+            'scales' => array_merge($default['scales'], $part($templateTheme, 'scales'), $part($overrides, 'scales')),
         ];
 
         return $this->buildStyleBlock($theme) . $this->buildFontLinks($theme);
@@ -117,7 +118,43 @@ class InvitationRenderer
             }
         }
 
+        $vars = array_merge($vars, $this->scaleVars($theme['scales'] ?? []));
+
         return '<style>:root{'.implode('', $vars).'}</style>';
+    }
+
+    protected function scaleVars(array $scales): array
+    {
+        $defaults = config('invitation.default_theme.scales');
+        $num = function ($v, $fallback) {
+            return (is_int($v) || is_float($v) || (is_string($v) && is_numeric($v))) ? (float) $v : $fallback;
+        };
+
+        $base = $num($scales['type_base'] ?? null, $defaults['type_base']);
+        $ratio = $num($scales['type_ratio'] ?? null, $defaults['type_ratio']);
+        $radius = $num($scales['radius'] ?? null, $defaults['radius']);
+        $sectionY = $num($scales['section_spacing'] ?? null, $defaults['section_spacing']);
+
+        $round = fn (float $n) => rtrim(rtrim(number_format($n, 2, '.', ''), '0'), '.');
+        $shadowMap = [
+            'none' => 'none',
+            'sm' => '0 1px 3px rgba(0,0,0,.08)',
+            'md' => '0 8px 24px rgba(0,0,0,.12)',
+            'lg' => '0 16px 40px rgba(0,0,0,.16)',
+        ];
+        $shadow = $shadowMap[$scales['shadow_level'] ?? 'sm'] ?? $shadowMap['sm'];
+
+        return [
+            '--step-sm: '.$round($base / $ratio).'px;',
+            '--step-base: '.$round($base).'px;',
+            '--step-lg: '.$round($base * $ratio).'px;',
+            '--step-xl: '.$round($base * $ratio ** 2).'px;',
+            '--step-2xl: '.$round($base * $ratio ** 3).'px;',
+            '--step-3xl: '.$round($base * $ratio ** 4).'px;',
+            '--radius: '.$round($radius).'px;',
+            '--section-y: '.$round($sectionY).'px;',
+            '--shadow: '.$shadow.';',
+        ];
     }
 
     protected function buildFontLinks(array $theme): string

@@ -28,11 +28,22 @@ return [
             'primary' => '#3b2f2f',
             'accent' => '#b5654d',
             'surface' => '#fffaf3',
+            'surface_alt' => '#f3ece1',
             'text' => '#2b2b2b',
+            'muted' => '#7a6f66',
+            'ink' => '#20302a',
+            'on_dark' => '#f5f1e8',
         ],
         'fonts' => [
             'heading' => 'Playfair Display',
             'body' => 'Lato',
+        ],
+        'scales' => [
+            'type_base' => 16,
+            'type_ratio' => 1.25,
+            'radius' => 12,
+            'section_spacing' => 64,
+            'shadow_level' => 'sm',
         ],
     ],
 ];
