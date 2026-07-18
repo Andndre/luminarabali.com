@@ -23,6 +23,8 @@
     $treatment = $props['treatment'] ?? 'surface';
     $bgImage = $resolveOrnament($props['bg_image'] ?? null); // reuse resolver path
     $bgOverlay = max(0, min(100, (int) ($props['bg_overlay'] ?? 45)));
+    $bgEffect = $props['bg_effect'] ?? 'none';
+    $bgStrength = max(100, min(200, (int) ($props['bg_effect_strength'] ?? 130)));
     $hasTreatment = $treatment !== 'surface' || $bgImage;
 
     $ornamentStyle = function (string $position, $scale, string $edge) {
@@ -52,10 +54,11 @@
         ])
     </div>
 @else
-    <div class="sec-treat sec-treat--{{ $treatment }}" style="position: relative; overflow: hidden" data-section-id="{{ $section->id }}"
+    <div class="sec-treat sec-treat--{{ $treatment }}{{ $bgEffect === 'pinned' ? ' sec-treat--pinned' : '' }}" style="position: relative; overflow: hidden" data-section-id="{{ $section->id }}"
         @if ($animation !== 'none') data-animate="{{ $animation }}" data-animate-delay="{{ $animationDelay }}" @endif>
         @if ($hasTreatment && $treatment === 'image' && $bgImage)
-            <div class="sec-bg" aria-hidden="true">
+            <div class="sec-bg" aria-hidden="true"
+                @if ($bgEffect !== 'none') data-effect="{{ $bgEffect }}" data-strength="{{ $bgStrength }}" @endif>
                 <div class="sec-bg-img" style="background-image:url('{{ $bgImage }}')"></div>
                 <div class="sec-bg-overlay" style="opacity:{{ rtrim(rtrim(number_format($bgOverlay/100, 2, '.', ''), '0'), '.') }}"></div>
             </div>

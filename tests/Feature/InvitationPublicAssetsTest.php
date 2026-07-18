@@ -71,4 +71,14 @@ class InvitationPublicAssetsTest extends TestCase
 
         $this->assertStringContainsString('columns: 4', $html);
     }
+
+    public function test_bundle_has_reduced_motion_guard_and_scroll_zoom(): void
+    {
+        \Illuminate\Support\Facades\Vite::useHotFile(storage_path('framework/testing/vite-hot-absent'));
+        $res = $this->get('/invitation/'.$this->makePublishedPage()->slug);
+        $res->assertOk();
+        // CSS bundel memuat guard prefers-reduced-motion untuk efek latar.
+        $cssPath = public_path('build/'.json_decode(file_get_contents(public_path('build/manifest.json')), true)['resources/css/invitation.css']['file']);
+        $this->assertStringContainsString('prefers-reduced-motion', file_get_contents($cssPath));
+    }
 }

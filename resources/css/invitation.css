@@ -102,3 +102,21 @@
 .sec-bg-overlay { position: absolute; inset: 0; background: #14201c; }
 .sec-treat--image { color: var(--color-on_dark, #f5f1e8); }
 .sec-treat--image > :not(.sec-bg) { position: relative; z-index: 1; }
+
+/* --- bg_effect (Lapis 2) --- */
+.sec-bg-img { will-change: transform; transform-origin: center center; }
+
+/* pinned: layer latar diam saat konten meluncur (relatif kartu scroll) */
+.sec-treat--pinned .sec-bg { position: sticky; top: 0; height: 100dvh; }
+.sec-treat--pinned > :not(.sec-bg) { position: relative; z-index: 1; }
+
+/* kenburns */
+.sec-bg[data-effect="kenburns"] .sec-bg-img { animation: sec-kenburns 12s ease-in-out infinite alternate; }
+@keyframes sec-kenburns { from { transform: scale(1.02); } to { transform: scale(1.18) translate(-2%, -2%); } }
+
+/* scroll-zoom: nilai awal; transform diperbarui JS via --sz-scale */
+.sec-bg[data-effect^="scroll-zoom"] .sec-bg-img { transform: scale(var(--sz-scale, 1)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sec-bg-img { animation: none !important; transform: none !important; }
+}

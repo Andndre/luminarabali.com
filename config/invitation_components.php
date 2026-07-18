@@ -298,6 +298,8 @@ $treatmentFields = [
     ['key' => 'treatment', 'type' => 'select', 'label' => 'Latar Section', 'group' => 'design', 'options' => ['surface', 'contrast', 'dark', 'image'], 'default' => 'surface'],
     ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'design', 'default' => null],
     ['key' => 'bg_overlay', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'default' => 45],
+    ['key' => 'bg_effect', 'type' => 'select', 'label' => 'Efek Latar', 'group' => 'design', 'options' => ['none', 'pinned', 'kenburns', 'scroll-zoom-in', 'scroll-zoom-out'], 'default' => 'none'],
+    ['key' => 'bg_effect_strength', 'type' => 'number', 'label' => 'Kekuatan Efek (%)', 'group' => 'design', 'default' => 130],
 ];
 
 foreach ($components as $type => $fields) {
