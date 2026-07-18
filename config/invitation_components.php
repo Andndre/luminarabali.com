@@ -128,13 +128,12 @@ $components = [
     ],
 
     'gallery' => [
-        ['key' => 'images', 'type' => 'image_list', 'label' => 'Foto', 'group' => 'content', 'default' => []],
         ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Galeri', 'group' => 'design', 'options' => ['grid', 'masonry', 'slider'], 'default' => 'grid'],
+        ['key' => 'images', 'type' => 'image_list', 'label' => 'Foto', 'group' => 'content', 'default' => []],
         ['key' => 'layout', 'type' => 'select', 'label' => 'Layout', 'group' => 'design', 'options' => ['grid', 'masonry', 'slider'], 'default' => 'grid'],
         ['key' => 'columns', 'type' => 'number', 'label' => 'Jumlah Kolom', 'group' => 'design', 'default' => 3],
         ['key' => 'gap', 'type' => 'number', 'label' => 'Jarak Antar Foto', 'group' => 'design', 'default' => 16],
         ['key' => 'lightbox', 'type' => 'boolean', 'label' => 'Aktifkan Lightbox', 'group' => 'design', 'default' => true],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
     ],
 
     'map' => [

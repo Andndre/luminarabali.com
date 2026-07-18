@@ -54,7 +54,6 @@ class InvitationComponentsSchemaTest extends TestCase
             'text' => ['color' => 'text'],
             'button' => ['background_color' => 'accent', 'text_color' => 'surface'],
             'countdown' => ['background_color' => 'surface', 'text_color' => 'text', 'accent_color' => 'accent'],
-            'gallery' => ['background_color' => 'surface'],
             'rsvp' => ['button_color' => 'accent', 'background_color' => 'surface'],
             'section_one_col' => ['background_color' => 'surface'],
             'section_two_col' => ['background_color' => 'surface'],
