@@ -57,4 +57,28 @@ class InvitationThemeTokensTest extends TestCase
         $this->assertStringContainsString('--step-base: 16px', $css); // default, bukan nilai jahat
         $this->assertStringNotContainsString('evil', $css);
     }
+
+    public function test_zero_ratio_falls_back_to_default(): void
+    {
+        $page = $this->pageWithTheme(['scales' => ['type_ratio' => 0]]);
+        $css = (new InvitationRenderer())->themeStyle($page);
+
+        $this->assertStringContainsString('--step-lg: 20px', $css); // default base 16 * default ratio 1.25
+    }
+
+    public function test_negative_base_falls_back_to_default(): void
+    {
+        $page = $this->pageWithTheme(['scales' => ['type_base' => -5]]);
+        $css = (new InvitationRenderer())->themeStyle($page);
+
+        $this->assertStringContainsString('--step-base: 16px', $css);
+    }
+
+    public function test_non_string_shadow_level_falls_back(): void
+    {
+        $page = $this->pageWithTheme(['scales' => ['shadow_level' => ['x']]]);
+        $css = (new InvitationRenderer())->themeStyle($page);
+
+        $this->assertStringContainsString('--shadow: 0 1px 3px rgba(0,0,0,.08);', $css);
+    }
 }

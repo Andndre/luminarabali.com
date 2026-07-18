@@ -126,12 +126,24 @@ class InvitationRenderer
     protected function scaleVars(array $scales): array
     {
         $defaults = config('invitation.default_theme.scales');
-        $num = function ($v, $fallback) {
-            return (is_int($v) || is_float($v) || (is_string($v) && is_numeric($v))) ? (float) $v : $fallback;
+        $num = function ($v, $fallback, bool $mustBePositive = false) {
+            $isNumeric = is_int($v) || is_float($v) || (is_string($v) && is_numeric($v));
+            if (! $isNumeric) {
+                return $fallback;
+            }
+            $n = (float) $v;
+            if ($mustBePositive && $n <= 0) {
+                return $fallback;
+            }
+            if (! $mustBePositive && $n < 0) {
+                return $fallback;
+            }
+
+            return $n;
         };
 
-        $base = $num($scales['type_base'] ?? null, $defaults['type_base']);
-        $ratio = $num($scales['type_ratio'] ?? null, $defaults['type_ratio']);
+        $base = $num($scales['type_base'] ?? null, $defaults['type_base'], true);
+        $ratio = $num($scales['type_ratio'] ?? null, $defaults['type_ratio'], true);
         $radius = $num($scales['radius'] ?? null, $defaults['radius']);
         $sectionY = $num($scales['section_spacing'] ?? null, $defaults['section_spacing']);
 
@@ -142,7 +154,8 @@ class InvitationRenderer
             'md' => '0 8px 24px rgba(0,0,0,.12)',
             'lg' => '0 16px 40px rgba(0,0,0,.16)',
         ];
-        $shadow = $shadowMap[$scales['shadow_level'] ?? 'sm'] ?? $shadowMap['sm'];
+        $shadowLevel = is_string($scales['shadow_level'] ?? null) ? $scales['shadow_level'] : 'sm';
+        $shadow = $shadowMap[$shadowLevel] ?? $shadowMap['sm'];
 
         return [
             '--step-sm: '.$round($base / $ratio).'px;',
