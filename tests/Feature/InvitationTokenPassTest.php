@@ -32,7 +32,7 @@ class InvitationTokenPassTest extends TestCase
         return $this->get('/invitation/'.$page->slug)->getContent();
     }
 
-    /** @dataProvider genericColorComponents */
+    #[\PHPUnit\Framework\Attributes\DataProvider('genericColorComponents')]
     public function test_component_has_no_generic_tailwind_colors(string $type, array $props): void
     {
         $html = $this->render($type, $props);

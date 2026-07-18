@@ -28,9 +28,9 @@ class FlagshipTemplateSeeder extends Seeder
             ['section_type' => 'cover', 'props' => [
                 'title' => 'The Wedding Of', 'button_text' => 'Buka Undangan',
                 'overlay_enabled' => true,
-                'treatment' => 'image',
-                'bg_image' => 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2000&auto=format&fit=crop',
-                'bg_effect' => 'pinned',
+                // Cover memakai visual sendiri (gate + sticky reveal), bukan treatment
+                // shell — fotonya lewat background_image, bukan bg_image.
+                'background_image' => 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2000&auto=format&fit=crop',
             ]],
             ['section_type' => 'hero', 'props' => [
                 'title' => 'The Wedding Of', 'overlay_enabled' => true,

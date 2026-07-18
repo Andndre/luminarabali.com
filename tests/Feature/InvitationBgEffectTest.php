@@ -39,6 +39,59 @@ class InvitationBgEffectTest extends TestCase
         $this->assertStringContainsString('data-effect="scroll-zoom-in"', $html);
     }
 
+    public function test_cover_is_exempt_from_treatment_shell(): void
+    {
+        // Regresi: treatment=image di cover membungkusnya dengan .sec-treat--image,
+        // yang rule-nya (.sec-treat--image > :not(.sec-bg){position:relative}) menimpa
+        // position:fixed milik .invite-gate → gate berhenti full-viewport & terklip.
+        $user = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'T', 'slug' => 't-'.uniqid(), 'status' => 'published', 'created_by' => $user->id,
+        ]);
+        $page = InvitationPage::create([
+            'title' => 'P', 'slug' => 'p-'.uniqid(), 'published_status' => 'published',
+            'template_id' => $template->id, 'created_by' => $user->id,
+            'groom_name' => 'R', 'bride_name' => 'J', 'event_date' => now()->addMonth(),
+        ]);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'cover', 'order_index' => 0,
+            'is_visible' => true, 'props' => [
+                'treatment' => 'image', 'bg_image' => 'invitations/x.webp', 'bg_effect' => 'pinned',
+            ],
+        ]);
+
+        $html = $this->get('/invitation/'.$page->slug)->getContent();
+
+        $this->assertStringContainsString('class="invite-gate', $html);
+        $this->assertStringNotContainsString('sec-treat--image', $html);
+        $this->assertStringNotContainsString('sec-treat--pinned', $html);
+        $this->assertStringNotContainsString('class="sec-bg', $html);
+    }
+
+    public function test_hero_font_family_is_not_html_escaped_in_style_block(): void
+    {
+        // Regresi: {{ }} meng-escape apostrof jadi &#039; di dalam <style> (raw text,
+        // entity tidak di-decode) sehingga deklarasi font-family dibuang browser.
+        $user = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'T', 'slug' => 't-'.uniqid(), 'status' => 'published', 'created_by' => $user->id,
+        ]);
+        $page = InvitationPage::create([
+            'title' => 'P', 'slug' => 'p-'.uniqid(), 'published_status' => 'published',
+            'template_id' => $template->id, 'created_by' => $user->id,
+            'groom_name' => 'R', 'bride_name' => 'J', 'event_date' => now()->addMonth(),
+        ]);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'is_visible' => true, 'props' => ['font_family' => 'Playfair Display'],
+        ]);
+
+        $html = $this->get('/invitation/'.$page->slug)->getContent();
+
+        $this->assertStringContainsString("font-family: 'Playfair Display', serif;", $html);
+        $this->assertStringNotContainsString('&#039;', $html);
+    }
+
     public function test_none_effect_has_no_effect_attribute(): void
     {
         $html = $this->get('/invitation/'.$this->pageWithEffect('none')->slug)->getContent();

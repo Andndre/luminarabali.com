@@ -20,10 +20,17 @@
     $ornamentTop = $resolveOrnament($props['ornament_top'] ?? null);
     $ornamentBottom = $resolveOrnament($props['ornament_bottom'] ?? null);
 
-    $treatment = $props['treatment'] ?? 'surface';
-    $bgImage = $resolveOrnament($props['bg_image'] ?? null); // reuse resolver path
+    // Cover punya sistem visual sendiri (gate position:fixed + layar sticky) dan
+    // background_image sendiri. Treatment shell menimpa positioning anak-anaknya
+    // (.sec-treat--image/pinned > :not(.sec-bg) { position: relative }) sehingga
+    // gate berhenti full-viewport dan terklip overflow:hidden — jadi cover
+    // dikecualikan dari treatment/bg_effect sepenuhnya.
+    $ownsVisual = $section->section_type === 'cover';
+
+    $treatment = $ownsVisual ? 'surface' : ($props['treatment'] ?? 'surface');
+    $bgImage = $ownsVisual ? null : $resolveOrnament($props['bg_image'] ?? null); // reuse resolver path
     $bgOverlay = max(0, min(100, (int) ($props['bg_overlay'] ?? 45)));
-    $bgEffect = $props['bg_effect'] ?? 'none';
+    $bgEffect = $ownsVisual ? 'none' : ($props['bg_effect'] ?? 'none');
     $bgStrength = max(100, min(200, (int) ($props['bg_effect_strength'] ?? 130)));
     $hasTreatment = $treatment !== 'surface' || $bgImage;
 

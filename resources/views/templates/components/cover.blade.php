@@ -7,7 +7,13 @@ $brideName = $page->bride_name ?? 'Bride';
 $eventDate = $page->event_date ?? null;
 $buttonText = $props['button_text'] ?? 'Buka Undangan';
 $buttonColor = $props['button_color'] ?? 'var(--color-accent, #d4af37)';
-$fontFamily = isset($props['font_family']) ? "'{$props['font_family']}', serif" : "var(--font-heading, 'Playfair Display'), serif";
+// Dicetak mentah ke <style> (lihat {!! !!} di bawah): Blade {{ }} meng-escape
+// apostrof jadi &#039; dan mematikan deklarasi font-family. Batasi ke daftar font
+// kurasi supaya nilai yang lolos selalu dari himpunan tertutup.
+$curatedFonts = collect(config('invitation.fonts'))->pluck('name')->all();
+$fontFamily = in_array($props['font_family'] ?? null, $curatedFonts, true)
+    ? "'{$props['font_family']}', serif"
+    : 'var(--font-heading, serif)';
 $textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
 $overlayEnabled = filter_var($props['overlay_enabled'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
 $bgValue = $props['background_image'] ?? null;
@@ -30,7 +36,7 @@ $variant = $props['variant'] ?? 'fullscreen';
     content: ''; position: absolute; inset: 0;
     @if($overlayEnabled) background: rgba(0, 0, 0, 0.45); @endif
   }
-  .cover-text-{{ $sid }} { font-family: {{ $fontFamily }}; color: {{ $textColor }}; }
+  .cover-text-{{ $sid }} { font-family: {!! $fontFamily !!}; color: {{ $textColor }}; }
 </style>
 
 {{-- 1. Gate full-viewport (sebelum dibuka) --}}
