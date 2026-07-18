@@ -15,13 +15,11 @@ class SectionPropsValidatorTest extends TestCase
         $result = $validator->validate('text', [
             'content' => 'Hello',
             'align' => 'center',
-            'color' => '#3b2f2f',
             'line_height' => 1.5,
         ]);
 
         $this->assertSame('Hello', $result['content']);
         $this->assertSame('center', $result['align']);
-        $this->assertSame('#3b2f2f', $result['color']);
         $this->assertSame(1.5, $result['line_height']);
     }
 
@@ -42,7 +40,7 @@ class SectionPropsValidatorTest extends TestCase
     {
         $this->expectException(ValidationException::class);
 
-        (new SectionPropsValidator())->validate('text', ['color' => 'not-a-hex-color']);
+        (new SectionPropsValidator())->validate('section_one_col', ['background_color' => 'not-a-hex-color']);
     }
 
     public function test_invalid_select_option_throws_validation_exception(): void
@@ -79,7 +77,6 @@ class SectionPropsValidatorTest extends TestCase
 
         $result = $validator->validate('text', [
             'content' => 'Hello',        // group: content
-            'color' => '#ff0000',        // group: design -> harus dibuang
             'custom_css' => 'color:red', // group: design -> harus dibuang
         ], 'content');
 
@@ -98,9 +95,9 @@ class SectionPropsValidatorTest extends TestCase
     {
         $validator = new SectionPropsValidator();
 
-        $result = $validator->validate('text', ['content' => 'Hi', 'color' => '#ff0000']);
+        $result = $validator->validate('text', ['content' => 'Hi', 'align' => 'center']);
 
-        $this->assertSame(['content' => 'Hi', 'color' => '#ff0000'], $result);
+        $this->assertSame(['content' => 'Hi', 'align' => 'center'], $result);
     }
 
     public function test_whatsapp_phone_with_script_breaking_characters_throws_validation_exception(): void

@@ -23,24 +23,25 @@ $showControls = $props['show_controls'] ?? true;
     <div class="fixed bottom-6 right-6 z-40" x-data="{ playing: {{ $autoplay ? 'true' : 'false' }} }">
         <button
             @click="playing = !playing; document.getElementById('bg-music-{{ $section->id ?? 'default' }}').{{ $autoplay ? 'pause' : 'play' }}()"
-            class="w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition transform hover:scale-110"
-            style="background: {{ $props['button_color'] ?? '#d4af37' }};"
+            class="w-14 h-14 rounded-full flex items-center justify-center transition transform hover:scale-110"
+            style="background: var(--color-accent, #b5654d); box-shadow: 0 8px 24px rgba(0,0,0,.25);"
         >
-            <svg x-show="!playing" class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <svg x-show="!playing" class="w-6 h-6" style="color: var(--color-surface, #ffffff);" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"/>
             </svg>
-            <svg x-show="playing" class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <svg x-show="playing" class="w-6 h-6" style="color: var(--color-surface, #ffffff);" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
             </svg>
         </button>
 
         <!-- Music Info Tooltip -->
-        <div x-show="playing" x-transition class="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg whitespace-nowrap">
+        <div x-show="playing" x-transition class="absolute bottom-full right-0 mb-2 px-3 py-2 text-sm whitespace-nowrap"
+            style="background: var(--color-ink, #20302a); color: var(--color-on_dark, #f5f1e8); border-radius: var(--radius, 12px);">
             <div class="flex items-center gap-2">
                 <div class="flex gap-1">
-                    <span class="w-1 h-3 bg-green-400 animate-pulse"></span>
-                    <span class="w-1 h-4 bg-green-400 animate-pulse" style="animation-delay: 0.1s;"></span>
-                    <span class="w-1 h-2 bg-green-400 animate-pulse" style="animation-delay: 0.2s;"></span>
+                    <span class="w-1 h-3 animate-pulse" style="background: var(--color-accent, #b5654d);"></span>
+                    <span class="w-1 h-4 animate-pulse" style="background: var(--color-accent, #b5654d); animation-delay: 0.1s;"></span>
+                    <span class="w-1 h-2 animate-pulse" style="background: var(--color-accent, #b5654d); animation-delay: 0.2s;"></span>
                 </div>
                 <span>Now Playing</span>
             </div>

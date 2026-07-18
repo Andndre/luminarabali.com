@@ -32,14 +32,14 @@ class SectionPropsValidationEndpointTest extends TestCase
             'global_custom_css' => '',
             'sections' => [
                 [
-                    'id' => 'temp-1', 'parent_id' => null, 'section_type' => 'text',
-                    'order_index' => 0, 'props' => ['color' => 'not-a-hex-color'],
+                    'id' => 'temp-1', 'parent_id' => null, 'section_type' => 'section_one_col',
+                    'order_index' => 0, 'props' => ['background_color' => 'not-a-hex-color'],
                 ],
             ],
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['props.color']);
+        $response->assertJsonValidationErrors(['props.background_color']);
     }
 
     public function test_bulk_save_strips_unknown_props_keys(): void
@@ -95,18 +95,18 @@ class SectionPropsValidationEndpointTest extends TestCase
         ]);
         $section = InvitationSection::create([
             'template_id' => $template->id, 'section_type' => 'text', 'order_index' => 0,
-            'props' => ['content' => 'Halo', 'color' => '#ff0000'], 'is_visible' => true,
+            'props' => ['content' => 'Halo', 'font_size' => 20], 'is_visible' => true,
         ]);
 
         $this->actingAs($admin);
 
         $this->putJson("/admin/api/templates/sections/{$section->id}", [
-            'props' => ['color' => null],
+            'props' => ['font_size' => null],
         ])->assertOk()
-          ->assertJsonMissingPath('section.props.color');
+          ->assertJsonMissingPath('section.props.font_size');
 
         $fresh = $section->fresh();
-        $this->assertArrayNotHasKey('color', $fresh->props);
+        $this->assertArrayNotHasKey('font_size', $fresh->props);
         $this->assertEquals('Halo', $fresh->props['content']);
     }
 }

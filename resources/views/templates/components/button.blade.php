@@ -2,16 +2,12 @@
 
 @php
     $text = $props['text'] ?? 'Click Me';
-    $linkType = $props['link_type'] ?? 'url';
     $url = $props['url'] ?? '#';
-    $style = $props['variant'] ?? ($props['style'] ?? 'primary');
+    $variant = $props['variant'] ?? ($props['style'] ?? 'primary');
     $size = $props['size'] ?? 'medium';
     $alignment = $props['align'] ?? ($props['alignment'] ?? 'center');
-    $backgroundColor = $props['background_color'] ?? 'var(--color-accent, #b5654d)';
-    $textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
     $borderRadius = $props['border_radius'] ?? 8;
     $borderWidth = $props['border_width'] ?? 0;
-    $borderColor = $props['border_color'] ?? $backgroundColor;
     $shadow = $props['shadow'] ?? 'none';
     $marginTop = $props['margin_top'] ?? 0;
     $marginBottom = $props['margin_bottom'] ?? 24;
@@ -26,11 +22,11 @@
         'large' => 'px-8 py-4 text-lg',
     ];
 
-    $styleClasses = [
-        'primary' => 'text-white hover:opacity-90',
-        'secondary' => 'text-white hover:opacity-90',
-        'outline' => 'border-2 border-current hover:opacity-90',
-        'ghost' => 'hover:opacity-90',
+    $variantClasses = [
+        'primary' => 'btn-primary',
+        'secondary' => 'btn-secondary',
+        'outline' => 'btn-outline',
+        'ghost' => 'btn-ghost',
     ];
 
     $shadowMap = [
@@ -40,6 +36,8 @@
         'lg' => '0 14px 34px rgba(0,0,0,0.16)',
     ];
     $boxShadow = $shadowMap[$shadow] ?? 'none';
+    // border_width > 0 = override eksplisit ketebalan bawaan varian.
+    $borderOverride = $borderWidth > 0 ? "border-width: {$borderWidth}px; border-style: solid;" : '';
 @endphp
 
 <section class="button-section-{{ $section->id }}"
@@ -47,8 +45,8 @@
     <div class="container mx-auto px-4">
         <div class="text-{{ $alignment }}">
             <a @if ($elementId) id="{{ $elementId }}" @endif href="{{ $url }}"
-                class="{{ $sizeClasses[$size] ?? $sizeClasses['medium'] }} inline-block rounded-lg font-semibold transition"
-                style="background-color: {{ $backgroundColor }}; color: {{ $textColor }}; border-radius: {{ $borderRadius }}px; border: {{ $borderWidth }}px solid {{ $borderColor }}; box-shadow: {{ $boxShadow }}; {{ $customCss }}">
+                class="{{ $sizeClasses[$size] ?? $sizeClasses['medium'] }} {{ $variantClasses[$variant] ?? $variantClasses['primary'] }} inline-block font-semibold transition hover:opacity-90"
+                style="border-radius: {{ $borderRadius }}px; box-shadow: {{ $boxShadow }}; {{ $borderOverride }} {{ $customCss }}">
                 {{ $text }}
             </a>
         </div>

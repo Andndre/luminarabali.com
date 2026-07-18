@@ -22,7 +22,7 @@
 
 <section class="couple couple--{{ $variant }}" style="padding: var(--section-y, 64px) 20px;">
   <div class="couple-inner">
-    <h2 class="couple-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px); color: var(--color-accent, #b5654d);"
+    <h2 class="couple-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);"
         data-editable="heading">{{ $heading }}</h2>
 
     @if ($variant === 'side-alternating')

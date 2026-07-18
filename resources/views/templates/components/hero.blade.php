@@ -8,7 +8,6 @@ $heroBg = $backgroundValue
     ? (\Illuminate\Support\Str::startsWith($backgroundValue, ['http://', 'https://', '/']) ? $backgroundValue : '/storage/' . $backgroundValue)
     : '';
 $overlayEnabled = $props['overlay_enabled'] ?? false;
-$overlayColor = $props['overlay_color'] ?? '#000000';
 $overlayOpacityPercent = is_numeric($props['overlay_opacity'] ?? null) ? (float) $props['overlay_opacity'] : 40.0;
 $overlayOpacity = max(0, min(1, $overlayOpacityPercent / 100));
 
@@ -23,7 +22,6 @@ $curatedFonts = collect(config('invitation.fonts'))->pluck('name')->all();
 $fontFamily = in_array($props['font_family'] ?? null, $curatedFonts, true)
     ? "'{$props['font_family']}', serif"
     : 'var(--font-heading, serif)';
-$textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
 $alignment = $props['alignment'] ?? 'center';
 $paddingTop = $props['padding_top'] ?? 120;
 $paddingBottom = $props['padding_bottom'] ?? 120;
@@ -49,7 +47,7 @@ $variant = $props['variant'] ?? 'fullscreen';
     position: absolute;
     inset: 0;
     @if($overlayEnabled)
-      background: {{ $overlayColor }};
+      background: var(--color-ink, #20302a);
       opacity: {{ $overlayOpacity }};
     @endif
   }
@@ -59,19 +57,11 @@ $variant = $props['variant'] ?? 'fullscreen';
     z-index: 10;
   }
 
-  .hero-section-{{ $section->id ?? 'default' }} .hero-title {
-    font-family: {!! $fontFamily !!};
-    color: {{ $textColor }};
-  }
-
-  .hero-section-{{ $section->id ?? 'default' }} .hero-names {
-    font-family: {!! $fontFamily !!};
-    color: {{ $textColor }};
-  }
-
+  .hero-section-{{ $section->id ?? 'default' }} .hero-title,
+  .hero-section-{{ $section->id ?? 'default' }} .hero-names,
   .hero-section-{{ $section->id ?? 'default' }} .hero-date {
     font-family: {!! $fontFamily !!};
-    color: {{ $textColor }};
+    color: var(--color-on_dark, #f5f1e8);
   }
 </style>
 

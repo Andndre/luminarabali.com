@@ -5,14 +5,11 @@
     $message = $props['message'] ?? '';
     $accounts = $props['accounts'] ?? [];
     $giftAddress = $props['gift_address'] ?? '';
-    $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
-    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #b5654d)';
-    $textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
 @endphp
 
-<section style="color: {{ $textColor }}; padding: var(--section-y, 64px) 16px;">
+<section style="padding: var(--section-y, 64px) 16px;">
   <div class="container mx-auto max-w-xl text-center">
-    <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family: var(--font-heading, serif); color: {{ $accentColor }};">
+    <h2 class="mb-4" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);">
       {{ $heading }}
     </h2>
     @if($message)
@@ -20,7 +17,8 @@
     @endif
     <div class="space-y-4">
       @foreach($accounts as $i => $account)
-        <div class="rounded-xl p-5 text-left flex items-center gap-4" style="border: 1px solid {{ $accentColor }};">
+        <div class="p-5 text-left flex items-center gap-4"
+            style="border: 1px solid var(--color-accent, #b5654d); border-radius: var(--radius, 12px);">
           <div class="flex-1 min-w-0">
             <p class="text-xs uppercase tracking-wide opacity-70">{{ $account['bank'] ?? '' }}</p>
             <p class="font-mono font-semibold truncate" id="gift-number-{{ $section->id }}-{{ $i }}">{{ $account['number'] ?? '' }}</p>
@@ -29,9 +27,9 @@
             @endif
           </div>
           @if(!empty($account['number']))
-            <button type="button" class="gift-copy-{{ $section->id }} shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold"
+            <button type="button" class="gift-copy-{{ $section->id }} shrink-0 px-4 py-1.5 text-xs font-semibold"
                 data-number="{{ $account['number'] }}"
-                style="background: {{ $accentColor }}; color: {{ $backgroundColor }};">
+                style="background: var(--color-accent, #b5654d); color: var(--color-surface, #ffffff); border-radius: var(--radius, 12px);">
               Salin
             </button>
           @endif

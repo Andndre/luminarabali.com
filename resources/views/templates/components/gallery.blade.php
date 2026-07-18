@@ -13,7 +13,9 @@ $images = $props['images'] ?? [];
         @if($layout === 'grid')
             <div class="gallery-grid grid gap-4" style="grid-template-columns: repeat({{ $columns }}, minmax(0, 1fr));">
                 @foreach($images as $image)
-                    <div class="gallery-item relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition bg-gray-100" @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
+                    <div class="gallery-item relative overflow-hidden cursor-pointer hover:opacity-90 transition"
+                        style="border-radius: var(--radius, 12px); background: var(--color-surface_alt, #f3ece1);"
+                        @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
                         <img src="{{ $image['url'] ?? '' }}" alt="{{ $image['alt'] ?? '' }}" loading="lazy" class="block w-full h-64 object-cover">
                         @if($lightbox)
                             <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition flex items-center justify-center">
@@ -28,13 +30,15 @@ $images = $props['images'] ?? [];
         @elseif($layout === 'masonry')
             <div style="columns: {{ max(1, (int) $columns) }}; column-gap: {{ $gap }}px;">
                 @foreach($images as $image)
-                    <div class="gallery-item mb-4 break-inside-avoid rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition bg-gray-100" @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
+                    <div class="gallery-item mb-4 break-inside-avoid overflow-hidden cursor-pointer hover:opacity-90 transition"
+                        style="border-radius: var(--radius, 12px); background: var(--color-surface_alt, #f3ece1);"
+                        @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
                         <img src="{{ $image['url'] ?? '' }}" alt="{{ $image['alt'] ?? '' }}" loading="lazy" class="block w-full">
                     </div>
                 @endforeach
             </div>
         @elseif($layout === 'slider')
-            <div class="gallery-slider relative overflow-hidden rounded-lg">
+            <div class="gallery-slider relative overflow-hidden" style="border-radius: var(--radius, 12px);">
                 <div class="flex transition-transform duration-300" id="slider-{{ $section->id ?? 'default' }}">
                     @foreach($images as $image)
                         <div class="flex-shrink-0 w-full">
@@ -43,12 +47,12 @@ $images = $props['images'] ?? [];
                     @endforeach
                 </div>
                 @if(count($images) > 1)
-                    <button onclick="prevSlide('{{ $section->id ?? 'default' }}')" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition">
+                    <button onclick="prevSlide('{{ $section->id ?? 'default' }}')" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 transition" style="box-shadow: 0 8px 24px rgba(0,0,0,.12);">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                     </button>
-                    <button onclick="nextSlide('{{ $section->id ?? 'default' }}', {{ count($images) }})" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition">
+                    <button onclick="nextSlide('{{ $section->id ?? 'default' }}', {{ count($images) }})" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 transition" style="box-shadow: 0 8px 24px rgba(0,0,0,.12);">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
@@ -68,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
     lightbox.id = 'lightbox-{{ $section->id ?? 'default' }}';
     lightbox.className = 'fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center';
     lightbox.innerHTML = `
-        <button class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300">&times;</button>
+        <button class="absolute top-4 right-4 text-white text-4xl hover:opacity-70 transition">&times;</button>
         <img src="" alt="" class="max-w-full max-h-full object-contain">
     `;
     document.body.appendChild(lightbox);

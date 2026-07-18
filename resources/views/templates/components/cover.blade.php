@@ -6,7 +6,6 @@ $groomName = $page->groom_name ?? 'Groom';
 $brideName = $page->bride_name ?? 'Bride';
 $eventDate = $page->event_date ?? null;
 $buttonText = $props['button_text'] ?? 'Buka Undangan';
-$buttonColor = $props['button_color'] ?? 'var(--color-accent, #d4af37)';
 // Dicetak mentah ke <style> (lihat {!! !!} di bawah): Blade {{ }} meng-escape
 // apostrof jadi &#039; dan mematikan deklarasi font-family. Batasi ke daftar font
 // kurasi supaya nilai yang lolos selalu dari himpunan tertutup.
@@ -14,7 +13,6 @@ $curatedFonts = collect(config('invitation.fonts'))->pluck('name')->all();
 $fontFamily = in_array($props['font_family'] ?? null, $curatedFonts, true)
     ? "'{$props['font_family']}', serif"
     : 'var(--font-heading, serif)';
-$textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
 $overlayEnabled = filter_var($props['overlay_enabled'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
 $bgValue = $props['background_image'] ?? null;
 $bgUrl = $bgValue
@@ -36,7 +34,7 @@ $variant = $props['variant'] ?? 'fullscreen';
     content: ''; position: absolute; inset: 0;
     @if($overlayEnabled) background: rgba(0, 0, 0, 0.45); @endif
   }
-  .cover-text-{{ $sid }} { font-family: {!! $fontFamily !!}; color: {{ $textColor }}; }
+  .cover-text-{{ $sid }} { font-family: {!! $fontFamily !!}; color: var(--color-on_dark, #f5f1e8); }
 </style>
 
 {{-- 1. Gate full-viewport (sebelum dibuka) --}}
@@ -55,7 +53,7 @@ $variant = $props['variant'] ?? 'fullscreen';
         <p class="invite-gate-guest-name">{{ $targetName }}</p>
       </div>
     @endif
-    <button @click="openInvitation()" class="invite-gate-button" style="background: {{ $buttonColor }};">
+    <button @click="openInvitation()" class="invite-gate-button" style="background: var(--color-accent, #b5654d);">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" /></svg>
       {{ $buttonText }}
     </button>

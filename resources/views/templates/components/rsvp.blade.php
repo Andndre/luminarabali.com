@@ -4,12 +4,9 @@
 $title = $props['title'] ?? 'RSVP';
 $subtitle = $props['subtitle'] ?? 'Please confirm your attendance';
 $buttonText = $props['button_text'] ?? 'Kirim Konfirmasi';
-$buttonColor = $props['button_color'] ?? 'var(--color-accent, #b5654d)';
 $successMessage = $props['success_message'] ?? 'Terima kasih atas konfirmasi Anda!';
 $whatsappEnabled = $props['whatsapp_enabled'] ?? false;
 $whatsappPhone = $props['whatsapp_phone'] ?? '';
-$titleColor = $props['title_color'] ?? 'var(--color-primary, #111827)';
-$subtitleColor = $props['subtitle_color'] ?? 'var(--color-text, #4b5563)';
 $paddingTop = $props['padding_top'] ?? 80;
 $paddingBottom = $props['padding_bottom'] ?? 80;
 @endphp
@@ -35,12 +32,12 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
 
   .rsvp-section-{{ $section->id }} .rsvp-field:focus {
     outline: none;
-    border-color: {{ $buttonColor }};
-    box-shadow: 0 0 0 3px color-mix(in srgb, {{ $buttonColor }} 25%, transparent);
+    border-color: var(--color-accent, #b5654d);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent, #b5654d) 25%, transparent);
   }
 
   .rsvp-section-{{ $section->id }} .rsvp-button {
-    background: {{ $buttonColor }};
+    background: var(--color-accent, #b5654d);
     color: var(--color-surface, #ffffff);
     border-radius: var(--radius, 12px);
   }
@@ -55,34 +52,34 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
     <div class="max-w-md mx-auto">
       <div class="text-center mb-8">
         @if($title)
-          <h2 class="text-3xl font-bold mb-2" style="font-family: var(--font-heading, serif); color: {{ $titleColor }};">{{ $title }}</h2>
+          <h2 class="text-3xl font-bold mb-2" style="font-family: var(--font-heading, serif);">{{ $title }}</h2>
         @endif
         @if($subtitle)
-          <p style="color: {{ $subtitleColor }};">{{ $subtitle }}</p>
+          <p class="opacity-80">{{ $subtitle }}</p>
         @endif
       </div>
 
       <form id="rsvp-form-{{ $section->id }}" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Nama Lengkap *</label>
+          <label class="block text-sm font-medium mb-1">Nama Lengkap *</label>
           <input type="text" name="guest_name" required
                  class="rsvp-field">
         </div>
 
         <div>
-          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">No. WhatsApp</label>
+          <label class="block text-sm font-medium mb-1">No. WhatsApp</label>
           <input type="tel" name="guest_phone"
                  class="rsvp-field">
         </div>
 
         <div>
-          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Email</label>
+          <label class="block text-sm font-medium mb-1">Email</label>
           <input type="email" name="guest_email"
                  class="rsvp-field">
         </div>
 
         <div>
-          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Konfirmasi Kehadiran *</label>
+          <label class="block text-sm font-medium mb-1">Konfirmasi Kehadiran *</label>
           <select name="attendance_status" required
                   class="rsvp-field">
             <option value="">Pilih Status</option>
@@ -93,13 +90,13 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
         </div>
 
         <div>
-          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Jumlah Tamu *</label>
+          <label class="block text-sm font-medium mb-1">Jumlah Tamu *</label>
           <input type="number" name="number_of_guests" min="1" value="1" required
                  class="rsvp-field">
         </div>
 
         <div>
-          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Pesan</label>
+          <label class="block text-sm font-medium mb-1">Pesan</label>
           <textarea name="message" rows="3"
                     class="rsvp-field"></textarea>
         </div>

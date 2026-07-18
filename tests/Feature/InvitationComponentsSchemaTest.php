@@ -49,12 +49,6 @@ class InvitationComponentsSchemaTest extends TestCase
     {
         // Peta hasil audit partial (var(--color-X) yang benar-benar dikonsumsi).
         $expected = [
-            'cover' => ['button_color' => 'accent', 'text_color' => 'surface'],
-            'hero' => ['text_color' => 'surface'],
-            'text' => ['color' => 'text'],
-            'button' => ['background_color' => 'accent', 'text_color' => 'surface'],
-            'countdown' => ['background_color' => 'surface', 'text_color' => 'text', 'accent_color' => 'accent'],
-            'rsvp' => ['button_color' => 'accent', 'background_color' => 'surface'],
             'section_one_col' => ['background_color' => 'surface'],
             'section_two_col' => ['background_color' => 'surface'],
             'section_three_col' => ['background_color' => 'surface'],

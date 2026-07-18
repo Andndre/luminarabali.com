@@ -3,10 +3,6 @@
 @php
 $targetDate = $page && $page->event_date ? $page->event_date->toIso8601String() : null;
 $title = $props['title'] ?? 'Counting Down To';
-// inherit supaya treatment dark/image (yang menyetel color di .sec-treat) tetap terbaca.
-$textColor = $props['text_color'] ?? 'inherit';
-$titleColor = $props['title_color'] ?? 'inherit';
-$accentColor = $props['accent_color'] ?? 'var(--color-accent, #b5654d)';
 $paddingTop = $props['padding_top'] ?? 64;
 $paddingBottom = $props['padding_bottom'] ?? 64;
 @endphp
@@ -36,14 +32,13 @@ $paddingBottom = $props['padding_bottom'] ?? 64;
   .countdown-number-{{ $section->id }} {
     font-size: var(--step-3xl, 2.25rem);
     font-weight: 700;
-    color: {{ $accentColor }};
+    color: var(--color-accent, #b5654d);
     line-height: 1;
     font-variant-numeric: tabular-nums;
   }
 
   .countdown-label-{{ $section->id }} {
     font-size: var(--step-sm, .8125rem);
-    color: {{ $textColor }};
     opacity: .75;
     margin-top: 0.5rem;
     text-transform: uppercase;
@@ -54,7 +49,7 @@ $paddingBottom = $props['padding_bottom'] ?? 64;
 <section class="countdown-section-{{ $section->id }}">
   <div class="container mx-auto px-4 text-center">
     @if($title)
-      <h2 class="font-bold mb-8" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 1.5rem); color: {{ $titleColor }};">
+      <h2 class="font-bold mb-8" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 1.5rem);">
         {{ $title }}
       </h2>
     @endif

@@ -6,7 +6,6 @@
     $width = $props['width'] ?? 100;
     $borderRadius = $props['border_radius'] ?? 0;
     $borderWidth = $props['border_width'] ?? 0;
-    $borderColor = $props['border_color'] ?? '#e5e7eb';
     $shadow = $props['shadow'] ?? 'none';
     $alignment = $props['align'] ?? ($props['alignment'] ?? 'center');
     $marginTop = $props['margin_top'] ?? 0;
@@ -25,6 +24,10 @@
         'lg' => '0 14px 34px rgba(0,0,0,0.16)',
     ];
     $boxShadow = $shadowMap[$shadow] ?? 'none';
+    // Border tanpa warna sendiri: derivasi dari token teks, bukan hex bebas.
+    $border = $borderWidth > 0
+        ? "{$borderWidth}px solid color-mix(in srgb, var(--color-text, #2b2b2b) 15%, transparent)"
+        : 'none';
 @endphp
 
 <section class="image-section-{{ $section->id }}"
@@ -33,7 +36,7 @@
         <div class="text-{{ $alignment }}">
             <img @if ($elementId) id="{{ $elementId }}" @endif src="{{ $src }}"
                 alt="{{ $alt }}"
-                style="width: {{ $width }}%; border-radius: {{ $borderRadius }}px; border: {{ $borderWidth }}px solid {{ $borderColor }}; box-shadow: {{ $boxShadow }}; {{ $customCss }}"
+                style="width: {{ $width }}%; border-radius: {{ $borderRadius }}px; border: {{ $border }}; box-shadow: {{ $boxShadow }}; {{ $customCss }}"
                 class="inline-block" loading="lazy">
         </div>
     </div>

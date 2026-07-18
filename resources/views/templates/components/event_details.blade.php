@@ -8,13 +8,13 @@
 
 <section class="events events--{{ $variant }}" style="padding: var(--section-y, 64px) 16px;">
   <div class="events-inner">
-    <h2 class="events-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px); color: var(--color-accent, #b5654d);">
+    <h2 class="events-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);">
       {{ $heading }}
     </h2>
     <div class="events-list">
       @foreach ($events as $event)
         <div class="event-item">
-          <h3 style="font-family: var(--font-heading, serif); font-size: var(--step-lg, 20px); color: var(--color-accent, #b5654d);">{{ $event['name'] ?? '' }}</h3>
+          <h3 style="font-family: var(--font-heading, serif); font-size: var(--step-lg, 20px);">{{ $event['name'] ?? '' }}</h3>
           @if (!empty($event['date_text']))<p class="event-line">{{ $event['date_text'] }}</p>@endif
           @if (!empty($event['time_text']))<p class="event-line">{{ $event['time_text'] }}</p>@endif
           @if (!empty($event['venue']))<p class="event-venue">{{ $event['venue'] }}</p>@endif

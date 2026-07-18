@@ -112,6 +112,12 @@ class InvitationShellTest extends TestCase
         $this->assertStringContainsString('toggleAudio', $xData, 'atribut x-data terpotong — ada kutip ganda mentah di dalamnya?');
     }
 
+    public function test_invite_content_inherits_theme_text_color_token(): void
+    {
+        $css = file_get_contents(resource_path('css/invitation.css'));
+        $this->assertStringContainsString('color: var(--color-text, #2b2b2b);', $css);
+    }
+
     public function test_studio_preview_skips_preloader(): void
     {
         $admin = User::factory()->create(['division' => 'super_admin']);

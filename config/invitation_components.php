@@ -33,9 +33,7 @@ $components = [
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
         ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Sampul', 'group' => 'content', 'default' => null],
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Buka Undangan'],
-        ['key' => 'button_color', 'type' => 'color', 'label' => 'Warna Tombol', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
         ['key' => 'font_family', 'type' => 'select', 'label' => 'Font', 'group' => 'design', 'options' => $curatedFontNames, 'default' => 'Playfair Display'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
         ['key' => 'overlay_enabled', 'type' => 'boolean', 'label' => 'Overlay Gelap', 'group' => 'design', 'default' => true],
     ],
 
@@ -44,10 +42,8 @@ $components = [
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
         ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null],
         ['key' => 'overlay_enabled', 'type' => 'boolean', 'label' => 'Overlay Gelap', 'group' => 'design', 'default' => false],
-        ['key' => 'overlay_color', 'type' => 'color', 'label' => 'Warna Overlay', 'group' => 'design', 'default' => '#000000'],
         ['key' => 'overlay_opacity', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'default' => 40],
         ['key' => 'font_family', 'type' => 'select', 'label' => 'Font', 'group' => 'design', 'options' => $curatedFontNames, 'default' => 'Playfair Display'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
         ['key' => 'alignment', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'center'],
         ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 120],
         ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 120],
@@ -57,7 +53,6 @@ $components = [
         ['key' => 'content', 'type' => 'text', 'label' => 'Isi Teks', 'group' => 'content', 'default' => 'Tulis teks anda di sini...'],
         ['key' => 'tag', 'type' => 'select', 'label' => 'Jenis Elemen', 'group' => 'design', 'options' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'], 'default' => 'p'],
         ['key' => 'align', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'left'],
-        ['key' => 'color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#000000'],
         ['key' => 'font_size', 'type' => 'number', 'label' => 'Ukuran Font', 'group' => 'design', 'default' => null],
         ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 0],
         ['key' => 'font_family', 'type' => 'select', 'label' => 'Font', 'group' => 'design', 'options' => ['lato', 'montserrat', 'playfair-display', 'great-vibes', 'open-sans'], 'default' => 'lato'],
@@ -73,7 +68,6 @@ $components = [
         ['key' => 'width', 'type' => 'number', 'label' => 'Lebar (%)', 'group' => 'design', 'default' => 100],
         ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'default' => 0],
         ['key' => 'border_width', 'type' => 'number', 'label' => 'Border Width', 'group' => 'design', 'default' => 0],
-        ['key' => 'border_color', 'type' => 'color', 'label' => 'Warna Border', 'group' => 'design', 'default' => '#e5e7eb'],
         ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
         ['key' => 'align', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'center'],
         ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
@@ -88,11 +82,8 @@ $components = [
         ['key' => 'variant', 'type' => 'select', 'label' => 'Gaya', 'group' => 'design', 'options' => ['primary', 'secondary', 'outline', 'ghost'], 'default' => 'primary'],
         ['key' => 'size', 'type' => 'select', 'label' => 'Ukuran', 'group' => 'design', 'options' => ['small', 'medium', 'large'], 'default' => 'medium'],
         ['key' => 'align', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'center'],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
         ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'default' => 8],
         ['key' => 'border_width', 'type' => 'number', 'label' => 'Border Width', 'group' => 'design', 'default' => 0],
-        ['key' => 'border_color', 'type' => 'color', 'label' => 'Warna Border', 'group' => 'design', 'default' => '#d4af37'],
         ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
         ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
         ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
@@ -103,7 +94,6 @@ $components = [
     'divider' => [
         ['key' => 'type', 'type' => 'select', 'label' => 'Tipe', 'group' => 'design', 'options' => ['line', 'spacer'], 'default' => 'line'],
         ['key' => 'height', 'type' => 'number', 'label' => 'Tinggi', 'group' => 'design', 'default' => 1],
-        ['key' => 'color', 'type' => 'color', 'label' => 'Warna', 'group' => 'design', 'default' => '#e5e7eb'],
         ['key' => 'style', 'type' => 'select', 'label' => 'Gaya Garis', 'group' => 'design', 'options' => ['solid', 'dashed', 'dotted'], 'default' => 'solid'],
         ['key' => 'width', 'type' => 'number', 'label' => 'Lebar (%)', 'group' => 'design', 'default' => 100],
         ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 24],
@@ -120,9 +110,6 @@ $components = [
 
     'countdown' => [
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Counting Down To'],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#f8f9fa'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
-        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
         ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 64],
         ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 64],
     ],
@@ -145,8 +132,6 @@ $components = [
         ['key' => 'zoom', 'type' => 'number', 'label' => 'Level Zoom', 'group' => 'design', 'default' => 15],
         ['key' => 'height', 'type' => 'number', 'label' => 'Tinggi Peta', 'group' => 'design', 'default' => 400],
         ['key' => 'show_button', 'type' => 'boolean', 'label' => 'Tampilkan Tombol Arah', 'group' => 'design', 'default' => true],
-        ['key' => 'title_color', 'type' => 'color', 'label' => 'Warna Judul', 'group' => 'design', 'default' => '#333333'],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'default' => '#f8f9fa'],
     ],
 
     'music' => [
@@ -154,7 +139,6 @@ $components = [
         ['key' => 'autoplay', 'type' => 'boolean', 'label' => 'Putar Otomatis', 'group' => 'design', 'default' => true],
         ['key' => 'loop', 'type' => 'boolean', 'label' => 'Ulangi', 'group' => 'design', 'default' => true],
         ['key' => 'show_controls', 'type' => 'boolean', 'label' => 'Tampilkan Tombol Kontrol', 'group' => 'design', 'default' => true],
-        ['key' => 'button_color', 'type' => 'color', 'label' => 'Warna Tombol', 'group' => 'design', 'default' => '#d4af37'],
     ],
 
     'rsvp' => [
@@ -163,9 +147,7 @@ $components = [
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Kirim Konfirmasi'],
         ['key' => 'success_message', 'type' => 'text', 'label' => 'Pesan Sukses', 'group' => 'content', 'default' => 'Terima kasih atas konfirmasi Anda!'],
         ['key' => 'whatsapp_phone', 'type' => 'text', 'label' => 'Nomor WhatsApp', 'group' => 'content', 'default' => ''],
-        ['key' => 'button_color', 'type' => 'color', 'label' => 'Warna Tombol', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
         ['key' => 'whatsapp_enabled', 'type' => 'boolean', 'label' => 'Teruskan ke WhatsApp', 'group' => 'design', 'default' => false],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
         ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 80],
         ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 80],
     ],
@@ -220,16 +202,11 @@ $components = [
         ]],
         ['key' => 'message', 'type' => 'text', 'label' => 'Pesan', 'group' => 'design', 'default' => 'Tanpa mengurangi rasa hormat, bagi Anda yang ingin memberikan tanda kasih:'],
         ['key' => 'gift_address', 'type' => 'text', 'label' => 'Alamat Kirim Kado', 'group' => 'design', 'default' => ''],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
-        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
     ],
 
     'quote' => [
         ['key' => 'content', 'type' => 'text', 'label' => 'Kutipan', 'group' => 'content', 'default' => 'Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri, supaya kamu mendapat ketenangan hati.'],
         ['key' => 'attribution', 'type' => 'text', 'label' => 'Sumber', 'group' => 'content', 'default' => 'Q.S. Ar-Rum: 21'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
         ['key' => 'font_family', 'type' => 'select', 'label' => 'Font', 'group' => 'design', 'options' => $curatedFontNames, 'default' => 'Playfair Display'],
     ],
 
@@ -243,9 +220,6 @@ $components = [
         ], 'default' => [
             ['year' => '2020', 'title' => 'Pertama Bertemu', 'story' => 'Ceritakan momen pertama kalian bertemu…', 'photo' => null],
         ]],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
-        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
     ],
 
     'live_stream' => [
@@ -253,24 +227,16 @@ $components = [
         ['key' => 'youtube_url', 'type' => 'url', 'label' => 'URL YouTube', 'group' => 'content', 'default' => ''],
         ['key' => 'schedule_text', 'type' => 'text', 'label' => 'Jadwal', 'group' => 'content', 'default' => ''],
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Tonton'],
-        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
     ],
 
     'closing' => [
         ['key' => 'message', 'type' => 'text', 'label' => 'Pesan', 'group' => 'content', 'default' => 'Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.'],
         ['key' => 'photo', 'type' => 'image', 'label' => 'Foto', 'group' => 'design', 'default' => null],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
-        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
     ],
 
     'wishes' => [
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Ucapan & Doa'],
         ['key' => 'limit', 'type' => 'number', 'label' => 'Jumlah Ucapan Ditampilkan', 'group' => 'design', 'default' => 50],
-        ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => '#ffffff'],
-        ['key' => 'accent_color', 'type' => 'color', 'label' => 'Warna Aksen', 'group' => 'design', 'token' => 'accent', 'default' => '#d4af37'],
-        ['key' => 'text_color', 'type' => 'color', 'label' => 'Warna Teks', 'group' => 'design', 'token' => 'text', 'default' => '#212529'],
     ],
 
     'code' => [

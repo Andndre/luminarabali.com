@@ -3,8 +3,6 @@
 @php
     $heading = $props['heading'] ?? 'Kisah Kami';
     $stories = $props['stories'] ?? [];
-    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #b5654d)';
-    $textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
 
     $resolvePath = function ($src) {
         if (empty($src)) return null;
@@ -14,9 +12,9 @@
     };
 @endphp
 
-<section style="color: {{ $textColor }}; padding: var(--section-y, 64px) 16px;">
+<section style="padding: var(--section-y, 64px) 16px;">
   <div class="container mx-auto max-w-2xl">
-    <h2 class="text-2xl md:text-3xl font-bold mb-10 text-center" style="font-family: var(--font-heading, serif); color: {{ $accentColor }};"
+    <h2 class="mb-10 text-center" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);"
       data-editable="heading">
       {{ $heading }}
     </h2>
@@ -26,11 +24,12 @@
         <div class="flex gap-4 items-start">
           @if($photo)
             <img src="{{ $photo }}" alt="{{ $story['title'] ?? '' }}"
-                class="w-20 h-20 rounded-lg object-cover shrink-0" style="border: 2px solid {{ $accentColor }};">
+                class="w-20 h-20 object-cover shrink-0"
+                style="border-radius: var(--radius, 12px); border: 2px solid var(--color-accent, #b5654d);">
           @endif
           <div class="flex-1">
             @if(!empty($story['year']))
-              <span class="text-sm font-semibold" style="color: {{ $accentColor }};">{{ $story['year'] }}</span>
+              <span class="text-sm font-semibold opacity-70">{{ $story['year'] }}</span>
             @endif
             @if(!empty($story['title']))
               <h3 class="text-lg font-semibold" style="font-family: var(--font-heading, serif);">{{ $story['title'] }}</h3>

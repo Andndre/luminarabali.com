@@ -38,10 +38,11 @@ class TemplateEditorController extends Controller
         'closing' => 'Penutup',
         'wishes' => 'Ucapan & Doa',
         'code' => '⚠ Kode (HTML)',
-        'section_one_col' => 'Kontainer 1 Kolom',
-        'section_two_col' => 'Kontainer 2 Kolom',
-        'section_three_col' => 'Kontainer 3 Kolom',
     ];
+
+    // Container UI ditangguhkan (SP2): backend nesting (parent_id, column_index) tetap
+    // ada dan section tersimpan lama tetap dirender, tapi tidak bisa ditambah baru.
+    private const HIDDEN_SECTION_TYPES = ['section_one_col', 'section_two_col', 'section_three_col'];
 
     public function studio($id)
     {
@@ -150,7 +151,7 @@ class TemplateEditorController extends Controller
 
         $request->validate([
             'section_type' => ['required', 'string', function ($attribute, $value, $fail) {
-                if (!is_array(config("invitation_components.{$value}"))) {
+                if (in_array($value, self::HIDDEN_SECTION_TYPES, true) || !is_array(config("invitation_components.{$value}"))) {
                     $fail('Tipe section tidak dikenal.');
                 }
             }],
@@ -193,7 +194,7 @@ class TemplateEditorController extends Controller
 
         $request->validate([
             'section_type' => ['required', 'string', function ($attribute, $value, $fail) {
-                if (!is_array(config("invitation_components.{$value}"))) {
+                if (in_array($value, self::HIDDEN_SECTION_TYPES, true) || !is_array(config("invitation_components.{$value}"))) {
                     $fail('Tipe section tidak dikenal.');
                 }
             }],
