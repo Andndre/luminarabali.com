@@ -4,11 +4,10 @@
 $title = $props['title'] ?? 'RSVP';
 $subtitle = $props['subtitle'] ?? 'Please confirm your attendance';
 $buttonText = $props['button_text'] ?? 'Kirim Konfirmasi';
-$buttonColor = $props['button_color'] ?? 'var(--color-accent, #d4af37)';
+$buttonColor = $props['button_color'] ?? 'var(--color-accent, #b5654d)';
 $successMessage = $props['success_message'] ?? 'Terima kasih atas konfirmasi Anda!';
 $whatsappEnabled = $props['whatsapp_enabled'] ?? false;
 $whatsappPhone = $props['whatsapp_phone'] ?? '';
-$backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
 $titleColor = $props['title_color'] ?? 'var(--color-primary, #111827)';
 $subtitleColor = $props['subtitle_color'] ?? 'var(--color-text, #4b5563)';
 $paddingTop = $props['padding_top'] ?? 80;
@@ -17,7 +16,6 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
 
 <style>
   .rsvp-section-{{ $section->id }} {
-    background: {{ $backgroundColor }};
     padding-top: {{ $paddingTop }}px;
     padding-bottom: {{ $paddingBottom }}px;
   }
@@ -37,7 +35,7 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
     <div class="max-w-md mx-auto">
       <div class="text-center mb-8">
         @if($title)
-          <h2 class="text-3xl font-bold mb-2" style="color: {{ $titleColor }};">{{ $title }}</h2>
+          <h2 class="text-3xl font-bold mb-2" style="font-family: var(--font-heading, serif); color: {{ $titleColor }};">{{ $title }}</h2>
         @endif
         @if($subtitle)
           <p style="color: {{ $subtitleColor }};">{{ $subtitle }}</p>
@@ -46,25 +44,25 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
 
       <form id="rsvp-form-{{ $section->id }}" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Nama Lengkap *</label>
           <input type="text" name="guest_name" required
                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">No. WhatsApp</label>
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">No. WhatsApp</label>
           <input type="tel" name="guest_phone"
                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Email</label>
           <input type="email" name="guest_email"
                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kehadiran *</label>
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Konfirmasi Kehadiran *</label>
           <select name="attendance_status" required
                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
             <option value="">Pilih Status</option>
@@ -75,13 +73,13 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Tamu *</label>
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Jumlah Tamu *</label>
           <input type="number" name="number_of_guests" min="1" value="1" required
                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Pesan</label>
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Pesan</label>
           <textarea name="message" rows="3"
                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"></textarea>
         </div>

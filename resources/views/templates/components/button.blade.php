@@ -7,7 +7,7 @@
     $style = $props['variant'] ?? ($props['style'] ?? 'primary');
     $size = $props['size'] ?? 'medium';
     $alignment = $props['align'] ?? ($props['alignment'] ?? 'center');
-    $backgroundColor = $props['background_color'] ?? 'var(--color-accent, #d4af37)';
+    $backgroundColor = $props['background_color'] ?? 'var(--color-accent, #b5654d)';
     $textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
     $borderRadius = $props['border_radius'] ?? 8;
     $borderWidth = $props['border_width'] ?? 0;
@@ -27,10 +27,10 @@
     ];
 
     $styleClasses = [
-        'primary' => 'bg-blue-600 text-white hover:bg-blue-700',
-        'secondary' => 'bg-gray-600 text-white hover:bg-gray-700',
-        'outline' => 'border-2 border-current hover:bg-gray-100',
-        'ghost' => 'hover:bg-gray-100',
+        'primary' => 'text-white hover:opacity-90',
+        'secondary' => 'text-white hover:opacity-90',
+        'outline' => 'border-2 border-current hover:opacity-90',
+        'ghost' => 'hover:opacity-90',
     ];
 
     $shadowMap = [

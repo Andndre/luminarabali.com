@@ -6,11 +6,11 @@
     $accounts = $props['accounts'] ?? [];
     $giftAddress = $props['gift_address'] ?? '';
     $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
-    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #d4af37)';
+    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #b5654d)';
     $textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
 @endphp
 
-<section style="background: {{ $backgroundColor }}; color: {{ $textColor }}; padding: 64px 16px;">
+<section style="color: {{ $textColor }}; padding: var(--section-y, 64px) 16px;">
   <div class="container mx-auto max-w-xl text-center">
     <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family: var(--font-heading, serif); color: {{ $accentColor }};">
       {{ $heading }}

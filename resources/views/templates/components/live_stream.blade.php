@@ -5,8 +5,7 @@
     $youtubeUrl = $props['youtube_url'] ?? '';
     $scheduleText = $props['schedule_text'] ?? '';
     $buttonText = $props['button_text'] ?? 'Tonton';
-    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #d4af37)';
-    $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
+    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #b5654d)';
 
     $youtubeVideoId = null;
     if ($youtubeUrl && preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $youtubeUrl, $m)) {
@@ -14,7 +13,7 @@
     }
 @endphp
 
-<section style="background: {{ $backgroundColor }}; padding: 64px 16px;">
+<section style="padding: var(--section-y, 64px) 16px;">
   <div class="container mx-auto max-w-2xl text-center">
     <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family: var(--font-heading, serif); color: {{ $accentColor }};">
       {{ $heading }}

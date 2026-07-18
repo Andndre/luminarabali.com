@@ -2,8 +2,7 @@
 
 @php
     $message = $props['message'] ?? '';
-    $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
-    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #d4af37)';
+    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #b5654d)';
     $textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
 
     $photo = $props['photo'] ?? null;
@@ -15,7 +14,7 @@
     $bride = $page->bride_name ?? 'Juliet';
 @endphp
 
-<section style="background: {{ $backgroundColor }}; color: {{ $textColor }}; padding: 80px 16px; text-align: center;">
+<section style="color: {{ $textColor }}; padding: var(--section-y, 64px) 16px; text-align: center;">
   <div class="container mx-auto max-w-xl">
     @if($photo)
       <img src="{{ $photo }}" alt="{{ $groom }} & {{ $bride }}"

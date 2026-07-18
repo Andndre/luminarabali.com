@@ -3,8 +3,7 @@
 @php
     $heading = $props['heading'] ?? 'Kisah Kami';
     $stories = $props['stories'] ?? [];
-    $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
-    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #d4af37)';
+    $accentColor = $props['accent_color'] ?? 'var(--color-accent, #b5654d)';
     $textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
 
     $resolvePath = function ($src) {
@@ -15,7 +14,7 @@
     };
 @endphp
 
-<section style="background: {{ $backgroundColor }}; color: {{ $textColor }}; padding: 64px 16px;">
+<section style="color: {{ $textColor }}; padding: var(--section-y, 64px) 16px;">
   <div class="container mx-auto max-w-2xl">
     <h2 class="text-2xl md:text-3xl font-bold mb-10 text-center" style="font-family: var(--font-heading, serif); color: {{ $accentColor }};"
       data-editable="heading">
