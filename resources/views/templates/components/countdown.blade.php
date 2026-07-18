@@ -2,76 +2,57 @@
 
 @php
 $targetDate = $page && $page->event_date ? $page->event_date->toIso8601String() : null;
+$variant = $props['variant'] ?? 'cards';
 $title = $props['title'] ?? 'Counting Down To';
 $paddingTop = $props['padding_top'] ?? 64;
 $paddingBottom = $props['padding_bottom'] ?? 64;
 @endphp
 
-<style>
-  .countdown-section-{{ $section->id }} {
-    padding-top: {{ $paddingTop }}px;
-    padding-bottom: {{ $paddingBottom }}px;
-  }
-
-  /* grid 4 kolom sama lebar: kartu undangan hanya ~430px, jadi min-width tetap +
-     breakpoint viewport (md:) meluber — lebar ikut kontainer, bukan layar. */
-  .countdown-grid-{{ $section->id }} {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: clamp(.25rem, 2cqi, 1rem);
-    max-width: 28rem;
-    margin: 0 auto;
-  }
-
-  .countdown-item-{{ $section->id }} {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .countdown-number-{{ $section->id }} {
-    font-size: var(--step-3xl, 2.25rem);
-    font-weight: 700;
-    color: var(--color-accent, #b5654d);
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .countdown-label-{{ $section->id }} {
-    font-size: var(--step-sm, .8125rem);
-    opacity: .75;
-    margin-top: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-</style>
-
-<section class="countdown-section-{{ $section->id }}">
-  <div class="container mx-auto px-4 text-center">
+<section class="countdown countdown--{{ $variant }}" style="padding: {{ $paddingTop }}px 20px {{ $paddingBottom }}px;">
+  <div class="container mx-auto text-center">
     @if($title)
-      <h2 class="font-bold mb-8" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 1.5rem);">
+      <h2 class="countdown-title" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 1.5rem);">
         {{ $title }}
       </h2>
     @endif
 
     @if($targetDate)
-      <div id="countdown-{{ $section->id }}" class="countdown-grid-{{ $section->id }}">
-        <div class="countdown-item-{{ $section->id }}">
-          <span class="countdown-number-{{ $section->id }}" id="days-{{ $section->id }}">00</span>
-          <span class="countdown-label-{{ $section->id }}">Hari</span>
-        </div>
-        <div class="countdown-item-{{ $section->id }}">
-          <span class="countdown-number-{{ $section->id }}" id="hours-{{ $section->id }}">00</span>
-          <span class="countdown-label-{{ $section->id }}">Jam</span>
-        </div>
-        <div class="countdown-item-{{ $section->id }}">
-          <span class="countdown-number-{{ $section->id }}" id="minutes-{{ $section->id }}">00</span>
-          <span class="countdown-label-{{ $section->id }}">Menit</span>
-        </div>
-        <div class="countdown-item-{{ $section->id }}">
-          <span class="countdown-number-{{ $section->id }}" id="seconds-{{ $section->id }}">00</span>
-          <span class="countdown-label-{{ $section->id }}">Detik</span>
-        </div>
+      <div id="countdown-{{ $section->id }}" class="countdown-grid">
+        @if($variant === 'ring')
+          <div class="countdown-item">
+            <div class="countdown-ring"><span class="countdown-number" id="days-{{ $section->id }}">00</span></div>
+            <span class="countdown-label">Hari</span>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-ring"><span class="countdown-number" id="hours-{{ $section->id }}">00</span></div>
+            <span class="countdown-label">Jam</span>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-ring"><span class="countdown-number" id="minutes-{{ $section->id }}">00</span></div>
+            <span class="countdown-label">Menit</span>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-ring"><span class="countdown-number" id="seconds-{{ $section->id }}">00</span></div>
+            <span class="countdown-label">Detik</span>
+          </div>
+        @else
+          <div class="countdown-item">
+            <span class="countdown-number" id="days-{{ $section->id }}">00</span>
+            <span class="countdown-label">Hari</span>
+          </div>
+          <div class="countdown-item">
+            <span class="countdown-number" id="hours-{{ $section->id }}">00</span>
+            <span class="countdown-label">Jam</span>
+          </div>
+          <div class="countdown-item">
+            <span class="countdown-number" id="minutes-{{ $section->id }}">00</span>
+            <span class="countdown-label">Menit</span>
+          </div>
+          <div class="countdown-item">
+            <span class="countdown-number" id="seconds-{{ $section->id }}">00</span>
+            <span class="countdown-label">Detik</span>
+          </div>
+        @endif
       </div>
     @endif
   </div>

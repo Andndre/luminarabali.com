@@ -181,7 +181,9 @@ class InvitationComponentHardeningTest extends TestCase
         $response = $this->get("/invitation/{$page->slug}");
 
         $response->assertOk();
-        $response->assertSee('var(--color-accent, #b5654d)', false);
+        // Warna diatur lewat kelas varian di invitation.css (bukan style inline), jadi yang
+        // diverifikasi di level respons HTTP adalah kelas token-driven-nya yang terpasang.
+        $response->assertSee('countdown--cards', false);
         $response->assertSee('btn-primary', false);
     }
 
@@ -190,14 +192,14 @@ class InvitationComponentHardeningTest extends TestCase
         $page = $this->publishedPage();
         InvitationSection::create([
             'page_id' => $page->id, 'section_type' => 'countdown', 'order_index' => 0,
-            'props' => ['title' => 'Menuju Hari Bahagia', 'accent_color' => '#123456'], 'is_visible' => true,
+            'props' => ['title' => 'Menuju Hari Bahagia', 'variant' => 'minimal-line', 'accent_color' => '#123456'], 'is_visible' => true,
         ]);
 
         $response = $this->get("/invitation/{$page->slug}");
 
         $response->assertOk();
         $response->assertDontSee('#123456', false);
-        $response->assertSee('var(--color-accent, #b5654d)', false);
+        $response->assertSee('countdown--minimal-line', false);
     }
 
     public function test_rsvp_button_style_block_is_actually_rendered(): void
@@ -211,7 +213,7 @@ class InvitationComponentHardeningTest extends TestCase
         $response = $this->get("/invitation/{$page->slug}");
 
         $response->assertOk();
-        $response->assertSee('.rsvp-button {', false);
+        $response->assertSee('rsvp-button', false);
     }
 
     public function test_rsvp_whatsapp_phone_is_safely_escaped_in_script_context(): void
@@ -248,7 +250,7 @@ class InvitationComponentHardeningTest extends TestCase
 
         $response->assertOk();
         $response->assertDontSee('#123456', false);
-        $response->assertSee('background: var(--color-accent, #b5654d);', false);
+        $response->assertSee('rsvp--elevated', false);
     }
 
     public function test_button_component_ignores_stale_color_props_and_uses_variant_class(): void
@@ -506,5 +508,58 @@ class InvitationComponentHardeningTest extends TestCase
 
             $this->assertFalse($hasColorField, "Expected '{$type}' schema to no longer declare a 'color' field");
         }
+    }
+
+    public function test_countdown_renders_the_requested_variant_class(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'countdown', 'order_index' => 0,
+            'props' => ['variant' => 'ring'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('countdown--ring', false);
+        $response->assertSee('countdown-ring', false);
+    }
+
+    public function test_rsvp_custom_controls_variant_renders_segmented_and_stepper_inputs(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'rsvp', 'order_index' => 0,
+            'props' => ['variant' => 'custom-controls'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('rsvp--custom-controls', false);
+        // Kontrol kehadiran jadi radio bersegmen, bukan <select>, tapi tetap mengirim
+        // name/value yang sama supaya endpoint RSVP tidak perlu berubah.
+        $response->assertSee('name="attendance_status" value="hadir"', false);
+        $response->assertDontSee('<select name="attendance_status"', false);
+        // Jumlah tamu jadi stepper Alpine yang menulis ke input hidden bernama sama.
+        $response->assertSee('name="number_of_guests"', false);
+        $response->assertSee('x-data="{ n: 1 }"', false);
+    }
+
+    public function test_rsvp_underline_variant_uses_borderless_fields(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'rsvp', 'order_index' => 0,
+            'props' => ['variant' => 'underline'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('rsvp--underline', false);
+        // Field & select tetap ada (markup sama seperti varian lain), hanya gayanya beda lewat CSS.
+        $response->assertSee('name="guest_name"', false);
+        $response->assertSee('<select name="attendance_status"', false);
     }
 }
