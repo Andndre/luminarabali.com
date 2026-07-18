@@ -56,4 +56,17 @@ class InvitationVariantTest extends TestCase
         $this->assertStringContainsString('events--bordered-cards', $cards);
         $this->assertStringContainsString('events--divider-list', $list);
     }
+
+    public function test_gallery_variant_uses_layout_fallback(): void
+    {
+        // layout lama tetap dihormati bila variant tak diset
+        $html = $this->get('/invitation/'.$this->pageWith('gallery', ['layout' => 'masonry', 'columns' => 3, 'images' => []])->slug)->getContent();
+        $this->assertStringContainsString('gallery--masonry', $html);
+    }
+
+    public function test_hero_variant_switches_markup(): void
+    {
+        $split = $this->get('/invitation/'.$this->pageWith('hero', ['variant' => 'split', 'title' => 'Hi'])->slug)->getContent();
+        $this->assertStringContainsString('hero--split', $split);
+    }
 }

@@ -1,17 +1,17 @@
 @props(['props' => [], 'section' => null, 'page' => null])
 
 @php
-$layout = $props['layout'] ?? 'grid';
+$layout = $props['variant'] ?? $props['layout'] ?? 'grid';
 $columns = $props['columns'] ?? 3;
 $gap = $props['gap'] ?? 16;
 $lightbox = $props['lightbox'] ?? true;
 $images = $props['images'] ?? [];
 @endphp
 
-<section class="gallery-section py-12" style="background: {{ $props['background_color'] ?? 'var(--color-surface, #ffffff)' }};">
+<section class="gallery-section gallery--{{ $layout }}" style="padding: var(--section-y, 64px) 16px; background: {{ $props['background_color'] ?? 'var(--color-surface, #ffffff)' }};">
     <div class="container mx-auto px-4">
         @if($layout === 'grid')
-            <div class="grid gap-4" style="grid-template-columns: repeat({{ $columns }}, minmax(0, 1fr));">
+            <div class="gallery-grid grid gap-4" style="grid-template-columns: repeat({{ $columns }}, minmax(0, 1fr));">
                 @foreach($images as $image)
                     <div class="gallery-item relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition bg-gray-100" @if($lightbox) data-lightbox="gallery-{{ $section->id ?? 'default' }}" @endif>
                         <img src="{{ $image['url'] ?? '' }}" alt="{{ $image['alt'] ?? '' }}" loading="lazy" class="block w-full h-64 object-cover">

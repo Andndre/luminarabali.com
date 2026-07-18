@@ -29,6 +29,7 @@ $animationFields = [
 
 $components = [
     'cover' => [
+        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['fullscreen', 'split', 'minimal'], 'default' => 'fullscreen'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
         ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Sampul', 'group' => 'content', 'default' => null],
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Buka Undangan'],
@@ -39,6 +40,7 @@ $components = [
     ],
 
     'hero' => [
+        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['fullscreen', 'split', 'minimal'], 'default' => 'fullscreen'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
         ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null],
         ['key' => 'overlay_enabled', 'type' => 'boolean', 'label' => 'Overlay Gelap', 'group' => 'design', 'default' => false],
@@ -127,6 +129,7 @@ $components = [
 
     'gallery' => [
         ['key' => 'images', 'type' => 'image_list', 'label' => 'Foto', 'group' => 'content', 'default' => []],
+        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Galeri', 'group' => 'design', 'options' => ['grid', 'masonry', 'slider'], 'default' => 'grid'],
         ['key' => 'layout', 'type' => 'select', 'label' => 'Layout', 'group' => 'design', 'options' => ['grid', 'masonry', 'slider'], 'default' => 'grid'],
         ['key' => 'columns', 'type' => 'number', 'label' => 'Jumlah Kolom', 'group' => 'design', 'default' => 3],
         ['key' => 'gap', 'type' => 'number', 'label' => 'Jarak Antar Foto', 'group' => 'design', 'default' => 16],

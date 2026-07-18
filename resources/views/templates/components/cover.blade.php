@@ -17,6 +17,7 @@ $bgUrl = $bgValue
 $targetName = request()->query('to');
 $dateText = $eventDate ? \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($eventDate)->translatedFormat('d F Y')) : null;
 $sid = $section->id ?? 'default';
+$variant = $props['variant'] ?? 'fullscreen';
 @endphp
 
 <style>
@@ -37,7 +38,7 @@ $sid = $section->id ?? 'default';
      x-transition:leave="transition ease-in-out duration-1000"
      x-transition:leave-start="opacity-100"
      x-transition:leave-end="opacity-0 -translate-y-6"
-     class="invite-gate cover-visual-{{ $sid }}">
+     class="invite-gate cover--{{ $variant }} cover-visual-{{ $sid }}">
   <div class="invite-gate-content cover-text-{{ $sid }}">
     <p class="invite-gate-kicker" data-editable="title">{{ $title }}</p>
     <h1 class="invite-gate-names">{{ $groomName }} &amp; {{ $brideName }}</h1>
@@ -56,7 +57,7 @@ $sid = $section->id ?? 'default';
 </div>
 
 {{-- 2. Layar sticky di dalam card (tertutup konten saat scroll) --}}
-<div class="invite-cover-sticky cover-visual-{{ $sid }}">
+<div class="invite-cover-sticky cover--{{ $variant }} cover-visual-{{ $sid }}">
   <div class="invite-cover-sticky-content cover-text-{{ $sid }}">
     <p class="invite-gate-kicker">{{ $title }}</p>
     <h2 class="invite-gate-names">{{ $groomName }} &amp; {{ $brideName }}</h2>

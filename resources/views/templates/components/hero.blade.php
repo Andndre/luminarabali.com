@@ -21,6 +21,7 @@ $textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
 $alignment = $props['alignment'] ?? 'center';
 $paddingTop = $props['padding_top'] ?? 120;
 $paddingBottom = $props['padding_bottom'] ?? 120;
+$variant = $props['variant'] ?? 'fullscreen';
 @endphp
 
 <style>
@@ -68,7 +69,7 @@ $paddingBottom = $props['padding_bottom'] ?? 120;
   }
 </style>
 
-<section class="hero-section-{{ $section->id ?? 'default' }}">
+<section class="hero-section-{{ $section->id ?? 'default' }} hero--{{ $variant }}">
   <div class="hero-content text-{{ $alignment }} px-4">
     @if($title)
       <p class="hero-title text-lg md:text-xl mb-4" data-editable="title">{{ $title }}</p>

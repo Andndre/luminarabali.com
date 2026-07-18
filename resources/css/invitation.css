@@ -144,3 +144,19 @@
 .events--bordered-cards .event-item { border: 1px solid var(--color-accent, #b5654d); border-radius: var(--radius, 12px); padding: 1.5rem; }
 .events--divider-list .event-item { border-top: 1px solid color-mix(in srgb, var(--color-muted, #7a6f66) 40%, transparent); padding: 1.25rem 0; }
 .events--divider-list .event-item:first-child { border-top: 0; }
+
+/* --- gallery variants --- */
+.gallery--grid .gallery-grid { display: grid; gap: 1rem; }
+/* masonry & slider: markup existing (columns/flex) dipertahankan inline, hanya wrapper diberi kelas gallery--{{ layout }} */
+
+/* --- hero variants --- */
+.hero--split { display: grid; }
+@container (min-width: 24rem) { .hero--split { grid-template-columns: 1fr 1fr; align-items: center; } }
+.hero--minimal { text-align: center; }
+.hero--minimal .hero-content { max-width: 32rem; margin: 0 auto; }
+
+/* --- cover variants (tata letak teks di dalam gate/sticky; mekanisme gate tidak berubah) --- */
+.cover--split .invite-gate-content,
+.cover--split .invite-cover-sticky-content { text-align: left; margin-left: 0; margin-right: auto; }
+.cover--minimal .invite-gate-kicker { letter-spacing: .2em; }
+.cover--minimal .invite-gate-names { font-size: clamp(2rem, 6vw, 3.25rem); }
