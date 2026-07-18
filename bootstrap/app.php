@@ -15,6 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/midtrans-callback'
         ]);
+        // Studio pakai null (bukan '') untuk "reset ke default" (lihat komentar di
+        // TemplateEditorController@updateSection). Konversi global '' -> null bikin
+        // teks yang sengaja dikosongkan ikut ke-reset alih-alih tersimpan kosong.
+        $middleware->convertEmptyStringsToNull(except: [
+            fn ($request) => $request->is('admin/api/*'),
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -146,6 +146,29 @@
 .couple--side-alternating .couple-list { display: flex; flex-direction: column; gap: 1.5rem; }
 .couple-row { display: flex; align-items: center; gap: 1rem; text-align: left; }
 .couple-row.is-rev { flex-direction: row-reverse; text-align: right; }
+
+.couple--portrait-overlay .couple-inner { max-width: none; }
+.couple-portraits { display: flex; flex-direction: column; margin: 0 -20px; }
+.couple-portrait { position: relative; aspect-ratio: 3/4; overflow: clip; }
+.couple-portrait-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.couple-portrait-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.78) 0%, rgba(0,0,0,.2) 55%, rgba(0,0,0,0) 78%); }
+.couple-portrait-text { position: absolute; inset: auto 0 0 0; z-index: 1; padding: 1.75rem 1.5rem; color: var(--color-on_dark, #f5f1e8); text-align: left; }
+.couple-portrait--center .couple-portrait-text { text-align: center; }
+.couple-portrait--right .couple-portrait-text { text-align: right; }
+.couple-portrait-eyebrow { font-style: italic; font-size: var(--step-sm, .8125rem); opacity: .9; margin-bottom: .35rem; }
+.couple-portrait-name { font-size: var(--step-2xl, 1.875rem); font-weight: 700; margin-bottom: .4rem; }
+.couple-portrait-sub { font-size: var(--step-sm, .8125rem); opacity: .85; margin-bottom: .9rem; }
+.couple-portrait-ig { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1.1rem; border: 1px solid rgba(255,255,255,.7); border-radius: 9999px; font-size: var(--step-sm, .8125rem); color: inherit; }
+
+/* --- scroll reveal (Lapis 2 util) --- */
+[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+[data-reveal].is-in { opacity: 1; transform: translateY(0); }
+[data-reveal]:nth-child(2) { transition-delay: .08s; }
+[data-reveal]:nth-child(3) { transition-delay: .16s; }
+[data-reveal]:nth-child(4) { transition-delay: .24s; }
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+}
 .couple-photo-rect { width: 40%; aspect-ratio: 3/4; object-fit: cover; border-radius: var(--radius, 12px); flex: 0 0 auto; }
 
 /* --- event_details --- */

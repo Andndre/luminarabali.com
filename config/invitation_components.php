@@ -167,7 +167,7 @@ $components = [
     ],
 
     'couple' => [
-        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['centered-stacked', 'side-alternating'], 'default' => 'centered-stacked'],
+        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['centered-stacked', 'side-alternating', 'portrait-overlay'], 'default' => 'centered-stacked'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Mempelai'],
         ['key' => 'groom_photo', 'type' => 'image', 'label' => 'Foto Mempelai Pria', 'group' => 'content', 'default' => null],
         ['key' => 'bride_photo', 'type' => 'image', 'label' => 'Foto Mempelai Wanita', 'group' => 'content', 'default' => null],
@@ -175,6 +175,10 @@ $components = [
         ['key' => 'bride_parents', 'type' => 'text', 'label' => 'Orang Tua Mempelai Wanita', 'group' => 'content', 'default' => 'Putri dari Bapak … & Ibu …'],
         ['key' => 'groom_instagram', 'type' => 'url', 'label' => 'Instagram Mempelai Pria', 'group' => 'design', 'default' => null],
         ['key' => 'bride_instagram', 'type' => 'url', 'label' => 'Instagram Mempelai Wanita', 'group' => 'design', 'default' => null],
+        ['key' => 'groom_text_align', 'type' => 'select', 'label' => 'Perataan Teks Mempelai Pria (varian Portrait Overlay)', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'left'],
+        ['key' => 'bride_text_align', 'type' => 'select', 'label' => 'Perataan Teks Mempelai Wanita (varian Portrait Overlay)', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'right'],
+        ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 64],
+        ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 64],
     ],
 
     'event_details' => [

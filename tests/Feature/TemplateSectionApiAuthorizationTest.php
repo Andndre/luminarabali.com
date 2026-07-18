@@ -93,4 +93,24 @@ class TemplateSectionApiAuthorizationTest extends TestCase
         $this->assertEquals('center', $fresh->props['align']);
         $this->assertEquals('hi', $fresh->props['content']);
     }
+
+    public function test_clearing_a_text_prop_persists_empty_string_instead_of_reverting_to_default(): void
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $template = $this->template($admin);
+        $section = InvitationSection::create([
+            'template_id' => $template->id, 'section_type' => 'couple', 'order_index' => 0,
+            'props' => ['heading' => 'Mempelai'], 'is_visible' => true,
+        ]);
+
+        $this->actingAs($admin);
+
+        $this->putJson("/admin/api/templates/sections/{$section->id}", [
+            'props' => ['heading' => ''],
+        ])->assertOk();
+
+        $fresh = $section->fresh();
+        $this->assertArrayHasKey('heading', $fresh->props);
+        $this->assertSame('', $fresh->props['heading']);
+    }
 }

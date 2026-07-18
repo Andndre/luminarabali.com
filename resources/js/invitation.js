@@ -36,6 +36,10 @@ Alpine.start();
                 var scale = dir === 'in' ? (1 + (max - 1) * p) : (max - (max - 1) * p);
                 img.style.setProperty('--sz-scale', scale.toFixed(3));
             });
+
+            document.querySelectorAll('[data-reveal]:not(.is-in)').forEach(function (el) {
+                if (el.getBoundingClientRect().top < vh * 0.92) el.classList.add('is-in');
+            });
         }
 
         var ticking = false;

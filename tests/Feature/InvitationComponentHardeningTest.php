@@ -562,4 +562,54 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertSee('name="guest_name"', false);
         $response->assertSee('<select name="attendance_status"', false);
     }
+
+    public function test_couple_portrait_overlay_variant_aligns_groom_left_and_bride_right(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'couple', 'order_index' => 0,
+            'props' => ['variant' => 'portrait-overlay'], 'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('couple--portrait-overlay', false);
+        $response->assertSee('couple-portrait--left', false);
+        $response->assertSee('couple-portrait--right', false);
+        $response->assertSee('data-reveal', false);
+    }
+
+    public function test_couple_portrait_overlay_variant_honors_per_person_text_align_override(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'couple', 'order_index' => 0,
+            'props' => ['variant' => 'portrait-overlay', 'groom_text_align' => 'center', 'bride_text_align' => 'center'],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('couple-portrait--center', false);
+        $response->assertDontSee('couple-portrait--left', false);
+        $response->assertDontSee('couple-portrait--right', false);
+    }
+
+    public function test_couple_heading_and_padding_are_customizable(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'couple', 'order_index' => 0,
+            'props' => ['variant' => 'portrait-overlay', 'heading' => '', 'padding_top' => 0, 'padding_bottom' => 0],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertDontSee('couple-heading', false);
+        $response->assertSee('padding: 0px 20px 0px;', false);
+    }
 }
