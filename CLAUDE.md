@@ -53,6 +53,10 @@ Invitation rendering for public guests is server-side Blade, driven by a structu
 
 The Studio editor writes to `InvitationTemplate` / `InvitationSection` (JSON `props` column) via the `admin/api` endpoints below; the renderer reads the same rows. The legacy path — one big HTML blob per template in `html_content`/`cover_content` columns — has been removed entirely (columns dropped, `editor-native.blade.php` deleted).
 
+### Sistem Komponen: Token, Treatment, Varian (SP1)
+
+Variasi antar template dibangun tiga lapis: (1) **token tema** di `invitation_templates.theme` (`colors`+`fonts`+`scales`) → CSS variable via `InvitationRenderer::buildStyleBlock()` (`--color-*`, `--font-*`, `--step-*`, `--radius`, `--section-y`, `--shadow`); (2) **treatment latar per-section** (`treatment`: surface/contrast/dark/image + `bg_image`/`bg_overlay`/`bg_effect`) dirender di `templates/_section-shell.blade.php` via layer `.sec-bg` — komponen sendiri transparan; (3) **varian layout** (`variant`) per komponen unggulan (cover/couple/event_details/gallery/hero). Efek `scroll-zoom` di `resources/js/invitation.js` (relatif `.invite-card`); semua efek hormati `prefers-reduced-motion`.
+
 ### Public Invitation Shell
 
 The rendered invitation is wrapped by `resources/views/components/invitation/layout.blade.php`:

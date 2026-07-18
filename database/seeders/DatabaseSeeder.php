@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             PhotoboothPackageSeeder::class,
             VisualPackageSeeder::class,
+            FlagshipTemplateSeeder::class,
         ]);
     }
 }
