@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             PhotoboothPackageSeeder::class,
             VisualPackageSeeder::class,
             FlagshipTemplateSeeder::class,
+            // Harus setelah FlagshipTemplateSeeder — page demo diinstansiasi dari templatenya.
+            DemoInvitationPageSeeder::class,
         ]);
     }
 }
