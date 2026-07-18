@@ -20,9 +20,29 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
     padding-bottom: {{ $paddingBottom }}px;
   }
 
+  /* Field digayakan token, bukan utility: ring kuning bawaan tidak nyambung dengan
+     tema mana pun, dan radius harus ikut --radius seperti komponen lain. */
+  .rsvp-section-{{ $section->id }} .rsvp-field {
+    width: 100%;
+    padding: .7rem .9rem;
+    font: inherit;
+    color: var(--color-text, #2b2b2b);
+    background: var(--color-surface, #ffffff);
+    border: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 18%, transparent);
+    border-radius: var(--radius, 12px);
+    transition: border-color .15s, box-shadow .15s;
+  }
+
+  .rsvp-section-{{ $section->id }} .rsvp-field:focus {
+    outline: none;
+    border-color: {{ $buttonColor }};
+    box-shadow: 0 0 0 3px color-mix(in srgb, {{ $buttonColor }} 25%, transparent);
+  }
+
   .rsvp-section-{{ $section->id }} .rsvp-button {
     background: {{ $buttonColor }};
-    color: #ffffff;
+    color: var(--color-surface, #ffffff);
+    border-radius: var(--radius, 12px);
   }
 
   .rsvp-section-{{ $section->id }} .rsvp-button:hover {
@@ -46,25 +66,25 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
         <div>
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Nama Lengkap *</label>
           <input type="text" name="guest_name" required
-                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                 class="rsvp-field">
         </div>
 
         <div>
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">No. WhatsApp</label>
           <input type="tel" name="guest_phone"
-                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                 class="rsvp-field">
         </div>
 
         <div>
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Email</label>
           <input type="email" name="guest_email"
-                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                 class="rsvp-field">
         </div>
 
         <div>
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Konfirmasi Kehadiran *</label>
           <select name="attendance_status" required
-                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                  class="rsvp-field">
             <option value="">Pilih Status</option>
             <option value="hadir">Hadir</option>
             <option value="tidak_hadir">Tidak Hadir</option>
@@ -75,16 +95,16 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
         <div>
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Jumlah Tamu *</label>
           <input type="number" name="number_of_guests" min="1" value="1" required
-                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                 class="rsvp-field">
         </div>
 
         <div>
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text, #2b2b2b);">Pesan</label>
           <textarea name="message" rows="3"
-                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"></textarea>
+                    class="rsvp-field"></textarea>
         </div>
 
-        <button type="submit" class="rsvp-button w-full py-3 rounded-lg font-semibold transition">
+        <button type="submit" class="rsvp-button w-full py-3 font-semibold transition">
           {{ $buttonText }}
         </button>
       </form>

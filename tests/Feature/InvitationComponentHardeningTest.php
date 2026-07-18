@@ -150,9 +150,10 @@ class InvitationComponentHardeningTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('var(--color-accent, #b5654d)', false);
-        $response->assertSee('var(--color-text, #212529)', false);
         $response->assertSee('var(--color-surface, #ffffff)', false);
-        $response->assertSee('var(--color-primary, #212529)', false);
+        // Judul & label countdown memakai `inherit`, bukan token warna sendiri, supaya
+        // treatment dark/image yang menyetel color di .sec-treat tetap terbaca.
+        $response->assertSee('color: inherit', false);
     }
 
     public function test_explicit_section_color_prop_wins_over_theme_token(): void

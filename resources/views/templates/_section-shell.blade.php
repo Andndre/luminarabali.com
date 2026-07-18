@@ -27,10 +27,14 @@
     // dikecualikan dari treatment/bg_effect sepenuhnya.
     $ownsVisual = $section->section_type === 'cover';
 
-    $treatment = $ownsVisual ? 'surface' : ($props['treatment'] ?? 'surface');
     $bgImage = $ownsVisual ? null : $resolveOrnament($props['bg_image'] ?? null); // reuse resolver path
+    $treatment = $ownsVisual ? 'surface' : ($props['treatment'] ?? 'surface');
+    // image tanpa foto = teks terang di atas latar terang (tak terbaca) → jatuhkan ke surface.
+    if ($treatment === 'image' && ! $bgImage) {
+        $treatment = 'surface';
+    }
     $bgOverlay = max(0, min(100, (int) ($props['bg_overlay'] ?? 45)));
-    $bgEffect = $ownsVisual ? 'none' : ($props['bg_effect'] ?? 'none');
+    $bgEffect = $ownsVisual || $treatment !== 'image' ? 'none' : ($props['bg_effect'] ?? 'none');
     $bgStrength = max(100, min(200, (int) ($props['bg_effect_strength'] ?? 130)));
     $hasTreatment = $treatment !== 'surface' || $bgImage;
 
@@ -61,7 +65,7 @@
         ])
     </div>
 @else
-    <div class="sec-treat sec-treat--{{ $treatment }}{{ $bgEffect === 'pinned' ? ' sec-treat--pinned' : '' }}" style="position: relative; overflow: hidden" data-section-id="{{ $section->id }}"
+    <div class="sec-treat sec-treat--{{ $treatment }}{{ $bgEffect === 'pinned' ? ' sec-treat--pinned' : '' }}" data-section-id="{{ $section->id }}"
         @if ($animation !== 'none') data-animate="{{ $animation }}" data-animate-delay="{{ $animationDelay }}" @endif>
         @if ($hasTreatment && $treatment === 'image' && $bgImage)
             <div class="sec-bg" aria-hidden="true"

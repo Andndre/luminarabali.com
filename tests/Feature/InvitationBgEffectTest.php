@@ -92,6 +92,38 @@ class InvitationBgEffectTest extends TestCase
         $this->assertStringNotContainsString('&#039;', $html);
     }
 
+    public function test_pinned_section_does_not_use_inline_overflow_hidden(): void
+    {
+        // Regresi: overflow:hidden inline menjadikan section scroll container terdekat,
+        // sehingga sticky milik efek pinned menempel ke elemen yang tak pernah men-scroll.
+        $html = $this->get('/invitation/'.$this->pageWithEffect('pinned')->slug)->getContent();
+
+        $this->assertStringContainsString('sec-treat--pinned', $html);
+        $this->assertStringNotContainsString('overflow: hidden', $html);
+    }
+
+    public function test_image_treatment_without_photo_falls_back_to_surface(): void
+    {
+        // Tanpa foto, .sec-treat--image hanya menyetel teks terang di atas latar terang.
+        $user = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'T', 'slug' => 't-'.uniqid(), 'status' => 'published', 'created_by' => $user->id,
+        ]);
+        $page = InvitationPage::create([
+            'title' => 'P', 'slug' => 'p-'.uniqid(), 'published_status' => 'published',
+            'template_id' => $template->id, 'created_by' => $user->id,
+            'groom_name' => 'R', 'bride_name' => 'J', 'event_date' => now()->addMonth(),
+        ]);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'quote', 'order_index' => 1,
+            'is_visible' => true, 'props' => ['content' => 'Halo', 'treatment' => 'image'],
+        ]);
+
+        $html = $this->get('/invitation/'.$page->slug)->getContent();
+
+        $this->assertStringNotContainsString('sec-treat--image', $html);
+    }
+
     public function test_none_effect_has_no_effect_attribute(): void
     {
         $html = $this->get('/invitation/'.$this->pageWithEffect('none')->slug)->getContent();

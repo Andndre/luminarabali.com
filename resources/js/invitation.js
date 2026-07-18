@@ -3,17 +3,28 @@ import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 Alpine.start();
 
-// Scroll-linked zoom untuk .sec-bg[data-effect^="scroll-zoom"] — relatif kartu .invite-card.
+// Efek latar scroll-linked (zoom & pinned) — semua relatif kartu .invite-card,
+// karena kartu itulah scroll container-nya, bukan window.
 (function () {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     function initScrollZoom() {
-        var card = document.querySelector('.invite-card');
-        var layers = Array.prototype.slice.call(document.querySelectorAll('.sec-bg[data-effect^="scroll-zoom"]'));
-        if (!card || !layers.length) return;
-
         function update() {
+            // Query ulang tiap frame: Studio menukar fragment section, jadi daftar yang
+            // di-cache saat load menunjuk ke node yang sudah dibuang (efek diam).
+            var card = document.querySelector('.invite-card');
+            if (!card) return;
             var vh = card.clientHeight || window.innerHeight;
+            var cardTop = card.getBoundingClientRect().top;
+
+            // pinned: gambar dipaksa menempati kotak layar kartu, apa pun posisi section-nya.
+            document.querySelectorAll('.sec-treat--pinned .sec-bg-img').forEach(function (img) {
+                var offset = img.parentElement.getBoundingClientRect().top - cardTop;
+                img.style.setProperty('--pin-h', vh + 'px');
+                img.style.setProperty('--pin-y', (-offset).toFixed(1) + 'px');
+            });
+
+            var layers = document.querySelectorAll('.sec-bg[data-effect^="scroll-zoom"]');
             layers.forEach(function (layer) {
                 var img = layer.querySelector('.sec-bg-img');
                 if (!img) return;
@@ -31,7 +42,9 @@ Alpine.start();
         function onScroll() {
             if (!ticking) { ticking = true; requestAnimationFrame(function () { update(); ticking = false; }); }
         }
-        card.addEventListener('scroll', onScroll, { passive: true });
+        // Capture di document: scroll tidak menggelembung, dan .invite-card bisa diganti
+        // oleh re-render Studio — listener yang dipasang ke node lama ikut hilang.
+        document.addEventListener('scroll', onScroll, { passive: true, capture: true });
         window.addEventListener('resize', onScroll);
         update();
     }

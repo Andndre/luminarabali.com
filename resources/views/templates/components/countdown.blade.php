@@ -3,8 +3,9 @@
 @php
 $targetDate = $page && $page->event_date ? $page->event_date->toIso8601String() : null;
 $title = $props['title'] ?? 'Counting Down To';
-$textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
-$titleColor = $props['title_color'] ?? 'var(--color-primary, #212529)';
+// inherit supaya treatment dark/image (yang menyetel color di .sec-treat) tetap terbaca.
+$textColor = $props['text_color'] ?? 'inherit';
+$titleColor = $props['title_color'] ?? 'inherit';
 $accentColor = $props['accent_color'] ?? 'var(--color-accent, #b5654d)';
 $paddingTop = $props['padding_top'] ?? 64;
 $paddingBottom = $props['padding_bottom'] ?? 64;
@@ -16,39 +17,50 @@ $paddingBottom = $props['padding_bottom'] ?? 64;
     padding-bottom: {{ $paddingBottom }}px;
   }
 
+  /* grid 4 kolom sama lebar: kartu undangan hanya ~430px, jadi min-width tetap +
+     breakpoint viewport (md:) meluber — lebar ikut kontainer, bukan layar. */
+  .countdown-grid-{{ $section->id }} {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(.25rem, 2cqi, 1rem);
+    max-width: 28rem;
+    margin: 0 auto;
+  }
+
   .countdown-item-{{ $section->id }} {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 80px;
   }
 
   .countdown-number-{{ $section->id }} {
-    font-size: 2.5rem;
+    font-size: var(--step-3xl, 2.25rem);
     font-weight: 700;
     color: {{ $accentColor }};
     line-height: 1;
+    font-variant-numeric: tabular-nums;
   }
 
   .countdown-label-{{ $section->id }} {
-    font-size: 0.875rem;
+    font-size: var(--step-sm, .8125rem);
     color: {{ $textColor }};
+    opacity: .75;
     margin-top: 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
   }
 </style>
 
 <section class="countdown-section-{{ $section->id }}">
   <div class="container mx-auto px-4 text-center">
     @if($title)
-      <h2 class="text-2xl md:text-3xl font-bold mb-8" style="font-family: var(--font-heading, serif); color: {{ $titleColor }};">
+      <h2 class="font-bold mb-8" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 1.5rem); color: {{ $titleColor }};">
         {{ $title }}
       </h2>
     @endif
 
     @if($targetDate)
-      <div id="countdown-{{ $section->id }}" class="flex justify-center gap-6 md:gap-12">
+      <div id="countdown-{{ $section->id }}" class="countdown-grid-{{ $section->id }}">
         <div class="countdown-item-{{ $section->id }}">
           <span class="countdown-number-{{ $section->id }}" id="days-{{ $section->id }}">00</span>
           <span class="countdown-label-{{ $section->id }}">Hari</span>

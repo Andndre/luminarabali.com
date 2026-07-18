@@ -92,12 +92,15 @@
 @keyframes invite-spin { to { transform: rotate(360deg); } }
 
 /* --- Section treatment (Lapis 2) --- */
-.sec-treat { position: relative; }
+/* overflow:clip, BUKAN hidden: hidden menjadikan section scroll container terdekat,
+   sehingga position:sticky di dalamnya (efek pinned) menempel ke section yang tidak
+   pernah men-scroll → efek mati. clip mengklip tanpa membuat scroll container. */
+.sec-treat { position: relative; overflow: clip; }
 .sec-treat--contrast { background: var(--color-surface_alt, #f3ece1); }
 .sec-treat--dark { background: var(--color-ink, #20302a); color: var(--color-on_dark, #f5f1e8); }
 .sec-treat--dark :is(h1,h2,h3,h4,h5,h6) { color: inherit; }
 
-.sec-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.sec-bg { position: absolute; inset: 0; z-index: 0; overflow: clip; }
 .sec-bg-img { position: absolute; inset: 0; background-size: cover; background-position: center; }
 .sec-bg-overlay { position: absolute; inset: 0; background: #14201c; }
 .sec-treat--image { color: var(--color-on_dark, #f5f1e8); }
@@ -106,8 +109,19 @@
 /* --- bg_effect (Lapis 2) --- */
 .sec-bg-img { will-change: transform; transform-origin: center center; }
 
-/* pinned: layer latar diam saat konten meluncur (relatif kartu scroll) */
-.sec-treat--pinned .sec-bg { position: sticky; top: 0; height: 100dvh; }
+/* pinned: yang sticky adalah GAMBARNYA, bukan .sec-bg. Membuat .sec-bg sticky
+   mengeluarkannya dari absolute → masuk alur normal, memakan 100dvh, dan mendorong
+   konten section ke bawah (regresi: latar tampil full-size menimpa konten). */
+/* Bukan position:sticky — sticky hanya bergeser dalam batas induknya, jadi untuk section
+   yang lebih pendek dari gambar ia diam total (hanya terpotong, terlihat seperti "ke-zoom").
+   JS menyetel --pin-h (= tinggi kartu) dan --pin-y (= -offset section terhadap kartu),
+   sehingga gambar selalu menempati kotak layar: efek background-attachment:fixed.
+   Tanpa JS / reduced-motion: height 100% + translate 0 = latar biasa. */
+.sec-treat--pinned .sec-bg-img {
+  bottom: auto;
+  height: var(--pin-h, 100%);
+  transform: translateY(var(--pin-y, 0px));
+}
 .sec-treat--pinned > :not(.sec-bg) { position: relative; z-index: 1; }
 
 /* kenburns */
