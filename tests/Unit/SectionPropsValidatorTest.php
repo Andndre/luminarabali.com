@@ -119,4 +119,16 @@ class SectionPropsValidatorTest extends TestCase
         $this->assertSame('+62812345678', $result1['whatsapp_phone']);
         $this->assertSame('0812-3456-789', $result2['whatsapp_phone']);
     }
+
+    public function test_variant_field_value_is_validated_against_options(): void
+    {
+        $validator = new \App\Services\SectionPropsValidator();
+
+        // valid
+        $validator->validate('couple', ['variant' => 'portrait-overlay']);
+
+        // invalid → ValidationException
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $validator->validate('couple', ['variant' => 'tidak-ada']);
+    }
 }

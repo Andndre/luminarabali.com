@@ -50,6 +50,7 @@ class SectionPropsValidator
             'number' => $this->validateNumber($errorKey, $value, $errors),
             'boolean' => $this->validateBoolean($errorKey, $value, $errors),
             'select' => $this->validateSelect($errorKey, $value, $field['options'] ?? [], $errors),
+            'variant' => $this->validateSelect($errorKey, $value, $field['options'] ?? [], $errors),
             'url' => $this->validateUrl($errorKey, $value, $errors),
             'text' => str_ends_with($key, '_phone')
                 ? $this->validatePhone($errorKey, $value, $errors)

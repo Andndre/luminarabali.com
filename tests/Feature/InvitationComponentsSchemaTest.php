@@ -98,4 +98,23 @@ class InvitationComponentsSchemaTest extends TestCase
                 "couple.{$key} label tak boleh lagi pakai hack '(varian …)'.");
         }
     }
+
+    public function test_layout_variant_fields_use_the_variant_field_type(): void
+    {
+        $layoutTypes = ['cover', 'hero', 'couple', 'countdown', 'gallery', 'rsvp', 'event_details'];
+        foreach ($layoutTypes as $type) {
+            $field = collect(config("invitation_components.{$type}"))->firstWhere('key', 'variant');
+            $this->assertNotNull($field, "{$type} tak punya field variant.");
+            $this->assertSame('variant', $field['type'] ?? null,
+                "{$type}.variant harus type 'variant' (selektor layout), bukan '{$field['type']}'.");
+            $this->assertNotEmpty($field['options'] ?? [], "{$type}.variant wajib punya options.");
+        }
+    }
+
+    public function test_button_variant_stays_a_plain_select_not_a_layout_variant(): void
+    {
+        $field = collect(config('invitation_components.button'))->firstWhere('key', 'variant');
+        $this->assertSame('select', $field['type'] ?? null,
+            'button.variant = gaya tombol, harus tetap type select (bukan picker layout).');
+    }
 }

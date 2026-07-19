@@ -27,7 +27,7 @@ $animationFields = [
 
 $components = [
     'cover' => [
-        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['fullscreen', 'split', 'minimal'], 'default' => 'fullscreen'],
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['fullscreen', 'split', 'minimal'], 'default' => 'fullscreen'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
         ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Sampul', 'group' => 'content', 'default' => null],
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Buka Undangan'],
@@ -35,7 +35,7 @@ $components = [
     ],
 
     'hero' => [
-        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['fullscreen', 'split', 'minimal'], 'default' => 'fullscreen'],
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['fullscreen', 'split', 'minimal'], 'default' => 'fullscreen'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
         ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null],
         ['key' => 'overlay_enabled', 'type' => 'boolean', 'label' => 'Overlay Gelap', 'group' => 'design', 'default' => false],
@@ -104,14 +104,14 @@ $components = [
     ],
 
     'countdown' => [
-        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['cards', 'minimal-line', 'ring'], 'default' => 'cards'],
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['cards', 'minimal-line', 'ring'], 'default' => 'cards'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Counting Down To'],
         ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 64],
         ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 64],
     ],
 
     'gallery' => [
-        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Galeri', 'group' => 'design', 'options' => ['grid', 'masonry', 'slider'], 'default' => 'grid'],
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Galeri', 'group' => 'design', 'options' => ['grid', 'masonry', 'slider'], 'default' => 'grid'],
         ['key' => 'images', 'type' => 'image_list', 'label' => 'Foto', 'group' => 'content', 'default' => []],
         ['key' => 'layout', 'type' => 'select', 'label' => 'Layout', 'group' => 'design', 'options' => ['grid', 'masonry', 'slider'], 'default' => 'grid'],
         ['key' => 'columns', 'type' => 'number', 'label' => 'Jumlah Kolom', 'group' => 'design', 'default' => 3],
@@ -138,7 +138,7 @@ $components = [
     ],
 
     'rsvp' => [
-        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['elevated', 'custom-controls', 'underline'], 'default' => 'elevated'],
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['elevated', 'custom-controls', 'underline'], 'default' => 'elevated'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'RSVP'],
         ['key' => 'subtitle', 'type' => 'text', 'label' => 'Subjudul', 'group' => 'content', 'default' => 'Please confirm your attendance'],
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Kirim Konfirmasi'],
@@ -162,7 +162,7 @@ $components = [
     ],
 
     'couple' => [
-        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['centered-stacked', 'side-alternating', 'portrait-overlay'], 'default' => 'centered-stacked'],
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['centered-stacked', 'side-alternating', 'portrait-overlay'], 'default' => 'centered-stacked'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Mempelai'],
         ['key' => 'groom_photo', 'type' => 'image', 'label' => 'Foto Mempelai Pria', 'group' => 'content', 'default' => null],
         ['key' => 'bride_photo', 'type' => 'image', 'label' => 'Foto Mempelai Wanita', 'group' => 'content', 'default' => null],
@@ -177,7 +177,7 @@ $components = [
     ],
 
     'event_details' => [
-        ['key' => 'variant', 'type' => 'select', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['bordered-cards', 'divider-list'], 'default' => 'bordered-cards'],
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['bordered-cards', 'divider-list'], 'default' => 'bordered-cards'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Rangkaian Acara'],
         ['key' => 'events', 'type' => 'repeater', 'label' => 'Acara', 'group' => 'content', 'fields' => [
             ['key' => 'name', 'type' => 'text', 'label' => 'Nama Acara', 'default' => 'Acara'],
