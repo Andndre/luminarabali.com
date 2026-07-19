@@ -56,12 +56,18 @@
                 <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Warna</h2>
                 <div class="grid grid-cols-2 gap-3">
                     <template x-for="key in Object.keys(theme.colors)" :key="key">
-                        <label class="block">
-                            <span class="text-xs text-gray-600 capitalize" x-text="key"></span>
-                            <input type="color" :value="theme.colors[key]"
-                                @input="setColor(key, $event.target.value)"
-                                class="mt-1 w-full h-9 border rounded cursor-pointer">
-                        </label>
+                        <div>
+                            <span class="text-xs text-gray-600 capitalize" x-text="key.replace('_', ' ')"></span>
+                            <div class="mt-1 flex items-center gap-1.5 border rounded-lg px-1.5 py-1">
+                                <input type="color" :value="theme.colors[key]"
+                                    @input="setColor(key, $event.target.value)"
+                                    class="h-7 w-7 shrink-0 rounded cursor-pointer border-0 bg-transparent p-0"
+                                    title="Pilih warna">
+                                <input type="text" class="theme-hex-input w-full text-xs font-mono uppercase border-0 focus:ring-0 p-0"
+                                    maxlength="9" :value="theme.colors[key]"
+                                    @change="(() => { const h = normalizeHex($event.target.value); if (h) setColor(key, h); else $event.target.value = theme.colors[key]; })()">
+                            </div>
+                        </div>
                     </template>
                 </div>
             </section>
@@ -844,6 +850,12 @@ function studioApp() {
             this.$refs.preview.contentWindow?.document?.documentElement
                 ?.style.setProperty(`--color-${key}`, value);
             this.queueThemeSave();
+        },
+
+        normalizeHex(v) {
+            let s = String(v ?? '').trim();
+            if (s && s[0] !== '#') s = '#' + s;
+            return /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(s) ? s : null;
         },
 
         setFont(key, value) {

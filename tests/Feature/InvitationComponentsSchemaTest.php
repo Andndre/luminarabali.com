@@ -143,4 +143,12 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertStringContainsString('LuminaraStudio.domToPng', $blade, 'Capture tak memakai lib bundel.');
         $this->assertStringContainsString('/variant-thumbnail', $blade, 'Capture tak memanggil endpoint thumbnail.');
     }
+
+    public function test_theme_panel_uses_custom_hex_color_control(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $this->assertStringContainsString('normalizeHex', $blade, 'Helper normalizeHex belum ada.');
+        // Panel Tema warna harus punya input teks hex (maxlength 9), bukan hanya native color.
+        $this->assertStringContainsString('theme-hex-input', $blade, 'Kontrol hex kustom Panel Tema belum ada.');
+    }
 }
