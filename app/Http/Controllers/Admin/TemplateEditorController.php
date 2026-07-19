@@ -506,6 +506,7 @@ class TemplateEditorController extends Controller
             'section_type' => $section->section_type,
             'order_index' => $section->order_index,
             'props' => $section->props ?? [],
+            'variant_thumbnails' => $section->variant_thumbnails ?? [],
             'custom_css' => $section->custom_css,
             'is_visible' => (bool) $section->is_visible,
         ];

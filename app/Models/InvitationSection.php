@@ -13,12 +13,14 @@ class InvitationSection extends Model
         'section_type',
         'order_index',
         'props',
+        'variant_thumbnails',
         'custom_css',
         'is_visible'
     ];
 
     protected $casts = [
         'props' => 'array',
+        'variant_thumbnails' => 'array',
         'is_visible' => 'boolean'
     ];
 
