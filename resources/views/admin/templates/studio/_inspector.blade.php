@@ -205,32 +205,41 @@
                             </div>
                         </template>
 
-                        {{-- ornament: grid thumbnail dari media library (collection=ornament) --}}
+                        {{-- ornament: tombol buka modal pustaka + kontrol warna svg --}}
                         <template x-if="field.type === 'ornament'">
                             <div class="space-y-2">
-                                <img x-show="val(field)" :src="mediaUrl(val(field))"
-                                    class="w-full h-16 object-contain rounded border border-gray-200 bg-gray-50">
-                                <div class="grid grid-cols-4 gap-1" x-show="ornaments.length > 0">
-                                    <template x-for="o in ornaments" :key="o.id">
-                                        <button type="button" @click="setProp(field, o.file_path)" :title="o.asset_name"
-                                            class="border rounded p-0.5 hover:border-black"
-                                            :class="val(field) === o.file_path ? 'border-black' : 'border-gray-200'">
-                                            <img :src="mediaUrl(o.file_path)" class="w-full h-10 object-contain">
-                                        </button>
-                                    </template>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-14 h-14 shrink-0 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden">
+                                        <img x-show="val(field)" :src="mediaUrl(val(field))" class="w-full h-full object-contain">
+                                        <span x-show="!val(field)" class="text-[10px] text-gray-400">kosong</span>
+                                    </div>
+                                    <button type="button" @click="openOrnamentPicker(field)"
+                                        class="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 text-left hover:border-black">
+                                        <span x-text="val(field) ? 'Ganti ornamen…' : 'Pilih ornamen…'"></span>
+                                    </button>
+                                    <button type="button" x-show="hasOverride(field.key)" @click="resetProp(field)" title="Tanpa ornamen"
+                                        class="p-1.5 rounded text-red-600 hover:bg-red-50">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
                                 </div>
-                                <label class="block text-center text-xs border border-dashed border-gray-300 rounded-lg px-2 py-1.5 cursor-pointer hover:border-black">
-                                    + Upload ornamen ke pustaka
-                                    <input type="file" accept="image/*,.svg" class="hidden" @change="uploadOrnament(field, $event)">
-                                </label>
-                                <button type="button" x-show="hasOverride(field.key)" @click="resetProp(field)"
-                                    class="inline-flex items-center gap-1 text-xs text-red-600 hover:bg-red-50 rounded px-1.5 py-1">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                    Tanpa ornamen
-                                </button>
-                                <input type="text" placeholder="atau path/URL manual…" :value="val(field) ?? ''"
-                                    @change="setProp(field, $event.target.value || null)"
-                                    class="w-full rounded-lg border-gray-200 text-xs px-2 py-1.5 focus:border-black focus:ring-black">
+
+                                {{-- warna: hanya utk SVG (recolor via mask di render). Prop {key}_color --}}
+                                <template x-if="isSvgPath(val(field))">
+                                    <div class="flex items-center gap-1.5 border border-gray-200 rounded-lg px-1.5 py-1">
+                                        <span class="text-[10px] text-gray-500 shrink-0">Warna SVG</span>
+                                        <input type="color" :value="(selected.props[field.key + '_color']) || '#000000'"
+                                            @input="setProp({ key: field.key + '_color' }, $event.target.value)"
+                                            class="h-7 w-7 shrink-0 rounded cursor-pointer border-0 bg-transparent p-0">
+                                        <input type="text" class="w-full text-xs font-mono uppercase border-0 focus:ring-0 p-0"
+                                            maxlength="9" :value="selected.props[field.key + '_color'] ?? ''" placeholder="asli"
+                                            @change="(() => { const v = $event.target.value.trim(); if (v === '') { setProp({ key: field.key + '_color' }, null); return; } const h = normalizeHex(v); if (h) setProp({ key: field.key + '_color' }, h); else $event.target.value = selected.props[field.key + '_color'] ?? ''; })()">
+                                        <button type="button" x-show="selected.props[field.key + '_color']"
+                                            @click="setProp({ key: field.key + '_color' }, null)" title="Warna asli"
+                                            class="p-1 rounded text-gray-400 hover:bg-gray-100 shrink-0">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </div>
+                                </template>
                             </div>
                         </template>
 

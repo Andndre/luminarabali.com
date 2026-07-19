@@ -230,6 +230,36 @@
         </div>
     </div>
 
+    {{-- Modal pustaka ornamen --}}
+    <div x-show="ornamentPicker.open" x-cloak
+        class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8"
+        @click.self="ornamentPicker.open = false" @keydown.escape.window="ornamentPicker.open = false">
+        <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-bold text-gray-900">Pustaka Ornamen</h2>
+                <button @click="ornamentPicker.open = false" class="p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-900">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <label class="block text-center text-sm border border-dashed border-gray-300 rounded-lg px-3 py-2 mb-4 cursor-pointer hover:border-black">
+                + Upload ornamen baru
+                <input type="file" accept="image/*,.svg" class="hidden"
+                    @change="uploadOrnament({ key: ornamentPicker.fieldKey }, $event); ornamentPicker.open = false">
+            </label>
+            <template x-if="ornaments.length === 0">
+                <p class="text-sm text-gray-400 text-center py-8">Belum ada ornamen. Upload di atas.</p>
+            </template>
+            <div class="grid grid-cols-5 gap-2">
+                <template x-for="o in ornaments" :key="o.id">
+                    <button type="button" @click="pickOrnament(o.file_path)" :title="o.asset_name"
+                        class="border border-gray-200 rounded-lg p-1 hover:border-black bg-gray-50">
+                        <img :src="mediaUrl(o.file_path)" class="w-full h-12 object-contain">
+                    </button>
+                </template>
+            </div>
+        </div>
+    </div>
+
     {{-- Panel tengah: Preview --}}
     <div class="flex-1 bg-gray-100 flex flex-col min-w-0">
         <div class="flex-1 p-4 flex justify-center min-h-0">
@@ -263,6 +293,7 @@ function studioApp() {
         presets: [],
         presetsLoaded: false,
         ornaments: [],
+        ornamentPicker: { open: false, fieldKey: null },
         panel: 'sections',
         theme: @json($themeBase),
         fonts: @json($fonts),
@@ -497,6 +528,20 @@ function studioApp() {
                 Swal.fire({ icon: 'error', title: 'Upload ornamen gagal', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
             }
             event.target.value = '';
+        },
+
+        isSvgPath(v) {
+            return typeof v === 'string' && v.toLowerCase().endsWith('.svg');
+        },
+
+        openOrnamentPicker(field) {
+            this.ornamentPicker = { open: true, fieldKey: field.key };
+        },
+
+        pickOrnament(path) {
+            const key = this.ornamentPicker.fieldKey;
+            if (key) this.setProp({ key }, path);
+            this.ornamentPicker.open = false;
         },
 
         listOf(field) {

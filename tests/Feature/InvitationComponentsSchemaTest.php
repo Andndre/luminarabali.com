@@ -167,4 +167,15 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertStringContainsString('uploadOrnament', $blade, 'Method uploadOrnament belum ada.');
         $this->assertStringContainsString("collection', 'ornament'", $blade, 'Upload ornamen tak set collection=ornament.');
     }
+
+    public function test_studio_has_ornament_picker_modal_and_svg_color_control(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_inspector.blade.php'));
+        $this->assertStringContainsString('openOrnamentPicker', $blade, 'Method openOrnamentPicker belum ada.');
+        $this->assertStringContainsString('ornamentPicker', $blade, 'State modal ornamen belum ada.');
+        $this->assertStringContainsString('isSvgPath', $blade, 'Helper isSvgPath belum ada.');
+        $this->assertStringContainsString('openOrnamentPicker', $inspector, 'Tombol pilih ornamen belum wired ke modal.');
+        $this->assertStringContainsString("field.key + '_color'", $inspector, 'Kontrol warna svg (prop {key}_color) belum ada.');
+    }
 }
