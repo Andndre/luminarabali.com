@@ -230,6 +230,19 @@ class InvitationComponentsSchemaTest extends TestCase
         );
     }
 
+    public function test_public_page_body_font_follows_the_theme(): void
+    {
+        $blade = file_get_contents(resource_path('views/invitations/public.blade.php'));
+
+        // $themeStyle mengeluarkan --font-body dari fonts.body template. Kalau body
+        // mematok nama font langsung, seluruh teks isi mengabaikan pilihan tema.
+        $this->assertMatchesRegularExpression(
+            '/body\s*\{[^}]*font-family:\s*var\(--font-body/s',
+            $blade,
+            'body harus memakai var(--font-body, …), bukan nama font tetap.'
+        );
+    }
+
     public function test_theme_panel_uses_custom_hex_color_control(): void
     {
         $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));

@@ -282,6 +282,12 @@ class BookingController extends Controller
     // Admin: Dashboard Overview
     public function dashboard()
     {
+        // Divisi non-operasional (designer) tidak punya business_unit, jadi setiap angka
+        // di halaman ini nol. Antar ke tempat kerjanya, bukan ke dashboard kosong.
+        if (Auth::user()->division === 'designer') {
+            return redirect()->route('admin.templates.index');
+        }
+
         // Monthly Stats
         $startOfMonth = now()->startOfMonth()->format('Y-m-d');
         $endOfMonth = now()->endOfMonth()->format('Y-m-d');

@@ -96,6 +96,18 @@ class TemplateSectionApiAuthorizationTest extends TestCase
         $this->assertStringContainsString('Media Library', $designerHtml);
     }
 
+    public function test_designer_landing_on_admin_root_goes_to_templates(): void
+    {
+        $designer = User::factory()->create(['division' => 'designer']);
+
+        // Dashboard difilter business_unit; 'designer' bukan salah satunya, jadi tanpa
+        // redirect ini mereka mendarat di halaman berisi angka nol semua.
+        $this->actingAs($designer)->get('/admin')->assertRedirect(route('admin.templates.index'));
+
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $this->actingAs($admin)->get('/admin')->assertOk();
+    }
+
     public function test_admin_updating_a_section_with_invalid_props_is_rejected(): void
     {
         $admin = User::factory()->create(['division' => 'super_admin']);

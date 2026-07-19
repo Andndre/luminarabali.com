@@ -43,7 +43,9 @@
            semua utility Tailwind. Preflight sudah melakukannya di @layer base. */
 
         body {
-            font-family: 'Lato', sans-serif;
+            /* Fallback, bukan patokan: --font-body datang dari theme template ($themeStyle,
+               dirender setelah blok ini) dan harus menang. */
+            font-family: var(--font-body, 'Lato'), sans-serif;
             overflow-x: hidden;
         }
 
