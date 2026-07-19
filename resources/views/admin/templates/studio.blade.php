@@ -511,7 +511,7 @@ function studioApp() {
 
         ornItems(field) {
             const v = this.selected?.props?.[field.key];
-            return Array.isArray(v) ? v : [];
+            return Array.isArray(v) ? [...v] : [];
         },
 
         addOrnItem(field) {
