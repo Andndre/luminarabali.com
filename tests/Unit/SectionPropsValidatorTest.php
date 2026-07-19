@@ -43,6 +43,15 @@ class SectionPropsValidatorTest extends TestCase
         (new SectionPropsValidator())->validate('section_one_col', ['background_color' => 'not-a-hex-color']);
     }
 
+    public function test_color_prop_accepts_null_to_reset(): void
+    {
+        $validator = new \App\Services\SectionPropsValidator();
+        // quote punya field color? Pakai section_one_col yang punya background_color (type color).
+        $out = $validator->validate('section_one_col', ['background_color' => null]);
+        $this->assertArrayHasKey('background_color', $out);
+        $this->assertNull($out['background_color']);
+    }
+
     public function test_invalid_select_option_throws_validation_exception(): void
     {
         $this->expectException(ValidationException::class);

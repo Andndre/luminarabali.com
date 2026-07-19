@@ -387,7 +387,7 @@ function studioApp() {
             const schema = this.schema[type] ?? [];
             const variantField = schema.find(f => f.type === 'variant');
             const activeVariant = this.selected?.props?.variant ?? variantField?.default;
-            return schema.filter(f => f.group === group
+            return schema.filter(f => f.group === group && !f.hidden
                 && (!f.variant || (activeVariant && f.variant.includes(activeVariant))));
         },
 

@@ -104,6 +104,9 @@ class SectionPropsValidator
 
     protected function validateColor(string $errorKey, mixed $value, array &$errors): void
     {
+        if ($value === null) {
+            return; // null = kembali ke default/asli (konsisten dg number/image)
+        }
         if (!is_string($value) || !preg_match('/^#[0-9a-fA-F]{3,8}$/', $value)) {
             $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa kode warna hex yang valid.'];
         }

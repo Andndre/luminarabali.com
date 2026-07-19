@@ -19,6 +19,30 @@
     };
     $ornamentTop = $resolveOrnament($props['ornament_top'] ?? null);
     $ornamentBottom = $resolveOrnament($props['ornament_bottom'] ?? null);
+    $ornamentTopColor = $props['ornament_top_color'] ?? null;
+    $ornamentBottomColor = $props['ornament_bottom_color'] ?? null;
+    $isSvg = fn ($src) => $src && \Illuminate\Support\Str::endsWith(strtolower($src), '.svg');
+
+    // Recolor: SVG dijadikan CSS mask (tak eksekusi script), warna via background-color.
+    // aspect-ratio heuristik per posisi karena rasio asli SVG tak diketahui server-side.
+    $ornamentMaskStyle = function (string $position, $scale, string $edge, string $src, string $color) {
+        $width = is_numeric($scale) ? (float) $scale : 100;
+        $aspect = match ($position) {
+            'full-width' => '6 / 1',
+            'center' => '4 / 1',
+            default => '1 / 1',
+        };
+        $pos = match ($position) {
+            'full-width' => 'left:0;right:0;width:100%;',
+            'center' => "left:50%;transform:translateX(-50%);width:{$width}%;",
+            'corner-tr', 'corner-br' => "right:0;width:{$width}%;",
+            default => "left:0;width:{$width}%;",
+        };
+        $mask = "-webkit-mask-image:url('{$src}');-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain;"
+            . "mask-image:url('{$src}');mask-repeat:no-repeat;mask-position:center;mask-size:contain;";
+        return "position:absolute;{$edge}:0;pointer-events:none;z-index:10;aspect-ratio:{$aspect};"
+            . $pos . $mask . "background-color:{$color};";
+    };
 
     // Cover punya sistem visual sendiri (gate position:fixed + layar sticky) dan
     // background_image sendiri. Treatment shell menimpa positioning anak-anaknya
@@ -80,8 +104,13 @@
             <style>[data-section-id="{{ $section->id }}"] { {!! $customCss !!} }</style>
         @endif
         @if ($ornamentTop)
-            <img src="{{ $ornamentTop }}" alt=""
-                style="{{ $ornamentStyle($props['ornament_top_position'] ?? 'corner-tl', $props['ornament_top_scale'] ?? 100, 'top') }}">
+            @if ($isSvg($ornamentTop) && $ornamentTopColor)
+                <div aria-hidden="true"
+                    style="{{ $ornamentMaskStyle($props['ornament_top_position'] ?? 'corner-tl', $props['ornament_top_scale'] ?? 100, 'top', $ornamentTop, $ornamentTopColor) }}"></div>
+            @else
+                <img src="{{ $ornamentTop }}" alt=""
+                    style="{{ $ornamentStyle($props['ornament_top_position'] ?? 'corner-tl', $props['ornament_top_scale'] ?? 100, 'top') }}">
+            @endif
         @endif
         @include($viewPath, [
             'props' => $props,
@@ -90,8 +119,13 @@
             'elements' => $elements,
         ])
         @if ($ornamentBottom)
-            <img src="{{ $ornamentBottom }}" alt=""
-                style="{{ $ornamentStyle($props['ornament_bottom_position'] ?? 'corner-bl', $props['ornament_bottom_scale'] ?? 100, 'bottom') }}">
+            @if ($isSvg($ornamentBottom) && $ornamentBottomColor)
+                <div aria-hidden="true"
+                    style="{{ $ornamentMaskStyle($props['ornament_bottom_position'] ?? 'corner-bl', $props['ornament_bottom_scale'] ?? 100, 'bottom', $ornamentBottom, $ornamentBottomColor) }}"></div>
+            @else
+                <img src="{{ $ornamentBottom }}" alt=""
+                    style="{{ $ornamentStyle($props['ornament_bottom_position'] ?? 'corner-bl', $props['ornament_bottom_scale'] ?? 100, 'bottom') }}">
+            @endif
         @endif
     </div>
 @endif

@@ -504,9 +504,12 @@ class InvitationComponentHardeningTest extends TestCase
                 continue;
             }
 
-            $hasColorField = collect($fields)->contains(fn ($field) => ($field['type'] ?? null) === 'color');
+            // Field warna ber-`hidden => true` (mis. ornament_top_color/ornament_bottom_color)
+            // dikecualikan: tak muncul di UI (fieldsFor menyaring `!f.hidden`), sama alasannya
+            // dengan pengecualian container di atas.
+            $hasColorField = collect($fields)->contains(fn ($field) => ($field['type'] ?? null) === 'color' && empty($field['hidden']));
 
-            $this->assertFalse($hasColorField, "Expected '{$type}' schema to no longer declare a 'color' field");
+            $this->assertFalse($hasColorField, "Expected '{$type}' schema to no longer declare a visible 'color' field");
         }
     }
 
