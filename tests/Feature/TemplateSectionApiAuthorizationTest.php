@@ -60,8 +60,11 @@ class TemplateSectionApiAuthorizationTest extends TestCase
         $this->assertEquals('left', $section->fresh()->props['align']);
     }
 
-    public function test_admin_cannot_add_a_container_section_type(): void
+    public function test_admin_can_add_a_container_section_type(): void
     {
+        // Container UI tak lagi disembunyikan (fase 6): kelasnya hidup di
+        // config/invitation_component_classes.php, gating "container/basic" kini
+        // di client (Mode Lanjutan), bukan penolakan server-side.
         $admin = User::factory()->create(['division' => 'super_admin']);
         $template = $this->template($admin);
 
@@ -69,9 +72,9 @@ class TemplateSectionApiAuthorizationTest extends TestCase
 
         $this->postJson("/admin/api/studio/templates/{$template->id}/sections", [
             'section_type' => 'section_two_col',
-        ])->assertStatus(422);
+        ])->assertStatus(201);
 
-        $this->assertSame(0, $template->sections()->count());
+        $this->assertSame(1, $template->sections()->count());
     }
 
     public function test_admin_updating_a_section_with_valid_props_succeeds(): void

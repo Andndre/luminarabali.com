@@ -281,10 +281,10 @@ $treatmentFields = [
 ];
 
 // Treatment hanya untuk kelas Section (guideline §9) — Basic (text/music/…) tidak
-// dapat "Foto Latar". Animasi masuk tetap untuk semua tipe.
-$sectionTypes = ['cover', 'hero', 'couple', 'event_details', 'gallery', 'countdown',
-    'rsvp', 'gift', 'quote', 'love_story', 'closing', 'wishes', 'map', 'live_stream',
-    'section_one_col', 'section_two_col', 'section_three_col'];
+// dapat "Foto Latar". Animasi masuk tetap untuk semua tipe. Daftar kelas hidup di
+// config/invitation_component_classes.php (sumber kebenaran tunggal, §2.1/§2.2).
+$classes = require __DIR__ . '/invitation_component_classes.php';
+$sectionTypes = array_merge($classes['feature'], $classes['container']);
 
 foreach ($components as $type => $fields) {
     $components[$type] = array_merge($fields, $animationFields);

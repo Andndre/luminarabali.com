@@ -16,6 +16,15 @@
 
         <div class="flex-1"></div>
 
+        {{-- Mode Lanjutan: buka container/Basic/CSS mentah (guideline §2.0) --}}
+        <button @click="toggleAdvanced()" type="button"
+            :title="advanced ? 'Matikan Mode Lanjutan' : 'Mode Lanjutan: container, blok dasar, CSS/HTML mentah'"
+            class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold border"
+            :class="advanced ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-500 hover:text-gray-900'">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Lanjutan
+        </button>
+
         {{-- Device toggle (ikon, bukan emoji) --}}
         <div class="flex rounded-lg bg-gray-100 p-0.5">
             <button @click="device = 'mobile'" title="Preview mobile" class="p-1.5 rounded-md" :class="device === 'mobile' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
@@ -200,13 +209,31 @@
                     Presets
                 </button>
             </div>
-            <div x-show="addTab === 'types'" class="grid grid-cols-3 gap-3">
-                <template x-for="(label, type) in typeLabels" :key="type">
-                    <button @click="addSection(type)" class="flex flex-col items-start gap-2 border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
-                        <span class="text-gray-400" x-html="typeIcon(type)"></span>
-                        <span class="font-medium" x-text="label"></span>
-                    </button>
-                </template>
+            <div x-show="addTab === 'types'" class="space-y-5">
+                <div>
+                    <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2">Section</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <template x-for="(label, type) in curatedTypes" :key="type">
+                            <button @click="addSection(type)" class="flex flex-col items-start gap-2 border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
+                                <span class="text-gray-400" x-html="typeIcon(type)"></span>
+                                <span class="font-medium" x-text="label"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+                <div x-show="advanced" x-cloak>
+                    <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2">
+                        Mode Lanjutan — kolom &amp; blok dasar
+                    </p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <template x-for="(label, type) in advancedTypes" :key="type">
+                            <button @click="addSection(type)" class="flex flex-col items-start gap-2 border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
+                                <span class="text-gray-400" x-html="typeIcon(type)"></span>
+                                <span class="font-medium" x-text="label"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
             </div>
             <div x-show="addTab === 'presets'" x-cloak>
                 <div class="grid grid-cols-3 gap-3" x-show="presets.length > 0">
@@ -301,6 +328,8 @@ function studioApp() {
         fontsDirty: false,
         publishing: false,
         typeLabels: @json($sectionTypes),
+        classes: @json($componentClasses),
+        advanced: localStorage.getItem('luminara.studio.advanced') === '1',
         schema: @json($schema),
         inspectorTab: 'content',
         fieldErrors: {},
@@ -408,9 +437,33 @@ function studioApp() {
                 { id: 'content', label: 'Konten' },
                 { id: 'design', label: 'Desain' },
                 { id: 'advanced', label: 'Lanjutan' },
-            ].filter(t =>
-                t.id === 'advanced' // selalu ada: CSS kustom section berlaku untuk semua tipe
-                || this.fieldsFor(this.selected.section_type, t.id).length > 0);
+            ].filter(t => t.id === 'advanced'
+                // CSS/HTML mentah = perkakas Mode Lanjutan (guideline §2.0)
+                ? this.advanced
+                : this.fieldsFor(this.selected.section_type, t.id).length > 0);
+        },
+
+        toggleAdvanced() {
+            this.advanced = !this.advanced;
+            localStorage.setItem('luminara.studio.advanced', this.advanced ? '1' : '0');
+            // Section yang sedang dipilih bisa jadi tak lagi punya tab aktif yang sah.
+            this.inspectorTab = this.availableTabs[0]?.id ?? 'content';
+        },
+
+        classOf(type) {
+            if (this.classes.container.includes(type)) return 'container';
+            if (this.classes.basic.includes(type)) return 'basic';
+            return 'feature';
+        },
+
+        get curatedTypes() {
+            return Object.fromEntries(Object.entries(this.typeLabels)
+                .filter(([type]) => this.classOf(type) === 'feature'));
+        },
+
+        get advancedTypes() {
+            return Object.fromEntries(Object.entries(this.typeLabels)
+                .filter(([type]) => this.classOf(type) !== 'feature'));
         },
 
         fieldsFor(type, group) {

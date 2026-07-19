@@ -185,4 +185,14 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertStringContainsString("field.type === 'ornament_list'", $inspector, 'Blok ornament_list belum ada.');
         $this->assertStringContainsString('flip_h', $inspector, 'Toggle flip belum ada di inspector.');
     }
+
+    public function test_studio_gates_advanced_tooling_behind_a_toggle(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $this->assertStringContainsString('toggleAdvanced', $blade, 'Toggle Mode Lanjutan belum ada.');
+        $this->assertStringContainsString("localStorage.getItem('luminara.studio.advanced')", $blade,
+            'Mode Lanjutan tak dipersist.');
+        $this->assertStringContainsString('curatedTypes', $blade, 'Palet Kurasi belum dipisah.');
+        $this->assertStringContainsString('advancedTypes', $blade, 'Palet Lanjutan belum dipisah.');
+    }
 }
