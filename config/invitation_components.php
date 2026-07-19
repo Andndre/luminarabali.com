@@ -20,6 +20,18 @@ $containerFields = [
     ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
 ];
 
+// Radius sudut — satu angka, atau empat kalau centangnya aktif. show_if menyembunyikan
+// yang tidak relevan di inspector, tapi keempat nilainya tetap tersimpan sehingga
+// mematikan centang tidak menghapus setelan pojok yang sudah dibuat.
+$radiusFields = [
+    ['key' => 'radius_per_corner', 'type' => 'boolean', 'label' => 'Atur Tiap Pojok', 'group' => 'design', 'default' => false],
+    ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', false]],
+    ['key' => 'radius_tl', 'type' => 'number', 'label' => 'Pojok Kiri Atas', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
+    ['key' => 'radius_tr', 'type' => 'number', 'label' => 'Pojok Kanan Atas', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
+    ['key' => 'radius_br', 'type' => 'number', 'label' => 'Pojok Kanan Bawah', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
+    ['key' => 'radius_bl', 'type' => 'number', 'label' => 'Pojok Kiri Bawah', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
+];
+
 // Animasi entrance — di-merge ke SEMUA tipe section (dirender _section-shell).
 $animationFields = [
     ['key' => 'animation', 'type' => 'select', 'label' => 'Animasi Masuk', 'group' => 'design', 'options' => ['none', 'fade-up', 'fade-in', 'zoom-in', 'slide-left', 'slide-right'], 'default' => 'none'],
@@ -62,7 +74,7 @@ $components = [
         ['key' => 'src', 'type' => 'image', 'label' => 'Gambar', 'group' => 'content', 'default' => '', 'required' => true],
         ['key' => 'alt', 'type' => 'text', 'label' => 'Teks Alt', 'group' => 'content', 'default' => ''],
         ['key' => 'width', 'type' => 'number', 'label' => 'Lebar (%)', 'group' => 'design', 'default' => 100],
-        ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'default' => 0],
+        ...$radiusFields,
         ['key' => 'border_width', 'type' => 'number', 'label' => 'Border Width', 'group' => 'design', 'default' => 0],
         ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
         ['key' => 'align', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'center'],
@@ -75,10 +87,13 @@ $components = [
     'button' => [
         ['key' => 'text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Click Me'],
         ['key' => 'url', 'type' => 'url', 'label' => 'Tautan', 'group' => 'content', 'default' => '#'],
-        ['key' => 'variant', 'type' => 'select', 'label' => 'Gaya', 'group' => 'design', 'options' => ['primary', 'secondary', 'outline', 'ghost'], 'default' => 'primary'],
+        // primary/secondary/ghost tidak lagi ditawarkan tapi tetap dirender (dipetakan di
+        // button.blade.php) supaya baris lama tidak berubah drastis.
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Gaya Tombol', 'group' => 'design', 'options' => ['solid', 'soft', 'outline', 'round', 'link', 'rule'], 'default' => 'solid'],
         ['key' => 'size', 'type' => 'select', 'label' => 'Ukuran', 'group' => 'design', 'options' => ['small', 'medium', 'large'], 'default' => 'medium'],
         ['key' => 'align', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'center'],
-        ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'default' => 8],
+        // null = ikut --radius tema. Angka eksplisit menimpanya (kecuali pill/rule).
+        ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'default' => null],
         ['key' => 'border_width', 'type' => 'number', 'label' => 'Border Width', 'group' => 'design', 'default' => 0],
         ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
         ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
@@ -175,6 +190,11 @@ $components = [
         ['key' => 'muted', 'type' => 'boolean', 'label' => 'Bisukan', 'group' => 'design', 'default' => true],
         ['key' => 'controls', 'type' => 'boolean', 'label' => 'Tampilkan Kontrol', 'group' => 'design', 'default' => true],
         ['key' => 'width', 'type' => 'number', 'label' => 'Lebar (%)', 'group' => 'design', 'default' => 100],
+        // Sebelumnya video dipatok border-radius: 8px di Blade tanpa field sama sekali.
+        ...array_map(
+            fn ($f) => $f['key'] === 'border_radius' ? [...$f, 'default' => 8] : $f,
+            $radiusFields
+        ),
         ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
         ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
     ],

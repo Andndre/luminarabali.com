@@ -33,7 +33,7 @@
                     Field di tab ini bisa diedit pembeli lewat Customizer.
                 </p>
                 <template x-for="field in fieldsFor(selected.section_type, inspectorTab)" :key="selected.id + ':' + field.key">
-                    <div>
+                    <div x-show="showField(field)">
                         <div class="flex items-center gap-1.5 justify-between mb-1">
                             <label class="block text-xs font-medium text-gray-500" x-text="field.label"></label>
                             <button x-show="field.group === 'content' && !asCustomer" type="button"
@@ -229,9 +229,30 @@
                                 <div class="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
                                     HTML mentah — hanya super admin, bypass sistem props. Salah tulis bisa merusak tampilan.
                                 </div>
-                                <textarea rows="10" spellcheck="false" :value="val(field) ?? ''"
-                                    @input="setProp(field, $event.target.value)"
-                                    class="w-full rounded-lg border-gray-200 text-xs font-mono px-3 py-2 focus:border-black focus:ring-black"></textarea>
+                                {{-- Textarea transparan di atas <pre> berwarna: keduanya harus punya
+                                     font, ukuran, padding, dan pembungkusan baris yang identik, kalau
+                                     tidak kursornya melenceng dari teks yang terlihat. --}}
+                                <div class="code-editor">
+                                    <pre x-ref="hl" aria-hidden="true" class="code-editor-hl" x-html="highlightHtml(val(field) ?? '')"></pre>
+                                    <textarea rows="12" spellcheck="false" autocapitalize="off" autocomplete="off"
+                                        class="code-editor-input" :value="val(field) ?? ''"
+                                        @input="setProp(field, $event.target.value)"
+                                        @scroll="$refs.hl.scrollTop = $event.target.scrollTop"
+                                        @keydown.tab.prevent="insertTab($event, field)"></textarea>
+                                </div>
+                                {{-- Peringatan heuristik, bukan pengaman: pola di bawah cuma menandai
+                                     yang paling umum. Yang menahan HTML mentah ini tetap
+                                     authorizeSuperAdmin(), bukan daftar ini. --}}
+                                <template x-if="codeWarnings(val(field) ?? '').length">
+                                    <div class="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+                                        <p class="font-semibold">Perlu diperiksa ulang:</p>
+                                        <ul class="mt-1 ml-4 list-disc space-y-0.5">
+                                            <template x-for="w in codeWarnings(val(field) ?? '')" :key="w">
+                                                <li x-text="w"></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
                             </div>
                         </template>
 

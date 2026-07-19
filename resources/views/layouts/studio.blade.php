@@ -11,6 +11,52 @@
     <style>
         [x-cloak] { display: none !important; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Editor kode: textarea transparan menumpuk <pre> berwarna. Setiap properti yang
+           memengaruhi posisi glyph harus sama persis di kedua lapis, kalau tidak kursor
+           dan teks berwarna saling melenceng makin jauh tiap baris. */
+        .code-editor { position: relative; }
+        .code-editor-hl,
+        .code-editor-input {
+            margin: 0;
+            padding: .5rem .75rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            tab-size: 2;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            border: 0;
+        }
+        .code-editor-hl {
+            position: absolute;
+            inset: 0;
+            overflow: auto;
+            border-radius: .5rem;
+            background: #1e1e23;
+            color: #d6d3ce;
+            pointer-events: none;
+        }
+        .code-editor-input {
+            position: relative;
+            display: block;
+            width: 100%;
+            min-height: 12rem;
+            resize: vertical;
+            background: transparent;
+            color: transparent;
+            caret-color: #f5f1e8;
+            border-radius: .5rem;
+            outline: 1px solid #e5e7eb;
+        }
+        .code-editor-input:focus { outline: 2px solid #000; }
+        .code-editor-input::selection { background: rgba(120, 160, 255, .35); }
+        .tok-tag { color: #7ab7f5; }
+        .tok-attr { color: #c8a6f0; }
+        .tok-str { color: #a9d98a; }
+        .tok-cmt { color: #6f6a63; font-style: italic; }
+        .tok-doctype { color: #e0996b; }
     </style>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

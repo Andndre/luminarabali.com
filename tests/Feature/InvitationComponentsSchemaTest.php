@@ -114,11 +114,38 @@ class InvitationComponentsSchemaTest extends TestCase
         }
     }
 
-    public function test_button_variant_stays_a_plain_select_not_a_layout_variant(): void
+    public function test_button_variant_uses_the_schematic_picker(): void
     {
         $field = collect(config('invitation_components.button'))->firstWhere('key', 'variant');
-        $this->assertSame('select', $field['type'] ?? null,
-            'button.variant = gaya tombol, harus tetap type select (bukan picker layout).');
+        $this->assertSame('variant', $field['type'] ?? null,
+            'button.variant memakai picker skematik — bentuk tombol perlu terlihat sebelum dipilih.');
+
+        // Peta skematik di Studio dipakai bersama SEMUA komponen, jadi nama varian tombol
+        // tidak boleh menabrak nama yang sudah dipakai komponen lain.
+        $taken = [];
+        foreach (config('invitation_components') as $type => $fields) {
+            if ($type === 'button') {
+                continue;
+            }
+            foreach ($fields as $f) {
+                if (($f['type'] ?? null) === 'variant') {
+                    $taken = array_merge($taken, $f['options']);
+                }
+            }
+        }
+        foreach ($field['options'] as $opt) {
+            $this->assertNotContains($opt, $taken,
+                "Varian tombol '{$opt}' menabrak nama varian komponen lain di map skematik.");
+        }
+    }
+
+    public function test_legacy_button_variant_names_still_render(): void
+    {
+        $blade = file_get_contents(resource_path('views/templates/components/button.blade.php'));
+        foreach (['primary', 'secondary', 'ghost'] as $legacy) {
+            $this->assertStringContainsString("'{$legacy}' =>", $blade,
+                "Nama varian lama '{$legacy}' masih tersimpan di baris section — harus tetap dipetakan.");
+        }
     }
 
     public function test_every_layout_variant_option_has_a_schematic_entry_in_studio(): void
@@ -142,6 +169,48 @@ class InvitationComponentsSchemaTest extends TestCase
                 }
             }
         }
+    }
+
+    public function test_image_and_video_expose_per_corner_radius_behind_a_toggle(): void
+    {
+        foreach (['image', 'video'] as $type) {
+            $fields = collect(config("invitation_components.{$type}"))->keyBy('key');
+
+            $this->assertSame('boolean', $fields['radius_per_corner']['type'] ?? null,
+                "{$type} tak punya centang radius per pojok.");
+
+            // Tanpa show_if, satu radius dan empat pojok tampil bersamaan di inspector dan
+            // tidak ada yang tahu mana yang sebenarnya berlaku.
+            $this->assertSame(['radius_per_corner', false], $fields['border_radius']['show_if'] ?? null);
+            foreach (['radius_tl', 'radius_tr', 'radius_br', 'radius_bl'] as $corner) {
+                $this->assertSame(['radius_per_corner', true], $fields[$corner]['show_if'] ?? null,
+                    "{$type}.{$corner} harus tersembunyi selama centangnya mati.");
+            }
+        }
+
+        $this->assertStringContainsString('showField(field)',
+            file_get_contents(resource_path('views/admin/templates/studio/_inspector.blade.php')),
+            'Inspector tidak menghormati show_if.');
+    }
+
+    public function test_code_editor_escapes_before_highlighting(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+
+        $this->assertStringContainsString('highlightHtml(src)', $blade, 'Helper highlightHtml belum ada.');
+
+        // Hasil highlightHtml masuk x-html. Kalau escape-nya hilang, HTML yang sedang
+        // diketik super admin dieksekusi di halaman Studio, bukan sekadar diwarnai.
+        $body = substr($blade, strpos($blade, 'highlightHtml(src)'));
+        $body = substr($body, 0, strpos($body, 'codeWarnings('));
+        foreach (["replace(/&/g, '&amp;')", "replace(/</g, '&lt;')", "replace(/>/g, '&gt;')"] as $needle) {
+            $this->assertStringContainsString($needle, $body, "highlightHtml tidak meng-escape: {$needle}");
+        }
+        $this->assertLessThan(
+            strpos($body, '<span class="tok-'),
+            strpos($body, "replace(/</g, '&lt;')"),
+            'Escape harus terjadi sebelum span pewarnaan disisipkan.'
+        );
     }
 
     public function test_theme_panel_uses_custom_hex_color_control(): void

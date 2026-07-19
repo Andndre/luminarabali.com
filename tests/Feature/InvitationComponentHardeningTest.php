@@ -188,7 +188,7 @@ class InvitationComponentHardeningTest extends TestCase
         // Warna diatur lewat kelas varian di invitation.css (bukan style inline), jadi yang
         // diverifikasi di level respons HTTP adalah kelas token-driven-nya yang terpasang.
         $response->assertSee('countdown--cards', false);
-        $response->assertSee('btn-primary', false);
+        $response->assertSee('btn-solid', false);
     }
 
     public function test_countdown_ignores_stale_accent_color_prop(): void

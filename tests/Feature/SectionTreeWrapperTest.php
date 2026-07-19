@@ -36,8 +36,11 @@ class SectionTreeWrapperTest extends TestCase
             ->assertSee('display: contents', false);
     }
 
-    public function test_child_sections_are_not_wrapped(): void
+    public function test_child_sections_are_wrapped_too(): void
     {
+        // Dulu anak container di-@include langsung tanpa shell, jadi tidak punya wrapper —
+        // konsekuensi tak disengaja yang mematikan animasi + custom_css di blok nested dan
+        // memaksa swapSection() jatuh ke reload penuh karena wrapper-nya tak pernah ketemu.
         $admin = User::factory()->create(['division' => 'super_admin']);
         $template = $this->template($admin);
         $parent = InvitationSection::create([
@@ -54,6 +57,6 @@ class SectionTreeWrapperTest extends TestCase
         $this->get("/admin/templates/{$template->id}/studio/preview")
             ->assertOk()
             ->assertSee('data-section-id="'.$parent->id.'"', false)
-            ->assertDontSee('data-section-id="'.$child->id.'"', false);
+            ->assertSee('data-section-id="'.$child->id.'"', false);
     }
 }

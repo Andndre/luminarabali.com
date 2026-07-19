@@ -688,6 +688,14 @@ function studioApp() {
                 'source-first': '<line x1="14" y1="5" x2="26" y2="5" opacity=".6"/><line x1="16" y1="9" x2="24" y2="9" opacity=".35"/><line x1="6" y1="15" x2="34" y2="15" stroke-width="2"/><line x1="9" y1="21" x2="31" y2="21" stroke-width="2"/>',
                 'bordered-cards':'<rect x="5" y="4" width="30" height="8" rx="1"/><rect x="5" y="15" width="30" height="8" rx="1"/>',
                 'divider-list': '<line x1="6" y1="6" x2="30" y2="6"/><line x1="3" y1="11" x2="37" y2="11" opacity=".4"/><line x1="6" y1="16" x2="30" y2="16"/><line x1="3" y1="21" x2="37" y2="21" opacity=".4"/>',
+                // Gaya tombol. 'round'/'link' sengaja tidak dinamai pill/underline: kunci peta
+                // ini dipakai bersama semua komponen dan kedua nama itu sudah terpakai.
+                'solid': '<rect x="7" y="9" width="26" height="10" rx="2" fill="currentColor" stroke="none"/>',
+                'soft': '<rect x="7" y="9" width="26" height="10" rx="2" fill="currentColor" stroke="none" opacity=".22"/><line x1="14" y1="14" x2="26" y2="14" stroke-width="2"/>',
+                'outline': '<rect x="7" y="9" width="26" height="10" rx="2"/><line x1="13" y1="14" x2="27" y2="14" opacity=".55"/>',
+                'round': '<rect x="6" y="9" width="28" height="10" rx="5" fill="currentColor" stroke="none"/>',
+                'link': '<line x1="13" y1="12" x2="27" y2="12" stroke-width="2"/><line x1="12" y1="18" x2="28" y2="18" opacity=".6"/>',
+                'rule': '<line x1="8" y1="8" x2="32" y2="8"/><line x1="13" y1="14" x2="27" y2="14" stroke-width="2"/><line x1="8" y1="20" x2="32" y2="20"/>',
             };
             const body = S[v] ?? '<rect x="4" y="6" width="32" height="16" rx="2" opacity=".5"/>';
             return `<svg viewBox="0 0 40 28" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-8">${body}</svg>`;
@@ -695,6 +703,69 @@ function studioApp() {
 
         val(field) {
             return this.selected?.props?.[field.key] ?? field.default;
+        },
+
+        // Pewarnaan sintaks HTML untuk field 'code'. Hasilnya masuk x-html, jadi urutannya
+        // WAJIB: escape dulu, warnai belakangan. Kalau dibalik, `<img onerror=…>` yang
+        // sedang diketik super admin langsung dieksekusi di halaman Studio itu sendiri.
+        // Satu regex sekali jalan, bukan rantai .replace() — rantai akan mewarnai ulang
+        // markup span yang baru saja disisipkannya sendiri.
+        highlightHtml(src) {
+            const esc = String(src)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            return esc.replace(
+                /(&lt;!--[\s\S]*?--&gt;)|(&lt;!DOCTYPE[\s\S]*?&gt;)|(&lt;\/?[a-zA-Z][\w:.-]*)([\s\S]*?)(\/?&gt;)/g,
+                (m, comment, doctype, open, body, close) => {
+                    if (comment) return `<span class="tok-cmt">${comment}</span>`;
+                    if (doctype) return `<span class="tok-doctype">${doctype}</span>`;
+                    // Diketahui: nilai atribut yang memuat '>' memutus tag lebih awal dan
+                    // sisa barisnya tidak berwarna. Murni kosmetik — teksnya tetap utuh.
+                    const inner = body.replace(
+                        /("[^"]*"|'[^']*')|([a-zA-Z_:][\w:.-]*)(?=\s*=)/g,
+                        (b, str, attr) => str
+                            ? `<span class="tok-str">${str}</span>`
+                            : `<span class="tok-attr">${attr}</span>`
+                    );
+                    return `<span class="tok-tag">${open}</span>${inner}<span class="tok-tag">${close}</span>`;
+                }
+            );
+        },
+
+        // Peringatan, BUKAN pengaman. Heuristik teks tidak bisa memutuskan apakah HTML
+        // berbahaya, dan tiap polanya gampang dihindari. Gunanya cuma menyadarkan super
+        // admin saat menempel kode orang lain. Yang benar-benar menjaga endpoint ini
+        // tetap authorizeSuperAdmin() di TemplateEditorController.
+        codeWarnings(src) {
+            const s = String(src);
+            const checks = [
+                [/\bfetch\s*\(|XMLHttpRequest|sendBeacon|\bimport\s*\(/i, 'Melakukan permintaan jaringan — periksa tujuannya.'],
+                [/\beval\s*\(|new\s+Function\s*\(|set(Timeout|Interval)\s*\(\s*["'`]/i, 'Mengeksekusi string sebagai kode.'],
+                [/document\.cookie|localStorage|sessionStorage/i, 'Mengakses cookie atau storage — bisa membocorkan sesi.'],
+                [/\son[a-z]+\s*=/i, 'Ada atribut event inline (onclick, onerror, …).'],
+                [/javascript\s*:/i, 'Ada URL javascript:.'],
+                [/<script\b/i, 'Ada tag <script>.'],
+                [/\.(innerHTML|outerHTML)\s*=/i, 'Menulis innerHTML — jalur XSS yang umum.'],
+                [/(src|href)\s*=\s*["']?\/\/|(src|href)\s*=\s*["']?https?:\/\//i, 'Memuat aset dari domain luar.'],
+            ];
+            return checks.filter(([re]) => re.test(s)).map(([, msg]) => msg);
+        },
+
+        // Tab menyisipkan indentasi, bukan memindah fokus keluar dari editor.
+        insertTab(event, field) {
+            const el = event.target;
+            const start = el.selectionStart;
+            el.value = el.value.slice(0, start) + '  ' + el.value.slice(el.selectionEnd);
+            el.selectionStart = el.selectionEnd = start + 2;
+            this.setProp(field, el.value);
+        },
+
+        // show_if: [key, nilai] — field hanya muncul saat prop lain bernilai itu. Sengaja
+        // cuma gate boolean sederhana; kalau butuh ekspresi, skemanya yang salah.
+        showField(field) {
+            if (!field.show_if) return true;
+            const [key, want] = field.show_if;
+            return (this.selected?.props?.[key] ?? false) === want;
         },
 
         hasOverride(key) {

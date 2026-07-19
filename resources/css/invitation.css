@@ -304,10 +304,96 @@
   margin-top: .5rem;
 }
 
-/* --- button variants (token-driven; variant sebelumnya dihitung tapi tidak dipakai) --- */
-.btn-primary { background: var(--color-accent, #b5654d); color: var(--color-surface, #ffffff); border-width: 0; border-radius: var(--radius, 12px); }
-.btn-secondary { background: var(--color-surface, #ffffff); color: var(--color-accent, #b5654d); border: 2px solid var(--color-accent, #b5654d); }
-.btn-outline { background: transparent; color: inherit; border: 2px solid currentColor; }
+/* --- button variants (token-driven) ---
+   Semua warna diturunkan dari token tema, jadi satu tombol ikut berubah antar template
+   tanpa disetel ulang. Varian yang memakai currentColor (outline/rule) otomatis terbaca
+   di section bertreatment gelap maupun foto. */
+.btn {
+  display: inline-block;
+  font-family: var(--font-body, sans-serif);
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background-color .2s, color .2s, border-color .2s, box-shadow .2s;
+}
+/* Varian berhuruf kapital dikecilkan relatif (em), bukan dipatok px: kontrol Ukuran
+   small/medium/large harus tetap berpengaruh. */
+.btn-outline, .btn-round, .btn-link, .btn-rule { font-size: .86em; }
+
+.btn-solid {
+  background: var(--color-accent, #b5654d);
+  color: var(--color-surface, #fffaf3);
+  border: 1px solid var(--color-accent, #b5654d);
+  border-radius: var(--radius, 12px);
+}
+.btn-solid:hover { background: color-mix(in srgb, var(--color-accent, #b5654d) 84%, #000); }
+
+.btn-soft {
+  background: color-mix(in srgb, var(--color-accent, #b5654d) 14%, transparent);
+  color: var(--color-accent, #b5654d);
+  border: 1px solid transparent;
+  border-radius: var(--radius, 12px);
+}
+.btn-soft:hover { background: color-mix(in srgb, var(--color-accent, #b5654d) 24%, transparent); }
+
+.btn-outline {
+  background: transparent;
+  color: inherit;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: var(--radius, 12px);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+.btn-outline:hover { border-color: currentColor; }
+
+/* Bentuk round dan rule adalah identitas varian — border_radius manual sengaja tidak
+   menimpanya (lihat button.blade.php). */
+.btn-round {
+  background: var(--color-accent, #b5654d);
+  color: var(--color-surface, #fffaf3);
+  border: 1px solid var(--color-accent, #b5654d);
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+}
+.btn-round:hover { background: color-mix(in srgb, var(--color-accent, #b5654d) 84%, #000); }
+
+.btn-link {
+  position: relative;
+  background: transparent;
+  color: var(--color-accent, #b5654d);
+  border: 0;
+  padding-left: 0;
+  padding-right: 0;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+}
+.btn-link::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: .35em;
+  height: 1px;
+  background: currentColor;
+  opacity: .55;
+  transition: opacity .2s;
+}
+.btn-link:hover::after { opacity: 1; }
+
+.btn-rule {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+}
+.btn-rule:hover { border-color: var(--color-accent, #b5654d); color: var(--color-accent, #b5654d); }
+
+/* Varian lama: tidak lagi ditawarkan di Studio, tapi baris tersimpan masih memakainya. */
+.btn-primary { background: var(--color-accent, #b5654d); color: var(--color-surface, #fffaf3); border-width: 0; border-radius: var(--radius, 12px); }
+.btn-secondary { background: var(--color-surface, #fffaf3); color: var(--color-accent, #b5654d); border: 2px solid var(--color-accent, #b5654d); }
 .btn-ghost { background: transparent; color: var(--color-accent, #b5654d); border-width: 0; }
 
 /* --- countdown variants --- */
