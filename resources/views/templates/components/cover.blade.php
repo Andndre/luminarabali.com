@@ -28,7 +28,7 @@ $variant = $props['variant'] ?? 'fullscreen';
     content: ''; position: absolute; inset: 0;
     @if($overlayEnabled) background: rgba(0, 0, 0, 0.45); @endif
   }
-  .cover-text-{{ $sid }} { font-family: {!! $fontFamily !!}; color: var(--color-on_dark, #f5f1e8); }
+  .cover-text-{{ $sid }} { font-family: {{ $fontFamily }}; color: var(--color-on_dark, #f5f1e8); }
 </style>
 
 {{-- 1. Gate full-viewport (sebelum dibuka) --}}

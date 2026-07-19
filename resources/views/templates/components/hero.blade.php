@@ -54,7 +54,7 @@ $variant = $props['variant'] ?? 'fullscreen';
   .hero-section-{{ $section->id ?? 'default' }} .hero-title,
   .hero-section-{{ $section->id ?? 'default' }} .hero-names,
   .hero-section-{{ $section->id ?? 'default' }} .hero-date {
-    font-family: {!! $fontFamily !!};
+    font-family: {{ $fontFamily }};
     color: var(--color-on_dark, #f5f1e8);
   }
 </style>
