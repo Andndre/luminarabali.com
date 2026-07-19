@@ -18,7 +18,7 @@
     $marginLeftMode = $props['margin_left_mode'] ?? 'px';
     $marginRightMode = $props['margin_right_mode'] ?? 'px';
     $borderWidth = $props['border_width'] ?? 0;
-    $borderColor = $props['border_color'] ?? '#e5e7eb';
+    $borderColor = $props['border_color'] ?? 'var(--color-surface_alt, #e5e7eb)';
     $borderRadius = $props['border_radius'] ?? 0;
     $shadow = $props['shadow'] ?? 'none';
 

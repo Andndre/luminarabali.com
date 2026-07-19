@@ -586,17 +586,11 @@ class TemplateEditorController extends Controller
         foreach ($template->sections as $section) {
             $schema = config("invitation_components.{$section->section_type}", []);
             foreach ($schema as $field) {
-                if (($field['group'] ?? null) !== 'content') {
-                    continue;
-                }
-                if ($section->section_type === 'cover' && $field['key'] === 'background_image') {
-                    // Cover's background_image is optional by design: cover.blade.php always
-                    // renders an opaque #1a1a1a fallback background unconditionally (see Task 6
-                    // brief scope note), so an empty cover background image must not block
-                    // publishing. This exemption is intentionally narrow: hero.blade.php has no
-                    // equivalent fallback (an unset background_image just renders `url('')`), and
-                    // other image-type content fields (e.g. image.src) have no fallback either, so
-                    // they are NOT exempted here.
+                // Field wajib bersifat opt-in via `'required' => true` di skema. Default: opsional.
+                // Hanya field yang benar-benar merusak render saat kosong (mis. image.src yang
+                // menghasilkan <img src=""> rusak tanpa fallback) yang ditandai wajib. Field teks
+                // kosong (heading/label) aman — komponen cukup tidak merender bagian itu.
+                if (empty($field['required'])) {
                     continue;
                 }
                 $effective = $section->props[$field['key']] ?? $field['default'] ?? null;

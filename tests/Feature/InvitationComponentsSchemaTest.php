@@ -21,12 +21,15 @@ class InvitationComponentsSchemaTest extends TestCase
 
     public function test_color_field_tokens_reference_real_theme_tokens(): void
     {
+        // Whitelist = kunci warna kanonik di default_theme (satu sumber kebenaran).
+        $canonical = array_keys(config('invitation.default_theme.colors'));
+
         foreach (config('invitation_components') as $type => $fields) {
             foreach ($fields as $field) {
                 if (($field['type'] ?? null) === 'color' && isset($field['token'])) {
                     $this->assertContains(
                         $field['token'],
-                        ['primary', 'accent', 'surface', 'text'],
+                        $canonical,
                         "{$type}.{$field['key']} token tidak valid."
                     );
                 }
