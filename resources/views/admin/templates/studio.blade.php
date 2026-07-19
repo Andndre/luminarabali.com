@@ -1055,18 +1055,28 @@ function studioApp() {
             new Sortable(this.$refs.sectionList, {
                 handle: '.drag-handle',
                 animation: 150,
+                draggable: '[data-id]', // hanya pembungkus section top-level
                 onEnd: () => this.persistOrder(),
             });
         },
 
         initColumnSortable(el) {
-            // Drag antar kolom dipasang di Task 3.
+            if (el.dataset.sortableReady) return; // x-init bisa jalan ulang saat list re-render
+            el.dataset.sortableReady = '1';
+            new Sortable(el, {
+                group: 'studio-columns', // satu grup = boleh seret antar kolom & antar container
+                handle: '.drag-handle',
+                animation: 150,
+                onEnd: () => this.persistColumnOrder(),
+            });
         },
 
         async persistOrder() {
             // Read the new order off the DOM, re-sync the Alpine array to it
             // (keyed x-for then leaves the DOM untouched), persist, re-render.
-            const ids = [...this.$refs.sectionList.querySelectorAll('[data-id]')].map(el => el.dataset.id);
+            const ids = [...this.$refs.sectionList.children]
+                .map(el => el.dataset.id)
+                .filter(Boolean);
             this.sections = ids.map(id => this.sections.find(s => s.id === id));
             try {
                 await this.api('POST', '/admin/api/templates/sections/reorder', {
@@ -1075,6 +1085,36 @@ function studioApp() {
                 this.reloadPreview();
             } catch {
                 this.toastError('Gagal menyimpan urutan');
+            }
+        },
+
+        async persistColumnOrder() {
+            // Baca ulang seluruh kolom dari DOM: satu drag bisa mengubah dua kolom sekaligus.
+            const rows = [];
+            this.$el.querySelectorAll('[data-parent][data-column]').forEach(col => {
+                [...col.querySelectorAll('[data-id]')].forEach((el, i) => {
+                    rows.push({
+                        id: el.dataset.id,
+                        order_index: i,
+                        parent_id: col.dataset.parent,
+                        column_index: Number(col.dataset.column),
+                    });
+                });
+            });
+            if (rows.length === 0) return;
+
+            try {
+                await this.api('POST', '/admin/api/templates/sections/reorder', { sections: rows });
+                rows.forEach(r => {
+                    const child = this.children.find(c => String(c.id) === String(r.id));
+                    if (!child) return;
+                    child.parent_id = r.parent_id;
+                    child.order_index = r.order_index;
+                    child.props = { ...child.props, column_index: r.column_index };
+                });
+                this.reloadPreview();
+            } catch {
+                this.toastError('Gagal menyimpan urutan kolom');
             }
         },
 

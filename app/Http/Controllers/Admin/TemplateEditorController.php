@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class TemplateEditorController extends Controller
 {
@@ -337,17 +338,58 @@ class TemplateEditorController extends Controller
     {
         $this->authorizeSuperAdmin();
 
+        $classes = config('invitation_component_classes');
+
         $request->validate([
             'sections' => 'required|array',
             'sections.*.id' => 'required|exists:invitation_sections,id',
             'sections.*.order_index' => 'required|integer',
+            'sections.*.parent_id' => 'nullable|exists:invitation_sections,id',
+            'sections.*.column_index' => 'nullable|integer|min:0',
         ]);
 
-        foreach ($request->sections as $sectionData) {
-            $section = InvitationSection::find($sectionData['id']);
-            if ($section) {
-                $section->update(['order_index' => $sectionData['order_index']]);
+        foreach ($request->sections as $i => $row) {
+            if (!array_key_exists('parent_id', $row) || $row['parent_id'] === null) {
+                continue;
             }
+            $child = InvitationSection::find($row['id']);
+            $parent = InvitationSection::find($row['parent_id']);
+
+            if (!$child || !$parent
+                || !in_array($child->section_type, $classes['basic'], true)
+                || !in_array($parent->section_type, $classes['container'], true)
+                || $parent->template_id !== $child->template_id) {
+                throw ValidationException::withMessages([
+                    "sections.{$i}.parent_id" => ['Induk harus Layout section pada template yang sama, dan anak harus blok dasar.'],
+                ]);
+            }
+
+            $columns = $classes['container_columns'][$parent->section_type] ?? 0;
+            if ((int) ($row['column_index'] ?? 0) >= $columns) {
+                throw ValidationException::withMessages([
+                    "sections.{$i}.column_index" => ['Kolom tidak tersedia pada container ini.'],
+                ]);
+            }
+        }
+
+        foreach ($request->sections as $row) {
+            $section = InvitationSection::find($row['id']);
+            if (!$section) {
+                continue;
+            }
+
+            $attributes = ['order_index' => $row['order_index']];
+
+            if (array_key_exists('parent_id', $row)) {
+                $attributes['parent_id'] = $row['parent_id'];
+            }
+            if (array_key_exists('column_index', $row) && $row['parent_id'] !== null) {
+                $attributes['props'] = array_merge($section->props ?? [], [
+                    'column_index' => (int) $row['column_index'],
+                ]);
+            }
+
+            $section->update($attributes);
         }
 
         return response()->json(['success' => true]);

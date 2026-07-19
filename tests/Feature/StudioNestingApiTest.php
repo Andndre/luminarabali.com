@@ -113,4 +113,44 @@ class StudioNestingApiTest extends TestCase
 
         $this->assertSame(0, $child->fresh()->props['column_index']);
     }
+
+    public function test_reorder_moves_a_child_between_columns(): void
+    {
+        $parent = $this->section('section_two_col');
+        $child = $this->section('text', $parent->id, ['column_index' => 0]);
+
+        $this->postJson('/admin/api/templates/sections/reorder', [
+            'sections' => [
+                ['id' => $child->id, 'order_index' => 0, 'parent_id' => $parent->id, 'column_index' => 1],
+            ],
+        ])->assertOk();
+
+        $child->refresh();
+        $this->assertSame($parent->id, $child->parent_id);
+        $this->assertSame(1, $child->props['column_index']);
+    }
+
+    public function test_reorder_rejects_a_column_index_outside_the_container(): void
+    {
+        $parent = $this->section('section_two_col');
+        $child = $this->section('text', $parent->id, ['column_index' => 0]);
+
+        $this->postJson('/admin/api/templates/sections/reorder', [
+            'sections' => [
+                ['id' => $child->id, 'order_index' => 0, 'parent_id' => $parent->id, 'column_index' => 5],
+            ],
+        ])->assertStatus(422);
+    }
+
+    public function test_reorder_rejects_promoting_a_basic_under_a_non_container(): void
+    {
+        $feature = $this->section('couple');
+        $child = $this->section('text');
+
+        $this->postJson('/admin/api/templates/sections/reorder', [
+            'sections' => [
+                ['id' => $child->id, 'order_index' => 0, 'parent_id' => $feature->id, 'column_index' => 0],
+            ],
+        ])->assertStatus(422);
+    }
 }
