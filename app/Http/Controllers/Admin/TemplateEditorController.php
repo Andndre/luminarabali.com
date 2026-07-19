@@ -55,6 +55,7 @@ class TemplateEditorController extends Controller
             'colors' => array_merge($default['colors'], $template->theme['colors'] ?? []),
             'fonts' => array_merge($default['fonts'], $template->theme['fonts'] ?? []),
             'scales' => array_merge($default['scales'], $template->theme['scales'] ?? []),
+            'ornaments' => array_merge($default['ornaments'], $template->theme['ornaments'] ?? []),
         ];
 
         return view('admin.templates.studio', [
@@ -336,6 +337,14 @@ class TemplateEditorController extends Controller
             'scales.radius' => 'required|numeric|min:0|max:64',
             'scales.section_spacing' => 'required|numeric|min:0|max:200',
             'scales.shadow_level' => ['required', \Illuminate\Validation\Rule::in(['none', 'sm', 'md', 'lg'])],
+            'ornaments' => 'nullable|array',
+            // Path aset lokal saja. Nilainya dipakai di url() dalam <style>, jadi kutip,
+            // kurung, dan backslash ditolak di sini — bukan di-escape saat render.
+            'ornaments.heading_rule' => ['nullable', 'string', 'regex:#^[A-Za-z0-9/_.-]+$#'],
+            'ornaments.heading_rule_top' => ['nullable', 'string', 'regex:#^[A-Za-z0-9/_.-]+$#'],
+            'ornaments.heading_rule_width' => 'nullable|numeric|min:10|max:100',
+            'ornaments.heading_rule_top_width' => 'nullable|numeric|min:10|max:100',
+            'ornaments.heading_rule_gap' => 'nullable|numeric|min:0|max:80',
         ];
         foreach ($colorKeys as $k) {
             $rules["colors.{$k}"] = ['required', $hex];
@@ -349,6 +358,7 @@ class TemplateEditorController extends Controller
                 'colors' => $request->colors,
                 'fonts' => $request->fonts,
                 'scales' => $request->scales,
+                'ornaments' => $request->ornaments ?? [],
             ],
         ]);
 

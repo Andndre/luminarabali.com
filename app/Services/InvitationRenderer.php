@@ -93,6 +93,7 @@ class InvitationRenderer
             'colors' => array_merge($default['colors'], $part($templateTheme, 'colors'), $part($overrides, 'colors')),
             'fonts' => array_merge($default['fonts'], $part($templateTheme, 'fonts'), $part($overrides, 'fonts')),
             'scales' => array_merge($default['scales'], $part($templateTheme, 'scales'), $part($overrides, 'scales')),
+            'ornaments' => array_merge($default['ornaments'] ?? [], $part($templateTheme, 'ornaments'), $part($overrides, 'ornaments')),
         ];
 
         return $this->buildStyleBlock($theme) . $this->buildFontLinks($theme);
@@ -120,7 +121,54 @@ class InvitationRenderer
 
         $vars = array_merge($vars, $this->scaleVars($theme['scales'] ?? []));
 
+        $vars = array_merge($vars, $this->headingRuleVars(
+            is_array($theme['ornaments'] ?? null) ? $theme['ornaments'] : []
+        ));
+
         return '<style>:root{'.implode('', $vars).'}</style>';
+    }
+
+    /**
+     * Ornamen judul (atas dan/atau bawah). Var hanya dikeluarkan untuk sisi yang punya
+     * ornamen: kalau tidak, aturan CSS jatuh ke batang lurus lama (bawah) atau tidak
+     * dirender sama sekali (atas).
+     */
+    protected function headingRuleVars(array $ornaments): array
+    {
+        // Path masuk ke url() di dalam <style>: kutip, kurung, dan backslash harus
+        // DITOLAK, bukan di-escape — hanya path aset lokal yang lolos.
+        $safe = fn ($v) => is_string($v) && preg_match('#^[A-Za-z0-9/_.-]+$#', $v) ? $v : null;
+        // URL absolut, bukan '/storage/…': url() di dalam custom property diselesaikan
+        // relatif ke stylesheet tempat var itu DIPAKAI (invitation.css), bukan tempat ia
+        // dideklarasikan. Di dev Vite menyajikan file itu dari port lain, jadi path
+        // berawalan slash menembak host yang salah dan berakhir 404.
+        $url = fn (string $p) => "url('".asset('storage/'.ltrim($p, '/'))."')";
+        $num = fn ($v, float $min, float $max, float $fallback) => rtrim(rtrim(number_format(
+            is_numeric($v) ? max($min, min($max, (float) $v)) : $fallback, 2, '.', ''
+        ), '0'), '.');
+
+        $top = $safe($ornaments['heading_rule_top'] ?? null);
+        $bottom = $safe($ornaments['heading_rule'] ?? null);
+
+        $vars = ['--heading-rule-gap: '.$num($ornaments['heading_rule_gap'] ?? null, 0, 80, 14).'px;'];
+
+        if ($top) {
+            $vars[] = '--heading-rule-top: '.$url($top).';';
+            // ::before tidak dirender sama sekali tanpa ornamen atas.
+            $vars[] = '--heading-rule-top-d: block;';
+            $vars[] = '--heading-rule-top-w: '.$num($ornaments['heading_rule_top_width'] ?? null, 10, 100, 80).'%;';
+        }
+
+        if ($bottom) {
+            $vars[] = '--heading-rule: '.$url($bottom).';';
+            $vars[] = '--heading-rule-w: '.$num($ornaments['heading_rule_width'] ?? null, 10, 100, 80).'%;';
+            // Tinggi diturunkan dari lebar lewat aspect-ratio: rasio SVG-nya tidak diketahui
+            // server, dan mask-size:contain memuat bentuk apa pun di dalam kotak ini.
+            $vars[] = '--heading-rule-h: auto;';
+            $vars[] = '--heading-rule-ar: 7 / 1;';
+        }
+
+        return $vars;
     }
 
     protected function scaleVars(array $scales): array

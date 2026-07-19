@@ -45,5 +45,16 @@ return [
             'section_spacing' => 64,
             'shadow_level' => 'sm',
         ],
+        // Ornamen milik tema, bukan section: satu pilihan mengubah semua judul sekaligus.
+        // null = garis lurus bawaan.
+        'ornaments' => [
+            'heading_rule_top' => null,
+            'heading_rule' => null,
+            // Persen lebar judul; 100 = penuh. Terpisah per sisi.
+            'heading_rule_top_width' => 80,
+            'heading_rule_width' => 80,
+            // Jarak vertikal antara judul dan ornamennya, dalam px.
+            'heading_rule_gap' => 14,
+        ],
     ],
 ];

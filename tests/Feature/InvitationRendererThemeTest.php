@@ -40,6 +40,59 @@ class InvitationRendererThemeTest extends TestCase
         $this->assertStringContainsString("--font-heading: '".config('invitation.default_theme.fonts.heading')."'", $style);
     }
 
+    public function test_heading_rule_ornament_emits_var_only_for_safe_local_paths(): void
+    {
+        $renderer = new InvitationRenderer();
+
+        $style = $renderer->themeStyle($this->pageWithTheme(['ornaments' => ['heading_rule' => 'ornaments/leaf.svg']], null));
+        // URL absolut wajib: url() di custom property diselesaikan relatif ke stylesheet
+        // yang MEMAKAI var, dan di dev itu disajikan Vite dari host lain.
+        $this->assertStringContainsString("--heading-rule: url('".asset('storage/ornaments/leaf.svg')."')", $style);
+        $this->assertStringContainsString('http', $style);
+        $this->assertStringContainsString('--heading-rule-w: 80%', $style);
+
+        // Lebar dijepit ke 10..100 supaya nilai liar tidak merusak layout judul.
+        $wide = $renderer->themeStyle($this->pageWithTheme(
+            ['ornaments' => ['heading_rule' => 'ornaments/leaf.svg', 'heading_rule_width' => 999]], null
+        ));
+        $this->assertStringContainsString('--heading-rule-w: 100%', $wide);
+
+        // Ornamen atas berdiri sendiri: kalau hanya sisi atas yang diisi, var sisi bawah
+        // tidak boleh ikut keluar — kalau tidak, batang lurus bawaan berubah jadi
+        // kotak aksen setinggi rasio 7:1.
+        $topOnly = $renderer->themeStyle($this->pageWithTheme(
+            ['ornaments' => ['heading_rule_top' => 'ornaments/crown.svg']], null
+        ));
+        $this->assertStringContainsString('--heading-rule-top: ', $topOnly);
+        $this->assertStringContainsString('--heading-rule-top-d: block', $topOnly);
+
+        // Lebar tiap sisi berdiri sendiri.
+        $both = $renderer->themeStyle($this->pageWithTheme(['ornaments' => [
+            'heading_rule_top' => 'ornaments/crown.svg', 'heading_rule_top_width' => 30,
+            'heading_rule' => 'ornaments/leaf.svg', 'heading_rule_width' => 90,
+        ]], null));
+        $this->assertStringContainsString('--heading-rule-top-w: 30%', $both);
+        $this->assertStringContainsString('--heading-rule-w: 90%', $both);
+        $this->assertStringNotContainsString('--heading-rule-ar', $topOnly);
+        $this->assertStringNotContainsString('--heading-rule-h', $topOnly);
+
+        // Path masuk ke url() di dalam <style>: kutip harus ditolak, bukan di-escape,
+        // supaya tidak bisa menutup url() dan menyuntik deklarasi lain.
+        $evil = $renderer->themeStyle($this->pageWithTheme(
+            ['ornaments' => ['heading_rule' => "x.svg'); background: url('//evil"]], null
+        ));
+        $this->assertStringNotContainsString('--heading-rule:', $evil);
+        $this->assertStringNotContainsString('evil', $evil);
+
+        // Tanpa ornamen: tidak ada var url sama sekali, CSS jatuh ke batang lurus bawaan
+        // di bawah judul dan tidak apa-apa di atasnya. (--heading-rule-gap selalu ada:
+        // ia juga mengatur jarak batang lurus itu.)
+        $none = $renderer->themeStyle($this->pageWithTheme(null, null));
+        $this->assertStringNotContainsString('--heading-rule:', $none);
+        $this->assertStringNotContainsString('--heading-rule-top:', $none);
+        $this->assertStringContainsString('--heading-rule-gap: 14px', $none);
+    }
+
     public function test_template_theme_overrides_default(): void
     {
         $page = $this->pageWithTheme(['colors' => ['primary' => '#111111']], null);

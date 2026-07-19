@@ -143,6 +143,51 @@
                     </label>
                 </div>
             </section>
+
+            <section>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Ornamen</h3>
+                <template x-for="slot in [{ key: 'heading_rule_top', width: 'heading_rule_top_width', label: 'Di Atas Judul' }, { key: 'heading_rule', width: 'heading_rule_width', label: 'Di Bawah Judul' }]" :key="slot.key">
+                    <div class="mb-2">
+                        <span class="text-xs text-gray-600" x-text="slot.label"></span>
+                        <div class="mt-1 flex items-center gap-2">
+                            <div class="w-10 h-10 shrink-0 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden">
+                                <img x-show="theme.ornaments[slot.key]" :src="mediaUrl(theme.ornaments[slot.key])" class="w-full h-full object-contain">
+                            </div>
+                            <button type="button" @click="openOrnamentPickerTheme(slot.key)"
+                                class="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-left hover:border-black">
+                                <span x-text="theme.ornaments[slot.key] ? 'Ganti…' : 'Pilih ornamen…'"></span>
+                            </button>
+                            <button type="button" x-show="theme.ornaments[slot.key]" @click="setOrnamentTheme(slot.key, null)"
+                                class="p-1 rounded text-gray-400 hover:bg-red-50 hover:text-red-600">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        <label class="block mt-1.5" x-show="theme.ornaments[slot.key]">
+                            <span class="text-xs text-gray-500">Lebar (%)</span>
+                            <div class="mt-1 flex items-center gap-2">
+                                <input type="range" min="10" max="100" step="5" class="flex-1"
+                                    :value="theme.ornaments[slot.width] ?? 80"
+                                    @input="setOrnamentTheme(slot.width, Number($event.target.value))">
+                                <span class="w-8 text-right text-xs tabular-nums text-gray-600"
+                                    x-text="theme.ornaments[slot.width] ?? 80"></span>
+                            </div>
+                        </label>
+                    </div>
+                </template>
+
+                <label class="block mt-2">
+                    <span class="text-xs text-gray-600">Jarak ke Judul (px)</span>
+                    <div class="mt-1 flex items-center gap-2">
+                        <input type="range" min="0" max="80" step="2" class="flex-1"
+                            :value="theme.ornaments.heading_rule_gap ?? 14"
+                            @input="setOrnamentTheme('heading_rule_gap', Number($event.target.value))">
+                        <span class="w-8 text-right text-xs tabular-nums text-gray-600"
+                            x-text="theme.ornaments.heading_rule_gap ?? 14"></span>
+                    </div>
+                </label>
+                <p class="mt-1 text-xs text-gray-400">Berlaku untuk judul semua komponen. Warnanya ikut warna Aksen tema.</p>
+            </section>
+
             <p class="text-xs text-gray-400">Perubahan tersimpan otomatis dan langsung terlihat di preview.</p>
         </div>
 
@@ -368,7 +413,7 @@ function studioApp() {
         presets: [],
         presetsLoaded: false,
         ornaments: [],
-        ornamentPicker: { open: false, listKey: null, index: null },
+        ornamentPicker: { open: false, listKey: null, index: null, themeKey: null },
         panel: 'sections',
         theme: @json($themeBase),
         fonts: @json($fonts),
@@ -748,12 +793,27 @@ function studioApp() {
         },
 
         openOrnamentPickerItem(listKey, index) {
-            this.ornamentPicker = { open: true, listKey, index };
+            this.ornamentPicker = { open: true, listKey, index, themeKey: null };
+        },
+
+        // themeKey terisi = ornamen milik tema, bukan item di dalam daftar section.
+        openOrnamentPickerTheme(themeKey) {
+            this.ornamentPicker = { open: true, listKey: null, index: null, themeKey };
+        },
+
+        setOrnamentTheme(key, value) {
+            if (!this.themeSaveTimer) this.pushUndo();
+            this.theme.ornaments[key] = value;
+            // Var-nya diturunkan server di buildStyleBlock — reload sekali biar akurat.
+            this.fontsDirty = true;
+            this.queueThemeSave();
         },
 
         pickOrnament(path) {
-            const { listKey, index } = this.ornamentPicker;
-            if (listKey !== null && index !== null) {
+            const { listKey, index, themeKey } = this.ornamentPicker;
+            if (themeKey) {
+                this.setOrnamentTheme(themeKey, path);
+            } else if (listKey !== null && index !== null) {
                 this.setOrnItem({ key: listKey }, index, 'src', path);
             }
             this.ornamentPicker.open = false;

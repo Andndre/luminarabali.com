@@ -272,12 +272,31 @@
 }
 /* Garis aksen dulu hanya dipunyai couple, event_details, dan gallery — tujuh komponen
    lain tidak, sehingga judul terlihat berbeda-beda antar section pada satu undangan. */
+/* Ornamen tema (opsional) mengambil alih bentuk garis lewat mask: warnanya tetap
+   datang dari token aksen, jadi satu ornamen cocok di semua tema. Tanpa ornamen,
+   --heading-rule tidak ada dan `mask: none` menyisakan batang lurus seperti dulu. */
 .section-heading::after {
   content: ""; display: block;
-  width: 3rem; height: 2px;
-  margin: .85rem auto 0;
+  width: var(--heading-rule-w, 3rem);
+  height: var(--heading-rule-h, 2px);
+  aspect-ratio: var(--heading-rule-ar, auto);
+  margin: var(--heading-rule-gap, .85rem) auto 0;
   background: var(--color-accent, #b5654d);
   opacity: .8;
+  -webkit-mask: var(--heading-rule, none) center / contain no-repeat;
+  mask: var(--heading-rule, none) center / contain no-repeat;
+}
+/* Ornamen atas murni opsional: tanpa pilihan tema, display:none dan ::before tidak
+   memakan ruang sama sekali — tidak ada batang lurus bawaan di sisi ini. */
+.section-heading::before {
+  content: ""; display: var(--heading-rule-top-d, none);
+  width: var(--heading-rule-top-w, 5rem);
+  aspect-ratio: 7 / 1;
+  margin: 0 auto var(--heading-rule-gap, .85rem);
+  background: var(--color-accent, #b5654d);
+  opacity: .8;
+  -webkit-mask: var(--heading-rule-top, none) center / contain no-repeat;
+  mask: var(--heading-rule-top, none) center / contain no-repeat;
 }
 .section-subheading {
   font-size: var(--step-sm, .875rem);
@@ -488,7 +507,8 @@
 }
 .stream--marquee .stream-heading,
 .stream--marquee .stream-schedule { color: inherit; margin-bottom: .6rem; }
-.stream--marquee .stream-heading::after { background: currentColor; }
+.stream--marquee .stream-heading::after,
+.stream--marquee .stream-heading::before { background: currentColor; }
 .stream--marquee .stream-schedule { margin-bottom: 0; opacity: .85; }
 .stream--marquee .stream-play { inset: 0 0 auto 0; margin: 0 auto; top: 30%; }
 
