@@ -164,9 +164,8 @@
 
 /* --- couple --- */
 .couple-inner { max-width: 40rem; margin: 0 auto; text-align: center; }
-.couple-heading { font-weight: 700; letter-spacing: .04em; margin-bottom: 2.5rem; }
+.couple-heading { margin-bottom: 2.5rem; }
 /* garis aksen pendek di bawah judul (motif undangan) */
-.couple-heading::after { content: ""; display: block; width: 3rem; height: 2px; margin: .85rem auto 0; background: var(--color-accent, #b5654d); opacity: .8; }
 .couple-eyebrow { font-size: var(--step-sm, 13px); letter-spacing: .18em; text-transform: uppercase; color: var(--color-accent, #b5654d); margin-bottom: .35rem; }
 .couple-name { letter-spacing: .02em; }
 .couple-sub { margin-top: .5rem; font-size: var(--step-sm, 13px); color: var(--color-muted, #7a6f66); }
@@ -206,8 +205,7 @@
 
 /* --- event_details --- */
 .events-inner { max-width: 42rem; margin: 0 auto; text-align: center; }
-.events-heading { font-weight: 700; letter-spacing: .04em; margin-bottom: 2.5rem; }
-.events-heading::after { content: ""; display: block; width: 3rem; height: 2px; margin: .85rem auto 0; background: var(--color-accent, #b5654d); opacity: .8; }
+.events-heading { margin-bottom: 2.5rem; }
 .events-list { display: grid; gap: 1.5rem; }
 .event-line { margin-top: .35rem; font-size: var(--step-sm, 13px); color: var(--color-muted, #7a6f66); }
 .event-venue { margin-top: .85rem; font-weight: 600; }
@@ -220,9 +218,6 @@
 
 /* --- gallery variants --- */
 .gallery-header { max-width: 42rem; margin: 0 auto 2.5rem; text-align: center; }
-.gallery-heading { font-weight: 700; letter-spacing: .04em; }
-.gallery-heading::after { content: ""; display: block; width: 3rem; height: 2px; margin: .85rem auto 0; background: var(--color-accent, #b5654d); opacity: .8; }
-.gallery-subheading { margin-top: .75rem; font-size: var(--step-sm, 13px); color: var(--color-muted, #7a6f66); }
 .gallery-video { position: relative; padding-bottom: 56.25%; height: 0; margin: 0 auto 2rem; max-width: 48rem; overflow: clip; box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.08)); }
 .gallery-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
 .gallery--grid .gallery-grid { display: grid; gap: 1rem; }
@@ -263,8 +258,35 @@
 .cover--minimal .invite-gate-kicker { letter-spacing: .2em; }
 .cover--minimal .invite-gate-names { font-size: clamp(2rem, 6vw, 3.25rem); }
 
+/* --- judul section: satu tempat, dipakai semua komponen ---
+   Sebelumnya tiap komponen menyalin font-family + font-size yang sama secara inline,
+   jadi tema tidak punya satu titik untuk mengubah gaya judul. Warnanya sudah datang
+   dari --fg-heading lewat aturan .invite-content :is(h1..h6). */
+.section-heading {
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-2xl, 2rem);
+  font-weight: 700;
+  letter-spacing: .04em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+/* Garis aksen dulu hanya dipunyai couple, event_details, dan gallery — tujuh komponen
+   lain tidak, sehingga judul terlihat berbeda-beda antar section pada satu undangan. */
+.section-heading::after {
+  content: ""; display: block;
+  width: 3rem; height: 2px;
+  margin: .85rem auto 0;
+  background: var(--color-accent, #b5654d);
+  opacity: .8;
+}
+.section-subheading {
+  font-size: var(--step-sm, .875rem);
+  color: var(--color-muted, #7a6f66);
+  margin-top: .5rem;
+}
+
 /* --- button variants (token-driven; variant sebelumnya dihitung tapi tidak dipakai) --- */
-.btn-primary { background: var(--color-accent, #b5654d); color: var(--color-surface, #ffffff); border-width: 0; }
+.btn-primary { background: var(--color-accent, #b5654d); color: var(--color-surface, #ffffff); border-width: 0; border-radius: var(--radius, 12px); }
 .btn-secondary { background: var(--color-surface, #ffffff); color: var(--color-accent, #b5654d); border: 2px solid var(--color-accent, #b5654d); }
 .btn-outline { background: transparent; color: inherit; border: 2px solid currentColor; }
 .btn-ghost { background: transparent; color: var(--color-accent, #b5654d); border-width: 0; }
@@ -273,7 +295,7 @@
 .map-frame { border-radius: var(--radius, 12px); overflow: clip; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
 
 /* --- countdown variants --- */
-.countdown-title { font-weight: 700; margin-bottom: 2rem; }
+.countdown-title { margin-bottom: 2rem; }
 .countdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(.5rem, 2.5cqi, 1rem); max-width: 28rem; margin: 0 auto; }
 .countdown-item { display: flex; flex-direction: column; align-items: center; }
 .countdown-number {
@@ -328,8 +350,8 @@
 /* --- rsvp variants --- */
 .rsvp-inner { max-width: 28rem; margin: 0 auto; }
 .rsvp-head { text-align: center; margin-bottom: 2rem; }
-.rsvp-heading { font-weight: 700; font-size: var(--step-2xl, 1.875rem); margin-bottom: .5rem; }
-.rsvp-subtitle { opacity: .8; }
+.rsvp-heading { margin-bottom: .5rem; }
+.rsvp-subtitle { opacity: .8; margin-top: .75rem; }
 
 .rsvp-label { display: block; font-size: var(--step-sm, .875rem); font-weight: 600; margin-bottom: .25rem; }
 .f-row { margin-bottom: 1rem; }
@@ -381,6 +403,221 @@
   color: #b42318; /* merah galat: sengaja di luar token tema — arti "gagal" tidak boleh ikut warna merek */
 }
 .rsvp-button:disabled { opacity: .6; cursor: progress; }
+
+/* --- love_story: dasar + empat varian ---
+   Satu foto untuk seluruh section (opsional), bukan foto per babak: varian di sini
+   membedakan tata letak teks, jadi tidak ada yang bergantung pada ada-tidaknya foto. */
+.story-cover {
+  margin-top: 1.75rem; aspect-ratio: 3 / 2;
+  border-radius: var(--radius, 12px); overflow: clip;
+}
+.story-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.story-list { margin-top: 2.25rem; }
+.story-year {
+  font-size: var(--step-sm, .8rem); letter-spacing: .18em;
+  text-transform: uppercase; color: var(--color-accent, #b5654d);
+}
+.story-title { font-family: var(--font-heading, serif); font-size: var(--step-lg, 1.15rem); margin-top: .2rem; }
+.story-text { font-size: var(--step-sm, .875rem); line-height: 1.65; color: var(--color-muted, #7a6f66); margin-top: .4rem; }
+
+/* marginalia: tahun jadi catatan pinggir di margin kiri, sejajar baris pertama judul.
+   Berakar pada halaman cetak — bukan garis-dan-titik khas komponen UI. */
+.story--marginalia .story-item {
+  display: grid;
+  grid-template-columns: 4.25rem 1fr;
+  column-gap: 1.25rem;
+  padding: 1.65rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 10%, transparent);
+}
+.story--marginalia .story-item:first-child { border-top: 0; padding-top: 0; }
+.story--marginalia .story-item:last-child { padding-bottom: 0; }
+.story--marginalia .story-year {
+  grid-column: 1; grid-row: 1 / span 2;
+  text-align: right;
+  font-size: .7rem; letter-spacing: .16em;
+  /* .3rem, bukan 0: menyejajarkan tahun dengan baris pertama judul, bukan puncak kotaknya. */
+  padding-top: .3rem;
+}
+.story--marginalia .story-title { grid-column: 2; grid-row: 1; margin-top: 0; }
+.story--marginalia .story-text { grid-column: 2; grid-row: 2; }
+/* Di bawah 340px margin 4.25rem memakan terlalu banyak — tahun naik ke atas judul. */
+@container (max-width: 340px) {
+  .story--marginalia .story-item { grid-template-columns: 1fr; }
+  .story--marginalia .story-year {
+    grid-column: 1; grid-row: auto;
+    text-align: left; padding-top: 0;
+  }
+  .story--marginalia .story-title,
+  .story--marginalia .story-text { grid-column: 1; grid-row: auto; }
+}
+
+/* center-line: garis di tengah, babak berselang-seling kiri dan kanan */
+.story--center-line .story-list { position: relative; }
+.story--center-line .story-list::before {
+  content: ''; position: absolute; left: 50%; top: .5rem; bottom: .5rem;
+  width: 1px; transform: translateX(-50%);
+  background: color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent);
+}
+.story--center-line .story-item {
+  position: relative; width: 50%;
+  padding: 0 1.5rem 2rem 0; text-align: right;
+}
+.story--center-line .story-item:nth-child(even) {
+  margin-left: 50%; padding: 0 0 2rem 1.5rem; text-align: left;
+}
+.story--center-line .story-item:last-child { padding-bottom: 0; }
+.story--center-line .story-item::before {
+  content: ''; position: absolute; right: -4.5px; top: .45rem;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--color-accent, #b5654d);
+  box-shadow: 0 0 0 4px var(--color-surface, #fffaf3);
+}
+.story--center-line .story-item:nth-child(even)::before { right: auto; left: -4.5px; }
+/* Di kartu sempit dua lajur menyisakan ~150px per sisi — teks jadi lajur satu kata.
+   Runtuh ke bentuk timeline biasa. */
+@container (max-width: 380px) {
+  .story--center-line .story-list { padding-left: 2.5rem; }
+  .story--center-line .story-list::before { left: .5rem; transform: none; }
+  .story--center-line .story-item,
+  .story--center-line .story-item:nth-child(even) {
+    width: auto; margin-left: 0;
+    padding: 0 0 2rem 0; text-align: left;
+  }
+  .story--center-line .story-item::before,
+  .story--center-line .story-item:nth-child(even)::before {
+    right: auto; left: -2rem;
+  }
+}
+
+/* cards: tiap babak satu kartu terisi, tenang dan mudah dipindai */
+.story--cards .story-list { display: grid; gap: 1rem; }
+.story--cards .story-item {
+  padding: 1.15rem 1.25rem;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: var(--radius, 12px);
+}
+
+/* book: tipografi dan ruang kosong yang bercerita */
+.story--book .story-item {
+  padding: 2rem 0; text-align: center;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+.story--book .story-item:last-child { border-bottom: 0; }
+.story--book .story-year {
+  font-family: var(--font-heading, serif); font-size: var(--step-2xl, 2rem);
+  letter-spacing: .02em; text-transform: none; line-height: 1;
+}
+.story--book .story-title {
+  font-family: inherit; font-size: var(--step-sm, .78rem);
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--fg-body); margin-top: .75rem;
+}
+.story--book .story-text { max-width: 26rem; margin-inline: auto; margin-top: .85rem; }
+
+/* --- wishes: dasar + tiga varian ---
+   Tanpa max-height + overflow-y: daftar bersarang yang bisa di-scroll menjebak
+   gulir jari di dalamnya, padahal .invite-card satu-satunya scroll container. */
+.wishes-list { display: grid; gap: .85rem; margin-top: 2rem; }
+.wish-body { min-width: 0; }
+.wish-name { font-size: var(--step-sm, .85rem); font-weight: 600; }
+.wish-message { font-size: var(--step-sm, .875rem); line-height: 1.6; color: var(--color-muted, #7a6f66); margin-top: .2rem; }
+.wishes-empty { margin-top: 2rem; text-align: center; font-size: var(--step-sm, .85rem); color: var(--color-muted, #7a6f66); }
+
+/* bordered-cards: kartu bergaris tenang */
+.wishes--bordered-cards .wish {
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius, 12px);
+  border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 30%, transparent);
+}
+.wishes--bordered-cards .wish-name { color: var(--color-accent, #b5654d); }
+
+/* bubble: seperti percakapan — inisial di kiri, gelembung di kanan */
+.wishes--bubble .wish { display: flex; gap: .75rem; align-items: flex-start; }
+.wish-avatar {
+  flex-shrink: 0;
+  width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-accent, #b5654d); color: var(--color-surface, #fff);
+  font-size: var(--step-sm, .85rem); font-weight: 600;
+}
+.wishes--bubble .wish-body {
+  flex: 1;
+  padding: .8rem 1rem;
+  background: var(--color-surface_alt, #f3ece1);
+  /* sudut kiri-atas tumpul: mengarah balik ke avatar, seperti ekor gelembung */
+  border-radius: .25rem var(--radius, 12px) var(--radius, 12px) var(--radius, 12px);
+}
+
+/* divider-list: hanya garis rambut antar ucapan */
+.wishes--divider-list .wishes-list { gap: 0; }
+.wishes--divider-list .wish {
+  padding: 1.1rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+.wishes--divider-list .wish:first-child {
+  border-top: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+
+/* --- gift: dasar + tiga varian --- */
+.gift-list { display: grid; gap: 1rem; margin-top: 2rem; text-align: left; }
+.gift-account-info { flex: 1; min-width: 0; }
+.gift-bank {
+  font-size: var(--step-sm, .8rem); letter-spacing: .12em;
+  text-transform: uppercase; color: var(--color-muted, #7a6f66);
+}
+/* break-all, bukan truncate: nomor rekening yang terpotong tidak ada gunanya. */
+.gift-number {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--step-lg, 1.15rem); font-weight: 600; letter-spacing: .06em;
+  word-break: break-all; margin-top: .15rem;
+}
+.gift-holder { font-size: var(--step-sm, .85rem); color: var(--color-muted, #7a6f66); margin-top: .15rem; }
+.gift-copy {
+  flex-shrink: 0; cursor: pointer; border: 0;
+  padding: .5rem 1.15rem; border-radius: 9999px;
+  background: var(--color-accent, #b5654d); color: var(--color-surface, #fff);
+  font-size: var(--step-sm, .8rem); font-weight: 600;
+  transition: filter .15s;
+}
+.gift-copy:hover { filter: brightness(.92); }
+.gift-address { margin-top: 2rem; font-size: var(--step-sm, .85rem); color: var(--color-muted, #7a6f66); }
+.gift-address-value { color: var(--fg-body); font-weight: 500; }
+
+/* bordered-cards: kartu bergaris, nomor kiri dan tombol kanan */
+.gift--bordered-cards .gift-account {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  border-radius: var(--radius, 12px);
+  /* 35%, bukan garis aksen penuh: satu kartu masih tenang, empat kartu tidak berteriak. */
+  border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent);
+}
+
+/* elevated: kartu terisi dan terangkat, nomor jadi tokoh utama */
+.gift--elevated .gift-account {
+  padding: 1.5rem; text-align: center;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: var(--radius, 12px);
+  box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.08));
+}
+.gift--elevated .gift-number { font-size: var(--step-xl, 1.4rem); margin: .4rem 0 0; }
+.gift--elevated .gift-copy { width: 100%; margin-top: 1.15rem; border-radius: var(--radius, 12px); }
+
+/* divider-list: tanpa kotak sama sekali, hanya garis rambut antar baris */
+.gift--divider-list .gift-list { gap: 0; }
+.gift--divider-list .gift-account {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+.gift--divider-list .gift-account:first-child {
+  border-top: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+.gift--divider-list .gift-copy {
+  background: transparent; color: var(--color-accent, #b5654d);
+  padding: .25rem; border-radius: 0;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.gift--divider-list .gift-copy:hover { filter: none; opacity: .7; }
 
 /* --- music: FAB + tiga varian --- */
 .music-fab { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 40; }

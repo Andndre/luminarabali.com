@@ -67,7 +67,7 @@ $messageLabel = $props['message_label'] ?? 'Pesan';
     <div class="rsvp-inner">
       <div class="rsvp-head">
         @if($title)
-          <h2 class="rsvp-heading" style="font-family: var(--font-heading, serif);">{{ $title }}</h2>
+          <h2 class="section-heading rsvp-heading">{{ $title }}</h2>
         @endif
         @if($subtitle)
           <p class="rsvp-subtitle">{{ $subtitle }}</p>

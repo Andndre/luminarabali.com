@@ -355,10 +355,13 @@ class InvitationComponentHardeningTest extends TestCase
 
         $html = $this->get("/invitation/{$page->slug}")->getContent();
 
-        $this->assertStringContainsString(
-            '<h2 class="couple-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);"',
-            $html
-        );
+        // Judul tanpa atribut style sama sekali: font dan garis aksennya datang dari
+        // .section-heading. Selama ditulis inline di tiap komponen, tema tidak punya
+        // satu titik untuk mengubah gaya judul — dan tiap section jadi beda sendiri.
+        $this->assertStringContainsString('<h2 class="section-heading couple-heading"', $html);
+
+        $css = file_get_contents(resource_path('css/invitation.css'));
+        $this->assertStringContainsString('background: var(--color-accent, #b5654d)', $css);
     }
 
     public function test_event_details_headings_have_no_hardcoded_accent_color(): void
@@ -371,10 +374,7 @@ class InvitationComponentHardeningTest extends TestCase
 
         $html = $this->get("/invitation/{$page->slug}")->getContent();
 
-        $this->assertStringContainsString(
-            '<h2 class="events-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);">',
-            $html
-        );
+        $this->assertStringContainsString('<h2 class="section-heading events-heading">', $html);
         $this->assertStringContainsString(
             '<h3 style="font-family: var(--font-heading, serif); font-size: var(--step-lg, 20px);">Akad Nikah</h3>',
             $html
@@ -692,5 +692,20 @@ class InvitationComponentHardeningTest extends TestCase
         }
 
         $this->assertSame([], $offenders, 'Komponen ini masih memakai @push(\'scripts\').');
+    }
+
+    public function test_no_component_styles_its_section_heading_inline(): void
+    {
+        // Gaya judul milik .section-heading. Sepuluh komponen pernah menyalin deklarasi
+        // font yang sama secara inline, jadi tema tidak punya satu titik untuk mengubah
+        // judul dan tiap section tampil sedikit berbeda pada undangan yang sama.
+        $offenders = [];
+        foreach (glob(resource_path('views/templates/components/*.blade.php')) as $file) {
+            if (preg_match('/<h2[^>]*style="[^"]*--font-heading/', file_get_contents($file))) {
+                $offenders[] = basename($file);
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Judul section ini masih diberi gaya inline.');
     }
 }

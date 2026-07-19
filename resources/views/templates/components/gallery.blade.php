@@ -24,8 +24,8 @@ if ($videoUrl && preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\
     <div class="container mx-auto px-4">
         @if($heading || $subheading)
             <div class="gallery-header">
-                @if($heading)<h2 class="gallery-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);">{{ $heading }}</h2>@endif
-                @if($subheading)<p class="gallery-subheading">{{ $subheading }}</p>@endif
+                @if($heading)<h2 class="section-heading gallery-heading">{{ $heading }}</h2>@endif
+                @if($subheading)<p class="section-subheading">{{ $subheading }}</p>@endif
             </div>
         @endif
 

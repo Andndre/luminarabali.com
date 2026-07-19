@@ -14,7 +14,7 @@
 
 <section style="padding: var(--section-y, 64px) 16px;">
   <div class="container mx-auto max-w-2xl text-center">
-    <h2 class="mb-4" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);">
+    <h2 class="section-heading mb-4">
       {{ $heading }}
     </h2>
     @if($scheduleText)
@@ -29,8 +29,8 @@
       </div>
     @elseif($youtubeUrl)
       <a href="{{ $youtubeUrl }}" target="_blank" rel="noopener"
-          class="inline-block px-6 py-2.5 text-sm font-semibold"
-          style="background: var(--color-accent, #b5654d); color: var(--color-surface, #ffffff); border-radius: var(--radius, 12px);">
+          class="btn-primary inline-block px-6 py-2.5 text-sm font-semibold"
+         >
         {{ $buttonText }}
       </a>
     @endif

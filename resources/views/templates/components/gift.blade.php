@@ -7,10 +7,12 @@
     $giftAddress = $props['gift_address'] ?? '';
     $copyLabel = $props['copy_label'] ?? 'Salin';
     $copiedLabel = $props['copied_label'] ?? 'Tersalin!';
+    $addressLabel = $props['address_label'] ?? 'Kirim kado ke';
+    $variant = $props['variant'] ?? 'bordered-cards';
 @endphp
 
 {{-- Alpine, bukan @push('scripts'): <script> hasil innerHTML (preview Studio) tak dieksekusi. --}}
-<section style="padding: var(--section-y, 64px) 16px;"
+<section class="gift gift--{{ $variant }}" style="padding: var(--section-y, 64px) 16px;"
     x-data="{
       copied: null,
       async copy(text, i) {
@@ -36,35 +38,30 @@
       },
     }">
   <div class="container mx-auto max-w-xl text-center">
-    <h2 class="mb-4" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);">
-      {{ $heading }}
-    </h2>
+    <h2 class="section-heading">{{ $heading }}</h2>
     @if($message)
-      <p class="text-sm opacity-80 mb-8">{{ $message }}</p>
+      <p class="section-subheading">{{ $message }}</p>
     @endif
-    <div class="space-y-4">
+
+    <div class="gift-list">
       @foreach($accounts as $i => $account)
-        <div class="p-5 text-left flex items-center gap-4"
-            style="border: 1px solid var(--color-accent, #b5654d); border-radius: var(--radius, 12px);">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs uppercase tracking-wide opacity-70">{{ $account['bank'] ?? '' }}</p>
-            <p class="font-mono font-semibold truncate">{{ $account['number'] ?? '' }}</p>
-            @if(!empty($account['holder']))
-              <p class="text-sm opacity-80">a.n. {{ $account['holder'] }}</p>
-            @endif
+        <div class="gift-account">
+          <div class="gift-account-info">
+            @if(!empty($account['bank']))<p class="gift-bank">{{ $account['bank'] }}</p>@endif
+            <p class="gift-number">{{ $account['number'] ?? '' }}</p>
+            @if(!empty($account['holder']))<p class="gift-holder">a.n. {{ $account['holder'] }}</p>@endif
           </div>
           @if(!empty($account['number']))
-            <button type="button" class="shrink-0 px-4 py-1.5 text-xs font-semibold transition"
-                @click="copy(@js($account['number']), {{ $i }})"
-                style="background: var(--color-accent, #b5654d); color: var(--color-surface, #ffffff); border-radius: var(--radius, 12px);">
+            <button type="button" class="gift-copy" @click="copy(@js($account['number']), {{ $i }})">
               <span x-text="copied === {{ $i }} ? @js($copiedLabel) : @js($copyLabel)">{{ $copyLabel }}</span>
             </button>
           @endif
         </div>
       @endforeach
     </div>
+
     @if($giftAddress)
-      <p class="mt-8 text-sm opacity-80">Kirim kado ke: <span class="font-medium">{{ $giftAddress }}</span></p>
+      <p class="gift-address">{{ $addressLabel }}: <span class="gift-address-value">{{ $giftAddress }}</span></p>
     @endif
   </div>
 </section>

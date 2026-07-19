@@ -8,7 +8,7 @@
 
 <section class="events events--{{ $variant }}" style="padding: var(--section-y, 64px) 16px;">
   <div class="events-inner">
-    <h2 class="events-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);">
+    <h2 class="section-heading events-heading">
       {{ $heading }}
     </h2>
     <div class="events-list">

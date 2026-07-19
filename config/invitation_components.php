@@ -211,6 +211,7 @@ $components = [
     ],
 
     'gift' => [
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Kartu', 'group' => 'design', 'options' => ['bordered-cards', 'elevated', 'divider-list'], 'default' => 'bordered-cards'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Amplop Digital'],
         ['key' => 'accounts', 'type' => 'repeater', 'label' => 'Rekening', 'group' => 'content', 'fields' => [
             ['key' => 'bank', 'type' => 'text', 'label' => 'Bank / E-Wallet', 'default' => 'BCA'],
@@ -219,10 +220,12 @@ $components = [
         ], 'default' => [
             ['bank' => 'BCA', 'number' => '', 'holder' => ''],
         ]],
-        ['key' => 'message', 'type' => 'text', 'label' => 'Pesan', 'group' => 'design', 'default' => 'Tanpa mengurangi rasa hormat, bagi Anda yang ingin memberikan tanda kasih:'],
-        ['key' => 'gift_address', 'type' => 'text', 'label' => 'Alamat Kirim Kado', 'group' => 'design', 'default' => ''],
+        // Keduanya teks yang dibaca tamu, bukan setelan tampilan — tempatnya di tab Konten.
+        ['key' => 'message', 'type' => 'text', 'label' => 'Pesan', 'group' => 'content', 'default' => 'Tanpa mengurangi rasa hormat, bagi Anda yang ingin memberikan tanda kasih:'],
+        ['key' => 'gift_address', 'type' => 'text', 'label' => 'Alamat Kirim Kado', 'group' => 'content', 'default' => ''],
         ['key' => 'copy_label', 'type' => 'text', 'label' => 'Label Tombol Salin', 'group' => 'content', 'default' => 'Salin'],
         ['key' => 'copied_label', 'type' => 'text', 'label' => 'Label Setelah Tersalin', 'group' => 'content', 'default' => 'Tersalin!'],
+        ['key' => 'address_label', 'type' => 'text', 'label' => 'Label Alamat Kado', 'group' => 'content', 'default' => 'Kirim kado ke'],
     ],
 
     'quote' => [
@@ -231,14 +234,17 @@ $components = [
     ],
 
     'love_story' => [
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Kisah', 'group' => 'design', 'options' => ['marginalia', 'center-line', 'cards', 'book'], 'default' => 'marginalia'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Kisah Kami'],
+        ['key' => 'subheading', 'type' => 'text', 'label' => 'Sub Judul', 'group' => 'content', 'default' => ''],
+        // Satu foto untuk seluruh section, tampil di atas daftar. Boleh dikosongkan.
+        ['key' => 'image', 'type' => 'image', 'label' => 'Foto (opsional)', 'group' => 'content', 'default' => null],
         ['key' => 'stories', 'type' => 'repeater', 'label' => 'Kisah', 'group' => 'content', 'fields' => [
             ['key' => 'year', 'type' => 'text', 'label' => 'Tahun / Waktu', 'default' => ''],
             ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'default' => ''],
             ['key' => 'story', 'type' => 'text', 'label' => 'Cerita', 'default' => ''],
-            ['key' => 'photo', 'type' => 'image', 'label' => 'Foto', 'default' => null],
         ], 'default' => [
-            ['year' => '2020', 'title' => 'Pertama Bertemu', 'story' => 'Ceritakan momen pertama kalian bertemu…', 'photo' => null],
+            ['year' => '2020', 'title' => 'Pertama Bertemu', 'story' => 'Ceritakan momen pertama kalian bertemu…'],
         ]],
     ],
 
@@ -255,7 +261,10 @@ $components = [
     ],
 
     'wishes' => [
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Daftar', 'group' => 'design', 'options' => ['bordered-cards', 'bubble', 'divider-list'], 'default' => 'bubble'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Ucapan & Doa'],
+        ['key' => 'subheading', 'type' => 'text', 'label' => 'Sub Judul', 'group' => 'content', 'default' => ''],
+        ['key' => 'empty_text', 'type' => 'text', 'label' => 'Teks Saat Belum Ada Ucapan', 'group' => 'content', 'default' => 'Belum ada ucapan.'],
         ['key' => 'limit', 'type' => 'number', 'label' => 'Jumlah Ucapan Ditampilkan', 'group' => 'design', 'default' => 50],
     ],
 

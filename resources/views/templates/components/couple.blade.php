@@ -29,7 +29,7 @@
 <section class="couple couple--{{ $variant }}" style="padding: {{ $paddingTop }}px 20px {{ $paddingBottom }}px;">
   <div class="couple-inner">
     @if ($heading)
-      <h2 class="couple-heading" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);"
+      <h2 class="section-heading couple-heading"
           data-editable="heading">{{ $heading }}</h2>
     @endif
 

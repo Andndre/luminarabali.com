@@ -19,7 +19,7 @@
           class="w-full max-w-sm mx-auto object-cover mb-8" style="border-radius: var(--radius, 12px);">
     @endif
     <p class="text-base leading-relaxed opacity-90" data-editable="message">{{ $message }}</p>
-    <h2 class="mt-8" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 32px);">
+    <h2 class="section-heading mt-8">
       {{ $groom }} &amp; {{ $bride }}
     </h2>
   </div>

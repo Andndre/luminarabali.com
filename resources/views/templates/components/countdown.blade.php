@@ -13,7 +13,7 @@ $units = ['d' => 'Hari', 'h' => 'Jam', 'm' => 'Menit', 's' => 'Detik'];
 <section class="countdown countdown--{{ $variant }}" style="padding: {{ $paddingTop }}px 20px {{ $paddingBottom }}px;">
   <div class="container mx-auto text-center">
     @if($title)
-      <h2 class="countdown-title" style="font-family: var(--font-heading, serif); font-size: var(--step-2xl, 1.5rem);">
+      <h2 class="section-heading countdown-title">
         {{ $title }}
       </h2>
     @endif
