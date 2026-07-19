@@ -105,25 +105,44 @@
                                     </button>
                                 </template>
                                 <template x-if="hasOverride(field.key)">
-                                    <div class="flex items-center gap-2">
-                                        <input type="color" :value="val(field)"
-                                            @input="setProp(field, $event.target.value)"
-                                            class="h-9 w-14 rounded-lg border-gray-200 cursor-pointer">
-                                        <span class="text-[10px] font-semibold uppercase bg-yellow-100 text-yellow-800 rounded px-1.5 py-0.5">override</span>
-                                        <button type="button" @click="resetProp(field)" title="Reset ke theme"
-                                            class="ml-auto p-1 rounded text-red-600 hover:bg-red-50">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg>
-                                        </button>
+                                    <div class="space-y-1.5">
+                                        <div class="flex items-center gap-1.5">
+                                            <div class="flex items-center gap-1.5 border border-gray-200 rounded-lg px-1.5 py-1 flex-1">
+                                                <input type="color" :value="val(field)"
+                                                    @input="setProp(field, $event.target.value)"
+                                                    class="h-7 w-7 shrink-0 rounded cursor-pointer border-0 bg-transparent p-0" title="Pilih warna">
+                                                <input type="text" class="w-full text-xs font-mono uppercase border-0 focus:ring-0 p-0"
+                                                    maxlength="9" :value="val(field)"
+                                                    @change="(() => { const h = normalizeHex($event.target.value); if (h) setProp(field, h); else $event.target.value = val(field); })()">
+                                            </div>
+                                            <span class="text-[10px] font-semibold uppercase bg-yellow-100 text-yellow-800 rounded px-1.5 py-0.5">override</span>
+                                            <button type="button" @click="resetProp(field)" title="Reset ke theme"
+                                                class="p-1 rounded text-red-600 hover:bg-red-50">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg>
+                                            </button>
+                                        </div>
+                                        <div class="flex flex-wrap gap-1">
+                                            <template x-for="(hex, tk) in theme.colors" :key="tk">
+                                                <button type="button" @click="setProp(field, hex)" :title="tk"
+                                                    class="w-5 h-5 rounded border border-gray-300 hover:scale-110 transition"
+                                                    :style="`background:${hex}`"></button>
+                                            </template>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
                         </template>
 
-                        {{-- color tanpa token: picker polos (partial-nya tidak punya fallback token) --}}
+                        {{-- color tanpa token: hex + swatch (bukan native telanjang) --}}
                         <template x-if="field.type === 'color' && !field.token">
-                            <input type="color" :value="val(field) ?? '#000000'"
-                                @input="setProp(field, $event.target.value)"
-                                class="h-9 w-14 rounded-lg border-gray-200 cursor-pointer">
+                            <div class="flex items-center gap-1.5 border border-gray-200 rounded-lg px-1.5 py-1">
+                                <input type="color" :value="val(field) ?? '#000000'"
+                                    @input="setProp(field, $event.target.value)"
+                                    class="h-7 w-7 shrink-0 rounded cursor-pointer border-0 bg-transparent p-0" title="Pilih warna">
+                                <input type="text" class="w-full text-xs font-mono uppercase border-0 focus:ring-0 p-0"
+                                    maxlength="9" :value="val(field) ?? ''"
+                                    @change="(() => { const h = normalizeHex($event.target.value); if (h) setProp(field, h); else $event.target.value = val(field) ?? ''; })()">
+                            </div>
                         </template>
 
                         {{-- image: thumbnail + upload + URL manual --}}
