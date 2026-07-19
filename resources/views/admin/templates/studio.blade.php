@@ -399,18 +399,7 @@ function studioApp() {
             // Jangan andalkan this.$el di method lain (mis. persistColumnOrder) — di sana
             // this adalah merge proxy per-elemen milik directive yang memanggilnya, bukan root.
             this.rootEl = this.$el;
-            const res = await fetch(`/admin/api/templates/{{ $template->id }}/load`);
-            const data = await res.json();
-            this.hasChildren = {};
-            data.sections.forEach(s => {
-                if (s.parent_id) this.hasChildren[String(s.parent_id)] = true;
-            });
-            this.children = data.sections
-                .filter(s => s.parent_id)
-                .map(s => ({ ...s, props: s.props ?? {} }));
-            this.sections = data.sections
-                .filter(s => !s.parent_id)
-                .map(s => ({ ...s, props: s.props ?? {} }));
+            await this.loadSections();
             this.loaded = true;
             this.initSortable();
             this.$watch('selectedId', () => {
@@ -1069,11 +1058,30 @@ function studioApp() {
             }
         },
 
+        // Muat ulang seluruh pohon section dari server dan sinkronkan state lokal
+        // (sections top-level, children, hasChildren). Dipakai init() + duplicateSection.
+        async loadSections() {
+            const res = await fetch(`/admin/api/templates/{{ $template->id }}/load`);
+            const data = await res.json();
+            this.hasChildren = {};
+            data.sections.forEach(s => {
+                if (s.parent_id) this.hasChildren[String(s.parent_id)] = true;
+            });
+            this.children = data.sections
+                .filter(s => s.parent_id)
+                .map(s => ({ ...s, id: String(s.id), props: s.props ?? {} }));
+            this.sections = data.sections
+                .filter(s => !s.parent_id)
+                .map(s => ({ ...s, id: String(s.id), props: s.props ?? {} }));
+        },
+
         async duplicateSection(s) {
             try {
-                const data = await this.api('POST', `/admin/api/studio/sections/${s.id}/duplicate`);
-                const index = this.sections.findIndex(x => x.id === s.id);
-                this.sections.splice(index + 1, 0, { ...data.section, id: String(data.section.id) });
+                // Duplikat server men-replicate container beserta anaknya. Muat ulang
+                // pohon supaya children + hasChildren container baru ikut tersinkron
+                // (splice lokal saja akan meninggalkan kolom kosong sampai reload).
+                await this.api('POST', `/admin/api/studio/sections/${s.id}/duplicate`);
+                await this.loadSections();
                 this.reloadPreview();
             } catch {
                 this.toastError('Gagal menduplikat section');
