@@ -3,9 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class InvitationSection extends Model
 {
+    protected static function booted(): void
+    {
+        // Thumbnail varian dipakai HANYA oleh section ini (path deterministik
+        // section-thumbs/{id}/), jadi ikut terhapus bersama section-nya.
+        static::deleting(function (self $section) {
+            Storage::disk('public')->deleteDirectory("section-thumbs/{$section->id}");
+        });
+    }
+
     protected $fillable = [
         'page_id',
         'template_id',

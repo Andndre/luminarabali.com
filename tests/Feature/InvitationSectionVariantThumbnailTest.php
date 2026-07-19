@@ -96,4 +96,25 @@ class InvitationSectionVariantThumbnailTest extends TestCase
         Storage::disk('public')->assertExists($path);
         $this->assertSame($path, $section->fresh()->variant_thumbnails['portrait-overlay']);
     }
+
+    public function test_deleting_a_section_removes_its_thumbnail_files(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'T', 'slug' => 't-'.uniqid(), 'status' => 'draft', 'created_by' => $admin->id,
+        ]);
+        $section = InvitationSection::create([
+            'template_id' => $template->id, 'section_type' => 'couple', 'order_index' => 0,
+            'props' => [], 'is_visible' => true,
+        ]);
+
+        $path = "section-thumbs/{$section->id}/portrait-overlay.png";
+        Storage::disk('public')->put($path, 'fake-png');
+        Storage::disk('public')->assertExists($path);
+
+        $section->delete();
+
+        Storage::disk('public')->assertMissing($path);
+    }
 }
