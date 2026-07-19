@@ -68,10 +68,9 @@ class InvitationBgEffectTest extends TestCase
         $this->assertStringNotContainsString('class="sec-bg', $html);
     }
 
-    public function test_hero_font_family_is_not_html_escaped_in_style_block(): void
+    public function test_hero_ignores_legacy_font_family_prop_and_uses_theme_token(): void
     {
-        // Regresi: {{ }} meng-escape apostrof jadi &#039; di dalam <style> (raw text,
-        // entity tidak di-decode) sehingga deklarasi font-family dibuang browser.
+        // font_family per-komponen dicabut (guideline §3.2) — prop lama di DB harus diabaikan.
         $user = User::factory()->create(['division' => 'super_admin']);
         $template = InvitationTemplate::create([
             'name' => 'T', 'slug' => 't-'.uniqid(), 'status' => 'published', 'created_by' => $user->id,
@@ -88,8 +87,8 @@ class InvitationBgEffectTest extends TestCase
 
         $html = $this->get('/invitation/'.$page->slug)->getContent();
 
-        $this->assertStringContainsString("font-family: 'Playfair Display', serif;", $html);
-        $this->assertStringNotContainsString('&#039;', $html);
+        $this->assertStringContainsString('font-family: var(--font-heading, serif)', $html);
+        $this->assertStringNotContainsString("'Playfair Display', serif", $html);
     }
 
     public function test_pinned_section_does_not_use_inline_overflow_hidden(): void

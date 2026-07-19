@@ -3,26 +3,17 @@
 @php
     $content = $props['content'] ?? 'Tulis teks anda di sini...';
     $tag = $props['tag'] ?? 'p'; // h1, h2, h3, h4, h5, h6, p
+    $isHeading = in_array($tag, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true);
+    $fontFamilyValue = $isHeading
+        ? 'var(--font-heading, serif)'
+        : "var(--font-body, 'Lato', sans-serif)";
     $align = $props['align'] ?? 'left'; // left, center, right
     $fontSize = $props['font_size'] ?? null;
     $marginBottom = $props['margin_bottom'] ?? 0;
-    $fontFamily = $props['font_family'] ?? null;
     $lineHeight = $props['line_height'] ?? 1.5;
     $letterSpacing = $props['letter_spacing'] ?? 0;
     $elementId = $props['element_id'] ?? null;
     $customCss = $props['custom_css'] ?? '';
-
-    // Font family mapping
-    $fontFamilyMap = [
-        'lato' => "'Lato', sans-serif",
-        'montserrat' => "'Montserrat', sans-serif",
-        'playfair-display' => "'Playfair Display', serif",
-        'great-vibes' => "'Great Vibes', cursive",
-        'open-sans' => "'Open Sans', sans-serif",
-    ];
-    $fontFamilyValue = $fontFamily
-        ? ($fontFamilyMap[$fontFamily] ?? "'Lato', sans-serif")
-        : 'var(--font-body, \'Lato\', sans-serif)';
 
     // Build inline style — tanpa color: teks mewarisi var(--color-text) dari .invite-content.
     $inlineStyle =

@@ -114,7 +114,7 @@ class InvitationComponentHardeningTest extends TestCase
 
         $response->assertOk();
         $response->assertSee(".cover-visual-{$section->id} {", false);
-        $response->assertSee('background-color: #1a1a1a;', false);
+        $response->assertSee('background-color: var(--color-ink, #20302a);', false);
     }
 
     public function test_hero_reads_groom_bride_and_flat_background_props(): void
@@ -611,5 +611,16 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertOk();
         $response->assertDontSee('couple-heading', false);
         $response->assertSee('padding: 0px 20px 0px;', false);
+    }
+
+    public function test_no_component_schema_has_a_font_family_field(): void
+    {
+        foreach (array_keys(config('invitation_components')) as $type) {
+            $keys = collect(config("invitation_components.{$type}"))->pluck('key');
+            $this->assertFalse(
+                $keys->contains('font_family'),
+                "{$type} masih punya field font_family — font diatur di level tema (guideline §3.2)."
+            );
+        }
     }
 }

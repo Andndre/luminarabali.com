@@ -19,8 +19,6 @@ $containerFields = [
     ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
 ];
 
-$curatedFontNames = ['Playfair Display', 'Lora', 'Lato', 'Montserrat', 'Great Vibes', 'Open Sans'];
-
 // Animasi entrance — di-merge ke SEMUA tipe section (dirender _section-shell).
 $animationFields = [
     ['key' => 'animation', 'type' => 'select', 'label' => 'Animasi Masuk', 'group' => 'design', 'options' => ['none', 'fade-up', 'fade-in', 'zoom-in', 'slide-left', 'slide-right'], 'default' => 'none'],
@@ -33,7 +31,6 @@ $components = [
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
         ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Sampul', 'group' => 'content', 'default' => null],
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Buka Undangan'],
-        ['key' => 'font_family', 'type' => 'select', 'label' => 'Font', 'group' => 'design', 'options' => $curatedFontNames, 'default' => 'Playfair Display'],
         ['key' => 'overlay_enabled', 'type' => 'boolean', 'label' => 'Overlay Gelap', 'group' => 'design', 'default' => true],
     ],
 
@@ -43,7 +40,6 @@ $components = [
         ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null],
         ['key' => 'overlay_enabled', 'type' => 'boolean', 'label' => 'Overlay Gelap', 'group' => 'design', 'default' => false],
         ['key' => 'overlay_opacity', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'default' => 40],
-        ['key' => 'font_family', 'type' => 'select', 'label' => 'Font', 'group' => 'design', 'options' => $curatedFontNames, 'default' => 'Playfair Display'],
         ['key' => 'alignment', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'center'],
         ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 120],
         ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 120],
@@ -55,7 +51,6 @@ $components = [
         ['key' => 'align', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'left'],
         ['key' => 'font_size', 'type' => 'number', 'label' => 'Ukuran Font', 'group' => 'design', 'default' => null],
         ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 0],
-        ['key' => 'font_family', 'type' => 'select', 'label' => 'Font', 'group' => 'design', 'options' => ['lato', 'montserrat', 'playfair-display', 'great-vibes', 'open-sans'], 'default' => 'lato'],
         ['key' => 'line_height', 'type' => 'number', 'label' => 'Line Height', 'group' => 'design', 'default' => 1.5],
         ['key' => 'letter_spacing', 'type' => 'number', 'label' => 'Letter Spacing', 'group' => 'design', 'default' => 0],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'advanced', 'default' => null],
@@ -213,7 +208,6 @@ $components = [
     'quote' => [
         ['key' => 'content', 'type' => 'text', 'label' => 'Kutipan', 'group' => 'content', 'default' => 'Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri, supaya kamu mendapat ketenangan hati.'],
         ['key' => 'attribution', 'type' => 'text', 'label' => 'Sumber', 'group' => 'content', 'default' => 'Q.S. Ar-Rum: 21'],
-        ['key' => 'font_family', 'type' => 'select', 'label' => 'Font', 'group' => 'design', 'options' => $curatedFontNames, 'default' => 'Playfair Display'],
     ],
 
     'love_story' => [

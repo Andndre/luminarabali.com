@@ -15,13 +15,7 @@ $title = $props['title'] ?? 'The Wedding Of';
 $groomName = $page->groom_name ?? 'Groom';
 $brideName = $page->bride_name ?? 'Bride';
 $eventDate = $page->event_date ?? null;
-// Nilai ini dicetak mentah ke <style> (lihat {!! !!} di bawah): Blade {{ }} akan
-// meng-escape apostrof jadi &#039; dan mematikan deklarasi font-family. Batasi ke
-// daftar font kurasi supaya nilai yang lolos selalu dari himpunan tertutup.
-$curatedFonts = collect(config('invitation.fonts'))->pluck('name')->all();
-$fontFamily = in_array($props['font_family'] ?? null, $curatedFonts, true)
-    ? "'{$props['font_family']}', serif"
-    : 'var(--font-heading, serif)';
+$fontFamily = 'var(--font-heading, serif)';
 $alignment = $props['alignment'] ?? 'center';
 $paddingTop = $props['padding_top'] ?? 120;
 $paddingBottom = $props['padding_bottom'] ?? 120;

@@ -6,13 +6,7 @@ $groomName = $page->groom_name ?? 'Groom';
 $brideName = $page->bride_name ?? 'Bride';
 $eventDate = $page->event_date ?? null;
 $buttonText = $props['button_text'] ?? 'Buka Undangan';
-// Dicetak mentah ke <style> (lihat {!! !!} di bawah): Blade {{ }} meng-escape
-// apostrof jadi &#039; dan mematikan deklarasi font-family. Batasi ke daftar font
-// kurasi supaya nilai yang lolos selalu dari himpunan tertutup.
-$curatedFonts = collect(config('invitation.fonts'))->pluck('name')->all();
-$fontFamily = in_array($props['font_family'] ?? null, $curatedFonts, true)
-    ? "'{$props['font_family']}', serif"
-    : 'var(--font-heading, serif)';
+$fontFamily = 'var(--font-heading, serif)';
 $overlayEnabled = filter_var($props['overlay_enabled'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
 $bgValue = $props['background_image'] ?? null;
 $bgUrl = $bgValue
@@ -26,7 +20,7 @@ $variant = $props['variant'] ?? 'fullscreen';
 
 <style>
   .cover-visual-{{ $sid }} {
-    background-color: #1a1a1a;
+    background-color: var(--color-ink, #20302a);
     @if($bgUrl) background-image: url('{{ $bgUrl }}'); @endif
     background-size: cover; background-position: center;
   }

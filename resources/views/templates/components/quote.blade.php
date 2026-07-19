@@ -3,8 +3,7 @@
 @php
     $content = $props['content'] ?? '';
     $attribution = $props['attribution'] ?? '';
-    $fontFamily = $props['font_family'] ?? null;
-    $fontFamilyValue = $fontFamily ? "'{$fontFamily}', serif" : 'var(--font-heading, serif)';
+    $fontFamilyValue = 'var(--font-heading, serif)';
 @endphp
 
 <section style="padding: var(--section-y, 64px) 16px;">
