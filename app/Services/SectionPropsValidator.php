@@ -58,6 +58,7 @@ class SectionPropsValidator
             'image', 'ornament' => $this->validateImage($errorKey, $value, $errors),
             'code' => $this->validateCode($errorKey, $value, $errors),
             'repeater' => $this->validateRepeater($field, $errorKey, $value, $errors),
+            'ornament_list' => $this->validateOrnamentList($errorKey, $value, $errors),
             default => null,
         };
     }
@@ -91,6 +92,42 @@ class SectionPropsValidator
                 }
 
                 $this->validateField($subField, "{$errorKey}.{$i}.{$subKey}", $item[$subKey], $errors);
+            }
+        }
+    }
+
+    protected function validateOrnamentList(string $errorKey, mixed $value, array &$errors): void
+    {
+        if ($value === null) {
+            return;
+        }
+        if (!is_array($value) || !array_is_list($value)) {
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa daftar ornamen.'];
+            return;
+        }
+        $positions = ['left', 'right', 'center', 'full-width'];
+        foreach ($value as $i => $item) {
+            if (!is_array($item)) {
+                $errors["{$errorKey}.{$i}"] = ['Item harus berupa objek.'];
+                continue;
+            }
+            if (isset($item['src']) && !is_string($item['src']) && $item['src'] !== null) {
+                $errors["{$errorKey}.{$i}.src"] = ['src harus string.'];
+            }
+            if (isset($item['position']) && !in_array($item['position'], $positions, true)) {
+                $errors["{$errorKey}.{$i}.position"] = ['position tidak valid.'];
+            }
+            if (isset($item['scale']) && $item['scale'] !== null && !is_numeric($item['scale'])) {
+                $errors["{$errorKey}.{$i}.scale"] = ['scale harus angka.'];
+            }
+            foreach (['flip_h', 'flip_v'] as $fk) {
+                if (isset($item[$fk]) && !is_bool($item[$fk])) {
+                    $errors["{$errorKey}.{$i}.{$fk}"] = ["{$fk} harus boolean."];
+                }
+            }
+            if (isset($item['color']) && $item['color'] !== null
+                && (!is_string($item['color']) || !preg_match('/^#[0-9a-fA-F]{3,8}$/', $item['color']))) {
+                $errors["{$errorKey}.{$i}.color"] = ['color harus hex valid atau null.'];
             }
         }
     }

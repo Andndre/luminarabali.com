@@ -295,14 +295,8 @@ foreach ($components as $type => $fields) {
 
 // Ornamen — hanya section "utama" (bukan blok generic text/image/spacer/divider/kontainer).
 $ornamentFields = [
-    ['key' => 'ornament_top', 'type' => 'ornament', 'label' => 'Ornamen Atas', 'group' => 'design', 'default' => null],
-    ['key' => 'ornament_top_position', 'type' => 'select', 'label' => 'Posisi Ornamen Atas', 'group' => 'design', 'options' => ['corner-tl', 'corner-tr', 'center', 'full-width'], 'default' => 'corner-tl'],
-    ['key' => 'ornament_top_scale', 'type' => 'number', 'label' => 'Skala Ornamen Atas (%)', 'group' => 'design', 'default' => 100],
-    ['key' => 'ornament_top_color', 'type' => 'color', 'label' => 'Warna Ornamen Atas', 'group' => 'design', 'hidden' => true, 'default' => null],
-    ['key' => 'ornament_bottom', 'type' => 'ornament', 'label' => 'Ornamen Bawah', 'group' => 'design', 'default' => null],
-    ['key' => 'ornament_bottom_position', 'type' => 'select', 'label' => 'Posisi Ornamen Bawah', 'group' => 'design', 'options' => ['corner-bl', 'corner-br', 'center', 'full-width'], 'default' => 'corner-bl'],
-    ['key' => 'ornament_bottom_scale', 'type' => 'number', 'label' => 'Skala Ornamen Bawah (%)', 'group' => 'design', 'default' => 100],
-    ['key' => 'ornament_bottom_color', 'type' => 'color', 'label' => 'Warna Ornamen Bawah', 'group' => 'design', 'hidden' => true, 'default' => null],
+    ['key' => 'ornaments_top', 'type' => 'ornament_list', 'label' => 'Ornamen Atas', 'group' => 'design', 'default' => []],
+    ['key' => 'ornaments_bottom', 'type' => 'ornament_list', 'label' => 'Ornamen Bawah', 'group' => 'design', 'default' => []],
 ];
 foreach (['cover', 'hero', 'quote', 'couple', 'event_details', 'gift', 'rsvp', 'countdown', 'closing', 'love_story'] as $type) {
     if (isset($components[$type])) {

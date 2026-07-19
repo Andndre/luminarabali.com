@@ -17,31 +17,58 @@
             ? $src
             : '/storage/' . ltrim($src, '/');
     };
-    $ornamentTop = $resolveOrnament($props['ornament_top'] ?? null);
-    $ornamentBottom = $resolveOrnament($props['ornament_bottom'] ?? null);
-    $ornamentTopColor = $props['ornament_top_color'] ?? null;
-    $ornamentBottomColor = $props['ornament_bottom_color'] ?? null;
     $isSvg = fn ($src) => $src && \Illuminate\Support\Str::endsWith(strtolower($src), '.svg');
 
-    // Recolor: SVG dijadikan CSS mask (tak eksekusi script), warna via background-color.
-    // aspect-ratio heuristik per posisi karena rasio asli SVG tak diketahui server-side.
-    $ornamentMaskStyle = function (string $position, $scale, string $edge, string $src, string $color) {
-        $width = is_numeric($scale) ? (float) $scale : 100;
-        $aspect = match ($position) {
-            'full-width' => '6 / 1',
-            'center' => '4 / 1',
-            default => '1 / 1',
-        };
-        $pos = match ($position) {
+    // Bangun list ornamen per slot; fallback ke field tunggal lama (back-compat).
+    $ornList = function (string $listKey, string $legacyKey) use ($props) {
+        $list = is_array($props[$listKey] ?? null) ? $props[$listKey] : [];
+        if (empty($list) && !empty($props[$legacyKey])) {
+            $legacyPos = $props[$legacyKey.'_position'] ?? null;
+            $pos = match ($legacyPos) {
+                'corner-tr', 'corner-br' => 'right',
+                'center' => 'center',
+                'full-width' => 'full-width',
+                default => 'left',
+            };
+            $list = [[
+                'src' => $props[$legacyKey],
+                'position' => $pos,
+                'scale' => $props[$legacyKey.'_scale'] ?? 100,
+                'color' => $props[$legacyKey.'_color'] ?? null,
+                'flip_h' => false, 'flip_v' => false,
+            ]];
+        }
+        return $list;
+    };
+    $ornamentsTop = $ornList('ornaments_top', 'ornament_top');
+    $ornamentsBottom = $ornList('ornaments_bottom', 'ornament_bottom');
+    $hasOrnaments = !empty($ornamentsTop) || !empty($ornamentsBottom);
+
+    // Style satu item. Flip via transform (+translateX untuk center). Mask bila svg+color.
+    $ornItemStyle = function (array $it, string $edge, bool $mask) {
+        $pos = in_array($it['position'] ?? null, ['left', 'right', 'center', 'full-width'], true) ? $it['position'] : 'left';
+        $scale = is_numeric($it['scale'] ?? null) ? (float) $it['scale'] : 100;
+        $tf = [];
+        if ($pos === 'center') $tf[] = 'translateX(-50%)';
+        if (!empty($it['flip_h'])) $tf[] = 'scaleX(-1)';
+        if (!empty($it['flip_v'])) $tf[] = 'scaleY(-1)';
+        $transform = $tf ? 'transform:'.implode(' ', $tf).';' : '';
+        $box = match ($pos) {
             'full-width' => 'left:0;right:0;width:100%;',
-            'center' => "left:50%;transform:translateX(-50%);width:{$width}%;",
-            'corner-tr', 'corner-br' => "right:0;width:{$width}%;",
-            default => "left:0;width:{$width}%;",
+            'center' => "left:50%;width:{$scale}%;",
+            'right' => "right:0;width:{$scale}%;",
+            default => "left:0;width:{$scale}%;",
         };
-        $mask = "-webkit-mask-image:url('{$src}');-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain;"
-            . "mask-image:url('{$src}');mask-repeat:no-repeat;mask-position:center;mask-size:contain;";
-        return "position:absolute;{$edge}:0;pointer-events:none;z-index:10;aspect-ratio:{$aspect};"
-            . $pos . $mask . "background-color:{$color};";
+        $style = "position:absolute;{$edge}:0;pointer-events:none;z-index:10;".$box.$transform;
+        if ($mask) {
+            $aspect = match ($pos) {
+                'full-width' => '6 / 1',
+                'center' => '4 / 1',
+                default => '1 / 1',
+            };
+            $style .= "aspect-ratio:{$aspect};";
+        }
+        return $style;
     };
 
     // Cover punya sistem visual sendiri (gate position:fixed + layar sticky) dan
@@ -62,18 +89,7 @@
     $bgStrength = max(100, min(200, (int) ($props['bg_effect_strength'] ?? 130)));
     $hasTreatment = $treatment !== 'surface' || $bgImage;
 
-    $ornamentStyle = function (string $position, $scale, string $edge) {
-        $width = is_numeric($scale) ? (float) $scale : 100;
-        $style = "position:absolute;{$edge}:0;pointer-events:none;z-index:10;";
-        return match ($position) {
-            'full-width' => $style . 'left:0;right:0;width:100%;',
-            'center' => $style . "left:50%;transform:translateX(-50%);width:{$width}%;",
-            'corner-tr', 'corner-br' => $style . "right:0;width:{$width}%;",
-            default => $style . "left:0;width:{$width}%;", // corner-tl / corner-bl
-        };
-    };
-
-    $needsShell = $ornamentTop || $ornamentBottom || $animation !== 'none' || $customCss !== '' || $hasTreatment;
+    $needsShell = $hasOrnaments || $animation !== 'none' || $customCss !== '' || $hasTreatment;
 @endphp
 
 @if (!view()->exists($viewPath))
@@ -103,29 +119,33 @@
                  updateSection menolak payload dengan <> sehingga tag tidak bisa ditutup. --}}
             <style>[data-section-id="{{ $section->id }}"] { {!! $customCss !!} }</style>
         @endif
-        @if ($ornamentTop)
-            @if ($isSvg($ornamentTop) && $ornamentTopColor)
-                <div aria-hidden="true"
-                    style="{{ $ornamentMaskStyle($props['ornament_top_position'] ?? 'corner-tl', $props['ornament_top_scale'] ?? 100, 'top', $ornamentTop, $ornamentTopColor) }}"></div>
-            @else
-                <img src="{{ $ornamentTop }}" alt=""
-                    style="{{ $ornamentStyle($props['ornament_top_position'] ?? 'corner-tl', $props['ornament_top_scale'] ?? 100, 'top') }}">
+        @foreach ($ornamentsTop as $it)
+            @php($src = $resolveOrnament($it['src'] ?? null))
+            @if ($src)
+                @if ($isSvg($src) && !empty($it['color']))
+                    <div aria-hidden="true"
+                        style="{{ $ornItemStyle($it, 'top', true) }}-webkit-mask-image:url('{{ $src }}');-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain;mask-image:url('{{ $src }}');mask-repeat:no-repeat;mask-position:center;mask-size:contain;background-color:{{ $it['color'] }};"></div>
+                @else
+                    <img src="{{ $src }}" alt="" style="{{ $ornItemStyle($it, 'top', false) }}">
+                @endif
             @endif
-        @endif
+        @endforeach
         @include($viewPath, [
             'props' => $props,
             'section' => $section,
             'page' => $page,
             'elements' => $elements,
         ])
-        @if ($ornamentBottom)
-            @if ($isSvg($ornamentBottom) && $ornamentBottomColor)
-                <div aria-hidden="true"
-                    style="{{ $ornamentMaskStyle($props['ornament_bottom_position'] ?? 'corner-bl', $props['ornament_bottom_scale'] ?? 100, 'bottom', $ornamentBottom, $ornamentBottomColor) }}"></div>
-            @else
-                <img src="{{ $ornamentBottom }}" alt=""
-                    style="{{ $ornamentStyle($props['ornament_bottom_position'] ?? 'corner-bl', $props['ornament_bottom_scale'] ?? 100, 'bottom') }}">
+        @foreach ($ornamentsBottom as $it)
+            @php($src = $resolveOrnament($it['src'] ?? null))
+            @if ($src)
+                @if ($isSvg($src) && !empty($it['color']))
+                    <div aria-hidden="true"
+                        style="{{ $ornItemStyle($it, 'bottom', true) }}-webkit-mask-image:url('{{ $src }}');-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain;mask-image:url('{{ $src }}');mask-repeat:no-repeat;mask-position:center;mask-size:contain;background-color:{{ $it['color'] }};"></div>
+                @else
+                    <img src="{{ $src }}" alt="" style="{{ $ornItemStyle($it, 'bottom', false) }}">
+                @endif
             @endif
-        @endif
+        @endforeach
     </div>
 @endif
