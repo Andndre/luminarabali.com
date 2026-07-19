@@ -634,7 +634,8 @@ class InvitationComponentHardeningTest extends TestCase
             $this->assertTrue($keys->contains('animation'), "{$type} tetap boleh punya animasi masuk.");
         }
 
-        foreach (['couple', 'countdown', 'section_two_col'] as $type) {
+        // hero/quote juga kehilangan font_family di Task 2 — pastikan tidak ikut kehilangan treatment.
+        foreach (['couple', 'countdown', 'section_two_col', 'hero', 'quote'] as $type) {
             $keys = collect(config("invitation_components.{$type}"))->pluck('key');
             $this->assertTrue($keys->contains('treatment'), "{$type} (Section) wajib punya treatment.");
             $this->assertTrue($keys->contains('bg_image'));
