@@ -200,7 +200,10 @@ class InvitationComponentsSchemaTest extends TestCase
     {
         $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
         $this->assertStringContainsString('toggleAsCustomer', $blade, 'Toggle Preview-as-Customer belum ada.');
-        $this->assertStringContainsString('if (this.asCustomer)', $blade,
+        // String ini cuma muncul di dalam cabang customer getter availableTabs (array
+        // satu-tab yang dikembalikan), bukan di toggleAsCustomer() — jadi kalau cabang
+        // gating-nya dihapus dari availableTabs, assertion ini ikut gagal.
+        $this->assertStringContainsString("[{ id: 'content', label: 'Konten' }]", $blade,
             'availableTabs belum dikunci ke tab Konten saat mode customer.');
     }
 }
