@@ -610,6 +610,9 @@ function studioApp() {
                         Object.entries(this.theme.colors).forEach(([k, v]) => doc.style.setProperty(`--color-${k}`, v));
                         Object.entries(this.theme.fonts).forEach(([k, v]) => doc.style.setProperty(`--font-${k}`, `'${v}'`));
                     }
+                    // scales & font menurunkan --step-*/--radius/link font di server → reload
+                    // sekali biar undo/redo perubahan skala/font terlihat, bukan cuma tersimpan.
+                    this.fontsDirty = true;
                     this.queueThemeSave();
                 }
                 for (const s of this.sections) {
