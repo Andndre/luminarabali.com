@@ -42,6 +42,60 @@ class TemplateSectionApiAuthorizationTest extends TestCase
         $this->assertEquals('hi', $section->fresh()->props['content']);
     }
 
+    public function test_designer_can_use_studio_including_the_raw_html_component(): void
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $designer = User::factory()->create(['division' => 'designer']);
+        $template = $this->template($admin);
+
+        $this->actingAs($designer);
+
+        $this->get("/admin/templates/{$template->id}/studio")->assertOk();
+        $this->getJson("/admin/api/templates/{$template->id}/load")->assertOk();
+
+        // Keputusan sadar: desainer setara super admin di dalam Studio, HTML mentah
+        // termasuk. Kalau ini pernah dipersempit, test ini yang harus diubah lebih dulu.
+        $this->postJson("/admin/api/studio/templates/{$template->id}/sections", [
+            'section_type' => 'code',
+            'props' => ['html' => '<div class="x">halo</div>'],
+        ])->assertStatus(201);
+
+        $this->assertSame('code', $template->sections()->first()->section_type);
+    }
+
+    public function test_designer_cannot_reach_customer_invitations_or_user_admin(): void
+    {
+        $designer = User::factory()->create(['division' => 'designer']);
+
+        $this->actingAs($designer);
+
+        // Batas peran ini: template ya, data pelanggan tidak.
+        $this->get('/admin/invitations')->assertForbidden();
+        $this->get('/admin/users')->assertForbidden();
+    }
+
+    public function test_designer_sidebar_hides_operational_menus(): void
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $designer = User::factory()->create(['division' => 'designer']);
+        $template = $this->template($admin);
+
+        // Menu operasional difilter business_unit dan 'designer' bukan salah satunya, jadi
+        // isinya pasti kosong. Studio dipakai lewat halaman template, bukan dashboard.
+        $html = $this->actingAs($designer)
+            ->get("/admin/templates/{$template->id}/studio")
+            ->assertOk()
+            ->getContent();
+        $this->assertStringNotContainsString('Paket & Harga', $html);
+
+        $adminHtml = $this->actingAs($admin)->get('/admin/templates')->assertOk()->getContent();
+        $this->assertStringContainsString('Paket & Harga', $adminHtml);
+
+        $designerHtml = $this->actingAs($designer)->get('/admin/templates')->assertOk()->getContent();
+        $this->assertStringNotContainsString('Paket & Harga', $designerHtml);
+        $this->assertStringContainsString('Media Library', $designerHtml);
+    }
+
     public function test_admin_updating_a_section_with_invalid_props_is_rejected(): void
     {
         $admin = User::factory()->create(['division' => 'super_admin']);

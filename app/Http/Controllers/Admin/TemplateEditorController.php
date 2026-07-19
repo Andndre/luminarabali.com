@@ -46,7 +46,7 @@ class TemplateEditorController extends Controller
 
     public function studio($id)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $template = InvitationTemplate::findOrFail($id);
 
@@ -70,7 +70,7 @@ class TemplateEditorController extends Controller
 
     public function load($id)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $template = InvitationTemplate::with(['sections' => function ($query) {
             $query->orderBy('order_index');
@@ -84,7 +84,7 @@ class TemplateEditorController extends Controller
 
     public function saveSection(Request $request)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $request->validate([
             'template_id' => 'required|exists:invitation_templates,id',
@@ -118,7 +118,7 @@ class TemplateEditorController extends Controller
 
     public function updateSection(Request $request, $id)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $section = InvitationSection::findOrFail($id);
 
@@ -190,7 +190,7 @@ class TemplateEditorController extends Controller
 
     public function storeSection(Request $request, $templateId)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $classes = config('invitation_component_classes');
 
@@ -271,7 +271,7 @@ class TemplateEditorController extends Controller
 
     public function renderSection(Request $request)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $request->validate([
             'section_type' => ['required', 'string', function ($attribute, $value, $fail) {
@@ -320,7 +320,7 @@ class TemplateEditorController extends Controller
 
     public function updateTheme(Request $request, $templateId)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $curatedFontNames = collect(config('invitation.fonts'))->pluck('name')->all();
         $hex = 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/';
@@ -367,7 +367,7 @@ class TemplateEditorController extends Controller
 
     public function deleteSection($id)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $section = InvitationSection::findOrFail($id);
         $section->delete();
@@ -377,7 +377,7 @@ class TemplateEditorController extends Controller
 
     public function reorderSections(Request $request)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $classes = config('invitation_component_classes');
 
@@ -454,7 +454,7 @@ class TemplateEditorController extends Controller
 
     public function duplicateSection($id)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $section = InvitationSection::findOrFail($id);
 
@@ -492,7 +492,7 @@ class TemplateEditorController extends Controller
 
     public function publish(Request $request, $id)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $template = InvitationTemplate::with(['sections' => function ($query) {
             $query->where('is_visible', true);
@@ -615,7 +615,7 @@ class TemplateEditorController extends Controller
 
     public function studioPreview($id)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $template = InvitationTemplate::with(['sections' => function ($query) {
             $query->orderBy('order_index');
@@ -662,11 +662,11 @@ class TemplateEditorController extends Controller
         ];
     }
 
-    private function authorizeSuperAdmin(): void
+    private function authorizeStudio(): void
     {
         $currentUser = \App\Models\User::find(\Illuminate\Support\Facades\Auth::id());
 
-        if (!$currentUser || $currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
     }

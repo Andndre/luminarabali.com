@@ -15,7 +15,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -28,7 +28,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -40,7 +40,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -77,7 +77,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -90,7 +90,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -133,7 +133,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -148,7 +148,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 

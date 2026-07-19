@@ -39,6 +39,22 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    /**
+     * Boleh membuka Studio dan mengelola template undangan.
+     *
+     * Setara super admin DI DALAM Studio, termasuk komponen HTML mentah. Artinya akun
+     * designer yang jebol bisa menanam script ke tiap undangan yang dibuat dari template
+     * yang dia sentuh — perlakukan pemberian division ini seperti memberi akses admin,
+     * bukan seperti menambah editor konten biasa.
+     *
+     * Sengaja TIDAK melebar ke data pelanggan: booking, invoice, user, dan
+     * InvitationController tetap super_admin-only.
+     */
+    public function canDesignTemplates(): bool
+    {
+        return in_array($this->division, ['super_admin', 'designer'], true);
+    }
+
     protected function casts(): array
     {
         return [

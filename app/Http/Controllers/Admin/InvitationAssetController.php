@@ -17,7 +17,7 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -29,7 +29,7 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -65,7 +65,7 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -80,7 +80,12 @@ class InvitationAssetController extends Controller
         $fileType = $this->getFileType($mimeType);
 
         // SVG: vektor, GD tidak bisa membacanya — simpan apa adanya tanpa konversi WebP.
-        // Aman karena endpoint ini super_admin-only dan ornamen dirender via <img> (script tidak dieksekusi).
+        // TIDAK disanitasi. Dirender lewat <img> sehingga script di dalamnya tidak jalan,
+        // tapi file-nya tetap bisa dibuka langsung di /storage dan di situ script-nya
+        // same-origin. Endpoint ini kini terbuka untuk division 'designer', bukan cuma
+        // super admin — yang sudah punya jalur script jauh lebih lurus lewat komponen
+        // 'code'. Jadi kalau kepercayaan ke designer dipersempit, keduanya harus ditangani
+        // bersama; menyanitasi SVG saja tidak menutup apa pun.
         if ($mimeType === 'image/svg+xml') {
             $fileName = time() . '_' . uniqid() . '.svg';
             $filePath = $file->storeAs('invitations', $fileName, 'public');
@@ -140,7 +145,7 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -188,7 +193,7 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 

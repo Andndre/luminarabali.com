@@ -31,6 +31,8 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($user->division == 'super_admin')
                                     <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded">Super Admin</span>
+                                @elseif($user->division == 'designer')
+                                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">Desainer</span>
                                 @elseif($user->division == 'photobooth')
                                     <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded">Photobooth</span>
                                 @elseif($user->division == 'visual')
@@ -67,6 +69,8 @@
                         <div>
                             @if($user->division == 'super_admin')
                                 <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-1 rounded">Super Admin</span>
+                            @elseif($user->division == 'designer')
+                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-1 rounded">Desainer</span>
                             @elseif($user->division == 'photobooth')
                                 <span class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-1 rounded">Photobooth</span>
                             @elseif($user->division == 'visual')

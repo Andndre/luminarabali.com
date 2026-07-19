@@ -12,7 +12,7 @@ class DesignPresetController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $presets = DesignPreset::query()
             ->when($request->filled('section_type'), fn ($q) => $q->where('section_type', $request->input('section_type')))
@@ -24,7 +24,7 @@ class DesignPresetController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -55,18 +55,18 @@ class DesignPresetController extends Controller
 
     public function destroy($id)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeStudio();
 
         DesignPreset::findOrFail($id)->delete();
 
         return response()->json(['success' => true]);
     }
 
-    private function authorizeSuperAdmin(): void
+    private function authorizeStudio(): void
     {
         $currentUser = \App\Models\User::find(Auth::id());
 
-        if (!$currentUser || $currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
     }
