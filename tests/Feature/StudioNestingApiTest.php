@@ -173,4 +173,20 @@ class StudioNestingApiTest extends TestCase
         $this->assertSame($twoCol->id, $child->parent_id);
         $this->assertSame(0, $child->props['column_index']);
     }
+
+    public function test_promoting_a_child_to_top_level_drops_its_column_index(): void
+    {
+        $parent = $this->section('section_two_col');
+        $child = $this->section('text', $parent->id, ['column_index' => 1]);
+
+        $this->postJson('/admin/api/templates/sections/reorder', [
+            'sections' => [
+                ['id' => $child->id, 'order_index' => 0, 'parent_id' => null],
+            ],
+        ])->assertOk();
+
+        $child->refresh();
+        $this->assertNull($child->parent_id);
+        $this->assertArrayNotHasKey('column_index', $child->props);
+    }
 }
