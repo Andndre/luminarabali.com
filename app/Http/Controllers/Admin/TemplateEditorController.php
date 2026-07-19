@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Intervention\Image\Laravel\Facades\Image;
 
 class TemplateEditorController extends Controller
 {
@@ -331,6 +333,32 @@ class TemplateEditorController extends Controller
         });
 
         return response()->json(['success' => true, 'section' => $copy], 201);
+    }
+
+    public function storeVariantThumbnail(Request $request, $id)
+    {
+        $this->authorizeSuperAdmin();
+
+        $section = InvitationSection::findOrFail($id);
+        $schema = config("invitation_components.{$section->section_type}", []);
+        $variantField = collect($schema)->firstWhere('type', 'variant');
+        $options = $variantField['options'] ?? [];
+
+        $validated = $request->validate([
+            'variant' => ['required', 'string', Rule::in($options)],
+            'image' => ['required', 'image', 'max:4096'],
+        ]);
+
+        $png = (string) Image::read($request->file('image'))->scaleDown(width: 320)->toPng();
+        $path = "section-thumbs/{$section->id}/{$validated['variant']}.png";
+        Storage::disk('public')->put($path, $png);
+
+        $thumbs = $section->variant_thumbnails ?? [];
+        $thumbs[$validated['variant']] = $path;
+        $section->variant_thumbnails = $thumbs;
+        $section->save();
+
+        return response()->json(['path' => $path]);
     }
 
     public function publish(Request $request, $id)
