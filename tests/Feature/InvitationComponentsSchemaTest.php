@@ -213,6 +213,23 @@ class InvitationComponentsSchemaTest extends TestCase
         );
     }
 
+    public function test_public_page_has_no_unlayered_universal_reset(): void
+    {
+        // Komentar dibuang dulu: komentar peringatan di file itu mengutip reset yang
+        // dilarang, jadi penjaganya akan menangkap dirinya sendiri.
+        $blade = preg_replace('#/\*.*?\*/|\{\{--.*?--\}\}#s', '', file_get_contents(
+            resource_path('views/invitations/public.blade.php')
+        ));
+
+        // CSS tanpa layer mengalahkan semua @layer, jadi `* { padding: 0 }` di sini
+        // mematikan setiap utility padding/margin Tailwind tanpa error apa pun.
+        $this->assertDoesNotMatchRegularExpression(
+            '/\*\s*\{[^}]*\b(padding|margin)\s*:/s',
+            $blade,
+            'Reset universal padding/margin di <style> halaman undangan mematikan semua utility Tailwind.'
+        );
+    }
+
     public function test_theme_panel_uses_custom_hex_color_control(): void
     {
         $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));

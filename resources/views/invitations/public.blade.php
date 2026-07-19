@@ -39,11 +39,8 @@
     @vite(['resources/css/invitation.css', 'resources/js/invitation.js'])
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* Jangan taruh reset universal di sini: blok ini tanpa layer, jadi mengalahkan
+           semua utility Tailwind. Preflight sudah melakukannya di @layer base. */
 
         body {
             font-family: 'Lato', sans-serif;
