@@ -176,6 +176,16 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertStringContainsString('ornamentPicker', $blade, 'State modal ornamen belum ada.');
         $this->assertStringContainsString('isSvgPath', $blade, 'Helper isSvgPath belum ada.');
         $this->assertStringContainsString('openOrnamentPicker', $inspector, 'Tombol pilih ornamen belum wired ke modal.');
-        $this->assertStringContainsString("field.key + '_color'", $inspector, 'Kontrol warna svg (prop {key}_color) belum ada.');
+        $this->assertStringContainsString("setOrnItem(field, i, 'color'", $inspector, 'Kontrol warna svg per item belum ada.');
+    }
+
+    public function test_studio_has_ornament_list_ui_with_flip(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_inspector.blade.php'));
+        $this->assertStringContainsString('openOrnamentPickerItem', $blade, 'Picker per-item belum ada.');
+        $this->assertStringContainsString('addOrnItem', $blade, 'Helper addOrnItem belum ada.');
+        $this->assertStringContainsString("field.type === 'ornament_list'", $inspector, 'Blok ornament_list belum ada.');
+        $this->assertStringContainsString('flip_h', $inspector, 'Toggle flip belum ada di inspector.');
     }
 }
