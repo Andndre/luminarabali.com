@@ -56,6 +56,7 @@ class TemplateEditorController extends Controller
         $themeBase = [
             'colors' => array_merge($default['colors'], $template->theme['colors'] ?? []),
             'fonts' => array_merge($default['fonts'], $template->theme['fonts'] ?? []),
+            'scales' => array_merge($default['scales'], $template->theme['scales'] ?? []),
         ];
 
         return view('admin.templates.studio', [
@@ -244,23 +245,33 @@ class TemplateEditorController extends Controller
         $this->authorizeSuperAdmin();
 
         $curatedFontNames = collect(config('invitation.fonts'))->pluck('name')->all();
+        $hex = 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/';
+        $colorKeys = ['primary', 'accent', 'surface', 'surface_alt', 'text', 'muted', 'ink', 'on_dark'];
 
-        $request->validate([
+        $rules = [
             'colors' => 'required|array',
-            'colors.primary' => ['required', 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/'],
-            'colors.accent' => ['required', 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/'],
-            'colors.surface' => ['required', 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/'],
-            'colors.text' => ['required', 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/'],
             'fonts' => 'required|array',
             'fonts.heading' => ['required', \Illuminate\Validation\Rule::in($curatedFontNames)],
             'fonts.body' => ['required', \Illuminate\Validation\Rule::in($curatedFontNames)],
-        ]);
+            'scales' => 'required|array',
+            'scales.type_base' => 'required|numeric|min:8|max:40',
+            'scales.type_ratio' => 'required|numeric|min:1|max:2',
+            'scales.radius' => 'required|numeric|min:0|max:64',
+            'scales.section_spacing' => 'required|numeric|min:0|max:200',
+            'scales.shadow_level' => ['required', \Illuminate\Validation\Rule::in(['none', 'sm', 'md', 'lg'])],
+        ];
+        foreach ($colorKeys as $k) {
+            $rules["colors.{$k}"] = ['required', $hex];
+        }
+
+        $request->validate($rules);
 
         $template = InvitationTemplate::findOrFail($templateId);
         $template->update([
             'theme' => [
                 'colors' => $request->colors,
                 'fonts' => $request->fonts,
+                'scales' => $request->scales,
             ],
         ]);
 

@@ -21,8 +21,13 @@ class StudioThemeUpdateTest extends TestCase
         $this->actingAs($admin);
 
         $response = $this->patchJson("/admin/api/studio/templates/{$template->id}/theme", [
-            'colors' => ['primary' => '#4a5d43', 'accent' => '#93a686', 'surface' => '#f6f8f3', 'text' => '#2c332a'],
+            'colors' => [
+                'primary' => '#4a5d43', 'accent' => '#93a686', 'surface' => '#f6f8f3',
+                'surface_alt' => '#e9ede4', 'text' => '#2c332a', 'muted' => '#6b7565',
+                'ink' => '#1c221a', 'on_dark' => '#f5f7f2',
+            ],
             'fonts' => ['heading' => 'Lora', 'body' => 'Open Sans'],
+            'scales' => ['type_base' => 16, 'type_ratio' => 1.25, 'radius' => 12, 'section_spacing' => 64, 'shadow_level' => 'sm'],
         ]);
 
         $response->assertOk();
