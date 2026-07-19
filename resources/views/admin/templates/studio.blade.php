@@ -338,7 +338,7 @@
     {{-- Panel tengah: Preview --}}
     <div class="flex-1 bg-gray-100 flex flex-col min-w-0">
         <div class="flex-1 p-4 flex justify-center min-h-0">
-            <iframe x-ref="preview" src="{{ route('admin.templates.studio.preview', $template->id) }}"
+            <iframe id="studio-preview" x-ref="preview" src="{{ route('admin.templates.studio.preview', $template->id) }}"
                 class="h-full rounded-xl border border-gray-300 bg-white transition-all duration-300"
                 :class="device === 'mobile' ? 'w-[375px]' : 'w-full'"></iframe>
         </div>
@@ -375,6 +375,7 @@ function studioApp() {
         themeSaveTimer: null,
         fontsDirty: false,
         publishing: false,
+        upload: null, // { current, total, percent } saat upload berlangsung
         typeLabels: @json($sectionTypes),
         classes: @json($componentClasses),
         advanced: localStorage.getItem('luminara.studio.advanced') === '1',
@@ -649,19 +650,33 @@ function studioApp() {
             return /^(https?:)?\//.test(v) ? v : '/storage/' + v.replace(/^\/+/, '');
         },
 
-        async uploadFile(file) {
-            const fd = new FormData();
-            fd.append('file', file);
-            const res = await fetch('/admin/api/assets/upload', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: fd, // tanpa Content-Type manual — browser set boundary multipart sendiri
+        // XHR (bukan fetch): hanya XHR yang melaporkan progress upload.
+        // onProgress opsional — pemanggil lama tetap jalan tanpa argumen kedua.
+        uploadFile(file, onProgress = null) {
+            return new Promise((resolve, reject) => {
+                const fd = new FormData();
+                fd.append('file', file); // tanpa Content-Type manual — browser set boundary multipart sendiri
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/admin/api/assets/upload');
+                xhr.setRequestHeader('Accept', 'application/json');
+                xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
+
+                if (onProgress) {
+                    xhr.upload.addEventListener('progress', e => {
+                        if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+                    });
+                }
+
+                xhr.onload = () => {
+                    let body = {};
+                    try { body = JSON.parse(xhr.responseText); } catch { /* respons non-JSON (mis. 413) */ }
+                    if (xhr.status >= 200 && xhr.status < 300) resolve(body.asset);
+                    else reject(body);
+                };
+                xhr.onerror = () => reject({});
+                xhr.send(fd);
             });
-            if (!res.ok) throw await res.json().catch(() => ({}));
-            return (await res.json()).asset;
         },
 
         async uploadToProp(field, event) {
@@ -749,18 +764,39 @@ function studioApp() {
             return [...(this.selected.props[field.key] ?? [])];
         },
 
-        async appendListItem(field, event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            try {
-                const asset = await this.uploadFile(file);
-                this.setProp(field, [...this.listOf(field), {
-                    url: '/storage/' + asset.file_path,
-                    alt: asset.asset_name ?? '',
-                }]);
-            } catch {
-                Swal.fire({ icon: 'error', title: 'Upload gagal', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
+        // Upload banyak file ke list (dipakai input file + drag-drop). Berurutan: urutan foto terjaga.
+        async uploadFilesToList(field, fileList) {
+            const files = Array.from(fileList ?? []).filter(f => f.type.startsWith('image/'));
+            if (!files.length) return;
+            const added = [];
+            const failedNames = [];
+            let reason = '';
+            this.upload = { current: 0, total: files.length, percent: 0 };
+            for (const [idx, file] of files.entries()) {
+                this.upload.current = idx + 1;
+                this.upload.percent = 0;
+                try {
+                    const asset = await this.uploadFile(file, p => { this.upload.percent = p; });
+                    added.push({ url: '/storage/' + asset.file_path, alt: asset.asset_name ?? '' });
+                } catch (err) {
+                    failedNames.push(file.name);
+                    // pesan validasi Laravel: { errors: { file: ["..."] } }; 413 = respons kosong
+                    if (!reason) reason = err?.errors?.file?.[0] || err?.message || 'File ditolak server (mungkin terlalu besar).';
+                }
             }
+            this.upload = null;
+            if (added.length) this.setProp(field, [...this.listOf(field), ...added]);
+            if (failedNames.length) {
+                Swal.fire({
+                    icon: 'error',
+                    title: `${failedNames.length} foto gagal diupload`,
+                    text: `${reason}\n\n${failedNames.join(', ')}`, // text: Swal escape sendiri
+                });
+            }
+        },
+
+        async appendListItem(field, event) {
+            await this.uploadFilesToList(field, event.target.files);
             event.target.value = '';
         },
 
@@ -854,7 +890,7 @@ function studioApp() {
             try {
                 if (JSON.stringify(snap.theme) !== JSON.stringify(this.theme)) {
                     this.theme = JSON.parse(JSON.stringify(snap.theme));
-                    const doc = this.$refs.preview.contentWindow?.document?.documentElement;
+                    const doc = this.previewFrame()?.contentWindow?.document?.documentElement;
                     if (doc) {
                         Object.entries(this.theme.colors).forEach(([k, v]) => doc.style.setProperty(`--color-${k}`, v));
                         Object.entries(this.theme.fonts).forEach(([k, v]) => doc.style.setProperty(`--font-${k}`, `'${v}'`));
@@ -900,7 +936,6 @@ function studioApp() {
                 const data = await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { props: s.props });
                 s.props = data.section.props ?? {}; // sinkron kanonik (key null sudah hilang)
                 if (this.selectedId === s.id) this.fieldErrors = {};
-                await this.swapSection(s);
             } catch (err) {
                 if (this.selectedId !== s.id) return; // respons basi — user sudah pindah section
                 if (err.errors) {
@@ -910,7 +945,12 @@ function studioApp() {
                 } else {
                     Swal.fire({ icon: 'error', title: 'Gagal menyimpan', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
                 }
+                return; // simpan gagal — tidak ada yang perlu disinkronkan ke preview
             }
+
+            // Simpan SUDAH sukses. Kegagalan sinkron preview tidak boleh dilaporkan sebagai
+            // "Gagal menyimpan" — data aman di server, hanya preview yang tertinggal.
+            await this.swapSection(s);
         },
 
         setCustomCss(value) {
@@ -921,12 +961,20 @@ function studioApp() {
                 try {
                     await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { custom_css: s.custom_css || null });
                     if (this.selectedId === s.id) this.cssError = null;
-                    await this.swapSection(s);
                 } catch (err) {
                     if (this.selectedId !== s.id) return;
                     this.cssError = err.errors?.custom_css?.[0] ?? 'Gagal menyimpan CSS';
+                    return; // simpan gagal — jangan sinkronkan preview
                 }
+                await this.swapSection(s); // di luar try: error preview bukan error simpan
             }, 500);
+        },
+
+        // Iframe diresolusi lewat id DOM, BUKAN $refs. Di Alpine 3, $refs (seperti $el)
+        // diresolusi relatif ke elemen pemicu — saveProps dipanggil dari input inspector
+        // yang bersarang di x-data lain, sehingga $refs.preview undefined di sana.
+        previewFrame() {
+            return document.getElementById('studio-preview');
         },
 
         async swapSection(s) {
@@ -936,7 +984,7 @@ function studioApp() {
                 const data = await this.api('POST', '/admin/api/studio/render-section', {
                     section_type: s.section_type, props: s.props, section_id: s.id,
                 });
-                const wrapper = this.$refs.preview.contentWindow?.document
+                const wrapper = this.previewFrame()?.contentWindow?.document
                     ?.querySelector(`[data-section-id="${s.id}"]`);
                 if (!wrapper) return this.reloadPreview(); // mis. section hidden → tidak dirender
                 wrapper.outerHTML = data.html; // respons = wrapper lengkap dari _section-shell
@@ -946,7 +994,9 @@ function studioApp() {
         },
 
         reloadPreview() {
-            this.$refs.preview.contentWindow.location.reload();
+            // contentWindow bisa null saat iframe sedang navigasi — jangan sampai
+            // TypeError-nya lolos ke pemanggil dan tersamar jadi "gagal simpan".
+            this.previewFrame()?.contentWindow?.location.reload();
         },
 
         toastError(title = 'Terjadi kesalahan') {
@@ -1199,7 +1249,7 @@ function studioApp() {
         setColor(key, value) {
             if (!this.themeSaveTimer) this.pushUndo();
             this.theme.colors[key] = value;
-            this.$refs.preview.contentWindow?.document?.documentElement
+            this.previewFrame()?.contentWindow?.document?.documentElement
                 ?.style.setProperty(`--color-${key}`, value);
             this.queueThemeSave();
         },
@@ -1214,7 +1264,7 @@ function studioApp() {
             if (!this.themeSaveTimer) this.pushUndo();
             this.theme.fonts[key] = value;
             this.fontsDirty = true;
-            this.$refs.preview.contentWindow?.document?.documentElement
+            this.previewFrame()?.contentWindow?.document?.documentElement
                 ?.style.setProperty(`--font-${key}`, `'${value}'`);
             this.queueThemeSave();
         },

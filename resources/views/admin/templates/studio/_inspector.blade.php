@@ -197,10 +197,29 @@
                                         </button>
                                     </div>
                                 </template>
-                                <label class="block text-center text-xs border border-dashed border-gray-300 rounded-lg px-2 py-1.5 cursor-pointer hover:border-black">
-                                    + Upload foto
-                                    <input type="file" accept="image/*" class="hidden" @change="appendListItem(field, $event)">
-                                </label>
+                                <template x-if="upload">
+                                    <div class="border border-gray-200 rounded-lg px-3 py-2 space-y-1.5">
+                                        <div class="flex items-center justify-between text-xs text-gray-500">
+                                            <span x-text="`Mengupload ${upload.current}/${upload.total}`"></span>
+                                            <span class="tabular-nums" x-text="upload.percent + '%'"></span>
+                                        </div>
+                                        <div class="h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                                            <div class="h-full bg-black rounded-full transition-all duration-150"
+                                                :style="`width: ${upload.percent}%`"></div>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template x-if="!upload">
+                                    <label x-data="{ over: false }"
+                                        @dragover.prevent="over = true" @dragleave.prevent="over = false"
+                                        @drop.prevent="over = false; uploadFilesToList(field, $event.dataTransfer.files)"
+                                        :class="over ? 'border-black bg-gray-50' : 'border-gray-300'"
+                                        class="block text-center text-xs border border-dashed rounded-lg px-2 py-3 cursor-pointer hover:border-black transition">
+                                        <span x-text="over ? 'Lepas untuk upload' : 'Tarik foto ke sini atau klik (bisa beberapa)'"></span>
+                                        <input type="file" accept="image/*" multiple class="hidden" @change="appendListItem(field, $event)">
+                                    </label>
+                                </template>
                             </div>
                         </template>
 

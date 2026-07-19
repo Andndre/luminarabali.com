@@ -70,7 +70,7 @@ class InvitationAssetController extends Controller
         }
 
         $request->validate([
-            'file' => 'required|file|max:10240', // Max 10MB
+            'file' => 'required|file|max:25600', // Max 25MB (JPG full-res kamera sering >10MB)
             'page_id' => 'nullable|exists:invitation_pages,id',
             'collection' => 'nullable|string|max:255',
         ]);
@@ -93,7 +93,11 @@ class InvitationAssetController extends Controller
             // Load and optimize image
             $image = Image::read($file);
 
-            // Get dimensions
+            // Downscale: foto kamera full-res (6000px) percuma di undangan yang dibuka di HP.
+            // scaleDown hanya mengecilkan — gambar yang sudah kecil dibiarkan apa adanya.
+            $image->scaleDown(2000, 2000);
+
+            // Dimensi dicatat setelah downscale supaya cocok dengan file tersimpan
             $dimensions = [
                 'width' => $image->width(),
                 'height' => $image->height()

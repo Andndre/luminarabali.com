@@ -1,7 +1,15 @@
 @props(['src'])
 
+@php
+    // Nilai tersimpan berupa path relatif storage ("invitations/x.mp3"). Tanpa prefix,
+    // browser meresolusinya relatif ke URL halaman (mis. /admin/templates/4/studio/) → 404.
+    $audioSrc = $src && \Illuminate\Support\Str::startsWith($src, ['http://', 'https://', '/'])
+        ? $src
+        : ($src ? '/storage/'.ltrim($src, '/') : null);
+@endphp
+
 @if($src)
-    <audio x-ref="bgAudio" src="{{ $src }}" loop></audio>
+    <audio x-ref="bgAudio" src="{{ $audioSrc }}" loop></audio>
     
     <!-- Audio Control Button -->
     <button x-show="isOpen" @click="toggleAudio" 
