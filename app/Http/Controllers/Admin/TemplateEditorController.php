@@ -131,6 +131,12 @@ class TemplateEditorController extends Controller
         $incoming = $request->input('props', []);
         unset($incoming['column_index']);
 
+        // _locked (gembok per-field) juga STRUKTURAL — hanya boleh diubah lewat key
+        // request `locked` terpisah di bawah, yang tervalidasi Rule::in(contentKeys).
+        // Buang dari props masuk supaya tak bisa di-set/di-clear (via null eksplisit)
+        // menembus jalur props generik.
+        unset($incoming['_locked']);
+
         // null eksplisit = "hapus override ini" (kembali ke theme/default partial).
         $nullKeys = array_keys(array_filter($incoming, fn ($v) => $v === null));
         $incoming = array_diff_key($incoming, array_flip($nullKeys));

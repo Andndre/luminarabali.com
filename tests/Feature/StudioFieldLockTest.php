@@ -86,6 +86,21 @@ class StudioFieldLockTest extends TestCase
         $this->assertArrayNotHasKey('_locked', $section->fresh()->props);
     }
 
+    public function test_locked_cannot_be_cleared_through_the_generic_props_path(): void
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $section = $this->makeSection($admin);
+        $this->actingAs($admin);
+
+        $this->putJson("/admin/api/templates/sections/{$section->id}", ['locked' => ['groom_label']])->assertOk();
+
+        // Coba wipe _locked lewat null eksplisit di props — harus diabaikan (struktural,
+        // hanya key request `locked` yang boleh mengubahnya).
+        $this->putJson("/admin/api/templates/sections/{$section->id}", ['props' => ['_locked' => null]])->assertOk();
+
+        $this->assertSame(['groom_label'], $section->fresh()->props['_locked']);
+    }
+
     public function test_non_super_admin_cannot_lock_fields(): void
     {
         $admin = User::factory()->create(['division' => 'super_admin']);
