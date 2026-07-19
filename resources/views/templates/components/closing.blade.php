@@ -2,6 +2,8 @@
 
 @php
     $message = $props['message'] ?? '';
+    $salutation = $props['salutation'] ?? '';
+    $variant = $props['variant'] ?? 'signature';
 
     $photo = $props['photo'] ?? null;
     if (!empty($photo) && !\Illuminate\Support\Str::startsWith($photo, ['http://', 'https://', '/'])) {
@@ -10,17 +12,28 @@
 
     $groom = $page->groom_name ?? 'Romeo';
     $bride = $page->bride_name ?? 'Juliet';
+
+    // photo-cover menaruh nama di atas foto, jadi kotaknya harus tetap ada meski
+    // fotonya kosong — latarnya jatuh ke --color-ink lewat CSS.
+    $showPhotoBox = $variant === 'photo-cover' || ($photo && $variant !== 'quiet' && $variant !== 'band');
 @endphp
 
-<section style="padding: var(--section-y, 64px) 16px; text-align: center;">
-  <div class="container mx-auto max-w-xl">
-    @if($photo)
-      <img src="{{ $photo }}" alt="{{ $groom }} & {{ $bride }}"
-          class="w-full max-w-sm mx-auto object-cover mb-8" style="border-radius: var(--radius, 12px);">
-    @endif
-    <p class="text-base leading-relaxed opacity-90" data-editable="message">{{ $message }}</p>
-    <h2 class="section-heading mt-8">
-      {{ $groom }} &amp; {{ $bride }}
-    </h2>
+<section class="closing closing--{{ $variant }}">
+  @if($showPhotoBox)
+    <div class="closing-photo">
+      @if($photo)
+        <img src="{{ $photo }}" alt="{{ $groom }} &amp; {{ $bride }}" loading="lazy">
+      @endif
+    </div>
+  @endif
+
+  <div class="closing-body">
+    <p class="closing-message" data-editable="message">{{ $message }}</p>
+    <div class="closing-sign">
+      @if($salutation)
+        <p class="closing-salutation">{{ $salutation }}</p>
+      @endif
+      <h2 class="section-heading closing-names">{{ $groom }} &amp; {{ $bride }}</h2>
+    </div>
   </div>
 </section>

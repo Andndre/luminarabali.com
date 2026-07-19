@@ -257,8 +257,13 @@ $components = [
     ],
 
     'closing' => [
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Penutup', 'group' => 'design', 'options' => ['signature', 'arch', 'photo-cover', 'quiet', 'band'], 'default' => 'signature'],
         ['key' => 'message', 'type' => 'text', 'label' => 'Pesan', 'group' => 'content', 'default' => 'Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.'],
-        ['key' => 'photo', 'type' => 'image', 'label' => 'Foto', 'group' => 'design', 'default' => null],
+        // Kalimat ini dipakai hampir semua undangan di atas nama mempelai, tapi sebelumnya
+        // tidak punya tempat sama sekali.
+        ['key' => 'salutation', 'type' => 'text', 'label' => 'Salam Penutup', 'group' => 'content', 'default' => 'Kami yang berbahagia'],
+        // Foto mempelai itu isi undangan, bukan setelan tampilan.
+        ['key' => 'photo', 'type' => 'image', 'label' => 'Foto', 'group' => 'content', 'default' => null],
     ],
 
     'wishes' => [
