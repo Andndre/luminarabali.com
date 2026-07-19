@@ -286,6 +286,16 @@ $treatmentFields = [
 $classes = require __DIR__ . '/invitation_component_classes.php';
 $sectionTypes = array_merge($classes['feature'], $classes['container']);
 
+// column_index: posisi kolom saat section jadi anak container. Hidden = tak muncul di
+// loop form generik, tapi tetap tervalidasi & ikut tersimpan (pola yang sama dipakai
+// field {key}_color ornamen). Renderer container membacanya lewat props.column_index.
+foreach ($classes['basic'] as $basicType) {
+    $components[$basicType][] = [
+        'key' => 'column_index', 'type' => 'number', 'label' => 'Kolom',
+        'group' => 'advanced', 'hidden' => true, 'default' => 0,
+    ];
+}
+
 foreach ($components as $type => $fields) {
     $components[$type] = array_merge($fields, $animationFields);
     if (in_array($type, $sectionTypes, true)) {

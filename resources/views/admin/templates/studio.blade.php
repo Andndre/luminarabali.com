@@ -146,29 +146,63 @@
                 </div>
             </template>
             <template x-for="s in sections" :key="s.id">
-                <div :data-id="s.id" @click="selectedId = s.id"
-                    class="group flex items-center gap-2 rounded-lg border px-2.5 py-2 cursor-pointer select-none"
-                    :class="selectedId === s.id ? 'border-black bg-gray-50' : 'border-gray-200 hover:bg-gray-50'">
-                    <span class="drag-handle cursor-grab text-gray-300 group-hover:text-gray-400 shrink-0">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
-                    </span>
-                    <span class="shrink-0 text-gray-400" x-html="typeIcon(s.section_type)"></span>
-                    <span class="flex-1 text-sm truncate" :class="{ 'opacity-40': !s.is_visible }" x-text="typeLabel(s.section_type)"></span>
-                    <span x-show="s.custom_css" title="Section ini punya CSS kustom" class="text-[9px] font-semibold bg-purple-100 text-purple-700 rounded px-1">CSS</span>
-                    <div class="hidden group-hover:flex items-center gap-0.5 text-gray-400">
-                        <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
-                            <svg x-show="s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <svg x-show="!s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
-                        </button>
-                        <button @click.stop="duplicateSection(s)" title="Duplikat" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-8.25A2.25 2.25 0 017.5 18v-7.5a2.25 2.25 0 012.25-2.25h6.75z"/></svg>
-                        </button>
-                        <button @click.stop="savePreset(s)" title="Simpan sebagai preset" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
-                        </button>
-                        <button @click.stop="removeSection(s)" title="Hapus" class="p-1 rounded hover:bg-red-50 hover:text-red-600">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
-                        </button>
+                <div :data-id="s.id">
+                    <div @click="selectedId = s.id"
+                        class="group flex items-center gap-2 rounded-lg border px-2.5 py-2 cursor-pointer select-none"
+                        :class="selectedId === s.id ? 'border-black bg-gray-50' : 'border-gray-200 hover:bg-gray-50'">
+                        <span class="drag-handle cursor-grab text-gray-300 group-hover:text-gray-400 shrink-0">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
+                        </span>
+                        <span class="shrink-0 text-gray-400" x-html="typeIcon(s.section_type)"></span>
+                        <span class="flex-1 text-sm truncate" :class="{ 'opacity-40': !s.is_visible }" x-text="typeLabel(s.section_type)"></span>
+                        <span x-show="s.custom_css" title="Section ini punya CSS kustom" class="text-[9px] font-semibold bg-purple-100 text-purple-700 rounded px-1">CSS</span>
+                        <div class="hidden group-hover:flex items-center gap-0.5 text-gray-400">
+                            <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
+                                <svg x-show="s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <svg x-show="!s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                            </button>
+                            <button @click.stop="duplicateSection(s)" title="Duplikat" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-8.25A2.25 2.25 0 017.5 18v-7.5a2.25 2.25 0 012.25-2.25h6.75z"/></svg>
+                            </button>
+                            <button @click.stop="savePreset(s)" title="Simpan sebagai preset" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                            </button>
+                            <button @click.stop="removeSection(s)" title="Hapus" class="p-1 rounded hover:bg-red-50 hover:text-red-600">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div x-show="advanced && classOf(s.section_type) === 'container'" x-cloak
+                        class="mt-1 ml-3 pl-2 border-l border-dashed border-gray-200 space-y-1.5">
+                        <template x-for="col in columnsOf(s.section_type)" :key="col">
+                            <div>
+                                <p class="text-[10px] font-semibold uppercase tracking-wide text-gray-400 px-1 py-0.5"
+                                    x-text="'Kolom ' + col"></p>
+                                <div class="space-y-1" :data-column="col - 1" :data-parent="s.id"
+                                    x-ref="col" x-init="$nextTick(() => initColumnSortable($el))">
+                                    <template x-for="c in childrenOf(s.id, col - 1)" :key="c.id">
+                                        <div :data-id="c.id" @click.stop="selectedId = c.id"
+                                            class="group flex items-center gap-2 rounded-lg border px-2 py-1.5 cursor-pointer select-none bg-white"
+                                            :class="selectedId === c.id ? 'border-black bg-gray-50' : 'border-gray-200 hover:bg-gray-50'">
+                                            <span class="drag-handle cursor-grab text-gray-300 shrink-0">
+                                                <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
+                                            </span>
+                                            <span class="shrink-0 text-gray-400" x-html="typeIcon(c.section_type)"></span>
+                                            <span class="flex-1 text-xs truncate" :class="{ 'opacity-40': !c.is_visible }"
+                                                x-text="typeLabel(c.section_type)"></span>
+                                            <button @click.stop="removeSection(c)" title="Hapus"
+                                                class="hidden group-hover:block p-0.5 rounded text-gray-400 hover:bg-red-50 hover:text-red-600">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                                <button @click.stop="openAddChild(s.id, col - 1)" type="button"
+                                    class="mt-1 w-full rounded-lg border border-dashed border-gray-200 px-2 py-1 text-[11px] text-gray-400 hover:border-black hover:text-black">
+                                    + Blok
+                                </button>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </template>
@@ -189,11 +223,11 @@
     {{-- Modal galeri tipe section --}}
     <div x-show="addOpen" x-cloak
         class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8"
-        @click.self="addOpen = false" @keydown.escape.window="addOpen = false">
+        @click.self="addOpen = false; addChildTarget = null" @keydown.escape.window="addOpen = false; addChildTarget = null">
         <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="font-bold text-gray-900">Tambah Section</h2>
-                <button @click="addOpen = false" class="p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-900">
+                <h2 class="font-bold text-gray-900" x-text="addChildTarget ? 'Tambah Blok ke Kolom' : 'Tambah Section'"></h2>
+                <button @click="addOpen = false; addChildTarget = null" class="p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-900">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -210,7 +244,7 @@
                 </button>
             </div>
             <div x-show="addTab === 'types'" class="space-y-5">
-                <div>
+                <div x-show="!addChildTarget">
                     <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2">Section</p>
                     <div class="grid grid-cols-3 gap-3">
                         <template x-for="(label, type) in curatedTypes" :key="type">
@@ -221,13 +255,13 @@
                         </template>
                     </div>
                 </div>
-                <div x-show="advanced" x-cloak>
+                <div x-show="advanced || addChildTarget" x-cloak>
                     <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2">
                         Mode Lanjutan — kolom &amp; blok dasar
                     </p>
                     <div class="grid grid-cols-3 gap-3">
-                        <template x-for="(label, type) in advancedTypes" :key="type">
-                            <button @click="addSection(type)" class="flex flex-col items-start gap-2 border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
+                        <template x-for="(label, type) in (addChildTarget ? basicTypes : advancedTypes)" :key="type">
+                            <button @click="addChildTarget ? addSection(type, null, addChildTarget) : addSection(type)" class="flex flex-col items-start gap-2 border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
                                 <span class="text-gray-400" x-html="typeIcon(type)"></span>
                                 <span class="font-medium" x-text="label"></span>
                             </button>
@@ -334,6 +368,8 @@ function studioApp() {
         inspectorTab: 'content',
         fieldErrors: {},
         hasChildren: {},
+        children: [],
+        addChildTarget: null, // { parentId, columnIndex } saat modal dibuka untuk isi kolom
         propSaveTimer: null,
         undoStack: [],
         redoStack: [],
@@ -348,6 +384,9 @@ function studioApp() {
             data.sections.forEach(s => {
                 if (s.parent_id) this.hasChildren[String(s.parent_id)] = true;
             });
+            this.children = data.sections
+                .filter(s => s.parent_id)
+                .map(s => ({ ...s, props: s.props ?? {} }));
             this.sections = data.sections
                 .filter(s => !s.parent_id)
                 .map(s => ({ ...s, props: s.props ?? {} }));
@@ -392,7 +431,7 @@ function studioApp() {
         },
 
         get selected() {
-            return this.sections.find(s => s.id === this.selectedId) ?? null;
+            return this.selectedId ? this.sectionById(this.selectedId) : null;
         },
 
         typeLabel(type) {
@@ -456,6 +495,25 @@ function studioApp() {
             return 'feature';
         },
 
+        columnsOf(type) {
+            return this.classes.container_columns[type] ?? 0;
+        },
+
+        // WAJIB kembalikan salinan hasil filter (bukan array live) — konsisten dengan
+        // helper list lain; mutasi di tempat merusak snapshot undo.
+        childrenOf(parentId, columnIndex) {
+            return this.children
+                .filter(c => String(c.parent_id) === String(parentId)
+                    && Number(c.props?.column_index ?? 0) === columnIndex)
+                .sort((a, b) => a.order_index - b.order_index);
+        },
+
+        // Section (top-level atau anak) berdasarkan id — dipakai inspector & aksi baris.
+        sectionById(id) {
+            return this.sections.find(s => String(s.id) === String(id))
+                ?? this.children.find(c => String(c.id) === String(id));
+        },
+
         get curatedTypes() {
             return Object.fromEntries(Object.entries(this.typeLabels)
                 .filter(([type]) => this.classOf(type) === 'feature'));
@@ -464,6 +522,11 @@ function studioApp() {
         get advancedTypes() {
             return Object.fromEntries(Object.entries(this.typeLabels)
                 .filter(([type]) => this.classOf(type) !== 'feature'));
+        },
+
+        get basicTypes() {
+            return Object.fromEntries(Object.entries(this.typeLabels)
+                .filter(([type]) => this.classOf(type) === 'basic'));
         },
 
         fieldsFor(type, group) {
@@ -848,7 +911,7 @@ function studioApp() {
             return res.json();
         },
 
-        async addSection(type, props = null) {
+        async addSection(type, props = null, parent = null) {
             if (type === 'code') {
                 const ok = await Swal.fire({
                     title: 'Tambah section Kode?',
@@ -864,14 +927,28 @@ function studioApp() {
                 const data = await this.api('POST', `/admin/api/studio/templates/{{ $template->id }}/sections`, {
                     section_type: type,
                     ...(props ? { props } : {}),
+                    ...(parent ? { parent_id: parent.parentId, column_index: parent.columnIndex } : {}),
                 });
-                this.sections.push({ ...data.section, id: String(data.section.id) });
+                const created = { ...data.section, id: String(data.section.id), props: data.section.props ?? {} };
+                if (parent) {
+                    this.children.push(created);
+                    this.hasChildren[String(parent.parentId)] = true;
+                } else {
+                    this.sections.push(created);
+                }
                 this.addOpen = false;
-                this.selectedId = String(data.section.id);
+                this.addChildTarget = null;
+                this.selectedId = created.id;
                 this.reloadPreview();
             } catch {
                 this.toastError('Gagal menambah section');
             }
+        },
+
+        openAddChild(parentId, columnIndex) {
+            this.addChildTarget = { parentId, columnIndex };
+            this.addTab = 'types';
+            this.addOpen = true;
         },
 
         async loadPresets() {
@@ -947,6 +1024,7 @@ function studioApp() {
             try {
                 await this.api('DELETE', `/admin/api/templates/sections/${s.id}`);
                 this.sections = this.sections.filter(x => x.id !== s.id);
+                this.children = this.children.filter(x => x.id !== s.id && String(x.parent_id) !== String(s.id));
                 if (this.selectedId === s.id) this.selectedId = null;
                 this.reloadPreview();
             } catch {
@@ -971,6 +1049,10 @@ function studioApp() {
                 animation: 150,
                 onEnd: () => this.persistOrder(),
             });
+        },
+
+        initColumnSortable(el) {
+            // Drag antar kolom dipasang di Task 3.
         },
 
         async persistOrder() {

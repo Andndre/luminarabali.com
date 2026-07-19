@@ -150,6 +150,8 @@ class TemplateEditorController extends Controller
     {
         $this->authorizeSuperAdmin();
 
+        $classes = config('invitation_component_classes');
+
         $request->validate([
             'section_type' => ['required', 'string', function ($attribute, $value, $fail) {
                 if (!is_array(config("invitation_components.{$value}"))) {
@@ -159,6 +161,33 @@ class TemplateEditorController extends Controller
             'parent_id' => [
                 'nullable',
                 Rule::exists('invitation_sections', 'id')->where(fn ($query) => $query->where('template_id', $templateId)),
+                function ($attribute, $value, $fail) use ($request, $classes) {
+                    if ($value === null) {
+                        return;
+                    }
+                    if (!in_array($request->section_type, $classes['basic'], true)) {
+                        $fail('Hanya blok dasar yang boleh diletakkan di dalam kolom.');
+
+                        return;
+                    }
+                    $parent = InvitationSection::find($value);
+                    if (!$parent || !in_array($parent->section_type, $classes['container'], true)) {
+                        $fail('Induk harus berupa Layout section (kolom).');
+                    }
+                },
+            ],
+            'column_index' => [
+                'nullable', 'integer', 'min:0',
+                function ($attribute, $value, $fail) use ($request, $classes) {
+                    if ($value === null || $request->parent_id === null) {
+                        return;
+                    }
+                    $parent = InvitationSection::find($request->parent_id);
+                    $columns = $classes['container_columns'][$parent->section_type ?? ''] ?? 0;
+                    if ($value >= $columns) {
+                        $fail('Kolom tidak tersedia pada container ini.');
+                    }
+                },
             ],
             'props' => 'nullable|array',
         ]);
@@ -174,9 +203,18 @@ class TemplateEditorController extends Controller
             $request->input('props', [])
         ));
 
-        $nextOrderIndex = $template->sections()->count() > 0
-            ? 1 + (int) $template->sections()->max('order_index')
-            : 0;
+        if ($request->parent_id !== null) {
+            $defaultProps['column_index'] = (int) $request->input('column_index', 0);
+        }
+
+        // Urutan dihitung di antara saudara sekandung (top-level ATAU sesama anak),
+        // bukan seluruh template — kalau tidak, anak pertama sudah lahir dengan
+        // order_index besar dan urutan kolom jadi kacau.
+        $siblings = $template->sections()
+            ->where(fn ($query) => $request->parent_id === null
+                ? $query->whereNull('parent_id')
+                : $query->where('parent_id', $request->parent_id));
+        $nextOrderIndex = $siblings->count() > 0 ? 1 + (int) $siblings->max('order_index') : 0;
 
         $section = $template->sections()->create([
             'parent_id' => $request->parent_id,
