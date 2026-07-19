@@ -135,4 +135,12 @@ class InvitationComponentsSchemaTest extends TestCase
             }
         }
     }
+
+    public function test_studio_wires_automatic_variant_thumbnail_capture(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $this->assertStringContainsString('captureVariantThumbnail', $blade, 'Method capture belum ada.');
+        $this->assertStringContainsString('LuminaraStudio.domToPng', $blade, 'Capture tak memakai lib bundel.');
+        $this->assertStringContainsString('/variant-thumbnail', $blade, 'Capture tak memanggil endpoint thumbnail.');
+    }
 }

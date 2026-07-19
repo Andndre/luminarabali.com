@@ -231,6 +231,7 @@ function studioApp() {
         fieldErrors: {},
         hasChildren: {},
         propSaveTimer: null,
+        thumbCaptureTimer: null,
         undoStack: [],
         redoStack: [],
         restoring: false,
@@ -579,6 +580,7 @@ function studioApp() {
                 s.props = data.section.props ?? {}; // sinkron kanonik (key null sudah hilang)
                 if (this.selectedId === s.id) this.fieldErrors = {};
                 await this.swapSection(s);
+                this.queueThumbCapture(s);
             } catch (err) {
                 if (this.selectedId !== s.id) return; // respons basi — user sudah pindah section
                 if (err.errors) {
@@ -625,6 +627,47 @@ function studioApp() {
 
         reloadPreview() {
             this.$refs.preview.contentWindow.location.reload();
+        },
+
+        queueThumbCapture(s) {
+            // Debounce panjang: hanya capture ~1.5s setelah edit terakhir mereda.
+            clearTimeout(this.thumbCaptureTimer);
+            this.thumbCaptureTimer = setTimeout(() => {
+                this.thumbCaptureTimer = null;
+                this.captureVariantThumbnail(s);
+            }, 1500);
+        },
+
+        async captureVariantThumbnail(s) {
+            if (!window.LuminaraStudio || !window.LuminaraStudio.domToPng) return; // bundel belum siap
+            const variantField = (this.schema[s.section_type] ?? []).find(f => f.type === 'variant');
+            if (!variantField) return; // section tanpa varian layout — tak perlu thumbnail
+            const variant = s.props?.variant ?? variantField.default;
+
+            const node = this.$refs.preview.contentWindow?.document
+                ?.querySelector(`[data-section-id="${s.id}"]`);
+            if (!node) return; // preview belum ter-render (mis. reloadPreview) — lewati, save berikutnya menangkap
+
+            try {
+                const dataUrl = await window.LuminaraStudio.domToPng(node, { backgroundColor: '#ffffff' });
+                const blob = await (await fetch(dataUrl)).blob();
+                const fd = new FormData();
+                fd.append('variant', variant);
+                fd.append('image', blob, 'thumb.png');
+                const res = await fetch(`/admin/api/studio/sections/${s.id}/variant-thumbnail`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: fd,
+                });
+                if (!res.ok) return;
+                const { path } = await res.json();
+                s.variant_thumbnails = { ...(s.variant_thumbnails ?? {}), [variant]: path };
+            } catch {
+                // Capture gagal (mis. quirk lintas-dokumen) — diam: skematik tetap jadi fallback.
+            }
         },
 
         toastError(title = 'Terjadi kesalahan') {
