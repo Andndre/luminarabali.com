@@ -291,9 +291,6 @@
 .btn-outline { background: transparent; color: inherit; border: 2px solid currentColor; }
 .btn-ghost { background: transparent; color: var(--color-accent, #b5654d); border-width: 0; }
 
-/* --- map --- */
-.map-frame { border-radius: var(--radius, 12px); overflow: clip; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
-
 /* --- countdown variants --- */
 .countdown-title { margin-bottom: 2rem; }
 .countdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(.5rem, 2.5cqi, 1rem); max-width: 28rem; margin: 0 auto; }
@@ -403,6 +400,79 @@
   color: #b42318; /* merah galat: sengaja di luar token tema — arti "gagal" tidak boleh ikut warna merek */
 }
 .rsvp-button:disabled { opacity: .6; cursor: progress; }
+
+/* --- map: dasar + empat varian ---
+   Isi <iframe> milik Google: tidak bisa disentuh CSS kita dan tidak ikut tema. Varian di
+   sini karena itu bekerja pada bingkai dan susunan sekitarnya, bukan pada petanya.
+   Padding di kelas, bukan atribut style: full-bleed membuang padding samping. */
+.map { padding: var(--section-y, 64px) 16px; text-align: center; }
+.map-heading { margin-bottom: 2rem; }
+.map-frame {
+  overflow: clip;
+  border-radius: var(--radius, 12px);
+  background: var(--color-surface_alt, #f3ece1);
+}
+.map-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.map-address {
+  margin-top: 1.5rem; text-align: center;
+  font-size: var(--step-sm, .8125rem); line-height: 1.7;
+  color: var(--color-muted, #7a6f66);
+}
+.map-action { margin-top: 1.5rem; text-align: center; }
+/* Tombolnya dulu memakai kelas ukuran Tailwind plus ikon 20px di samping teks 13px —
+   ikonnya jadi lebih besar daripada tulisannya. Ukuran sekarang ikut skala tema. */
+.map-action a {
+  display: inline-flex;
+  padding: .8rem 1.6rem;
+  font-size: var(--step-sm, .8125rem);
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  /* Radius tema bisa disetel sampai 999px; di tombol selebar ini itu wajar,
+     tapi jangan lebih tumpul daripada tingginya. */
+  border-radius: min(var(--radius, 12px), 999px);
+  transition: opacity .2s;
+}
+.map-action a:hover { opacity: .88; }
+
+/* framed adalah bentuk dasarnya — tanpa aturan tambahan. */
+
+/* bar: alamat dan tombol menempel persis di bawah peta, satu kotak utuh.
+   Panel melayang di atas peta sempat dicoba dan dibuang: pada kartu selebar 430px
+   ia memakan sepertiga bidang peta, tepat di bagian yang biasanya berisi jalan
+   menuju lokasi. Ini menyambung, bukan menumpang. */
+.map--bar .map-frame { border-radius: var(--radius, 12px) var(--radius, 12px) 0 0; }
+.map--bar .map-panel {
+  padding: 1.35rem 1.25rem;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: 0 0 var(--radius, 12px) var(--radius, 12px);
+}
+.map--bar .map-address { margin-top: 0; }
+.map--bar .map-action { margin-top: 1rem; }
+
+/* full-bleed: peta selebar kartu, tanpa sudut membulat. Peta berhenti terasa
+   seperti gambar yang ditempel. */
+.map--full-bleed { padding-inline: 0; }
+.map--full-bleed .map-frame { border-radius: 0; }
+.map--full-bleed .map-address,
+.map--full-bleed .map-action { padding-inline: 16px; }
+
+/* address-first: alamat jadi teks utama, peta pendukung di bawahnya.
+   Untuk gedung yang namanya lebih dikenal daripada petanya. */
+.map--address-first .map-address {
+  margin-top: 0; margin-bottom: 1.75rem;
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-lg, 1.15rem);
+  color: var(--fg-heading);
+}
+.map-venue {
+  display: block;
+  font-family: var(--font-body, sans-serif);
+  font-size: var(--step-sm, .8125rem);
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--color-accent, #b5654d);
+  margin-bottom: .5rem;
+}
 
 /* --- closing: dasar + lima varian ---
    Section terakhir yang dilihat tamu, jadi tugasnya menutup. Di kelima varian nama

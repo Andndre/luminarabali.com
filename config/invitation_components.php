@@ -125,8 +125,11 @@ $components = [
     ],
 
     'map' => [
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Peta', 'group' => 'design', 'options' => ['framed', 'bar', 'full-bleed', 'address-first'], 'default' => 'framed'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => null],
         ['key' => 'address', 'type' => 'text', 'label' => 'Alamat', 'group' => 'content', 'default' => ''],
+        // Label kecil di atas alamat ("Akad", "Resepsi"). Paling terlihat di varian address-first.
+        ['key' => 'venue_label', 'type' => 'text', 'label' => 'Label Lokasi', 'group' => 'content', 'default' => ''],
         ['key' => 'latitude', 'type' => 'text', 'label' => 'Latitude', 'group' => 'content', 'default' => ''],
         ['key' => 'longitude', 'type' => 'text', 'label' => 'Longitude', 'group' => 'content', 'default' => ''],
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Petunjuk Arah'],
