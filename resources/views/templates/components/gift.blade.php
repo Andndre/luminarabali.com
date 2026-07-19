@@ -5,6 +5,8 @@
     $message = $props['message'] ?? '';
     $accounts = $props['accounts'] ?? [];
     $giftAddress = $props['gift_address'] ?? '';
+    $copyLabel = $props['copy_label'] ?? 'Salin';
+    $copiedLabel = $props['copied_label'] ?? 'Tersalin!';
 @endphp
 
 <section style="padding: var(--section-y, 64px) 16px;">
@@ -30,7 +32,7 @@
             <button type="button" class="gift-copy-{{ $section->id }} shrink-0 px-4 py-1.5 text-xs font-semibold"
                 data-number="{{ $account['number'] }}"
                 style="background: var(--color-accent, #b5654d); color: var(--color-surface, #ffffff); border-radius: var(--radius, 12px);">
-              Salin
+              {{ $copyLabel }}
             </button>
           @endif
         </div>
@@ -49,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.addEventListener('click', function () {
       navigator.clipboard.writeText(btn.dataset.number).then(function () {
         const original = btn.textContent;
-        btn.textContent = 'Tersalin!';
+        btn.textContent = @js($copiedLabel);
         setTimeout(function () { btn.textContent = original; }, 1500);
       });
     });

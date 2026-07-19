@@ -21,7 +21,7 @@
           @if (!empty($event['address']))<p class="event-addr">{{ $event['address'] }}</p>@endif
           @if (!empty($event['maps_url']))
             <a class="event-btn" href="{{ $event['maps_url'] }}" target="_blank" rel="noopener"
-               style="background: var(--color-accent, #b5654d); color: var(--color-on_dark, #fff);">Lihat Lokasi</a>
+               style="background: var(--color-accent, #b5654d); color: var(--color-on_dark, #fff);">{{ $props['maps_label'] ?? 'Lihat Lokasi' }}</a>
           @endif
         </div>
       @endforeach

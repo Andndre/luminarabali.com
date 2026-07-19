@@ -10,6 +10,15 @@ $whatsappEnabled = $props['whatsapp_enabled'] ?? false;
 $whatsappPhone = $props['whatsapp_phone'] ?? '';
 $paddingTop = $props['padding_top'] ?? 80;
 $paddingBottom = $props['padding_bottom'] ?? 80;
+$nameLabel = $props['name_label'] ?? 'Nama Lengkap';
+$phoneLabel = $props['phone_label'] ?? 'No. WhatsApp';
+$emailLabel = $props['email_label'] ?? 'Email';
+$attendanceLabel = $props['attendance_label'] ?? 'Konfirmasi Kehadiran';
+$attendYes = $props['attend_yes_label'] ?? 'Hadir';
+$attendNo = $props['attend_no_label'] ?? 'Tidak Hadir';
+$attendMaybe = $props['attend_maybe_label'] ?? 'Masih Ragu';
+$guestsLabel = $props['guests_label'] ?? 'Jumlah Tamu';
+$messageLabel = $props['message_label'] ?? 'Pesan';
 @endphp
 
 <section class="rsvp rsvp--{{ $variant }}" style="padding: {{ $paddingTop }}px {{ $variant === 'elevated' ? 16 : 20 }}px {{ $paddingBottom }}px;">
@@ -28,43 +37,43 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
         <div class="rsvp-card">
           <form id="rsvp-form-{{ $section->id }}">
             <div class="f-row">
-              <label class="rsvp-label">Nama Lengkap *</label>
+              <label class="rsvp-label">{{ $nameLabel }} *</label>
               <input type="text" name="guest_name" required class="rsvp-field">
             </div>
 
             <div class="f-row">
-              <label class="rsvp-label">No. WhatsApp</label>
+              <label class="rsvp-label">{{ $phoneLabel }}</label>
               <input type="tel" name="guest_phone" class="rsvp-field">
             </div>
 
             <div class="f-row">
-              <label class="rsvp-label">Email</label>
+              <label class="rsvp-label">{{ $emailLabel }}</label>
               <input type="email" name="guest_email" class="rsvp-field">
             </div>
 
             <div class="f-row">
-              <label class="rsvp-label">Konfirmasi Kehadiran *</label>
+              <label class="rsvp-label">{{ $attendanceLabel }} *</label>
               @if($variant === 'custom-controls')
                 <div class="rsvp-segmented">
                   <input type="radio" name="attendance_status" value="hadir" id="att-h-{{ $section->id }}" required>
-                  <label for="att-h-{{ $section->id }}">Hadir</label>
+                  <label for="att-h-{{ $section->id }}">{{ $attendYes }}</label>
                   <input type="radio" name="attendance_status" value="tidak_hadir" id="att-n-{{ $section->id }}">
-                  <label for="att-n-{{ $section->id }}">Tidak Hadir</label>
+                  <label for="att-n-{{ $section->id }}">{{ $attendNo }}</label>
                   <input type="radio" name="attendance_status" value="ragu" id="att-r-{{ $section->id }}">
-                  <label for="att-r-{{ $section->id }}">Ragu</label>
+                  <label for="att-r-{{ $section->id }}">{{ $attendMaybe }}</label>
                 </div>
               @else
                 <select name="attendance_status" required class="rsvp-field">
                   <option value="">Pilih Status</option>
-                  <option value="hadir">Hadir</option>
-                  <option value="tidak_hadir">Tidak Hadir</option>
-                  <option value="ragu">Masih Ragu</option>
+                  <option value="hadir">{{ $attendYes }}</option>
+                  <option value="tidak_hadir">{{ $attendNo }}</option>
+                  <option value="ragu">{{ $attendMaybe }}</option>
                 </select>
               @endif
             </div>
 
             <div class="f-row">
-              <label class="rsvp-label">Jumlah Tamu *</label>
+              <label class="rsvp-label">{{ $guestsLabel }} *</label>
               @if($variant === 'custom-controls')
                 <div class="rsvp-stepper" x-data="{ n: 1 }">
                   <button type="button" @click="n = Math.max(1, n - 1)" aria-label="Kurangi tamu">&minus;</button>
@@ -78,7 +87,7 @@ $paddingBottom = $props['padding_bottom'] ?? 80;
             </div>
 
             <div class="f-row">
-              <label class="rsvp-label">Pesan</label>
+              <label class="rsvp-label">{{ $messageLabel }}</label>
               <textarea name="message" rows="3" class="rsvp-field"></textarea>
             </div>
 

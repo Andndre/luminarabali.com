@@ -141,6 +141,15 @@ $components = [
         ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['elevated', 'custom-controls', 'underline'], 'default' => 'elevated'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'RSVP'],
         ['key' => 'subtitle', 'type' => 'text', 'label' => 'Subjudul', 'group' => 'content', 'default' => 'Please confirm your attendance'],
+        ['key' => 'name_label', 'type' => 'text', 'label' => 'Label Nama', 'group' => 'content', 'default' => 'Nama Lengkap'],
+        ['key' => 'phone_label', 'type' => 'text', 'label' => 'Label WhatsApp', 'group' => 'content', 'default' => 'No. WhatsApp'],
+        ['key' => 'email_label', 'type' => 'text', 'label' => 'Label Email', 'group' => 'content', 'default' => 'Email'],
+        ['key' => 'attendance_label', 'type' => 'text', 'label' => 'Label Konfirmasi Kehadiran', 'group' => 'content', 'default' => 'Konfirmasi Kehadiran'],
+        ['key' => 'attend_yes_label', 'type' => 'text', 'label' => 'Label Hadir', 'group' => 'content', 'default' => 'Hadir'],
+        ['key' => 'attend_no_label', 'type' => 'text', 'label' => 'Label Tidak Hadir', 'group' => 'content', 'default' => 'Tidak Hadir'],
+        ['key' => 'attend_maybe_label', 'type' => 'text', 'label' => 'Label Masih Ragu', 'group' => 'content', 'default' => 'Masih Ragu'],
+        ['key' => 'guests_label', 'type' => 'text', 'label' => 'Label Jumlah Tamu', 'group' => 'content', 'default' => 'Jumlah Tamu'],
+        ['key' => 'message_label', 'type' => 'text', 'label' => 'Label Pesan', 'group' => 'content', 'default' => 'Pesan'],
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Kirim Konfirmasi'],
         ['key' => 'success_message', 'type' => 'text', 'label' => 'Pesan Sukses', 'group' => 'content', 'default' => 'Terima kasih atas konfirmasi Anda!'],
         ['key' => 'whatsapp_phone', 'type' => 'text', 'label' => 'Nomor WhatsApp', 'group' => 'content', 'default' => ''],
@@ -164,6 +173,8 @@ $components = [
     'couple' => [
         ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['centered-stacked', 'side-alternating', 'portrait-overlay'], 'default' => 'centered-stacked'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Mempelai'],
+        ['key' => 'groom_label', 'type' => 'text', 'label' => 'Label Mempelai Pria', 'group' => 'content', 'default' => 'Mempelai Pria'],
+        ['key' => 'bride_label', 'type' => 'text', 'label' => 'Label Mempelai Wanita', 'group' => 'content', 'default' => 'Mempelai Wanita'],
         ['key' => 'groom_photo', 'type' => 'image', 'label' => 'Foto Mempelai Pria', 'group' => 'content', 'default' => null],
         ['key' => 'bride_photo', 'type' => 'image', 'label' => 'Foto Mempelai Wanita', 'group' => 'content', 'default' => null],
         ['key' => 'groom_parents', 'type' => 'text', 'label' => 'Orang Tua Mempelai Pria', 'group' => 'content', 'default' => 'Putra dari Bapak … & Ibu …'],
@@ -179,6 +190,7 @@ $components = [
     'event_details' => [
         ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['bordered-cards', 'divider-list'], 'default' => 'bordered-cards'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Rangkaian Acara'],
+        ['key' => 'maps_label', 'type' => 'text', 'label' => 'Label Tombol Lokasi', 'group' => 'content', 'default' => 'Lihat Lokasi'],
         ['key' => 'events', 'type' => 'repeater', 'label' => 'Acara', 'group' => 'content', 'fields' => [
             ['key' => 'name', 'type' => 'text', 'label' => 'Nama Acara', 'default' => 'Acara'],
             ['key' => 'date_text', 'type' => 'text', 'label' => 'Tanggal', 'default' => ''],
@@ -203,6 +215,8 @@ $components = [
         ]],
         ['key' => 'message', 'type' => 'text', 'label' => 'Pesan', 'group' => 'design', 'default' => 'Tanpa mengurangi rasa hormat, bagi Anda yang ingin memberikan tanda kasih:'],
         ['key' => 'gift_address', 'type' => 'text', 'label' => 'Alamat Kirim Kado', 'group' => 'design', 'default' => ''],
+        ['key' => 'copy_label', 'type' => 'text', 'label' => 'Label Tombol Salin', 'group' => 'content', 'default' => 'Salin'],
+        ['key' => 'copied_label', 'type' => 'text', 'label' => 'Label Setelah Tersalin', 'group' => 'content', 'default' => 'Tersalin!'],
     ],
 
     'quote' => [

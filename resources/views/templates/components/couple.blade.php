@@ -42,7 +42,7 @@
             @endif
             <div class="couple-portrait-overlay"></div>
             <div class="couple-portrait-text">
-              <p class="couple-portrait-eyebrow" data-reveal>{{ $i === 0 ? 'Mempelai Pria' : 'Mempelai Wanita' }}</p>
+              <p class="couple-portrait-eyebrow" data-reveal>{{ $i === 0 ? ($props['groom_label'] ?? 'Mempelai Pria') : ($props['bride_label'] ?? 'Mempelai Wanita') }}</p>
               <h3 class="couple-portrait-name" data-reveal style="font-family: var(--font-heading, serif);">{{ $person['name'] }}</h3>
               @if ($person['parents'])<p class="couple-portrait-sub" data-reveal>{{ $person['parents'] }}</p>@endif
               @if ($person['instagram'])
