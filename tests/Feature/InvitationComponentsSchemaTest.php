@@ -151,4 +151,13 @@ class InvitationComponentsSchemaTest extends TestCase
         // Panel Tema warna harus punya input teks hex (maxlength 9), bukan hanya native color.
         $this->assertStringContainsString('theme-hex-input', $blade, 'Kontrol hex kustom Panel Tema belum ada.');
     }
+
+    public function test_theme_panel_has_scales_editor(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $this->assertStringContainsString('setScale', $blade, 'Method setScale belum ada.');
+        foreach (['type_base', 'type_ratio', 'radius', 'section_spacing', 'shadow_level'] as $k) {
+            $this->assertStringContainsString($k, $blade, "Scale '{$k}' tak ada di Panel Tema.");
+        }
+    }
 }

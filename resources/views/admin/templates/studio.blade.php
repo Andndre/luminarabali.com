@@ -87,6 +87,44 @@
                     </template>
                 </div>
             </section>
+            <section>
+                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Skala</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="block">
+                        <span class="text-xs text-gray-600">Ukuran Teks Dasar (px)</span>
+                        <input type="number" min="8" max="40" step="1" :value="theme.scales.type_base"
+                            @change="setScale('type_base', Number($event.target.value))"
+                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                    </label>
+                    <label class="block">
+                        <span class="text-xs text-gray-600">Rasio Skala</span>
+                        <input type="number" min="1" max="2" step="0.05" :value="theme.scales.type_ratio"
+                            @change="setScale('type_ratio', Number($event.target.value))"
+                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                    </label>
+                    <label class="block">
+                        <span class="text-xs text-gray-600">Radius (px)</span>
+                        <input type="number" min="0" max="64" step="1" :value="theme.scales.radius"
+                            @change="setScale('radius', Number($event.target.value))"
+                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                    </label>
+                    <label class="block">
+                        <span class="text-xs text-gray-600">Jarak Section (px)</span>
+                        <input type="number" min="0" max="200" step="1" :value="theme.scales.section_spacing"
+                            @change="setScale('section_spacing', Number($event.target.value))"
+                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                    </label>
+                    <label class="block col-span-2">
+                        <span class="text-xs text-gray-600">Bayangan</span>
+                        <select :value="theme.scales.shadow_level" @change="setScale('shadow_level', $event.target.value)"
+                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                            <template x-for="opt in ['none', 'sm', 'md', 'lg']" :key="opt">
+                                <option :value="opt" x-text="opt"></option>
+                            </template>
+                        </select>
+                    </label>
+                </div>
+            </section>
             <p class="text-xs text-gray-400">Perubahan tersimpan otomatis dan langsung terlihat di preview.</p>
         </div>
 
@@ -864,6 +902,15 @@ function studioApp() {
             this.fontsDirty = true;
             this.$refs.preview.contentWindow?.document?.documentElement
                 ?.style.setProperty(`--font-${key}`, `'${value}'`);
+            this.queueThemeSave();
+        },
+
+        setScale(key, value) {
+            if (!this.themeSaveTimer) this.pushUndo();
+            this.theme.scales[key] = value;
+            // type scale (type_base/type_ratio) menurunkan --step-* di server; reload biar akurat.
+            // radius/section_spacing/shadow bisa langsung, tapi demi sederhana reload sekali via fontsDirty.
+            this.fontsDirty = true;
             this.queueThemeSave();
         },
 
