@@ -623,4 +623,44 @@ class InvitationComponentHardeningTest extends TestCase
             );
         }
     }
+
+    public function test_treatment_fields_only_exist_on_section_types(): void
+    {
+        $basics = ['text', 'image', 'button', 'divider', 'spacer', 'video', 'music', 'code'];
+        foreach ($basics as $type) {
+            $keys = collect(config("invitation_components.{$type}"))->pluck('key');
+            $this->assertFalse($keys->contains('bg_image'), "{$type} (Basic) tidak boleh punya Foto Latar (guideline §9).");
+            $this->assertFalse($keys->contains('treatment'), "{$type} (Basic) tidak boleh punya treatment.");
+            $this->assertTrue($keys->contains('animation'), "{$type} tetap boleh punya animasi masuk.");
+        }
+
+        foreach (['couple', 'countdown', 'section_two_col'] as $type) {
+            $keys = collect(config("invitation_components.{$type}"))->pluck('key');
+            $this->assertTrue($keys->contains('treatment'), "{$type} (Section) wajib punya treatment.");
+            $this->assertTrue($keys->contains('bg_image'));
+        }
+    }
+
+    public function test_updating_a_basic_section_strips_treatment_props(): void
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'status' => 'draft', 'created_by' => $admin->id,
+        ]);
+        $section = InvitationSection::create([
+            'template_id' => $template->id, 'section_type' => 'music', 'order_index' => 0,
+            'props' => ['src' => 'song.mp3'], 'is_visible' => true,
+        ]);
+
+        $this->actingAs($admin);
+
+        $this->putJson("/admin/api/templates/sections/{$section->id}", [
+            'props' => ['bg_image' => 'sneaky.jpg', 'treatment' => 'dark', 'autoplay' => false],
+        ])->assertOk();
+
+        $fresh = $section->fresh();
+        $this->assertArrayNotHasKey('bg_image', $fresh->props);
+        $this->assertArrayNotHasKey('treatment', $fresh->props);
+        $this->assertFalse($fresh->props['autoplay']);
+    }
 }

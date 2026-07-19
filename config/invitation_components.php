@@ -257,7 +257,7 @@ $components = [
     ]),
 ];
 
-// Treatment latar — di-merge ke SEMUA tipe section (dirender _section-shell).
+// Treatment latar — hanya untuk kelas Section (lihat $sectionTypes di bawah).
 $treatmentFields = [
     ['key' => 'treatment', 'type' => 'select', 'label' => 'Latar Section', 'group' => 'design', 'options' => ['surface', 'contrast', 'dark', 'image'], 'default' => 'surface'],
     ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'design', 'default' => null],
@@ -266,8 +266,17 @@ $treatmentFields = [
     ['key' => 'bg_effect_strength', 'type' => 'number', 'label' => 'Kekuatan Efek (%)', 'group' => 'design', 'default' => 130],
 ];
 
+// Treatment hanya untuk kelas Section (guideline §9) — Basic (text/music/…) tidak
+// dapat "Foto Latar". Animasi masuk tetap untuk semua tipe.
+$sectionTypes = ['cover', 'hero', 'couple', 'event_details', 'gallery', 'countdown',
+    'rsvp', 'gift', 'quote', 'love_story', 'closing', 'wishes', 'map', 'live_stream',
+    'section_one_col', 'section_two_col', 'section_three_col'];
+
 foreach ($components as $type => $fields) {
-    $components[$type] = array_merge($fields, $animationFields, $treatmentFields);
+    $components[$type] = array_merge($fields, $animationFields);
+    if (in_array($type, $sectionTypes, true)) {
+        $components[$type] = array_merge($components[$type], $treatmentFields);
+    }
 }
 
 // Ornamen — hanya section "utama" (bukan blok generic text/image/spacer/divider/kontainer).
