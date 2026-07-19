@@ -34,7 +34,17 @@
                 </p>
                 <template x-for="field in fieldsFor(selected.section_type, inspectorTab)" :key="selected.id + ':' + field.key">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1" x-text="field.label"></label>
+                        <div class="flex items-center gap-1.5 justify-between mb-1">
+                            <label class="block text-xs font-medium text-gray-500" x-text="field.label"></label>
+                            <button x-show="field.group === 'content' && !asCustomer" type="button"
+                                @click="toggleLock(field.key)"
+                                :title="isLocked(field.key) ? 'Buka kunci — customer bisa mengubah' : 'Kunci — sembunyikan dari customer'"
+                                class="shrink-0 p-0.5 rounded"
+                                :class="isLocked(field.key) ? 'text-gray-900' : 'text-gray-300 hover:text-gray-600'">
+                                <svg x-show="isLocked(field.key)" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                                <svg x-show="!isLocked(field.key)" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                            </button>
+                        </div>
 
                         {{-- text: textarea khusus key 'content', input untuk sisanya --}}
                         <template x-if="field.type === 'text' && field.key === 'content'">

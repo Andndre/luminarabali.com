@@ -580,7 +580,27 @@ function studioApp() {
             const variantField = schema.find(f => f.type === 'variant');
             const activeVariant = this.selected?.props?.variant ?? variantField?.default;
             return schema.filter(f => f.group === group && !f.hidden
+                && !(this.asCustomer && this.isLocked(f.key))
                 && (!f.variant || (activeVariant && f.variant.includes(activeVariant))));
+        },
+
+        isLocked(key) {
+            return (this.selected?.props?._locked ?? []).includes(key);
+        },
+
+        async toggleLock(key) {
+            const s = this.selected;
+            if (!s) return;
+            const current = [...(s.props._locked ?? [])];
+            const next = current.includes(key) ? current.filter(k => k !== key) : [...current, key];
+            const previous = current;
+            s.props = { ...s.props, _locked: next };
+            try {
+                await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { locked: next });
+            } catch {
+                s.props = { ...s.props, _locked: previous }; // kembalikan optimistic flip
+                this.toastError('Gagal mengubah kunci field');
+            }
         },
 
         variantLabel(v) {

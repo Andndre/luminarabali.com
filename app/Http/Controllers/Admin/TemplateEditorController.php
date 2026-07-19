@@ -143,6 +143,31 @@ class TemplateEditorController extends Controller
             unset($validated[$key]);
         }
 
+        // Gembok per-field (guideline §10.1b). Disimpan sebagai key reserved `_locked`
+        // di props, tapi ditransport lewat key request terpisah supaya tak pernah
+        // melewati SectionPropsValidator (yang membuang key non-skema).
+        if ($request->has('locked')) {
+            $contentKeys = collect(config("invitation_components.{$section->section_type}", []))
+                ->filter(fn ($field) => ($field['group'] ?? null) === 'content')
+                ->pluck('key')
+                ->all();
+
+            $request->validate([
+                'locked' => ['array'],
+                'locked.*' => ['string', Rule::in($contentKeys)],
+            ], [
+                'locked.*.in' => 'Hanya field konten yang bisa dikunci.',
+            ]);
+
+            $locked = array_values(array_unique($request->input('locked', [])));
+
+            if ($locked === []) {
+                unset($validated['_locked']);
+            } else {
+                $validated['_locked'] = $locked;
+            }
+        }
+
         $validatedFields = $request->validate([
             // tolak < > — mencegah penutupan tag <style> saat di-inline oleh _section-shell
             'custom_css' => 'sometimes|nullable|string|not_regex:/[<>]/',
