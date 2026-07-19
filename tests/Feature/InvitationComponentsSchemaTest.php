@@ -65,4 +65,37 @@ class InvitationComponentsSchemaTest extends TestCase
             }
         }
     }
+
+    public function test_variant_scoped_fields_reference_a_real_variant_option(): void
+    {
+        foreach (config('invitation_components') as $type => $fields) {
+            $variantField = collect($fields)->firstWhere('key', 'variant');
+            $validVariants = $variantField['options'] ?? [];
+
+            foreach ($fields as $field) {
+                if (!isset($field['variant'])) {
+                    continue;
+                }
+                $this->assertIsArray($field['variant'], "{$type}.{$field['key']} atribut variant harus array.");
+                $this->assertNotEmpty($validVariants, "{$type}.{$field['key']} punya atribut variant tapi {$type} tak punya field 'variant'.");
+                foreach ($field['variant'] as $v) {
+                    $this->assertContains($v, $validVariants,
+                        "{$type}.{$field['key']} merujuk varian '{$v}' yang tak ada di options field variant {$type}.");
+                }
+            }
+        }
+    }
+
+    public function test_couple_align_fields_are_scoped_to_portrait_overlay_without_label_hack(): void
+    {
+        $fields = collect(config('invitation_components.couple'));
+        foreach (['groom_text_align', 'bride_text_align'] as $key) {
+            $field = $fields->firstWhere('key', $key);
+            $this->assertNotNull($field, "couple.{$key} hilang.");
+            $this->assertSame(['portrait-overlay'], $field['variant'] ?? null,
+                "couple.{$key} harus di-scope ke portrait-overlay lewat atribut variant.");
+            $this->assertStringNotContainsStringIgnoringCase('varian', $field['label'],
+                "couple.{$key} label tak boleh lagi pakai hack '(varian …)'.");
+        }
+    }
 }

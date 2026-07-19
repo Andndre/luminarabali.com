@@ -339,7 +339,11 @@ function studioApp() {
         },
 
         fieldsFor(type, group) {
-            return (this.schema[type] ?? []).filter(f => f.group === group);
+            const schema = this.schema[type] ?? [];
+            const variantField = schema.find(f => f.key === 'variant');
+            const activeVariant = this.selected?.props?.variant ?? variantField?.default;
+            return schema.filter(f => f.group === group
+                && (!f.variant || (activeVariant && f.variant.includes(activeVariant))));
         },
 
         val(field) {
