@@ -648,8 +648,16 @@ function studioApp() {
                 ?.querySelector(`[data-section-id="${s.id}"]`);
             if (!node) return; // preview belum ter-render (mis. reloadPreview) — lewati, save berikutnya menangkap
 
+                // [data-section-id] bisa berupa wrapper display:contents (section default
+                // tanpa shell / cover) — itu tak punya box (0×0), domToPng hasilkan PNG kosong.
+                // Capture anak boxed-nya.
+                let target = node;
+                if (!target.offsetWidth && !target.offsetHeight && target.firstElementChild) {
+                    target = target.firstElementChild;
+                }
+
             try {
-                const dataUrl = await window.LuminaraStudio.domToPng(node, { backgroundColor: '#ffffff' });
+                const dataUrl = await window.LuminaraStudio.domToPng(target, { backgroundColor: '#ffffff' });
                 const blob = await (await fetch(dataUrl)).blob();
                 const fd = new FormData();
                 fd.append('variant', variant);
