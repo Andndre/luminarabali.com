@@ -24,7 +24,6 @@
 <div x-data="{
         ...(typeof window.invitationData !== 'undefined' ? window.invitationData : {}),
         isOpen: {{ $skipCover ? 'true' : 'false' }},
-        isPlaying: false,
         init() {
             // Tanpa gate (page tanpa section cover) tidak ada yang membuka kunci scroll — buka langsung.
             if (!this.isOpen && !document.querySelector('.invite-gate')) this.isOpen = true;
@@ -48,33 +47,10 @@
         openInvitation() {
             this.isOpen = true;
 
-            // Play Audio if ref exists
-            let audio = this.$refs.bgAudio;
-            if(audio) {
-                audio.play().then(() => {
-                    this.isPlaying = true;
-                }).catch(err => {
-                    console.error('Audio play failed:', err);
-                    this.isPlaying = false;
-                });
-            }
-
             // Komponen musik menyimak event ini. Dulu layout mencari elemen audionya
             // sendiri lewat selector — putus begitu komponen mengubah id-nya.
             window.dispatchEvent(new CustomEvent('invitation-opened'));
         },
-        toggleAudio() {
-            let audio = this.$refs.bgAudio;
-            if(!audio) return;
-            if(this.isPlaying) {
-                audio.pause();
-                this.isPlaying = false;
-            } else {
-                audio.play().then(() => {
-                    this.isPlaying = true;
-                }).catch(err => console.error('Audio play failed:', err));
-            }
-        }
     }"
     class="invite-shell {{ $attributes->get('class', '') }}">
 

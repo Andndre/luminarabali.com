@@ -109,7 +109,9 @@ class InvitationShellTest extends TestCase
         $this->assertNotNull($shell, 'invite-shell tidak ditemukan setelah parsing DOM');
         $xData = $shell->getAttribute('x-data');
         $this->assertStringContainsString('openInvitation', $xData);
-        $this->assertStringContainsString('toggleAudio', $xData, 'atribut x-data terpotong — ada kutip ganda mentah di dalamnya?');
+        // Sentinelnya harus sesuatu di ujung x-data: kalau atributnya terpotong oleh kutip
+        // ganda mentah, bagian akhir inilah yang hilang lebih dulu.
+        $this->assertStringContainsString('invitation-opened', $xData, 'atribut x-data terpotong — ada kutip ganda mentah di dalamnya?');
     }
 
     public function test_invite_content_inherits_theme_text_color_token(): void

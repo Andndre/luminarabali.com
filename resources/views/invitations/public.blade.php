@@ -85,7 +85,6 @@
 
 <body class="bg-white">
     @php
-        $music = $page->meta_data['bg_music'] ?? '';
         $rsvpEnabled = $page->meta_data['rsvp_enabled'] ?? true;
         $page->sections->each(fn ($section) => $section->makeHidden('props'));
 
@@ -106,7 +105,6 @@
     </script>
 
     <x-invitation.layout :page="$page" :cover-image="$coverImage ?? null" :skip-cover="!empty($studioMode)" class="bg-gray-50 @container">
-        <x-invitation.audio :src="$music" />
         {!! $content ?? '' !!}
     </x-invitation.layout>
 
