@@ -21,7 +21,48 @@ $guestsLabel = $props['guests_label'] ?? 'Jumlah Tamu';
 $messageLabel = $props['message_label'] ?? 'Pesan';
 @endphp
 
-<section class="rsvp rsvp--{{ $variant }}" style="padding: {{ $paddingTop }}px {{ $variant === 'elevated' ? 16 : 20 }}px {{ $paddingBottom }}px;">
+{{-- Alpine, bukan @push('scripts'): <script> hasil innerHTML (preview Studio) tak dieksekusi. --}}
+<section class="rsvp rsvp--{{ $variant }}" style="padding: {{ $paddingTop }}px {{ $variant === 'elevated' ? 16 : 20 }}px {{ $paddingBottom }}px;"
+  x-data="{
+    sending: false,
+    sent: false,
+    error: '',
+    async submit(e) {
+      if (this.sending) return; // klik ganda = dua baris RSVP
+      this.sending = true;
+      this.error = '';
+      const data = Object.fromEntries(new FormData(e.target).entries());
+      try {
+        const res = await fetch('/invitation/' + @js($page->slug ?? '') + '/rsvp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name=&quot;csrf-token&quot;]')?.content ?? '',
+          },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.message || 'Terjadi kesalahan. Silakan coba lagi.');
+        }
+        this.sent = true;
+@if($whatsappEnabled && $whatsappPhone)
+        // encodeURIComponent, bukan %0A manual: nama/pesan tamu bisa memuat & atau #
+        // yang tanpa encoding memotong query string WhatsApp.
+        const teks = `RSVP dari ${data.guest_name}\n` +
+          `Status: ${data.attendance_status}\n` +
+          `Jumlah: ${data.number_of_guests}\n` +
+          `Pesan: ${data.message || '-'}`;
+        window.open('https://wa.me/' + @js($whatsappPhone) + '?text=' + encodeURIComponent(teks), '_blank');
+@endif
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.sending = false;
+      }
+    },
+  }">
   <div class="container mx-auto">
     <div class="rsvp-inner">
       <div class="rsvp-head">
@@ -35,7 +76,7 @@ $messageLabel = $props['message_label'] ?? 'Pesan';
 
       <div class="rsvp-card-outer">
         <div class="rsvp-card">
-          <form id="rsvp-form-{{ $section->id }}">
+          <form @submit.prevent="submit($event)" x-show="!sent">
             <div class="f-row">
               <label class="rsvp-label">{{ $nameLabel }} *</label>
               <input type="text" name="guest_name" required class="rsvp-field">
@@ -91,10 +132,13 @@ $messageLabel = $props['message_label'] ?? 'Pesan';
               <textarea name="message" rows="3" class="rsvp-field"></textarea>
             </div>
 
-            <button type="submit" class="rsvp-button">{{ $buttonText }}</button>
+            <p class="rsvp-error" x-show="error" x-cloak x-text="error"></p>
+
+            <button type="submit" class="rsvp-button" :disabled="sending"
+                    x-text="sending ? 'Mengirim…' : @js($buttonText)">{{ $buttonText }}</button>
           </form>
 
-          <div id="rsvp-success-{{ $section->id }}" class="rsvp-success hidden">
+          <div class="rsvp-success" x-show="sent" x-cloak>
             {{ $successMessage }}
           </div>
         </div>
@@ -103,48 +147,3 @@ $messageLabel = $props['message_label'] ?? 'Pesan';
   </div>
 </section>
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('rsvp-form-{{ $section->id }}');
-  const successDiv = document.getElementById('rsvp-success-{{ $section->id }}');
-  const sectionId = '{{ $section->id }}';
-  const pageSlug = '{{ $page->slug ?? '' }}';
-
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-
-    try {
-      const response = await fetch(`/invitation/${pageSlug}/rsvp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        form.classList.add('hidden');
-        successDiv.classList.remove('hidden');
-
-        @if($whatsappEnabled && $whatsappPhone)
-          // Forward to WhatsApp
-          const whatsappPhone = {!! \Illuminate\Support\Js::from($whatsappPhone) !!};
-          const whatsappMessage = `RSVP dari ${data.guest_name}%0AStatus: ${data.attendance_status}%0AJumlah: ${data.number_of_guests}%0APesan: ${data.message || '-'}`;
-          window.open(`https://wa.me/${whatsappPhone}?text=${whatsappMessage}`, '_blank');
-        @endif
-      } else {
-        alert('Terjadi kesalahan. Silakan coba lagi.');
-      }
-    } catch (error) {
-      console.error('RSVP error:', error);
-      alert('Terjadi kesalahan. Silakan coba lagi.');
-    }
-  });
-});
-</script>
-@endpush

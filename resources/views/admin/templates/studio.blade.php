@@ -617,7 +617,9 @@ function studioApp() {
                 'elevated': '<rect x="8" y="10" width="28" height="14" rx="2" opacity=".3"/><rect x="5" y="6" width="28" height="14" rx="2"/>',
                 'custom-controls': '<rect x="3" y="3" width="34" height="22" rx="2"/><line x1="7" y1="9" x2="33" y2="9"/><rect x="7" y="16" width="9" height="5" rx="2.5"/><rect x="18" y="16" width="9" height="5" rx="2.5"/>',
                 'underline': '<line x1="6" y1="9" x2="34" y2="9"/><line x1="6" y1="15" x2="34" y2="15"/><line x1="6" y1="21" x2="22" y2="21"/>',
-                'bordered-cards': '<rect x="5" y="4" width="30" height="8" rx="1"/><rect x="5" y="15" width="30" height="8" rx="1"/>',
+                'disc': '<circle cx="20" cy="14" r="11"/><circle cx="20" cy="14" r="7.5" opacity=".4"/><circle cx="20" cy="14" r="4" fill="currentColor" stroke="none"/>',
+                'pill': '<rect x="6" y="9" width="28" height="10" rx="5"/><rect x="11" y="12" width="1.5" height="4" fill="currentColor" stroke="none"/><rect x="14" y="11" width="1.5" height="6" fill="currentColor" stroke="none"/><rect x="17" y="12.5" width="1.5" height="3" fill="currentColor" stroke="none"/><path d="M23 11.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/>',
+                'bordered-cards':'<rect x="5" y="4" width="30" height="8" rx="1"/><rect x="5" y="15" width="30" height="8" rx="1"/>',
                 'divider-list': '<line x1="6" y1="6" x2="30" y2="6"/><line x1="3" y1="11" x2="37" y2="11" opacity=".4"/><line x1="6" y1="16" x2="30" y2="16"/><line x1="3" y1="21" x2="37" y2="21" opacity=".4"/>',
             };
             const body = S[v] ?? '<rect x="4" y="6" width="32" height="16" rx="2" opacity=".5"/>';

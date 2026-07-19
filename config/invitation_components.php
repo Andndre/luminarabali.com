@@ -107,6 +107,7 @@ $components = [
     'countdown' => [
         ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['cards', 'minimal-line', 'ring'], 'default' => 'cards'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Counting Down To'],
+        ['key' => 'passed_text', 'type' => 'text', 'label' => 'Teks Saat Hari-H Lewat', 'group' => 'content', 'default' => 'Hari bahagia telah tiba'],
         ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 64],
         ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 64],
     ],
@@ -135,8 +136,9 @@ $components = [
     ],
 
     'music' => [
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Pemutar', 'group' => 'design', 'options' => ['disc', 'minimal', 'pill'], 'default' => 'disc'],
         ['key' => 'src', 'type' => 'audio', 'label' => 'File Musik', 'group' => 'content', 'default' => ''],
-        ['key' => 'autoplay', 'type' => 'boolean', 'label' => 'Putar Otomatis', 'group' => 'design', 'default' => true],
+        ['key' => 'autoplay', 'type' => 'boolean', 'label' => 'Putar Saat Undangan Dibuka', 'group' => 'design', 'default' => true],
         ['key' => 'loop', 'type' => 'boolean', 'label' => 'Ulangi', 'group' => 'design', 'default' => true],
         ['key' => 'show_controls', 'type' => 'boolean', 'label' => 'Tampilkan Tombol Kontrol', 'group' => 'design', 'default' => true],
     ],

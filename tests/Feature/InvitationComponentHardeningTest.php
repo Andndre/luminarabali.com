@@ -153,7 +153,7 @@ class InvitationComponentHardeningTest extends TestCase
         // (hero--split memakai permukaan terang, jadi teksnya bukan on_dark).
         $css = file_get_contents(resource_path('css/invitation.css'));
         $this->assertStringContainsString('color: var(--color-on_dark, #f5f1e8)', $css);
-    }
+    }/*  */
 
     public function test_countdown_reads_target_date_from_page_event_date(): void
     {
@@ -275,7 +275,7 @@ class InvitationComponentHardeningTest extends TestCase
     public function test_custom_class_prop_is_no_longer_in_the_component_schema(): void
     {
         foreach (['text', 'image', 'button', 'divider', 'spacer'] as $sectionType) {
-            $fields = collect(config('invitation_components.' . $sectionType));
+            $fields = collect(config('invitation_components.'.$sectionType));
             $this->assertFalse(
                 $fields->contains(fn ($field) => $field['key'] === 'custom_class'),
                 "Expected {$sectionType} schema to no longer declare custom_class"
@@ -408,7 +408,11 @@ class InvitationComponentHardeningTest extends TestCase
 
         $response->assertOk();
         $response->assertDontSee('#123456', false);
-        $response->assertSee('background: var(--color-accent, #b5654d);', false);
+
+        // Warna FAB pindah ke stylesheet supaya varian pemutar (disc/minimal/pill)
+        // bisa menimpanya — di <style> per-section, varian akan kalah urutan.
+        $css = file_get_contents(resource_path('css/invitation.css'));
+        $this->assertStringContainsString('var(--color-accent, #b5654d)', $css);
     }
 
     public function test_love_story_component_ignores_stale_accent_color_prop(): void
@@ -670,5 +674,23 @@ class InvitationComponentHardeningTest extends TestCase
         $this->assertArrayNotHasKey('bg_image', $fresh->props);
         $this->assertArrayNotHasKey('treatment', $fresh->props);
         $this->assertFalse($fresh->props['autoplay']);
+    }
+
+    public function test_no_component_relies_on_push_scripts(): void
+    {
+        // Preview Studio menyuntik HTML section lewat innerHTML, dan <script> yang masuk
+        // lewat innerHTML tidak pernah dieksekusi browser. Komponen yang menaruh logikanya
+        // di @push('scripts') karena itu mati di editor — pakai Alpine inline.
+        $offenders = [];
+        foreach (glob(resource_path('views/templates/components/*.blade.php')) as $file) {
+            // Komentar Blade dibuang dulu: beberapa komponen menyebut direktif ini dalam
+            // komentar justru untuk menerangkan kenapa ia tidak dipakai.
+            $source = preg_replace('/\{\{--.*?--\}\}/s', '', file_get_contents($file));
+            if (str_contains($source, "@push('scripts')")) {
+                $offenders[] = basename($file);
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Komponen ini masih memakai @push(\'scripts\').');
     }
 }

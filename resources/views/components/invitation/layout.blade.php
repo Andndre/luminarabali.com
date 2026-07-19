@@ -59,11 +59,9 @@
                 });
             }
 
-            if (!audio) {
-                {{-- tanpa kutip di selector: kutip ganda memotong atribut x-data --}}
-                var bg = document.querySelector('audio[id^=bg-music-]');
-                if (bg) { bg.play().catch(function () {}); }
-            }
+            // Komponen musik menyimak event ini. Dulu layout mencari elemen audionya
+            // sendiri lewat selector — putus begitu komponen mengubah id-nya.
+            window.dispatchEvent(new CustomEvent('invitation-opened'));
         },
         toggleAudio() {
             let audio = this.$refs.bgAudio;
