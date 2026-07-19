@@ -474,6 +474,31 @@ function studioApp() {
             event.target.value = '';
         },
 
+        async uploadOrnament(field, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('collection', 'ornament');
+                const res = await fetch('/admin/api/assets/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: fd,
+                });
+                if (!res.ok) throw await res.json().catch(() => ({}));
+                const asset = (await res.json()).asset;
+                this.ornaments = [asset, ...this.ornaments];   // muncul di grid picker
+                this.setProp(field, asset.file_path);           // langsung terpakai
+            } catch {
+                Swal.fire({ icon: 'error', title: 'Upload ornamen gagal', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
+            }
+            event.target.value = '';
+        },
+
         listOf(field) {
             return [...(this.selected.props[field.key] ?? [])];
         },

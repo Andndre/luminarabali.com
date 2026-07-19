@@ -219,6 +219,10 @@
                                         </button>
                                     </template>
                                 </div>
+                                <label class="block text-center text-xs border border-dashed border-gray-300 rounded-lg px-2 py-1.5 cursor-pointer hover:border-black">
+                                    + Upload ornamen ke pustaka
+                                    <input type="file" accept="image/*,.svg" class="hidden" @change="uploadOrnament(field, $event)">
+                                </label>
                                 <button type="button" x-show="hasOverride(field.key)" @click="resetProp(field)"
                                     class="inline-flex items-center gap-1 text-xs text-red-600 hover:bg-red-50 rounded px-1.5 py-1">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>

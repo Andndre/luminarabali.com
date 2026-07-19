@@ -160,4 +160,11 @@ class InvitationComponentsSchemaTest extends TestCase
             $this->assertStringContainsString($k, $blade, "Scale '{$k}' tak ada di Panel Tema.");
         }
     }
+
+    public function test_ornament_field_supports_uploading_to_collection(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $this->assertStringContainsString('uploadOrnament', $blade, 'Method uploadOrnament belum ada.');
+        $this->assertStringContainsString("collection', 'ornament'", $blade, 'Upload ornamen tak set collection=ornament.');
+    }
 }
