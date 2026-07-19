@@ -346,6 +346,37 @@ function studioApp() {
                 && (!f.variant || (activeVariant && f.variant.includes(activeVariant))));
         },
 
+        variantLabel(v) {
+            return String(v ?? '').split('-')
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        },
+
+        variantSchematic(v) {
+            // Skematik layout mini (viewBox 0 0 40 28), stroke currentColor. Fallback saat
+            // thumbnail asli belum ada. Tiap varian = gambaran kasar bentuknya.
+            const S = {
+                'fullscreen': '<rect x="2" y="2" width="36" height="24" rx="2"/><rect x="12" y="12" width="16" height="2" fill="currentColor" stroke="none"/>',
+                'split': '<rect x="2" y="2" width="36" height="24" rx="2"/><line x1="20" y1="2" x2="20" y2="26"/>',
+                'minimal': '<rect x="2" y="2" width="36" height="24" rx="2" opacity=".3"/><rect x="13" y="13" width="14" height="2" fill="currentColor" stroke="none"/>',
+                'centered-stacked': '<circle cx="20" cy="8" r="4"/><rect x="13" y="15" width="14" height="2" fill="currentColor" stroke="none"/><rect x="15" y="20" width="10" height="1.5" fill="currentColor" stroke="none"/>',
+                'side-alternating': '<rect x="3" y="4" width="10" height="8" rx="1"/><line x1="16" y1="6" x2="30" y2="6"/><line x1="16" y1="9" x2="26" y2="9"/><rect x="27" y="16" width="10" height="8" rx="1"/><line x1="10" y1="18" x2="24" y2="18"/><line x1="14" y1="21" x2="24" y2="21"/>',
+                'portrait-overlay': '<rect x="4" y="3" width="14" height="22" rx="1"/><rect x="22" y="3" width="14" height="22" rx="1"/><rect x="6" y="19" width="10" height="2" fill="currentColor" stroke="none"/><rect x="24" y="19" width="10" height="2" fill="currentColor" stroke="none"/>',
+                'cards': '<rect x="3" y="9" width="7" height="10" rx="1"/><rect x="12" y="9" width="7" height="10" rx="1"/><rect x="21" y="9" width="7" height="10" rx="1"/><rect x="30" y="9" width="7" height="10" rx="1"/>',
+                'minimal-line': '<rect x="4" y="12" width="4" height="4" fill="currentColor" stroke="none"/><line x1="12" y1="9" x2="12" y2="19"/><rect x="16" y="12" width="4" height="4" fill="currentColor" stroke="none"/><line x1="24" y1="9" x2="24" y2="19"/><rect x="28" y="12" width="4" height="4" fill="currentColor" stroke="none"/>',
+                'ring': '<circle cx="9" cy="14" r="5"/><circle cx="20" cy="14" r="5"/><circle cx="31" cy="14" r="5"/>',
+                'grid': '<rect x="3" y="4" width="10" height="8" rx="1"/><rect x="15" y="4" width="10" height="8" rx="1"/><rect x="27" y="4" width="10" height="8" rx="1"/><rect x="3" y="15" width="10" height="8" rx="1"/><rect x="15" y="15" width="10" height="8" rx="1"/><rect x="27" y="15" width="10" height="8" rx="1"/>',
+                'masonry': '<rect x="3" y="4" width="10" height="12" rx="1"/><rect x="15" y="4" width="10" height="8" rx="1"/><rect x="27" y="4" width="10" height="14" rx="1"/><rect x="15" y="15" width="10" height="9" rx="1"/><rect x="3" y="19" width="10" height="5" rx="1"/>',
+                'slider': '<rect x="9" y="6" width="22" height="16" rx="2"/><path d="M6 14l3-3M6 14l3 3"/><path d="M34 14l-3-3M34 14l-3 3"/>',
+                'elevated': '<rect x="8" y="10" width="28" height="14" rx="2" opacity=".3"/><rect x="5" y="6" width="28" height="14" rx="2"/>',
+                'custom-controls': '<rect x="3" y="3" width="34" height="22" rx="2"/><line x1="7" y1="9" x2="33" y2="9"/><rect x="7" y="16" width="9" height="5" rx="2.5"/><rect x="18" y="16" width="9" height="5" rx="2.5"/>',
+                'underline': '<line x1="6" y1="9" x2="34" y2="9"/><line x1="6" y1="15" x2="34" y2="15"/><line x1="6" y1="21" x2="22" y2="21"/>',
+                'bordered-cards': '<rect x="5" y="4" width="30" height="8" rx="1"/><rect x="5" y="15" width="30" height="8" rx="1"/>',
+                'divider-list': '<line x1="6" y1="6" x2="30" y2="6"/><line x1="3" y1="11" x2="37" y2="11" opacity=".4"/><line x1="6" y1="16" x2="30" y2="16"/><line x1="3" y1="21" x2="37" y2="21" opacity=".4"/>',
+            };
+            const body = S[v] ?? '<rect x="4" y="6" width="32" height="16" rx="2" opacity=".5"/>';
+            return `<svg viewBox="0 0 40 28" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-8">${body}</svg>`;
+        },
+
         val(field) {
             return this.selected?.props?.[field.key] ?? field.default;
         },

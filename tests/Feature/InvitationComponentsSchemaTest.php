@@ -117,4 +117,22 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertSame('select', $field['type'] ?? null,
             'button.variant = gaya tombol, harus tetap type select (bukan picker layout).');
     }
+
+    public function test_every_layout_variant_option_has_a_schematic_entry_in_studio(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $this->assertStringContainsString('variantSchematic', $blade, 'Helper variantSchematic belum ada.');
+
+        foreach (config('invitation_components') as $type => $fields) {
+            foreach ($fields as $field) {
+                if (($field['type'] ?? null) !== 'variant') {
+                    continue;
+                }
+                foreach ($field['options'] as $opt) {
+                    $this->assertStringContainsString("'{$opt}':", $blade,
+                        "Varian '{$opt}' ({$type}) tak punya entri di map variantSchematic.");
+                }
+            }
+        }
+    }
 }
