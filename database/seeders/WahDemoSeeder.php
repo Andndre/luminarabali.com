@@ -104,12 +104,14 @@ class WahDemoSeeder extends Seeder
                 'content' => 'Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya.',
                 'attribution' => 'Q.S. Ar-Rum: 21',
                 'animation' => 'fade-up',
-                'ornament_top' => 'ornaments/sulur-pojok-kiri.svg',
-                'ornament_top_position' => 'corner-tl',
-                'ornament_top_scale' => 22,
-                'ornament_bottom' => 'ornaments/flourish-tengah.svg',
-                'ornament_bottom_position' => 'center',
-                'ornament_bottom_scale' => 55,
+                // Dua ornamen di slot ATAS: kiri + kanan (aset sama, yang kanan di-flip).
+                'ornaments_top' => [
+                    ['src' => 'ornaments/sulur-pojok-kiri.svg', 'position' => 'left', 'scale' => 22, 'flip_h' => false, 'flip_v' => false, 'color' => null],
+                    ['src' => 'ornaments/sulur-pojok-kiri.svg', 'position' => 'right', 'scale' => 22, 'flip_h' => true, 'flip_v' => false, 'color' => null],
+                ],
+                'ornaments_bottom' => [
+                    ['src' => 'ornaments/flourish-tengah.svg', 'position' => 'center', 'scale' => 55, 'flip_h' => false, 'flip_v' => false, 'color' => null],
+                ],
             ]],
             ['couple', [
                 'heading' => 'Mempelai',
@@ -123,9 +125,9 @@ class WahDemoSeeder extends Seeder
                 'text_color' => $onDark,
                 'accent_color' => $gold,
                 'animation' => 'fade-up',
-                'ornament_top' => 'ornaments/sulur-pojok-kanan.svg',
-                'ornament_top_position' => 'corner-tr',
-                'ornament_top_scale' => 34,
+                'ornaments_top' => [
+                    ['src' => 'ornaments/sulur-pojok-kanan.svg', 'position' => 'right', 'scale' => 34, 'flip_h' => false, 'flip_v' => false, 'color' => null],
+                ],
             ]],
             ['love_story', [
                 'heading' => 'Perjalanan Kami',
@@ -152,8 +154,9 @@ class WahDemoSeeder extends Seeder
                 'padding_top' => 96,
                 'padding_bottom' => 72,
                 'animation' => 'fade-up',
-                'ornament_top' => 'ornaments/garland-atas.svg',
-                'ornament_top_position' => 'full-width',
+                'ornaments_top' => [
+                    ['src' => 'ornaments/garland-atas.svg', 'position' => 'full-width', 'scale' => 100, 'flip_h' => false, 'flip_v' => false, 'color' => null],
+                ],
             ]],
             ['gallery', [
                 'images' => array_map(fn ($url) => ['url' => $url, 'alt' => 'John & Silvia'], $gallery),
@@ -175,9 +178,9 @@ class WahDemoSeeder extends Seeder
                 'text_color' => $onDark,
                 'accent_color' => $gold,
                 'animation' => 'fade-up',
-                'ornament_top' => 'ornaments/sulur-pojok-kiri.svg',
-                'ornament_top_position' => 'corner-tl',
-                'ornament_top_scale' => 30,
+                'ornaments_top' => [
+                    ['src' => 'ornaments/sulur-pojok-kiri.svg', 'position' => 'left', 'scale' => 30, 'flip_h' => false, 'flip_v' => false, 'color' => null],
+                ],
             ]],
             ['wishes', [
                 'heading' => 'Ucapan & Doa',
@@ -198,8 +201,9 @@ class WahDemoSeeder extends Seeder
                 'text_color' => $onDark,
                 'accent_color' => $gold,
                 'animation' => 'fade-up',
-                'ornament_bottom' => 'ornaments/renda-bawah.svg',
-                'ornament_bottom_position' => 'full-width',
+                'ornaments_bottom' => [
+                    ['src' => 'ornaments/renda-bawah.svg', 'position' => 'full-width', 'scale' => 100, 'flip_h' => false, 'flip_v' => false, 'color' => null],
+                ],
             ]],
         ];
 
