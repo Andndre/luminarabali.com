@@ -26,7 +26,8 @@ $variant = $props['variant'] ?? 'fullscreen';
   }
   .cover-visual-{{ $sid }}::before {
     content: ''; position: absolute; inset: 0;
-    @if($overlayEnabled) background: rgba(0, 0, 0, 0.45); @endif
+    /* Gradien (bukan flat): bagian atas foto tetap terbaca, teks di bawah dapat kontras penuh. */
+    @if($overlayEnabled) background: linear-gradient(to bottom, rgba(0,0,0,.25) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.65) 100%); @endif
   }
   .cover-text-{{ $sid }} { font-family: {{ $fontFamily }}; color: var(--color-on_dark, #f5f1e8); }
 </style>
@@ -40,6 +41,7 @@ $variant = $props['variant'] ?? 'fullscreen';
   <div class="invite-gate-content cover-text-{{ $sid }}">
     <p class="invite-gate-kicker" data-editable="title">{{ $title }}</p>
     <h1 class="invite-gate-names">{{ $groomName }} &amp; {{ $brideName }}</h1>
+    <div class="invite-gate-rule" aria-hidden="true"></div>
     @if($dateText)<p class="invite-gate-date">{{ $dateText }}</p>@endif
     @if($targetName)
       <div class="invite-gate-guest">
@@ -59,6 +61,7 @@ $variant = $props['variant'] ?? 'fullscreen';
   <div class="invite-cover-sticky-content cover-text-{{ $sid }}">
     <p class="invite-gate-kicker">{{ $title }}</p>
     <h2 class="invite-gate-names">{{ $groomName }} &amp; {{ $brideName }}</h2>
+    <div class="invite-gate-rule" aria-hidden="true"></div>
     @if($dateText)<p class="invite-gate-date">{{ $dateText }}</p>@endif
   </div>
 </div>

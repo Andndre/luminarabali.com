@@ -46,7 +46,7 @@
     }
     .invite-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.15)); }
     .invite-hero-text { position: relative; text-align: center; color: var(--color-on_dark, #fff); padding: 2rem; }
-    .invite-hero-kicker { letter-spacing: .3em; text-transform: uppercase; font-size: .75rem; opacity: .85; }
+    .invite-hero-kicker { letter-spacing: .3em; font-size: .75rem; opacity: .85; }
     .invite-hero-names { font-family: var(--font-heading, 'Playfair Display'), serif; font-size: clamp(2.5rem, 4vw, 4rem); margin: 1rem 0; }
     .invite-hero-date { letter-spacing: .2em; font-size: .85rem; opacity: .85; }
     .invite-card { width: min(430px, 100vw); flex-shrink: 0; box-shadow: -18px 0 50px rgba(0,0,0,.25); }
@@ -58,18 +58,21 @@
     display: flex; align-items: center; justify-content: center;
 }
 .invite-gate-content { position: relative; text-align: center; padding: 2rem; }
-.invite-gate-kicker { letter-spacing: .3em; text-transform: uppercase; font-size: .8rem; }
-.invite-gate-names { font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 700; margin: 1rem 0; }
-.invite-gate-date { letter-spacing: .15em; margin-bottom: 2.5rem; }
-.invite-gate-guest { margin-bottom: 2rem; opacity: .95; }
-.invite-gate-guest p:first-child { font-size: .8rem; opacity: .8; margin-bottom: .25rem; }
+.invite-gate-kicker { letter-spacing: .3em; font-size: var(--step-sm, .8rem); opacity: .9; }
+/* Serif display: berat 500 + spasi huruf longgar. 700 bikin nama terlihat menggumpal di ukuran besar. */
+.invite-gate-names { font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 500; letter-spacing: .01em; line-height: 1.1; margin: .75rem 0 0; }
+.invite-gate-rule { width: 3.5rem; height: 1px; margin: 1.25rem auto; background: currentColor; opacity: .5; }
+.invite-gate-date { letter-spacing: .15em; font-size: var(--step-sm, .85rem); margin-bottom: 2.5rem; opacity: .9; }
+.invite-gate-guest { margin-bottom: 2rem; padding: 1rem 0; border-top: 1px solid rgba(255,255,255,.22); border-bottom: 1px solid rgba(255,255,255,.22); }
+.invite-gate-guest p:first-child { font-size: var(--step-sm, .8rem); letter-spacing: .12em; text-transform: uppercase; opacity: .75; margin-bottom: .35rem; }
 .invite-gate-guest-name { font-size: 1.4rem; font-weight: 600; }
 .invite-gate-button {
     display: inline-flex; align-items: center; gap: .5rem; margin: 0 auto;
-    padding: .75rem 2rem; border-radius: 9999px; color: var(--color-on_dark, #fff); font-weight: 600;
-    box-shadow: 0 4px 14px rgba(0,0,0,.4); transition: transform .2s;
+    padding: .8rem 2.1rem; border-radius: 9999px; color: var(--color-on_dark, #fff);
+    font-size: var(--step-sm, .9rem); font-weight: 600; letter-spacing: .06em;
+    box-shadow: 0 10px 28px rgba(0,0,0,.45); transition: transform .2s ease, box-shadow .2s ease;
 }
-.invite-gate-button:hover { transform: scale(1.05); }
+.invite-gate-button:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(0,0,0,.55); }
 
 .invite-cover-sticky {
     position: sticky; top: 0; z-index: 0;
@@ -158,11 +161,18 @@
 
 /* --- couple --- */
 .couple-inner { max-width: 40rem; margin: 0 auto; text-align: center; }
-.couple-heading { font-weight: 700; margin-bottom: 2rem; }
-.couple-sub { margin-top: .5rem; font-size: var(--step-sm, 13px); color: var(--fg-body); opacity: .75; }
-.couple-ig { display: inline-block; margin-top: .5rem; font-size: var(--step-sm, 13px); text-decoration: underline; }
-.couple--centered-stacked .couple-grid { display: grid; gap: 2.5rem; }
-.couple-photo-round { width: 10rem; height: 10rem; margin: 0 auto 1rem; border-radius: 9999px; object-fit: cover; }
+.couple-heading { font-weight: 700; letter-spacing: .04em; margin-bottom: 2.5rem; }
+/* garis aksen pendek di bawah judul (motif undangan) */
+.couple-heading::after { content: ""; display: block; width: 3rem; height: 2px; margin: .85rem auto 0; background: var(--color-accent, #b5654d); opacity: .8; }
+.couple-eyebrow { font-size: var(--step-sm, 13px); letter-spacing: .18em; text-transform: uppercase; color: var(--color-accent, #b5654d); margin-bottom: .35rem; }
+.couple-name { letter-spacing: .02em; }
+.couple-sub { margin-top: .5rem; font-size: var(--step-sm, 13px); color: var(--color-muted, #7a6f66); }
+.couple-ig { display: inline-flex; align-items: center; gap: .35rem; margin-top: .75rem; padding: .3rem .95rem; font-size: var(--step-sm, 13px); color: var(--color-accent, #b5654d); border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 45%, transparent); border-radius: 9999px; text-decoration: none; transition: background .2s ease, color .2s ease; }
+.couple-ig:hover { background: var(--color-accent, #b5654d); color: var(--color-surface, #fff); }
+/* ampersand dekoratif antara dua mempelai */
+.couple-amp { font-size: var(--step-2xl, 2rem); line-height: 1; color: var(--color-accent, #b5654d); opacity: .55; }
+.couple--centered-stacked .couple-grid { display: grid; gap: 1.75rem; justify-items: center; }
+.couple-photo-round { width: 10rem; height: 10rem; margin: 0 auto 1.1rem; border-radius: 9999px; object-fit: cover; border: 3px solid var(--color-accent, #b5654d); box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.08)); }
 .couple--side-alternating .couple-list { display: flex; flex-direction: column; gap: 1.5rem; }
 .couple-row { display: flex; align-items: center; gap: 1rem; text-align: left; }
 .couple-row.is-rev { flex-direction: row-reverse; text-align: right; }
@@ -193,29 +203,60 @@
 
 /* --- event_details --- */
 .events-inner { max-width: 42rem; margin: 0 auto; text-align: center; }
-.events-heading { font-weight: 700; margin-bottom: 2rem; }
+.events-heading { font-weight: 700; letter-spacing: .04em; margin-bottom: 2.5rem; }
+.events-heading::after { content: ""; display: block; width: 3rem; height: 2px; margin: .85rem auto 0; background: var(--color-accent, #b5654d); opacity: .8; }
 .events-list { display: grid; gap: 1.5rem; }
-.event-line { margin-top: .35rem; font-size: var(--step-sm, 13px); }
-.event-venue { margin-top: .75rem; font-weight: 600; }
-.event-addr { margin-top: .25rem; font-size: var(--step-sm, 13px); color: var(--fg-body); opacity: .75; }
-.event-btn { display: inline-block; margin-top: 1rem; padding: .55rem 1.4rem; border-radius: 9999px; font-size: var(--step-sm, 13px); }
-.events--bordered-cards .event-item { border: 1px solid var(--color-accent, #b5654d); border-radius: var(--radius, 12px); padding: 1.5rem; }
+.event-line { margin-top: .35rem; font-size: var(--step-sm, 13px); color: var(--color-muted, #7a6f66); }
+.event-venue { margin-top: .85rem; font-weight: 600; }
+.event-addr { margin-top: .25rem; font-size: var(--step-sm, 13px); color: var(--color-muted, #7a6f66); }
+.event-btn { display: inline-flex; align-items: center; gap: .4rem; margin-top: 1.1rem; padding: .55rem 1.4rem; border-radius: 9999px; font-size: var(--step-sm, 13px); background: var(--color-accent, #b5654d); color: var(--color-on_dark, #fff); text-decoration: none; transition: filter .2s ease; }
+.event-btn:hover { filter: brightness(.92); }
+.events--bordered-cards .event-item { background: color-mix(in srgb, var(--color-surface_alt, #f3ece1) 50%, transparent); border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent); border-radius: var(--radius, 12px); padding: 1.75rem 1.5rem; box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.06)); }
 .events--divider-list .event-item { border-top: 1px solid color-mix(in srgb, var(--color-muted, #7a6f66) 40%, transparent); padding: 1.25rem 0; }
 .events--divider-list .event-item:first-child { border-top: 0; }
 
 /* --- gallery variants --- */
+.gallery-header { max-width: 42rem; margin: 0 auto 2.5rem; text-align: center; }
+.gallery-heading { font-weight: 700; letter-spacing: .04em; }
+.gallery-heading::after { content: ""; display: block; width: 3rem; height: 2px; margin: .85rem auto 0; background: var(--color-accent, #b5654d); opacity: .8; }
+.gallery-subheading { margin-top: .75rem; font-size: var(--step-sm, 13px); color: var(--color-muted, #7a6f66); }
+.gallery-video { position: relative; padding-bottom: 56.25%; height: 0; margin: 0 auto 2rem; max-width: 48rem; overflow: clip; box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.08)); }
+.gallery-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
 .gallery--grid .gallery-grid { display: grid; gap: 1rem; }
 /* masonry & slider: markup existing (columns/flex) dipertahankan inline, hanya wrapper diberi kelas gallery--{{ layout }} */
 
-/* --- hero variants --- */
-.hero--split { display: grid; }
-@container (min-width: 24rem) { .hero--split { grid-template-columns: 1fr 1fr; align-items: center; } }
-.hero--minimal { text-align: center; }
+/* --- hero: dasar + varian --- */
+.hero-section { position: relative; display: flex; align-items: center; justify-content: center; }
+.hero-section .hero-content { position: relative; z-index: 10; width: 100%; }
+/* Warna/font di sini, BUKAN di <style> komponen — supaya varian bisa menimpanya. */
+.hero-section :is(.hero-title, .hero-names, .hero-date) { font-family: var(--font-heading, serif); color: var(--color-on_dark, #f5f1e8); }
+.hero-section .hero-title { font-size: var(--step-sm, .9rem); letter-spacing: .2em; opacity: .9; }
+.hero-section .hero-names { font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 500; letter-spacing: .01em; line-height: 1.1; }
+.hero-section .hero-date { font-size: var(--step-base, 1rem); letter-spacing: .15em; opacity: .9; }
+
+/* fullscreen: satu layar penuh, teks di tengah */
+.hero--fullscreen { min-height: 100vh; min-height: 100dvh; }
+
+/* split: layar terbelah — foto di atas, panel solid menempel rapat di bawah */
+.hero--split { min-height: 100vh; min-height: 100dvh; align-items: flex-end; }
+.hero--split .hero-content {
+    width: 100%; margin: 0; padding: 2.25rem 1.75rem 2.5rem;
+    background: var(--color-surface, #fff);
+    border-radius: var(--radius, 12px) var(--radius, 12px) 0 0;
+}
+.hero--split .hero-title { color: var(--color-accent, #b5654d); opacity: 1; }
+.hero--split .hero-names { color: var(--color-primary, #3b2f2f); font-size: clamp(2rem, 6vw, 3.25rem); }
+.hero--split .hero-date { color: var(--color-muted, #7a6f66); opacity: 1; }
+
+/* minimal: tanpa tinggi paksa — tipografi kecil, banyak ruang kosong */
 .hero--minimal .hero-content { max-width: 32rem; margin: 0 auto; }
+.hero--minimal .hero-names { font-size: clamp(1.75rem, 5vw, 2.75rem); letter-spacing: .03em; }
+.hero--minimal .hero-title { letter-spacing: .3em; font-size: var(--step-sm, .8rem); }
 
 /* --- cover variants (tata letak teks di dalam gate/sticky; mekanisme gate tidak berubah) --- */
 .cover--split .invite-gate-content,
 .cover--split .invite-cover-sticky-content { text-align: left; margin-left: 0; margin-right: auto; }
+.cover--split .invite-gate-rule { margin-left: 0; }
 .cover--minimal .invite-gate-kicker { letter-spacing: .2em; }
 .cover--minimal .invite-gate-names { font-size: clamp(2rem, 6vw, 3.25rem); }
 

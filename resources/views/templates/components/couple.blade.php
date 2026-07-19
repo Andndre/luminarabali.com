@@ -65,22 +65,23 @@
             <div class="couple-meta">
               <h3 style="font-family: var(--font-heading, serif); font-size: var(--step-xl, 26px);">{{ $person['name'] }}</h3>
               @if ($person['parents'])<p class="couple-sub">{{ $person['parents'] }}</p>@endif
-              @if ($person['instagram'])<a class="couple-ig" href="{{ $person['instagram'] }}" target="_blank" rel="noopener" style="color: var(--color-accent, #b5654d);">Instagram</a>@endif
+              @if ($person['instagram'])<a class="couple-ig" href="{{ $person['instagram'] }}" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Instagram</a>@endif
             </div>
           </div>
         @endforeach
       </div>
     @else
       <div class="couple-grid">
-        @foreach ($people as $person)
+        @foreach ($people as $i => $person)
+          @if ($i > 0)<div class="couple-amp" aria-hidden="true" style="font-family: var(--font-heading, serif);">&amp;</div>@endif
           <div class="couple-card">
             @if ($person['photo'])
-              <img class="couple-photo-round" src="{{ $person['photo'] }}" alt="{{ $person['name'] }}"
-                   style="border: 3px solid var(--color-accent, #b5654d);">
+              <img class="couple-photo-round" src="{{ $person['photo'] }}" alt="{{ $person['name'] }}">
             @endif
-            <h3 style="font-family: var(--font-heading, serif); font-size: var(--step-xl, 26px);">{{ $person['name'] }}</h3>
+            <p class="couple-eyebrow">{{ $i === 0 ? ($props['groom_label'] ?? 'Mempelai Pria') : ($props['bride_label'] ?? 'Mempelai Wanita') }}</p>
+            <h3 class="couple-name" style="font-family: var(--font-heading, serif); font-size: var(--step-xl, 26px);">{{ $person['name'] }}</h3>
             @if ($person['parents'])<p class="couple-sub">{{ $person['parents'] }}</p>@endif
-            @if ($person['instagram'])<a class="couple-ig" href="{{ $person['instagram'] }}" target="_blank" rel="noopener" style="color: var(--color-accent, #b5654d);">Instagram</a>@endif
+            @if ($person['instagram'])<a class="couple-ig" href="{{ $person['instagram'] }}" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Instagram</a>@endif
           </div>
         @endforeach
       </div>

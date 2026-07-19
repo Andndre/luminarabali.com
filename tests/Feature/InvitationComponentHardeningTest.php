@@ -148,7 +148,11 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertDontSee('#123456', false);
         $response->assertDontSee('#654321', false);
         $response->assertSee('var(--color-ink, #20302a)', false);
-        $response->assertSee('var(--color-on_dark, #f5f1e8)', false);
+
+        // Warna teks hero pindah ke stylesheet supaya varian bisa menimpanya
+        // (hero--split memakai permukaan terang, jadi teksnya bukan on_dark).
+        $css = file_get_contents(resource_path('css/invitation.css'));
+        $this->assertStringContainsString('color: var(--color-on_dark, #f5f1e8)', $css);
     }
 
     public function test_countdown_reads_target_date_from_page_event_date(): void

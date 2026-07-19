@@ -87,8 +87,12 @@ class InvitationBgEffectTest extends TestCase
 
         $html = $this->get('/invitation/'.$page->slug)->getContent();
 
-        $this->assertStringContainsString('font-family: var(--font-heading, serif)', $html);
         $this->assertStringNotContainsString("'Playfair Display', serif", $html);
+
+        // Font hero hidup di stylesheet, bukan di <style> per-section: kalau ditulis di
+        // komponen, blok inline itu menang atas kelas .hero--{variant} dan varian mati.
+        $css = file_get_contents(resource_path('css/invitation.css'));
+        $this->assertStringContainsString('font-family: var(--font-heading, serif)', $css);
     }
 
     public function test_pinned_section_does_not_use_inline_overflow_hidden(): void
