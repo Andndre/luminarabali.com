@@ -401,6 +401,107 @@
 }
 .rsvp-button:disabled { opacity: .6; cursor: progress; }
 
+/* --- live_stream: dasar + empat varian ---
+   Isi pemutarnya iframe YouTube: hitam, tidak ikut tema, tidak bisa digayakan dari luar.
+   Varian karena itu bekerja pada bingkai dan susunan sekitarnya.
+   Padding di kelas, bukan atribut style: marquee membuangnya seluruhnya. */
+.stream { padding: var(--section-y, 64px) 16px; text-align: center; }
+.stream-heading { margin-bottom: .9rem; }
+/* Siaran langsung punya jam, tidak seperti video biasa — jadwalnya dapat gaya sendiri,
+   bukan kalimat abu-abu yang tenggelam di bawah judul. */
+.stream-schedule {
+  font-size: var(--step-sm, .8125rem); line-height: 1.7;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--color-muted, #7a6f66);
+  margin-bottom: 1.75rem;
+}
+.stream-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: clip;
+  border-radius: var(--radius, 12px);
+  /* Latar gelap supaya kotaknya tidak berkedip putih sebelum sampul termuat. */
+  background: var(--color-ink, #20302a);
+}
+.stream-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* Sampul + tombol putar. iframe baru dibuat setelah tombol ditekan, jadi tamu yang
+   tidak menonton tidak ikut memuat skrip dan cookie YouTube. */
+.stream-facade {
+  position: absolute; inset: 0;
+  display: block; width: 100%; padding: 0;
+  border: 0; background: none; cursor: pointer;
+}
+.stream-facade img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.stream-play {
+  position: absolute; inset: 0; margin: auto;
+  width: 3.6rem; height: 3.6rem; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 4px 16px rgba(0,0,0,.35);
+  transition: transform .2s;
+}
+.stream-play::after {
+  content: ""; width: 0; height: 0;
+  border-left: .95rem solid #1b2621;
+  border-top: .58rem solid transparent;
+  border-bottom: .58rem solid transparent;
+  margin-left: .22rem;
+}
+.stream-facade:hover .stream-play { transform: scale(1.06); }
+@media (prefers-reduced-motion: reduce) {
+  .stream-play { transition: none; }
+  .stream-facade:hover .stream-play { transform: none; }
+}
+.stream-action { margin-top: 1.5rem; }
+.stream-action a {
+  display: inline-flex;
+  padding: .8rem 1.6rem;
+  font-size: var(--step-sm, .8125rem);
+  font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  border-radius: min(var(--radius, 12px), 999px);
+}
+
+/* player adalah bentuk dasarnya — tanpa aturan tambahan. */
+
+/* wide: pemutar selebar kartu, tanpa sudut membulat. */
+.stream--wide { padding-inline: 0; }
+.stream--wide .stream-heading,
+.stream--wide .stream-schedule,
+.stream--wide .stream-action { padding-inline: 16px; }
+.stream--wide .stream-frame { border-radius: 0; }
+
+/* marquee: judul dan jadwal duduk di atas sampul, bukan di atasnya. Sectionnya
+   berhenti terasa seperti video yang ditempel dan mulai terasa seperti poster acara. */
+.stream--marquee { padding: 0; }
+.stream--marquee .stream-frame { border-radius: 0; aspect-ratio: 3 / 4; }
+.stream--marquee .stream-overlay {
+  position: absolute; inset: auto 0 0 0;
+  padding: 6rem 1.5rem 2.25rem;
+  color: var(--color-on_dark, #f5f1e8);
+  /* Kerudung gelap: sampul YouTube tidak bisa dipilih, jadi gradiennya harus cukup
+     pekat untuk sampul seterang apa pun. */
+  background: linear-gradient(to top,
+    rgba(0,0,0,.88) 0%, rgba(0,0,0,.7) 28%, rgba(0,0,0,.38) 58%, transparent 100%);
+  text-shadow: 0 1px 3px rgba(0,0,0,.55);
+  /* Kalau tidak, overlay menelan klik tombol putar di bawahnya. */
+  pointer-events: none;
+}
+.stream--marquee .stream-heading,
+.stream--marquee .stream-schedule { color: inherit; margin-bottom: .6rem; }
+.stream--marquee .stream-heading::after { background: currentColor; }
+.stream--marquee .stream-schedule { margin-bottom: 0; opacity: .85; }
+.stream--marquee .stream-play { inset: 0 0 auto 0; margin: 0 auto; top: 30%; }
+
+/* card: tanpa pemutar sama sekali — judul, jadwal, satu tombol keluar. Juga bentuk
+   cadangan kalau URL yang dimasukkan bukan YouTube. */
+.stream--card .stream-body {
+  padding: 2.25rem 1.5rem;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: var(--radius, 12px);
+}
+.stream--card .stream-schedule { margin-bottom: 1.5rem; }
+.stream--card .stream-action { margin-top: 0; }
+
 /* --- map: dasar + empat varian ---
    Isi <iframe> milik Google: tidak bisa disentuh CSS kita dan tidak ikut tema. Varian di
    sini karena itu bekerja pada bingkai dan susunan sekitarnya, bukan pada petanya.

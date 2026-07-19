@@ -253,6 +253,9 @@ $components = [
     ],
 
     'live_stream' => [
+        // Nama varian sengaja tidak memakai 'framed'/'full-bleed': kunci skematik di Studio
+        // dipakai bersama semua komponen, dan map sudah memakai kedua nama itu.
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Siaran', 'group' => 'design', 'options' => ['player', 'wide', 'marquee', 'card'], 'default' => 'player'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Live Streaming'],
         ['key' => 'youtube_url', 'type' => 'url', 'label' => 'URL YouTube', 'group' => 'content', 'default' => ''],
         ['key' => 'schedule_text', 'type' => 'text', 'label' => 'Jadwal', 'group' => 'content', 'default' => ''],
