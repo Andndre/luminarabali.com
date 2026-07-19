@@ -101,4 +101,16 @@ class StudioNestingApiTest extends TestCase
         $this->assertSame(0, $first['order_index']);
         $this->assertSame(1, $second['order_index']);
     }
+
+    public function test_update_cannot_change_a_nested_child_column_index(): void
+    {
+        $parent = $this->section('section_two_col');
+        $child = $this->section('text', $parent->id, ['column_index' => 0]);
+
+        $this->putJson("/admin/api/templates/sections/{$child->id}", [
+            'props' => ['column_index' => 5],
+        ])->assertOk();
+
+        $this->assertSame(0, $child->fresh()->props['column_index']);
+    }
 }

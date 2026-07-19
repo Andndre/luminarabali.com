@@ -120,8 +120,17 @@ class TemplateEditorController extends Controller
 
         $section = InvitationSection::findOrFail($id);
 
-        // null eksplisit = "hapus override ini" (kembali ke theme/default partial).
+        // column_index adalah data STRUKTURAL (posisi anak di dalam kolom container),
+        // bukan konten/desain — hanya storeSection (saat create) dan reorderSections
+        // yang boleh menulisnya, dan keduanya sudah membatasi nilainya sesuai jumlah
+        // kolom container. updateSection tidak boleh menyentuhnya sama sekali (termasuk
+        // via null eksplisit), supaya nilai yang tersimpan di $section->props tidak
+        // pernah berubah lewat endpoint ini dan anak tidak "hilang" ke kolom yang
+        // tidak ada di layout.
         $incoming = $request->input('props', []);
+        unset($incoming['column_index']);
+
+        // null eksplisit = "hapus override ini" (kembali ke theme/default partial).
         $nullKeys = array_keys(array_filter($incoming, fn ($v) => $v === null));
         $incoming = array_diff_key($incoming, array_flip($nullKeys));
 

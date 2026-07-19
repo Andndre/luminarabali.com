@@ -764,9 +764,12 @@ function studioApp() {
 
         // ===== Undo/redo — scope: props + theme saja (add/delete/reorder tidak masuk stack) =====
         snapshot() {
+            // props anak (this.children) ikut disimpan — selected sekarang bisa resolve
+            // ke section top-level ATAU anak (lihat sectionById), jadi undo/redo harus
+            // menutupi keduanya, bukan cuma this.sections.
             return JSON.parse(JSON.stringify({
                 theme: this.theme,
-                props: Object.fromEntries(this.sections.map(s => [s.id, s.props])),
+                props: Object.fromEntries([...this.sections, ...this.children].map(s => [s.id, s.props])),
             }));
         },
 
@@ -806,7 +809,7 @@ function studioApp() {
                     this.fontsDirty = true;
                     this.queueThemeSave();
                 }
-                for (const s of this.sections) {
+                for (const s of [...this.sections, ...this.children]) {
                     const snapProps = snap.props[s.id];
                     if (snapProps === undefined) continue; // section baru pasca-snapshot — biarkan
                     if (JSON.stringify(snapProps) === JSON.stringify(s.props)) continue;
@@ -1025,6 +1028,11 @@ function studioApp() {
                 await this.api('DELETE', `/admin/api/templates/sections/${s.id}`);
                 this.sections = this.sections.filter(x => x.id !== s.id);
                 this.children = this.children.filter(x => x.id !== s.id && String(x.parent_id) !== String(s.id));
+                // hasChildren turunan dari this.children — derive ulang, kalau tidak
+                // container yang baru saja kehilangan anak terakhirnya tetap dianggap
+                // beranak dan swapSection() terus jatuh ke reloadPreview() penuh.
+                this.hasChildren = {};
+                this.children.forEach(c => { this.hasChildren[String(c.parent_id)] = true; });
                 if (this.selectedId === s.id) this.selectedId = null;
                 this.reloadPreview();
             } catch {
