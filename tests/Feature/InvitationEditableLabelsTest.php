@@ -84,4 +84,25 @@ class InvitationEditableLabelsTest extends TestCase
         $this->render($page2, 'rsvp', ['name_label' => 'Full Name', 'guests_label' => 'Guests'])
             ->assertOk()->assertSee('Full Name')->assertSee('Guests')->assertDontSee('Nama Lengkap');
     }
+
+    public function test_no_component_prop_duplicates_page_core_data(): void
+    {
+        // Lapis 1 (§5A): nama & tanggal utama hanya di InvitationPage. Komponen baca
+        // $page->*, tak boleh punya prop sendiri utk data inti (bikin dua sumber).
+        $reserved = ['groom_name', 'bride_name', 'event_date'];
+        foreach (config('invitation_components') as $type => $fields) {
+            foreach ($fields as $field) {
+                $this->assertNotContains($field['key'] ?? null, $reserved,
+                    "{$type} punya prop '{$field['key']}' yang duplikat data inti page (§5A).");
+            }
+        }
+    }
+
+    public function test_core_names_flow_from_page_not_props(): void
+    {
+        $page = $this->publishedPage(['groom_name' => 'Romeo', 'bride_name' => 'Juliet']);
+        // Prop groom_name/bride_name harus DIABAIKAN — nama dari page.
+        $this->render($page, 'cover', ['groom_name' => 'Ignored', 'bride_name' => 'AlsoIgnored'])
+            ->assertOk()->assertSee('Romeo')->assertSee('Juliet')->assertDontSee('Ignored');
+    }
 }
