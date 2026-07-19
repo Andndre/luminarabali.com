@@ -376,8 +376,14 @@ function studioApp() {
         restoring: false,
         cssSaveTimer: null,
         cssError: null,
+        rootEl: null, // di-set di init() ke root x-data; jangan pakai this.$el di method lain (lihat persistColumnOrder)
 
         async init() {
+            // Simpan root element sekali di sini: init() dipanggil dari x-init di root
+            // x-data, jadi $el di titik ini adalah root studio-app yang sesungguhnya.
+            // Jangan andalkan this.$el di method lain (mis. persistColumnOrder) — di sana
+            // this adalah merge proxy per-elemen milik directive yang memanggilnya, bukan root.
+            this.rootEl = this.$el;
             const res = await fetch(`/admin/api/templates/{{ $template->id }}/load`);
             const data = await res.json();
             this.hasChildren = {};
@@ -1090,8 +1096,12 @@ function studioApp() {
 
         async persistColumnOrder() {
             // Baca ulang seluruh kolom dari DOM: satu drag bisa mengubah dua kolom sekaligus.
+            // Pakai this.rootEl (di-set sekali di init()), BUKAN this.$el: method ini dipanggil
+            // dari closure onEnd yang dibuat di initColumnSortable(), di mana this adalah
+            // merge proxy milik satu kolom saja — this.$el di situ hanya mencakup kolom itu
+            // sehingga query selalu kosong.
             const rows = [];
-            this.$el.querySelectorAll('[data-parent][data-column]').forEach(col => {
+            this.rootEl.querySelectorAll('[data-parent][data-column]').forEach(col => {
                 [...col.querySelectorAll('[data-id]')].forEach((el, i) => {
                     rows.push({
                         id: el.dataset.id,

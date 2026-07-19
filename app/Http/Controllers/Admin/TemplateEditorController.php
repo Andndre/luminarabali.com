@@ -372,25 +372,41 @@ class TemplateEditorController extends Controller
             }
         }
 
-        foreach ($request->sections as $row) {
-            $section = InvitationSection::find($row['id']);
-            if (!$section) {
-                continue;
-            }
+        // Transaksi: validasi di atas sudah memastikan payload tidak setengah invalid,
+        // tapi hanya transaksi yang menjamin kegagalan runtime di tengah loop (mis. query
+        // gagal di baris ke-3) tidak menyisakan sebagian baris ter-update dan sebagian tidak.
+        DB::transaction(function () use ($request) {
+            foreach ($request->sections as $row) {
+                $section = InvitationSection::find($row['id']);
+                if (!$section) {
+                    continue;
+                }
 
-            $attributes = ['order_index' => $row['order_index']];
+                $attributes = ['order_index' => $row['order_index']];
+                $parentId = $row['parent_id'] ?? null;
 
-            if (array_key_exists('parent_id', $row)) {
-                $attributes['parent_id'] = $row['parent_id'];
-            }
-            if (array_key_exists('column_index', $row) && $row['parent_id'] !== null) {
-                $attributes['props'] = array_merge($section->props ?? [], [
-                    'column_index' => (int) $row['column_index'],
-                ]);
-            }
+                if (array_key_exists('parent_id', $row)) {
+                    $attributes['parent_id'] = $row['parent_id'];
+                }
 
-            $section->update($attributes);
-        }
+                if ($parentId !== null) {
+                    // Reparenting selalu menulis column_index (default 0 bila key-nya tidak
+                    // dikirim) — validasi di atas menganggap key hilang berarti 0, jadi
+                    // penulisan harus konsisten, jangan sampai menyisakan column_index lama
+                    // yang di luar jumlah kolom container baru.
+                    $props = $section->props ?? [];
+                    $props['column_index'] = (int) ($row['column_index'] ?? 0);
+                    $attributes['props'] = $props;
+                } elseif (array_key_exists('parent_id', $row) && $row['parent_id'] === null) {
+                    // Naik jadi top-level: column_index lama sudah tidak bermakna, buang.
+                    $props = $section->props ?? [];
+                    unset($props['column_index']);
+                    $attributes['props'] = $props;
+                }
+
+                $section->update($attributes);
+            }
+        });
 
         return response()->json(['success' => true]);
     }

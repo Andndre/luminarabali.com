@@ -153,4 +153,24 @@ class StudioNestingApiTest extends TestCase
             ],
         ])->assertStatus(422);
     }
+
+    public function test_reorder_without_column_index_defaults_to_zero_not_stale_value(): void
+    {
+        $threeCol = $this->section('section_three_col');
+        $twoCol = $this->section('section_two_col');
+        $child = $this->section('text', $threeCol->id, ['column_index' => 2]);
+
+        // Payload memindahkan anak ke container 2-kolom TANPA mengirim column_index sama
+        // sekali — validasi menganggap key hilang berarti 0, jadi penulisan pun harus
+        // menulis 0, bukan membiarkan nilai lama (2) yang di luar jangkauan container baru.
+        $this->postJson('/admin/api/templates/sections/reorder', [
+            'sections' => [
+                ['id' => $child->id, 'order_index' => 0, 'parent_id' => $twoCol->id],
+            ],
+        ])->assertOk();
+
+        $child->refresh();
+        $this->assertSame($twoCol->id, $child->parent_id);
+        $this->assertSame(0, $child->props['column_index']);
+    }
 }
