@@ -404,6 +404,79 @@
 }
 .rsvp-button:disabled { opacity: .6; cursor: progress; }
 
+/* --- quote: dasar + lima varian ---
+   Tanda kutip keriting raksasa dan italic sepanjang badan dibuang: keduanya konvensi
+   tipografi Latin yang tidak dipakai saat mengutip ayat, dan di kartu 430px tanda kutip
+   itu mengambil ruang lebih besar daripada kalimatnya. Beda kutipan dari teks sekitarnya
+   sekarang datang dari ukuran, ruang, dan bingkai. */
+.quote-body { max-width: 30rem; margin-inline: auto; }
+.quote-text {
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-lg, 1.15rem);
+  line-height: 1.75;
+  color: var(--fg-heading);
+  text-wrap: pretty;
+  margin: 0;
+}
+.quote-source {
+  margin-top: 1.5rem;
+  font-size: var(--step-sm, .8125rem);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--color-muted, #7a6f66);
+  /* Ikut rata teks variannya, bukan selalu tengah. */
+  text-align: inherit;
+}
+
+.quote--plain { text-align: center; }
+
+/* rules: dua garis rambut, atas dan bawah. Membingkai tanpa menggambar kotak,
+   seperti halaman pembuka buku cetak. */
+.quote--rules { text-align: center; }
+.quote--rules .quote-body {
+  padding: 2rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 16%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 16%, transparent);
+}
+
+/* panel: blok terisi, jeda visual saat section sebelum dan sesudahnya sama-sama polos. */
+.quote--panel .quote-body {
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: var(--radius, 12px);
+}
+
+/* initial: huruf pertama diperbesar, teks rata kiri. Satu-satunya varian tak simetris —
+   untuk kutipan panjang, di mana rata tengah membuat mata kehilangan awal baris. */
+.quote--initial .quote-text { text-align: left; }
+.quote--initial .quote-text::first-letter {
+  float: left;
+  font-size: 3.1em;
+  /* .78, bukan 1: menyejajarkan puncak huruf dengan puncak baris pertama,
+     bukan dengan kotak barisnya. */
+  line-height: .78;
+  padding: .06em .12em 0 0;
+  color: var(--color-accent, #b5654d);
+}
+.quote--initial .quote-source { text-align: left; }
+
+/* source-first: rujukan naik ke atas jadi label. Urutan baca dibalik — tamu tahu
+   ini ayat sebelum mulai membaca, bukan setelah selesai. */
+.quote--source-first { text-align: center; }
+.quote--source-first .quote-source {
+  margin: 0 0 1.25rem;
+  color: var(--color-accent, #b5654d);
+}
+.quote--source-first .quote-source::after {
+  content: ""; display: block;
+  width: 2rem; height: 1px;
+  margin: .75rem auto 0;
+  background: currentColor; opacity: .5;
+}
+/* Ukuran teksnya sengaja sama dengan varian lain: yang membedakan source-first
+   adalah urutan baca, bukan besar hurufnya. */
+
 /* --- love_story: dasar + empat varian ---
    Satu foto untuk seluruh section (opsional), bukan foto per babak: varian di sini
    membedakan tata letak teks, jadi tidak ada yang bergantung pada ada-tidaknya foto. */

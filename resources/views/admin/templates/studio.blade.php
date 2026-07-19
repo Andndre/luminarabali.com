@@ -623,6 +623,11 @@ function studioApp() {
                 'bubble':'<circle cx="8" cy="8" r="4"/><rect x="15" y="4" width="22" height="8" rx="2"/><circle cx="8" cy="20" r="4"/><rect x="15" y="16" width="17" height="8" rx="2"/>',
                 'disc':'<circle cx="20" cy="14" r="11"/><circle cx="20" cy="14" r="7.5" opacity=".4"/><circle cx="20" cy="14" r="4" fill="currentColor" stroke="none"/>',
                 'pill': '<rect x="6" y="9" width="28" height="10" rx="5"/><rect x="11" y="12" width="1.5" height="4" fill="currentColor" stroke="none"/><rect x="14" y="11" width="1.5" height="6" fill="currentColor" stroke="none"/><rect x="17" y="12.5" width="1.5" height="3" fill="currentColor" stroke="none"/><path d="M23 11.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/>',
+                'plain': '<line x1="8" y1="8" x2="32" y2="8"/><line x1="6" y1="13" x2="34" y2="13"/><line x1="11" y1="18" x2="29" y2="18"/><line x1="15" y1="23" x2="25" y2="23" opacity=".5"/>',
+                'rules': '<line x1="4" y1="5" x2="36" y2="5" opacity=".45"/><line x1="8" y1="11" x2="32" y2="11"/><line x1="6" y1="16" x2="34" y2="16"/><line x1="4" y1="23" x2="36" y2="23" opacity=".45"/>',
+                'panel': '<rect x="4" y="4" width="32" height="20" rx="2" fill="currentColor" stroke="none" opacity=".15"/><line x1="10" y1="11" x2="30" y2="11"/><line x1="8" y1="16" x2="32" y2="16"/>',
+                'initial': '<rect x="5" y="6" width="7" height="9" rx="1" fill="currentColor" stroke="none"/><line x1="14" y1="8" x2="35" y2="8"/><line x1="14" y1="13" x2="35" y2="13"/><line x1="5" y1="19" x2="35" y2="19"/><line x1="5" y1="23" x2="22" y2="23" opacity=".5"/>',
+                'source-first': '<line x1="14" y1="5" x2="26" y2="5" opacity=".6"/><line x1="16" y1="9" x2="24" y2="9" opacity=".35"/><line x1="6" y1="15" x2="34" y2="15" stroke-width="2"/><line x1="9" y1="21" x2="31" y2="21" stroke-width="2"/>',
                 'bordered-cards':'<rect x="5" y="4" width="30" height="8" rx="1"/><rect x="5" y="15" width="30" height="8" rx="1"/>',
                 'divider-list': '<line x1="6" y1="6" x2="30" y2="6"/><line x1="3" y1="11" x2="37" y2="11" opacity=".4"/><line x1="6" y1="16" x2="30" y2="16"/><line x1="3" y1="21" x2="37" y2="21" opacity=".4"/>',
             };

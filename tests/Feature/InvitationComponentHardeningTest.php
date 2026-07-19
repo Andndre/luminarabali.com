@@ -455,7 +455,11 @@ class InvitationComponentHardeningTest extends TestCase
 
         $response->assertOk();
         $response->assertDontSee('#123456', false);
-        $response->assertSee('color: var(--color-accent, #b5654d);', false);
+        // Warna aksen quote pindah ke stylesheet supaya varian (initial/source-first)
+        // bisa memakainya — di <style> per-section, varian akan kalah urutan.
+        $css = file_get_contents(resource_path('css/invitation.css'));
+        $this->assertStringContainsString('.quote--initial .quote-text::first-letter', $css);
+        $this->assertStringContainsString('var(--color-accent, #b5654d)', $css);
     }
 
     public function test_live_stream_component_ignores_stale_accent_color_prop(): void

@@ -229,6 +229,7 @@ $components = [
     ],
 
     'quote' => [
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Kutipan', 'group' => 'design', 'options' => ['plain', 'rules', 'panel', 'initial', 'source-first'], 'default' => 'plain'],
         ['key' => 'content', 'type' => 'text', 'label' => 'Kutipan', 'group' => 'content', 'default' => 'Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri, supaya kamu mendapat ketenangan hati.'],
         ['key' => 'attribution', 'type' => 'text', 'label' => 'Sumber', 'group' => 'content', 'default' => 'Q.S. Ar-Rum: 21'],
     ],

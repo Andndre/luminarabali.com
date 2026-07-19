@@ -2,18 +2,22 @@
 
 @php
     $content = $props['content'] ?? '';
-    $attribution = $props['attribution'] ?? '';
-    $fontFamilyValue = 'var(--font-heading, serif)';
+    $source = $props['attribution'] ?? '';
+    $variant = $props['variant'] ?? 'plain';
 @endphp
 
-<section style="padding: var(--section-y, 64px) 16px;">
-  <div class="container mx-auto max-w-2xl text-center">
-    <div class="text-4xl mb-2" style="color: var(--color-accent, #b5654d); font-family: {{ $fontFamilyValue }};" aria-hidden="true">&ldquo;</div>
-    <blockquote class="text-lg md:text-xl italic leading-relaxed" style="font-family: {{ $fontFamilyValue }};">
-      <span data-editable="content">{{ $content }}</span>
-    </blockquote>
-    @if($attribution)
-      <p class="mt-4 text-sm font-semibold opacity-80">&mdash; {{ $attribution }}</p>
+<section class="quote quote--{{ $variant }}" style="padding: var(--section-y, 64px) 16px;">
+  <div class="container mx-auto quote-body">
+    {{-- source-first membalik urutan: rujukan dibaca lebih dulu, jadi ia juga
+         harus lebih dulu di DOM — bukan cuma dipindah lewat CSS order. --}}
+    @if($variant === 'source-first' && $source)
+      <p class="quote-source">{{ $source }}</p>
+    @endif
+
+    <p class="quote-text" data-editable="content">{{ $content }}</p>
+
+    @if($variant !== 'source-first' && $source)
+      <p class="quote-source">{{ $source }}</p>
     @endif
   </div>
 </section>
