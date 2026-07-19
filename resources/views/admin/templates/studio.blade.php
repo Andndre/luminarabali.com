@@ -17,12 +17,21 @@
         <div class="flex-1"></div>
 
         {{-- Mode Lanjutan: buka container/Basic/CSS mentah (guideline §2.0) --}}
-        <button @click="toggleAdvanced()" type="button"
+        <button @click="toggleAdvanced()" type="button" x-show="!asCustomer"
             :title="advanced ? 'Matikan Mode Lanjutan' : 'Mode Lanjutan: container, blok dasar, CSS/HTML mentah'"
             class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold border"
             :class="advanced ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-500 hover:text-gray-900'">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             Lanjutan
+        </button>
+
+        {{-- Preview sebagai Customer: kunci inspector ke tab Konten (guideline §10.1a) --}}
+        <button @click="toggleAsCustomer()" type="button"
+            :title="asCustomer ? 'Kembali ke tampilan desainer' : 'Lihat editor seperti yang dilihat customer'"
+            class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold border"
+            :class="asCustomer ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-500 hover:text-gray-900'">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+            Customer
         </button>
 
         {{-- Device toggle (ikon, bukan emoji) --}}
@@ -51,7 +60,7 @@
                     :class="panel === 'sections' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
                     Struktur
                 </button>
-                <button @click="panel = 'theme'"
+                <button @click="panel = 'theme'" x-show="!asCustomer"
                     class="flex-1 text-xs font-semibold rounded-md px-2 py-1.5"
                     :class="panel === 'theme' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
                     Theme
@@ -213,7 +222,7 @@
         </div>
 
         <div x-show="panel === 'sections'" class="p-3 border-t border-gray-200">
-            <button @click="addOpen = true"
+            <button @click="addOpen = true" x-show="!asCustomer"
                 class="w-full rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-600 hover:border-black hover:text-black">
                 + Tambah Section
             </button>
@@ -364,6 +373,7 @@ function studioApp() {
         typeLabels: @json($sectionTypes),
         classes: @json($componentClasses),
         advanced: localStorage.getItem('luminara.studio.advanced') === '1',
+        asCustomer: false,
         schema: @json($schema),
         inspectorTab: 'content',
         fieldErrors: {},
@@ -401,7 +411,11 @@ function studioApp() {
             this.$watch('selectedId', () => {
                 this.fieldErrors = {};
                 this.cssError = null;
-                this.inspectorTab = this.availableTabs[0]?.id ?? 'design';
+                // Fallback 'content' (bukan 'design'): availableTabs kosong berarti tab
+                // 'content' pasti juga kosong (lihat getter availableTabs), jadi ini aman
+                // di kedua mode. 'design' dulu bisa bocor field desain ke customer saat
+                // section (mis. divider/spacer) tak punya field content sama sekali.
+                this.inspectorTab = this.availableTabs[0]?.id ?? 'content';
             });
             this.$watch('addOpen', open => {
                 if (open && !this.presetsLoaded) this.loadPresets();
@@ -478,6 +492,12 @@ function studioApp() {
 
         get availableTabs() {
             if (!this.selected) return [];
+            // Preview sebagai Customer: hanya tab Konten (guideline §10.1a).
+            if (this.asCustomer) {
+                return this.fieldsFor(this.selected.section_type, 'content').length > 0
+                    ? [{ id: 'content', label: 'Konten' }]
+                    : [];
+            }
             return [
                 { id: 'content', label: 'Konten' },
                 { id: 'design', label: 'Desain' },
@@ -492,6 +512,16 @@ function studioApp() {
             this.advanced = !this.advanced;
             localStorage.setItem('luminara.studio.advanced', this.advanced ? '1' : '0');
             // Section yang sedang dipilih bisa jadi tak lagi punya tab aktif yang sah.
+            this.inspectorTab = this.availableTabs[0]?.id ?? 'content';
+        },
+
+        toggleAsCustomer() {
+            this.asCustomer = !this.asCustomer;
+            // Mode Lanjutan & Preview-as-Customer saling meniadakan: customer tak pernah
+            // melihat perkakas desainer. Nilai advanced TIDAK ditulis ke localStorage di
+            // sini — ini cuma dipaksa off sementara, preferensi asli desainer tetap utuh.
+            if (this.asCustomer) this.advanced = false;
+            this.panel = 'sections';
             this.inspectorTab = this.availableTabs[0]?.id ?? 'content';
         },
 

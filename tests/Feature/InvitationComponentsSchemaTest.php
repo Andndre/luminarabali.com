@@ -195,4 +195,12 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertStringContainsString('curatedTypes', $blade, 'Palet Kurasi belum dipisah.');
         $this->assertStringContainsString('advancedTypes', $blade, 'Palet Lanjutan belum dipisah.');
     }
+
+    public function test_studio_has_a_preview_as_customer_mode(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $this->assertStringContainsString('toggleAsCustomer', $blade, 'Toggle Preview-as-Customer belum ada.');
+        $this->assertStringContainsString('if (this.asCustomer)', $blade,
+            'availableTabs belum dikunci ke tab Konten saat mode customer.');
+    }
 }
