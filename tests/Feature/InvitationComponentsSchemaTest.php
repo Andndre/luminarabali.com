@@ -123,6 +123,11 @@ class InvitationComponentsSchemaTest extends TestCase
         $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
         $this->assertStringContainsString('variantSchematic', $blade, 'Helper variantSchematic belum ada.');
 
+        // Picker varian = skematik SVG saja (tak ada jalur thumbnail hasil capture).
+        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_inspector.blade.php'));
+        $this->assertStringContainsString('variantSchematic(opt)', $inspector, 'Picker varian tak memakai skematik.');
+        $this->assertStringNotContainsString('variant_thumbnails', $inspector, 'Picker varian masih punya jalur thumbnail.');
+
         foreach (config('invitation_components') as $type => $fields) {
             foreach ($fields as $field) {
                 if (($field['type'] ?? null) !== 'variant') {
@@ -134,14 +139,6 @@ class InvitationComponentsSchemaTest extends TestCase
                 }
             }
         }
-    }
-
-    public function test_studio_wires_automatic_variant_thumbnail_capture(): void
-    {
-        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
-        $this->assertStringContainsString('captureVariantThumbnail', $blade, 'Method capture belum ada.');
-        $this->assertStringContainsString('LuminaraStudio.domToPng', $blade, 'Capture tak memakai lib bundel.');
-        $this->assertStringContainsString('/variant-thumbnail', $blade, 'Capture tak memanggil endpoint thumbnail.');
     }
 
     public function test_theme_panel_uses_custom_hex_color_control(): void

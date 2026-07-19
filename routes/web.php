@@ -103,8 +103,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
                 ->name('templates.theme.update');
             Route::post('/sections/{id}/duplicate', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'duplicateSection'])
                 ->name('sections.duplicate');
-            Route::post('/sections/{id}/variant-thumbnail', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'storeVariantThumbnail'])
-                ->name('sections.variant-thumbnail');
             Route::get('/presets', [\App\Http\Controllers\Admin\DesignPresetController::class, 'index'])->name('presets.index');
             Route::post('/presets', [\App\Http\Controllers\Admin\DesignPresetController::class, 'store'])->name('presets.store');
             Route::delete('/presets/{id}', [\App\Http\Controllers\Admin\DesignPresetController::class, 'destroy'])->name('presets.destroy');

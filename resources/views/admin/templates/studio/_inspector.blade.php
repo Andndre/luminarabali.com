@@ -66,19 +66,14 @@
                             </select>
                         </template>
 
-                        {{-- variant (type khusus): grid kartu — thumbnail asli kalau ada, else skematik (guideline §6/§10) --}}
+                        {{-- variant (type khusus): grid kartu skematik SVG (guideline §6/§10) --}}
                         <template x-if="field.type === 'variant'">
                             <div class="grid grid-cols-3 gap-2">
                                 <template x-for="opt in field.options" :key="opt">
                                     <button type="button" @click="setProp(field, opt)" :title="variantLabel(opt)"
                                         class="flex flex-col items-center gap-1 rounded-lg border p-1.5 transition overflow-hidden"
                                         :class="opt === val(field) ? 'border-black ring-1 ring-black bg-gray-50 text-gray-900' : 'border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600'">
-                                        <template x-if="selected.variant_thumbnails && selected.variant_thumbnails[opt]">
-                                            <img :src="mediaUrl(selected.variant_thumbnails[opt])" class="w-full h-14 object-cover rounded">
-                                        </template>
-                                        <template x-if="!(selected.variant_thumbnails && selected.variant_thumbnails[opt])">
-                                            <span class="w-full" x-html="variantSchematic(opt)"></span>
-                                        </template>
+                                        <span class="w-full" x-html="variantSchematic(opt)"></span>
                                         <span class="text-[10px] font-medium leading-tight text-center" x-text="variantLabel(opt)"></span>
                                     </button>
                                 </template>

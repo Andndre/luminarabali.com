@@ -10,7 +10,6 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/invitation.css',
                 'resources/js/invitation.js',
-                'resources/js/studio.js',
             ],
             refresh: false,
         }),
