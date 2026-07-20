@@ -484,3 +484,158 @@
 @media (prefers-reduced-motion: reduce) {
     .catalog-liveframe__iframe.is-autoscroll { animation: none; }
 }
+
+/* ==========================================================================
+   Dashboard customer: turunan identitas katalog dalam MODE APLIKASI.
+   Warna merek dipertahankan sebagai aksen, tapi tipografinya sans dan
+   kepadatannya tinggi karena halaman ini dioperasikan, bukan dibaca.
+   Discope ke `.dash` supaya tak bocor ke admin/Studio yang masih memakai
+   palet Tailwind bawaan. Blok ini sengaja mandiri (kelas .dash-*, bukan
+   utility) supaya bisa disalin utuh ke admin pada Fase 8.
+   ========================================================================== */
+.dash {
+    --dash-ground: #FAF7F2;
+    --dash-surface: #FFFFFF;
+    --dash-wine: #5B1A2B;
+    --dash-gold: #B08D3C;
+    --dash-ink: #1A1412;
+    --dash-muted: #6B625C;
+    --dash-hair: rgba(26, 20, 18, .10);
+    --dash-radius: .85rem;
+    --dash-shadow: 0 1px 2px rgba(26, 20, 18, .04), 0 8px 24px -16px rgba(26, 20, 18, .25);
+    --dash-sidebar-w: 15rem;
+    background: var(--dash-ground);
+    color: var(--dash-ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+}
+
+/* --- Kerangka ---------------------------------------------------------- */
+.dash-shell { display: flex; min-height: 100vh; }
+.dash-main { flex: 1; min-width: 0; padding: clamp(1.25rem, 3vw, 2.5rem); }
+.dash-content { max-width: 60rem; margin-inline: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* --- Sidebar ----------------------------------------------------------- */
+/* Di bawah 768px sidebar jadi drawer: keluar layar sampai .is-open dipasang
+   tombol hamburger. Di atasnya, sidebar tetap dan konten mengalir di sisinya. */
+.dash-sidebar {
+    position: fixed; inset-block: 0; left: 0; z-index: 40;
+    width: var(--dash-sidebar-w); flex: none;
+    display: flex; flex-direction: column;
+    background: var(--dash-surface);
+    border-right: 1px solid var(--dash-hair);
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+}
+.dash-sidebar.is-open { transform: none; }
+.dash-brand {
+    display: flex; align-items: center; height: 4rem; padding-inline: 1.25rem;
+    border-bottom: 1px solid var(--dash-hair);
+    font-size: .95rem; letter-spacing: .28em; text-transform: uppercase;
+    color: var(--dash-wine); font-weight: 600;
+}
+.dash-nav { flex: 1; padding: 1rem .75rem; display: flex; flex-direction: column; gap: .25rem; }
+.dash-nav__link {
+    display: flex; align-items: center; gap: .65rem;
+    padding: .6rem .75rem; border-radius: .6rem;
+    font-size: .9rem; color: var(--dash-muted);
+    transition: background-color .2s ease, color .2s ease;
+}
+.dash-nav__link:hover { background: rgba(91, 26, 43, .06); color: var(--dash-ink); }
+.dash-nav__link.is-active { background: var(--dash-wine); color: #FBF7F1; font-weight: 500; }
+.dash-sidebar__foot { padding: .75rem; border-top: 1px solid var(--dash-hair); }
+
+/* Latar gelap saat drawer terbuka di mobile. */
+.dash-scrim {
+    position: fixed; inset: 0; z-index: 30; display: none;
+    background: rgba(26, 20, 18, .4);
+}
+.dash-scrim.is-open { display: block; }
+
+.dash-topbar {
+    display: flex; align-items: center; gap: .75rem;
+    height: 3.5rem; margin-bottom: .5rem;
+}
+.dash-burger {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.5rem; height: 2.5rem; border-radius: .6rem;
+    border: 1px solid var(--dash-hair); background: var(--dash-surface);
+}
+
+@media (min-width: 768px) {
+    .dash-sidebar { transform: none; }
+    .dash-main { margin-left: var(--dash-sidebar-w); }
+    .dash-topbar, .dash-scrim { display: none; }
+}
+
+/* --- Kartu, baris, tipografi ------------------------------------------- */
+.dash-card {
+    background: var(--dash-surface); border: 1px solid var(--dash-hair);
+    border-radius: var(--dash-radius); box-shadow: var(--dash-shadow);
+    padding: 1.25rem;
+}
+.dash-title { font-size: clamp(1.35rem, 3vw, 1.75rem); font-weight: 700; letter-spacing: -.01em; }
+.dash-muted { color: var(--dash-muted); font-size: .875rem; }
+.dash-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.dash-section-head h2 { font-size: 1.05rem; font-weight: 600; }
+
+/* Statistik: angka besar tabular supaya kolom angka rata. */
+.dash-stats { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
+.dash-stat__num { font-size: 1.9rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.dash-stat__label { color: var(--dash-muted); font-size: .8rem; margin-top: .25rem; }
+.dash-stat--accent .dash-stat__num { color: var(--dash-wine); }
+
+/* Baris daftar pesanan. */
+.dash-rows { display: flex; flex-direction: column; gap: .6rem; }
+.dash-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    background: var(--dash-surface); border: 1px solid var(--dash-hair);
+    border-radius: var(--dash-radius); padding: .9rem 1rem;
+    transition: border-color .2s ease, transform .2s ease;
+}
+.dash-row:hover { border-color: var(--dash-gold); transform: translateY(-1px); }
+.dash-row__name { font-weight: 600; }
+.dash-row__meta { color: var(--dash-muted); font-size: .78rem; margin-top: .15rem; }
+.dash-row__price { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.dash-empty {
+    display: flex; flex-direction: column; align-items: center; gap: .75rem;
+    text-align: center; padding: clamp(2rem, 6vw, 3.5rem) 1.25rem;
+    border: 1px dashed var(--dash-hair); border-radius: var(--dash-radius);
+    color: var(--dash-muted);
+}
+
+/* --- Tombol ------------------------------------------------------------ */
+.dash-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    padding: .55rem 1.1rem; border-radius: .6rem;
+    font-size: .875rem; font-weight: 500;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.dash-btn--solid { background: var(--dash-wine); color: #FBF7F1; }
+.dash-btn--solid:hover { background: color-mix(in srgb, var(--dash-wine) 85%, var(--dash-gold)); }
+.dash-btn--ghost { border: 1px solid var(--dash-hair); color: var(--dash-ink); background: var(--dash-surface); }
+.dash-btn--ghost:hover { border-color: var(--dash-gold); color: var(--dash-wine); }
+
+/* --- Pill status -------------------------------------------------------
+   Warna status adalah MAKNA (menunggu/proses/selesai/batal), sengaja
+   terpisah dari warna aksen merek supaya tetap terbaca saat dipindai. */
+.dash-pill {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .25rem .6rem; border-radius: 999px;
+    font-size: .72rem; font-weight: 600; white-space: nowrap;
+}
+.dash-pill--pending  { background: #FEF3C7; color: #92400E; }
+.dash-pill--awaiting { background: #DBEAFE; color: #1E40AF; }
+.dash-pill--paid     { background: #DCFCE7; color: #166534; }
+.dash-pill--cancelled{ background: #F1F0EE; color: #6B625C; }
+
+/* --- Flash ------------------------------------------------------------- */
+.dash-flash { border-radius: var(--dash-radius); padding: .8rem 1rem; font-size: .875rem; }
+.dash-flash--success { background: #DCFCE7; color: #166534; }
+.dash-flash--error { background: #FEE2E2; color: #991B1B; }
+
+@media (prefers-reduced-motion: reduce) {
+    .dash-sidebar, .dash-row, .dash-btn, .dash-nav__link { transition: none; }
+    .dash-row:hover { transform: none; }
+}

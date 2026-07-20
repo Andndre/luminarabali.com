@@ -29,8 +29,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register.post');
 
-// Stub dashboard customer — isi nyata di Fase 7F.
-Route::get('/dashboard', fn () => view('dashboard.customer'))->middleware('auth')->name('dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware('auth')->name('dashboard');
 
 // Pesanan undangan customer (Fase 7C)
 Route::middleware('auth')->group(function () {
