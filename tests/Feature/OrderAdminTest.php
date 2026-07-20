@@ -90,4 +90,27 @@ class OrderAdminTest extends TestCase
         $this->actingAs($this->staff())->get(route('admin.orders.index'))
             ->assertOk()->assertSee($order->order_number);
     }
+
+    public function test_designer_cannot_confirm_or_cancel_order(): void
+    {
+        $designer = User::factory()->create(['division' => 'designer']);
+
+        $confirm = $this->order(Order::STATUS_AWAITING);
+        $this->actingAs($designer)->post(route('admin.orders.confirm', $confirm))->assertForbidden();
+        $this->assertSame(Order::STATUS_AWAITING, $confirm->refresh()->status);
+
+        $cancel = $this->order(Order::STATUS_PENDING);
+        $this->actingAs($designer)->post(route('admin.orders.cancel', $cancel))->assertForbidden();
+        $this->assertSame(Order::STATUS_PENDING, $cancel->refresh()->status);
+    }
+
+    public function test_designer_can_still_view_orders(): void
+    {
+        // Aksi finansial dibatasi super_admin, tapi lihat daftar tetap boleh (spec).
+        $designer = User::factory()->create(['division' => 'designer']);
+        $order = $this->order(Order::STATUS_AWAITING);
+
+        $this->actingAs($designer)->get(route('admin.orders.index'))->assertOk();
+        $this->actingAs($designer)->get(route('admin.orders.show', $order))->assertOk();
+    }
 }

@@ -30,6 +30,8 @@ class OrderController extends Controller
 
     public function confirm(Order $order)
     {
+        $this->authorizeFinancialAction();
+
         abort_if(
             in_array($order->status, [Order::STATUS_PAID, Order::STATUS_CANCELLED], true),
             403, 'Order sudah final.'
@@ -46,6 +48,8 @@ class OrderController extends Controller
 
     public function cancel(Request $request, Order $order)
     {
+        $this->authorizeFinancialAction();
+
         abort_if($order->status === Order::STATUS_PAID, 403, 'Order lunas tak bisa dibatalkan.');
 
         $order->update([
@@ -54,5 +58,17 @@ class OrderController extends Controller
         ]);
 
         return back()->with('success', 'Order dibatalkan.');
+    }
+
+    /**
+     * Konfirmasi/batal = aksi finansial atas data customer, hanya super_admin.
+     * Middleware `staff` cuma memblokir customer; designer lolos, padahal
+     * designer tak boleh menyentuh data customer (lihat User::canDesignTemplates
+     * doc + UserController/InvoiceController yang super_admin-only). Index/show
+     * tetap terbuka untuk semua staf sesuai spec "staf boleh lihat semua".
+     */
+    private function authorizeFinancialAction(): void
+    {
+        abort_unless(Auth::user()?->division === 'super_admin', 403, 'Hanya super admin.');
     }
 }
