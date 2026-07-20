@@ -235,8 +235,10 @@ class InvitationComponentsSchemaTest extends TestCase
         // Field yang di-merge ke banyak komponen sekaligus adalah sumber daftar panjang
         // di tab Desain (guideline §10). Semuanya wajib punya `panel` supaya masuk
         // accordion, bukan menumpuk datar di atas.
+        // bg_image sengaja TIDAK di sini: fotonya pindah ke tab Konten (isi yang sering
+        // diganti), jadi ia bukan lagi sumber daftar panjang di tab Desain.
         $mustHavePanel = [
-            'treatment', 'bg_image', 'bg_overlay', 'bg_effect', 'bg_effect_strength',
+            'treatment', 'bg_overlay', 'bg_effect', 'bg_effect_strength',
             'ornaments_top', 'ornaments_bottom',
             'animation', 'animation_delay',
             'padding_top', 'padding_bottom', 'margin_top', 'margin_bottom',

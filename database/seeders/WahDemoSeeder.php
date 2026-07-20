@@ -91,11 +91,11 @@ class WahDemoSeeder extends Seeder
                 'overlay_enabled' => true,
             ]],
             ['hero', [
+                // Hero memakai sistem treatment: fotonya bg_image, gelapnya bg_overlay.
                 'title' => 'Om Swastiastu',
-                'background_image' => $heroImage,
-                'overlay_enabled' => true,
-                'overlay_color' => $dark,
-                'overlay_opacity' => 55,
+                'treatment' => 'image',
+                'bg_image' => $heroImage,
+                'bg_overlay' => 55,
                 'alignment' => 'center',
                 'padding_top' => 160,
                 'padding_bottom' => 160,

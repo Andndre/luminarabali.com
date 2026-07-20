@@ -33,8 +33,8 @@ class FlagshipTemplateSeeder extends Seeder
                 'background_image' => 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2000&auto=format&fit=crop',
             ]],
             ['section_type' => 'hero', 'props' => [
-                'title' => 'The Wedding Of', 'overlay_enabled' => true,
-                'overlay_color' => '#33261f', 'overlay_opacity' => 45,
+                // Hero memakai sistem treatment: fotonya bg_image, gelapnya bg_overlay.
+                'title' => 'The Wedding Of', 'treatment' => 'image', 'bg_overlay' => 45,
                 'alignment' => 'center', 'padding_top' => 140, 'padding_bottom' => 140,
             ]],
             ['section_type' => 'couple', 'props' => [
@@ -83,8 +83,7 @@ class FlagshipTemplateSeeder extends Seeder
                 'overlay_enabled' => true,
             ]],
             ['section_type' => 'hero', 'props' => [
-                'title' => 'Undangan Pernikahan', 'overlay_enabled' => true,
-                'overlay_color' => '#2c332a', 'overlay_opacity' => 35,
+                'title' => 'Undangan Pernikahan', 'bg_overlay' => 35,
                 'alignment' => 'center', 'padding_top' => 120, 'padding_bottom' => 120,
             ]],
             ['section_type' => 'text', 'props' => [
@@ -133,8 +132,7 @@ class FlagshipTemplateSeeder extends Seeder
             ]],
             ['section_type' => 'hero', 'props' => [
                 'variant' => 'split',
-                'title' => 'The Wedding Of', 'overlay_enabled' => true,
-                'overlay_color' => '#141414', 'overlay_opacity' => 45,
+                'title' => 'The Wedding Of', 'bg_overlay' => 45,
                 'alignment' => 'center', 'padding_top' => 120, 'padding_bottom' => 120,
             ]],
             ['section_type' => 'couple', 'props' => [

@@ -142,7 +142,8 @@ class InvitationComponentHardeningTest extends TestCase
         $page = $this->publishedPage(['groom_name' => 'Romeo', 'bride_name' => 'Juliet']);
         InvitationSection::create([
             'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
-            'props' => ['background_image' => 'templates/bg.jpg', 'overlay_enabled' => true],
+            // Foto hero datang dari treatment (bg_image), bukan field hero sendiri.
+            'props' => ['treatment' => 'image', 'bg_image' => 'templates/bg.jpg'],
             'is_visible' => true,
         ]);
 
@@ -159,9 +160,9 @@ class InvitationComponentHardeningTest extends TestCase
         $page = $this->publishedPage();
         InvitationSection::create([
             'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
-            // Overlay hero hanya dirender di atas foto, dan opasitasnya datang dari
-            // bg_overlay (panel Latar & Treatment), bukan field khusus hero lagi.
-            'props' => ['background_image' => 'templates/bg.jpg', 'bg_overlay' => 50, 'overlay_color' => '#123456', 'text_color' => '#654321'], 'is_visible' => true,
+            // Latar & overlay hero kini milik treatment: bg_image + bg_overlay. Prop warna
+            // usang di bawah tak boleh muncul di HTML sama sekali.
+            'props' => ['treatment' => 'image', 'bg_image' => 'templates/bg.jpg', 'bg_overlay' => 50, 'overlay_color' => '#123456', 'text_color' => '#654321'], 'is_visible' => true,
         ]);
 
         $response = $this->get("/invitation/{$page->slug}");
@@ -169,7 +170,8 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertOk();
         $response->assertDontSee('#123456', false);
         $response->assertDontSee('#654321', false);
-        $response->assertSee('var(--color-ink, #20302a)', false);
+        // Lapisan gelapnya dirender treatment shell, opasitasnya dari bg_overlay.
+        $response->assertSee('class="sec-bg-overlay" style="opacity:0.5"', false);
 
         // Warna teks hero pindah ke stylesheet supaya varian bisa menimpanya
         // (hero--split memakai permukaan terang, jadi teksnya bukan on_dark).

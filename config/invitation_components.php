@@ -50,9 +50,10 @@ $components = [
     'hero' => [
         ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['fullscreen', 'split', 'minimal'], 'default' => 'fullscreen'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
-        ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null],
-        // Overlay hero memakai bg_overlay di panel Latar & Treatment (satu kontrol untuk
-        // semua section) — field overlay_enabled/overlay_opacity khusus hero dihapus.
+        // Foto latar hero memakai bg_image milik treatment (tab Konten) dan overlaynya
+        // bg_overlay di panel Latar & Treatment — satu foto, satu overlay, satu tempat.
+        // Field background_image/overlay_enabled/overlay_opacity khusus hero dihapus;
+        // datanya dipindah oleh migration 2026_07_20_000001.
         ['key' => 'alignment', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'center'],
         ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 120],
         ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 120],
@@ -322,7 +323,9 @@ $components = [
 // Treatment latar — hanya untuk kelas Section (lihat $sectionTypes di bawah).
 $treatmentFields = [
     ['key' => 'treatment', 'type' => 'select', 'label' => 'Latar Section', 'group' => 'design', 'panel' => 'treatment', 'options' => ['surface', 'contrast', 'dark', 'image'], 'default' => 'surface'],
-    ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'design', 'panel' => 'treatment', 'default' => null],
+    // Fotonya di tab Konten, bukan Desain: treatment/overlay/efek adalah keputusan desain
+    // template, sedangkan fotonya isi yang sering diganti pemilik undangan.
+    ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null],
     ['key' => 'bg_overlay', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 45],
     ['key' => 'bg_effect', 'type' => 'select', 'label' => 'Efek Latar', 'group' => 'design', 'panel' => 'treatment', 'options' => ['none', 'pinned', 'kenburns', 'scroll-zoom-in', 'scroll-zoom-out'], 'default' => 'none'],
     ['key' => 'bg_effect_strength', 'type' => 'number', 'label' => 'Kekuatan Efek (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 130],
