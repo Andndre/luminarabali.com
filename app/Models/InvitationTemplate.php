@@ -13,12 +13,16 @@ class InvitationTemplate extends Model
         'description',
         'category',
         'price',
+        'hero_slot',
         'global_custom_css',
         'meta_data',
         'theme',
         'status',
         'created_by'
     ];
+
+    /** Lima slot kipas hero, terurut kiri→kanan. */
+    public const HERO_SLOTS = ['left-outer', 'left-inner', 'center', 'right-inner', 'right-outer'];
 
     protected function casts(): array
     {
@@ -34,6 +38,18 @@ class InvitationTemplate extends Model
         return $this->price === null
             ? 'Hubungi kami'
             : 'Rp' . number_format($this->price, 0, ',', '.');
+    }
+
+    /** Template hero terurut posisi kipas kiri→kanan; hanya yang published. */
+    public static function heroFan()
+    {
+        $slots = array_flip(self::HERO_SLOTS);
+
+        return self::where('status', 'published')
+            ->whereIn('hero_slot', self::HERO_SLOTS)
+            ->get()
+            ->sortBy(fn ($t) => $slots[$t->hero_slot] ?? 99)
+            ->values();
     }
 
     public function pages()

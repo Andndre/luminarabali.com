@@ -50,6 +50,7 @@ class TemplateController extends Controller
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
             'status' => 'nullable|in:draft,published,archived',
             'price' => 'nullable|integer|min:0',
+            'hero_slot' => 'nullable|in:'.implode(',', InvitationTemplate::HERO_SLOTS),
         ]);
 
         // Handle thumbnail upload
@@ -67,6 +68,7 @@ class TemplateController extends Controller
             'description' => $request->description,
             'category' => $request->category,
             'price' => $request->filled('price') ? (int) $request->price : null,
+            'hero_slot' => $request->filled('hero_slot') ? $request->hero_slot : null,
             'status' => $request->status ?? 'draft',
             'created_by' => $currentUserId,
         ]);
@@ -104,6 +106,7 @@ class TemplateController extends Controller
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
             'status' => 'nullable|in:draft,published,archived',
             'price' => 'nullable|integer|min:0',
+            'hero_slot' => 'nullable|in:'.implode(',', InvitationTemplate::HERO_SLOTS),
         ]);
 
         // Handle thumbnail upload
@@ -126,6 +129,7 @@ class TemplateController extends Controller
             'description' => $request->description,
             'category' => $request->category,
             'price' => $request->filled('price') ? (int) $request->price : null,
+            'hero_slot' => $request->filled('hero_slot') ? $request->hero_slot : null,
             'status' => $request->status ?? 'draft',
         ]);
 

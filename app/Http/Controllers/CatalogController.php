@@ -13,10 +13,17 @@ class CatalogController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        // Hingga 3 template teratas untuk showcase live-strip.
-        $showcase = $templates->take(3);
+        // Komposisi kipas di hero: 1 device tengah + hingga 4 pengapit
+        // (2 per sisi), posisinya diatur admin lewat `hero_slot`.
+        // Live-frame hanya dipakai di sini; grid katalog tetap thumbnail statis.
+        $fan = InvitationTemplate::heroFan();
+        $heroCenter = $fan->firstWhere('hero_slot', 'center')
+            // Belum ada yang ditandai admin: pakai template published terbaru
+            // supaya hero tak pernah kosong.
+            ?? $templates->first();
+        $heroFlankers = $fan->reject(fn ($t) => $t->hero_slot === 'center')->values();
 
-        return view('catalog.index', compact('templates', 'showcase'));
+        return view('catalog.index', compact('templates', 'heroCenter', 'heroFlankers'));
     }
 
     public function preview(string $slug)
