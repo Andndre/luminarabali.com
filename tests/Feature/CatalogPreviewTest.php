@@ -40,4 +40,16 @@ class CatalogPreviewTest extends TestCase
     {
         $this->get('/undangan/tidak-ada/preview')->assertNotFound();
     }
+
+    public function test_preview_stub_slug_cannot_collide_with_real_page(): void
+    {
+        $template = $this->template('published');
+        $stub = (new \App\Services\InvitationRenderer())->previewStub($template);
+
+        // Stub slug harus mengandung underscore agar tidak bisa dihasilkan dari Str::slug()
+        $this->assertStringContainsString('_', $stub->slug);
+
+        // Str::slug() tidak bisa menghasilkan underscore, jadi slug stub mustahil sama dengan slug page asli
+        $this->assertNotEquals(\Illuminate\Support\Str::slug($stub->slug), $stub->slug);
+    }
 }

@@ -86,7 +86,8 @@ class InvitationRenderer
     {
         $page = new InvitationPage([
             'title' => 'Preview: '.$template->name,
-            'slug' => 'preview',
+            // Underscore mustahil muncul di slug page asli (selalu lewat Str::slug() = [a-z0-9-]), jadi stub ini tak akan pernah bentrok — RSVP dari preview mengarah ke URL yang 404, bukan ke undangan customer.
+            'slug' => '__preview__',
             'groom_name' => 'Romeo',
             'bride_name' => 'Juliet',
             'event_date' => now()->addMonths(6),
