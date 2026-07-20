@@ -57,6 +57,26 @@
    bersarang — tiap wadah yang memang meluap sudah punya overflow:hidden sendiri. */
 .catalog { overflow-x: hidden; }
 
+/* --- Tekstur kertas ----------------------------------------------------
+   Krem polos terbaca datar; butiran halus membuatnya terasa seperti kertas
+   tebal. SVG feTurbulence sebagai data-URI: satu petak 160px yang diulang,
+   tak ada berkas aset, tak ada permintaan jaringan.
+
+   `position: fixed` dipilih bukan cuma agar murah (dilukis sekali, tak
+   ikut di-repaint saat menggulir) tapi karena butirannya jadi DIAM sementara
+   halaman bergerak di atasnya — kedalaman ala parallax tanpa satu baris JS
+   dan tanpa scroll handler yang akan mengganggu iframe preview.
+
+   `.catalog` tak punya transform/filter, jadi fixed di dalamnya tidak
+   terkurung overflow-x di atas. Berada di z-index 0 dan konten dinaikkan ke
+   1: butiran hanya menerpa latar, tak mengaburkan teks maupun preview. */
+.catalog::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: .035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.catalog-nav, .catalog-shell { position: relative; z-index: 1; }
+
 /* --- Kerangka halaman ------------------------------------------------- */
 /* Jarak diatur layout (flex + gap), bukan margin per-elemen. */
 .catalog-shell { display: flex; flex-direction: column; gap: var(--cat-gap); }
@@ -102,7 +122,21 @@
    kipas di kanan terlihat TANPA scroll. Di bawah 900px grid runtuh jadi satu
    kolom — teks dulu, kipas menyusul — dan min-height dilepas supaya halaman
    pendek tak jadi kosong melompong. */
-.catalog-hero { padding-top: clamp(1.5rem, 4vw, 2.5rem); }
+/* Pendar ambient. "Luminara" berarti cahaya, jadi pendarnya memancar DARI
+   undangan di dalam ponsel — produknya yang menyala, bukan hiasan tempel.
+   Gradien radial dipakai langsung sebagai background, BUKAN div kosong yang
+   di-blur: gradien memang sudah lembut, sementara filter blur pada elemen
+   sebesar ini mahal dan memicu repaint berat bersebelahan dengan lima iframe
+   komposit. Nol elemen tambahan, nol filter. */
+.catalog-hero {
+    padding-top: clamp(1.5rem, 4vw, 2.5rem);
+    background-repeat: no-repeat;
+    background-image:
+        /* bloom emas tepat di belakang ponsel (kolom kanan) */
+        radial-gradient(46% 42% at 76% 42%, rgba(176, 141, 60, .22), transparent 68%),
+        /* dengung wine hangat di bawah tombol ajakan (kolom kiri) */
+        radial-gradient(34% 30% at 22% 72%, rgba(91, 26, 43, .09), transparent 70%);
+}
 .catalog-hero__grid {
     display: grid; align-items: center;
     gap: clamp(2.25rem, 5vw, 3.5rem);
@@ -207,6 +241,35 @@
     background: rgba(23, 17, 15, .55);
 }
 
+/* --- Halaman detail /undangan/{slug} ------------------------------------
+   Device di kiri, keterangan di kanan. Di bawah 900px jadi satu kolom
+   dengan device lebih dulu: pratinjaunya yang menjual, bukan teksnya. */
+.catalog-detail {
+    display: grid; gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+    padding-top: clamp(1.5rem, 4vw, 2.5rem);
+}
+@media (min-width: 900px) {
+    .catalog-detail { grid-template-columns: minmax(0, 17rem) minmax(0, 1fr); }
+    /* Lebar device ditahan supaya tinggi totalnya (rasio 9/19.5) tetap muat di
+       layar laptop pendek — kalau lebih tinggi dari viewport, sticky-nya percuma. */
+    .catalog-detail__stage { position: sticky; top: 5.5rem; }
+}
+.catalog-detail__stage { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; }
+.catalog-detail__stage .catalog-device { width: min(16rem, 100%); }
+.catalog-detail__info { gap: 1rem; max-width: 38rem; }
+.catalog-detail__title { font-size: clamp(2.2rem, 5vw, 3.4rem); }
+.catalog-detail__price { font-family: var(--cat-serif); font-size: clamp(1.6rem, 3vw, 2.1rem); color: var(--cat-wine); }
+.catalog-detail__desc { line-height: 1.75; opacity: .82; }
+.catalog-detail__specs { display: flex; flex-direction: column; gap: .6rem; font-size: .92rem; opacity: .8; }
+.catalog-detail__specs li { display: flex; gap: .7rem; line-height: 1.6; }
+.catalog-detail__specs li::before {
+    content: ''; flex: none; margin-top: .55rem;
+    width: .35rem; height: .35rem; rotate: 45deg; background: var(--cat-gold);
+}
+.catalog-crumb { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .78rem; opacity: .65; }
+.catalog-crumb a:hover { color: var(--cat-gold); }
+
 /* --- Judul section ----------------------------------------------------- */
 .catalog-head { display: flex; flex-direction: column; gap: .75rem; max-width: 44rem; }
 .catalog-head h2 { font-size: clamp(2rem, 4.2vw, 3.15rem); }
@@ -215,8 +278,17 @@
 /* --- Slab warna penuh-lebar & overlap antar-section --------------------- */
 /* Slab wine yang ditindih section berikutnya. Padding bawah dilebihkan supaya
    teks slab tak pernah tertutup elemen yang naik menindihnya. */
+/* Slab wine: bidang pekat lebar mudah terasa mati. Motif garis diagonal
+   sangat tipis memberi tenun halus — kuncinya kontras super rendah (emas 4%
+   di atas wine), jadi terbaca sebagai tekstur kain, bukan pola yang bersaing
+   dengan teks. repeating-linear-gradient: tanpa aset, tanpa elemen tambahan. */
 .catalog-slab {
-    background: var(--cat-wine); color: var(--cat-ivory);
+    background-color: var(--cat-wine); color: var(--cat-ivory);
+    background-image: repeating-linear-gradient(
+        -38deg,
+        rgba(231, 201, 122, .04) 0 1px,
+        transparent 1px 11px
+    );
     padding-block: clamp(3.5rem, 8vw, 6rem) clamp(7rem, 14vw, 11rem);
 }
 .catalog-slab .catalog-head p { opacity: .78; }

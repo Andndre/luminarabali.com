@@ -2,11 +2,11 @@
 (() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Undangan memakai `.invite-card` sebagai satu-satunya scroll container —
-    // isinya bergulir DI DALAM iframe, bukan bersama <body>-nya. Menggeser
-    // elemen iframe (animasi CSS .is-autoscroll) karena itu hanya menyingkap
-    // ruang kosong. Kalau bisa dijangkau (same-origin), gulirkan container itu
-    // langsung; kalau tidak, jatuh kembali ke animasi CSS lama.
+    // Undangan memakai `.invite-card` sebagai satu-satunya scroll container.
+    // Isinya bergulir DI DALAM iframe, bukan bersama <body>-nya, jadi menggeser
+    // elemen iframe (animasi CSS .is-autoscroll) hanya menyingkap ruang kosong.
+    // Kalau bisa dijangkau (same-origin), gulirkan container itu langsung;
+    // kalau tidak, jatuh kembali ke animasi CSS lama.
     const autoscroll = (iframe) => {
         let card = null;
         try { card = iframe.contentDocument.querySelector('.invite-card'); } catch (e) { /* cross-origin */ }

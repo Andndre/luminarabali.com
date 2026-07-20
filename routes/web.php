@@ -12,9 +12,8 @@ Route::get('/visual', [BookingController::class, 'visualLanding'])->name('visual
 // Katalog undangan publik (Fase 7B)
 Route::get('/undangan', [\App\Http\Controllers\CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/undangan/{slug}/preview', [\App\Http\Controllers\CatalogController::class, 'preview'])->name('catalog.preview');
-// Placeholder halaman detail (Task 4 mengganti closure ini dengan CatalogController@show).
-// Kartu katalog sudah menaut ke sini, jadi namanya harus terdaftar sejak sekarang.
-Route::get('/undangan/{slug}', fn (string $slug) => redirect()->route('catalog.preview', $slug))->name('catalog.show');
+// Harus terdaftar SETELAH catalog.preview supaya {slug} tak menelan "/preview".
+Route::get('/undangan/{slug}', [\App\Http\Controllers\CatalogController::class, 'show'])->name('catalog.show');
 
 Route::get('/pricelist', [BookingController::class, 'pricelistPhotobooth'])->name('pricelist');
 Route::get('/pricelist/visual', [BookingController::class, 'pricelistVisual'])->name('pricelist.visual');

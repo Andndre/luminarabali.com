@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Katalog Undangan Digital — Luminara</title>
+    <title>Katalog Undangan Digital | Luminara</title>
     <meta name="description" content="Undangan digital buatan Luminara: desain siap pakai yang bisa diubah warna, font, dan susunannya. Lengkap dengan RSVP, galeri, live stream, dan daftar tamu.">
     @vite(['resources/css/app.css'])
 </head>
@@ -35,7 +35,7 @@
             <span class="catalog-eyebrow">Undangan Digital</span>
             <h1 class="catalog-display">Undangan yang dibuka, dibaca, lalu diingat.</h1>
             <p class="catalog-hero__lede">
-                Yang bergulir di samping ini undangan sungguhan — bukan gambar contoh. Lihat sendiri
+                Yang bergulir di samping ini undangan sungguhan, bukan gambar contoh. Lihat sendiri
                 bagaimana tamu Anda akan membacanya sebelum memutuskan. Warna, huruf, dan urutan
                 halamannya masih bisa Anda ubah setelahnya.
             </p>
@@ -122,7 +122,7 @@
             <article class="catalog-pillar catalog-reveal">
                 <span class="catalog-pillar__num">01</span>
                 <h3>Warna &amp; huruf bisa diganti</h3>
-                <p>Palet dan jenis huruf tiap desain bisa disesuaikan dengan tema acara Anda — tanpa perlu memesan desain baru dari nol.</p>
+                <p>Palet dan jenis huruf tiap desain bisa disesuaikan dengan tema acara Anda, tanpa perlu memesan desain baru dari nol.</p>
             </article>
             <article class="catalog-pillar catalog-reveal">
                 <span class="catalog-pillar__num">02</span>
@@ -207,7 +207,7 @@
         @else
             <div class="catalog-empty catalog-reveal">
                 <h3 class="catalog-display" style="font-size: 1.6rem">Belum ada desain</h3>
-                <p style="max-width: 26rem; opacity: .8">Belum ada desain yang ditayangkan saat ini — hubungi kami untuk custom sesuai tema acara Anda.</p>
+                <p style="max-width: 26rem; opacity: .8">Belum ada desain yang ditayangkan saat ini. Hubungi kami untuk custom sesuai tema acara Anda.</p>
                 <a href="{{ route('login') }}" class="catalog-btn catalog-btn--ghost">Hubungi Kami</a>
             </div>
         @endif
@@ -225,16 +225,16 @@
         <div class="catalog-quotes">
             <figure class="catalog-quote catalog-quote--lead catalog-reveal">
                 <blockquote>&ldquo;Yang paling menolong justru RSVP-nya. Kami jadi tahu perkiraan jumlah tamu dua minggu sebelum hari-H, bukan menebak-nebak.&rdquo;</blockquote>
-                <figcaption>Dewi &amp; Raka — akad di Ubud, Mei 2026</figcaption>
+                <figcaption>Dewi &amp; Raka, akad di Ubud, Mei 2026</figcaption>
             </figure>
             <div class="catalog-quotes__aside">
                 <figure class="catalog-quote catalog-reveal">
                     <blockquote>&ldquo;Saya sempat ragu karena warnanya kurang cocok dengan tema. Ternyata bisa diganti sendiri dalam beberapa menit.&rdquo;</blockquote>
-                    <figcaption>Anindita — mempelai, Denpasar</figcaption>
+                    <figcaption>Anindita, mempelai di Denpasar</figcaption>
                 </figure>
                 <figure class="catalog-quote catalog-reveal">
                     <blockquote>&ldquo;Keluarga di luar kota ikut lewat live stream yang ditempel di undangan. Tidak perlu kirim tautan terpisah ke grup.&rdquo;</blockquote>
-                    <figcaption>Bagus Prayoga — panitia keluarga</figcaption>
+                    <figcaption>Bagus Prayoga, panitia keluarga</figcaption>
                 </figure>
             </div>
         </div>

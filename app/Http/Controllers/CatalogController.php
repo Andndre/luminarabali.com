@@ -26,6 +26,15 @@ class CatalogController extends Controller
         return view('catalog.index', compact('templates', 'heroCenter', 'heroFlankers'));
     }
 
+    public function show(string $slug)
+    {
+        $template = InvitationTemplate::where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail();
+
+        return view('catalog.show', compact('template'));
+    }
+
     public function preview(string $slug)
     {
         $template = InvitationTemplate::with(['sections' => fn ($q) => $q->orderBy('order_index')])
