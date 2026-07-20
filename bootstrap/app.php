@@ -21,6 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->convertEmptyStringsToNull(except: [
             fn ($request) => $request->is('admin/api/*'),
         ]);
+        $middleware->alias([
+            'staff' => \App\Http\Middleware\EnsureUserIsStaff::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -27,7 +27,7 @@ Route::post('/register', [AuthController::class, 'register'])->name('register.po
 Route::get('/dashboard', fn () => view('dashboard.customer'))->middleware('auth')->name('dashboard');
 
 // Admin Routes (Protected)
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'staff'])->prefix('admin')->group(function () {
     Route::get('/', [BookingController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/bookings', [BookingController::class, 'adminIndex'])->name('admin.bookings.index');
     Route::get('/bookings/create', [BookingController::class, 'adminCreate'])->name('admin.bookings.create');
