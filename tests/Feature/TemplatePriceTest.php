@@ -67,6 +67,18 @@ class TemplatePriceTest extends TestCase
         ]);
     }
 
+    public function test_price_over_column_max_rejected(): void
+    {
+        // Di atas batas unsignedInteger MySQL: harus ditolak validasi, bukan 500.
+        $this->actingAs($this->designer())
+            ->post(route('admin.templates.store'), [
+                'name' => 'Kemahalan', 'slug' => 'kemahalan', 'status' => 'draft',
+                'price' => '5000000000',
+            ])->assertSessionHasErrors('price');
+
+        $this->assertDatabaseMissing('invitation_templates', ['slug' => 'kemahalan']);
+    }
+
     public function test_admin_can_store_blank_price_as_null(): void
     {
         $this->actingAs($this->designer())

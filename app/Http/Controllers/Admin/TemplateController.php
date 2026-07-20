@@ -49,7 +49,9 @@ class TemplateController extends Controller
             'slug' => 'required|string|unique:invitation_templates',
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
             'status' => 'nullable|in:draft,published,archived',
-            'price' => 'nullable|integer|min:0',
+            // max = batas kolom unsignedInteger MySQL; tanpa ini nilai >4,29 M
+            // lolos validasi lalu 500 saat insert (bug yang sama dengan harga kosong).
+            'price' => 'nullable|integer|min:0|max:4294967295',
             'hero_slot' => 'nullable|in:'.implode(',', InvitationTemplate::HERO_SLOTS),
         ]);
 
@@ -105,7 +107,7 @@ class TemplateController extends Controller
             'slug' => 'required|string|unique:invitation_templates,slug,' . $id,
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
             'status' => 'nullable|in:draft,published,archived',
-            'price' => 'nullable|integer|min:0',
+            'price' => 'nullable|integer|min:0|max:4294967295',
             'hero_slot' => 'nullable|in:'.implode(',', InvitationTemplate::HERO_SLOTS),
         ]);
 
