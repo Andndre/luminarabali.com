@@ -35,15 +35,13 @@
     --cat-gold: #B08D3C;
     --cat-ink: #1A1412;
     --cat-hair: rgba(176, 141, 60, .35);
+    --cat-ivory: #FBF7F1;
     --cat-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    /* Jarak antar-section dipakai ulang oleh perhitungan overlap di bawah. */
+    --cat-gap: clamp(4.5rem, 9vw, 8.5rem);
     background: var(--cat-ground); color: var(--cat-ink);
 }
-@media (prefers-color-scheme: dark) {
-    .catalog {
-        --cat-ground: #1A1210; --cat-wine: #7A2438; --cat-gold: #C79A45;
-        --cat-ink: #F1E7DC; --cat-hair: rgba(199, 154, 69, .28);
-    }
-}
+/* Halaman ini light mode saja — tidak ada varian gelap. */
 .catalog-display { font-family: var(--cat-serif); text-wrap: balance; line-height: 1.04; letter-spacing: -.01em; }
 .catalog-eyebrow { letter-spacing: .22em; text-transform: uppercase; font-size: .72rem; color: var(--cat-gold); }
 .catalog-hair { height: 1px; background: var(--cat-hair); border: 0; }
@@ -53,12 +51,15 @@
     .catalog-reveal { opacity: 1; transform: none; transition: none; }
 }
 
-/* Konten lebar (grid katalog, showcase strip) tak boleh memicu scroll horizontal. */
+/* Jaring pengaman terakhir: apa pun yang melebar (kipas hero yang ter-crop,
+   grid katalog, numeral raksasa) tak boleh menggeser body secara horizontal.
+   Di <body> overflow ini merambat ke viewport, jadi tak ada scroll-container
+   bersarang — tiap wadah yang memang meluap sudah punya overflow:hidden sendiri. */
 .catalog { overflow-x: hidden; }
 
 /* --- Kerangka halaman ------------------------------------------------- */
 /* Jarak diatur layout (flex + gap), bukan margin per-elemen. */
-.catalog-shell { display: flex; flex-direction: column; gap: clamp(4.5rem, 9vw, 8.5rem); }
+.catalog-shell { display: flex; flex-direction: column; gap: var(--cat-gap); }
 .catalog-wrap { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: clamp(1.25rem, 5vw, 3rem); }
 .catalog-stack { display: flex; flex-direction: column; gap: 1.25rem; }
 .catalog-stack--tight { gap: .75rem; }
@@ -73,6 +74,12 @@
 .catalog-nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding-block: 1rem; }
 .catalog-nav__logo { font-family: var(--cat-serif); font-size: 1.15rem; letter-spacing: .3em; text-transform: uppercase; }
 .catalog-nav__links { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem); font-size: .85rem; }
+/* Di layar sangat sempit (360px) logo + dua tautan + tombol tak muat dan
+   memaksa nav melebihi viewport. Tautan jangkar disembunyikan; tombol Masuk
+   tetap ada karena itu aksi utamanya. */
+@media (max-width: 26rem) {
+    .catalog-nav__link { display: none; }
+}
 
 /* --- Tombol ------------------------------------------------------------ */
 .catalog-btn {
@@ -90,56 +97,137 @@
 }
 
 /* --- Hero -------------------------------------------------------------- */
-.catalog-hero { display: grid; gap: clamp(2.5rem, 6vw, 4.5rem); align-items: center; padding-top: clamp(3rem, 8vw, 6rem); }
-@media (min-width: 900px) { .catalog-hero { grid-template-columns: 1.05fr .95fr; } }
-.catalog-hero__frame { max-width: 22rem; margin-inline: auto; width: 100%; }
+.catalog-hero { display: flex; flex-direction: column; gap: clamp(2.75rem, 6vw, 4.25rem); padding-top: clamp(2.5rem, 7vw, 5rem); }
+.catalog-hero__copy { max-width: 46rem; }
 .catalog-hero h1 { font-size: clamp(2.75rem, 7.5vw, 5rem); }
 .catalog-hero__lede { font-size: clamp(1rem, 1.6vw, 1.15rem); line-height: 1.7; max-width: 34rem; opacity: .82; }
 .catalog-hero__actions { display: flex; flex-wrap: wrap; gap: .75rem; }
 .catalog-hero__meta { display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: .82rem; opacity: .7; }
+
+/* --- Hero: komposisi kipas (device gallery) ---------------------------- */
+/* Wadah full-bleed: dirender DI LUAR .catalog-wrap (lihat index.blade.php),
+   jadi lebarnya persis lebar konten body — tanpa 100vw yang ikut menghitung
+   scrollbar dan justru memicu overflow. `overflow: hidden` (dua sumbu, bukan
+   hanya sumbu-x) mengurung kartu terluar yang sengaja ter-crop, sekaligus
+   memastikan tak lahir scroll-container baru. Padding-block memberi ruang
+   untuk drop-shadow device yang kalau tidak ikut terpotong. */
+.catalog-fan {
+    position: relative; overflow: hidden;
+    padding-block: clamp(1.5rem, 4vw, 3rem);
+}
+.catalog-fan__rail { display: flex; align-items: center; justify-content: center; }
+/* Lebar dalam persen (relatif viewport) supaya komposisi ikut melebar bersama
+   layar — kalau memakai rem tetap, di layar lebar kipasnya menyusut ke tengah
+   dan kartu terluar tak pernah menyentuh tepi. Device tengah tetap diberi
+   batas rem supaya tak tumbuh jadi tablet di monitor besar. */
+.catalog-fan__center { position: relative; z-index: 4; flex: none; width: min(17rem, 62vw); }
+
+/* Pengapit: WAJIB display:none di bawah md. IntersectionObserver tidak pernah
+   melaporkan elemen display:none sebagai intersecting, jadi iframe-nya tak
+   pernah ter-mount di HP. Jangan ganti ke visibility/opacity — itu akan
+   membuat kelima iframe tetap dimuat di perangkat paling lemah. */
+.catalog-fan__flank { display: none; flex: none; }
+.catalog-fan__flank .catalog-liveframe__device { border-radius: 1.1rem; }
+@media (min-width: 768px) {
+    .catalog-fan__flank--near { display: block; }
+    .catalog-fan__center { width: min(19rem, 30%); }
+    .catalog-fan__flank { width: 26%; }
+}
+@media (min-width: 1080px) {
+    .catalog-fan__flank--far { display: block; }
+    /* Lima kartu dengan lebar persen + margin negatif persen: baris layout-nya
+       sengaja sedikit LEBIH LEBAR dari viewport, jadi kartu terluar jatuh di
+       luar tepi dan ter-crop dengan sendirinya di lebar layar mana pun. */
+    .catalog-fan__center { width: 24%; }
+    .catalog-fan__flank { width: 26%; }
+    .catalog-fan__flank--l1, .catalog-fan__flank--l2 { margin-right: -6%; }
+    .catalog-fan__flank--r1, .catalog-fan__flank--r2 { margin-left: -6%; }
+}
+
+/* Makin ke tepi: makin kecil, makin miring, makin turun, makin meredup.
+   `translate`/`rotate`/`scale` dipakai sebagai properti terpisah supaya bisa
+   disetel sendiri-sendiri tanpa saling menimpa lewat satu shorthand transform. */
+.catalog-fan__flank--near { scale: .86; opacity: .8; filter: saturate(.82); z-index: 3; }
+.catalog-fan__flank--far  { scale: .72; opacity: .55; filter: saturate(.62); z-index: 2; }
+.catalog-fan__flank--l1 { rotate: -5deg; translate: 0 2.5rem; margin-right: -2.5rem; }
+.catalog-fan__flank--r1 { rotate:  5deg; translate: 0 2.5rem; margin-left: -2.5rem; }
+/* Sedikit dorongan ke luar supaya tepi kartu terluar pasti melewati tepi layar
+   dan ter-crop oleh `overflow: hidden` milik .catalog-fan. */
+.catalog-fan__flank--l2 { rotate: -9deg; translate: -8% 4.5rem; margin-right: -2.5rem; }
+.catalog-fan__flank--r2 { rotate:  9deg; translate:  8% 4.5rem; margin-left: -2.5rem; }
+
+/* Bingkai ponsel untuk device tengah: bezel gelap + pill kecil di atas. */
+.catalog-device {
+    position: relative; padding: .5rem; border-radius: 2.1rem; background: #17110F;
+    box-shadow: 0 40px 70px -25px rgba(26, 20, 18, .55), 0 0 0 1px rgba(255, 255, 255, .06) inset;
+}
+.catalog-device .catalog-liveframe__device { border-radius: 1.7rem; }
+.catalog-device__pill {
+    position: absolute; z-index: 3; top: 1.05rem; left: 50%; translate: -50% 0;
+    width: 3.5rem; height: .4rem; border-radius: 999px; background: #17110F;
+}
 
 /* --- Judul section ----------------------------------------------------- */
 .catalog-head { display: flex; flex-direction: column; gap: .75rem; max-width: 44rem; }
 .catalog-head h2 { font-size: clamp(2rem, 4.2vw, 3.15rem); }
 .catalog-head p { line-height: 1.7; opacity: .8; }
 
-/* --- Pilar nilai ------------------------------------------------------- */
-.catalog-pillars { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+/* --- Slab warna penuh-lebar & overlap antar-section --------------------- */
+/* Slab wine yang ditindih section berikutnya. Padding bawah dilebihkan supaya
+   teks slab tak pernah tertutup elemen yang naik menindihnya. */
+.catalog-slab {
+    background: var(--cat-wine); color: var(--cat-ivory);
+    padding-block: clamp(3.5rem, 8vw, 6rem) clamp(7rem, 14vw, 11rem);
+}
+.catalog-slab .catalog-head p { opacity: .78; }
+.catalog-slab .catalog-eyebrow { color: #E7C97A; }
+
+/* Section yang naik menindih slab di atasnya. Nilai negatifnya harus
+   membatalkan gap .catalog-shell lebih dulu, baru menindih. */
+.catalog-overlap { position: relative; z-index: 2; }
+@media (min-width: 820px) {
+    .catalog-overlap { margin-top: calc(-1 * var(--cat-gap) - 5rem); }
+}
+/* Mobile: overlap dimatikan, section ditumpuk normal (lihat @media di atas —
+   margin negatif hanya berlaku dari 820px). */
+
+/* --- Pilar nilai (di atas slab wine) ----------------------------------- */
+.catalog-pillars { display: grid; gap: 1.75rem 2.5rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
 .catalog-pillar {
-    display: flex; flex-direction: column; gap: .6rem;
-    padding: 1.75rem; border: 1px solid var(--cat-hair); border-radius: 1rem;
-    background: color-mix(in srgb, var(--cat-ground) 70%, #ffffff);
-    transition: border-color .3s ease, transform .3s ease;
+    display: flex; flex-direction: column; gap: .55rem;
+    padding-top: 1.25rem; border-top: 1px solid rgba(231, 201, 122, .38);
 }
-@media (prefers-color-scheme: dark) {
-    .catalog-pillar { background: color-mix(in srgb, var(--cat-ground) 70%, #ffffff 6%); }
-}
-.catalog-pillar:hover { border-color: var(--cat-gold); transform: translateY(-3px); }
 .catalog-pillar h3 { font-family: var(--cat-serif); font-size: 1.3rem; }
-.catalog-pillar p { font-size: .9rem; line-height: 1.65; opacity: .78; }
-.catalog-pillar__num { font-family: var(--cat-serif); font-size: .9rem; color: var(--cat-gold); }
-@media (prefers-reduced-motion: reduce) {
-    .catalog-pillar, .catalog-pillar:hover { transform: none; transition: none; }
-}
+.catalog-pillar p { font-size: .9rem; line-height: 1.65; opacity: .75; }
+.catalog-pillar__num { font-family: var(--cat-serif); font-size: .85rem; letter-spacing: .1em; color: #E7C97A; }
 
-/* --- Showcase strip ---------------------------------------------------- */
-.catalog-showcase { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
-.catalog-showcase__item { display: flex; flex-direction: column; gap: .85rem; }
-.catalog-showcase__item .catalog-liveframe { transition: transform .4s ease; }
-.catalog-showcase__item:hover .catalog-liveframe { transform: translateY(-6px); }
-@media (prefers-reduced-motion: reduce) {
-    .catalog-showcase__item:hover .catalog-liveframe { transform: none; }
+/* --- Cara pesan: panel kertas yang menindih slab ------------------------ */
+.catalog-panel {
+    background: var(--cat-ivory); border-radius: 1.5rem;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    box-shadow: 0 40px 80px -40px rgba(26, 20, 18, .5);
+    display: flex; flex-direction: column; gap: clamp(2rem, 4vw, 3rem);
 }
-
-/* --- Cara pesan -------------------------------------------------------- */
-.catalog-paths { display: grid; gap: 1.5rem; }
-@media (min-width: 820px) { .catalog-paths { grid-template-columns: 1fr 1fr; } }
+/* Kolom tak sama lebar — asimetris, bukan dua kotak kembar. */
+.catalog-paths { display: grid; gap: clamp(2rem, 4vw, 3rem); }
+@media (min-width: 820px) { .catalog-paths { grid-template-columns: 1fr 1.15fr; } }
 .catalog-path {
-    display: flex; flex-direction: column; gap: 1.25rem;
-    padding: clamp(1.75rem, 3vw, 2.5rem); border-radius: 1.25rem; border: 1px solid var(--cat-hair);
+    position: relative; overflow: hidden;      /* mengurung numeral raksasa */
+    display: flex; flex-direction: column; gap: 1.15rem;
+    padding-top: 1.5rem; border-top: 1px solid var(--cat-hair);
 }
-.catalog-path--accent { background: var(--cat-wine); color: #FBF7F1; border-color: transparent; }
-.catalog-path--accent .catalog-eyebrow { color: #E7C97A; }
+@media (min-width: 820px) {
+    .catalog-path + .catalog-path { padding-left: clamp(2rem, 4vw, 3rem); border-left: 1px solid var(--cat-hair); }
+}
+/* Numeral raksasa sebagai elemen grafis di belakang teks. aria-hidden di
+   markup; di sini dijaga agar tak pernah menambah lebar (overflow:hidden pada
+   .catalog-path) dan tak menutupi teks (z-index di bawah, kontras rendah). */
+.catalog-path__numeral {
+    position: absolute; top: -.35em; right: -.08em; z-index: 0; pointer-events: none;
+    font-family: var(--cat-serif); font-size: clamp(7rem, 16vw, 12rem); line-height: 1;
+    color: var(--cat-wine); opacity: .07; user-select: none;
+}
+.catalog-path > *:not(.catalog-path__numeral) { position: relative; z-index: 1; }
 .catalog-path h3 { font-family: var(--cat-serif); font-size: 1.7rem; }
 .catalog-steps { display: flex; flex-direction: column; gap: .9rem; counter-reset: step; }
 .catalog-steps li { display: flex; gap: .85rem; font-size: .92rem; line-height: 1.6; }
@@ -175,11 +263,26 @@
     border-radius: 1.25rem; display: flex; flex-direction: column; gap: .75rem; align-items: center;
 }
 
-/* --- Testimoni --------------------------------------------------------- */
-.catalog-quotes { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+/* --- Hairline emas diagonal -------------------------------------------- */
+/* Garis lebih lebar dari wadahnya lalu diputar; wadah overflow:hidden supaya
+   kelebihan lebarnya dibuang, bukan jadi scroll horizontal. */
+.catalog-rule { overflow: hidden; height: 4rem; display: grid; place-items: center; }
+.catalog-rule::before {
+    content: ''; display: block; width: 130%; height: 1px; rotate: -1.4deg;
+    background: linear-gradient(90deg, transparent, var(--cat-gold), transparent);
+    opacity: .55;
+}
+
+/* --- Testimoni: asimetris, satu kutipan memimpin ----------------------- */
+.catalog-quotes { display: grid; gap: clamp(1.75rem, 4vw, 3rem); }
+@media (min-width: 900px) { .catalog-quotes { grid-template-columns: 1.25fr .75fr; align-items: start; } }
 .catalog-quote { display: flex; flex-direction: column; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--cat-hair); }
-.catalog-quote blockquote { font-family: var(--cat-serif); font-size: 1.2rem; line-height: 1.5; }
+.catalog-quote blockquote { font-family: var(--cat-serif); font-size: 1.15rem; line-height: 1.55; }
 .catalog-quote figcaption { font-size: .82rem; opacity: .7; }
+.catalog-quote--lead blockquote { font-size: clamp(1.5rem, 3.2vw, 2.15rem); line-height: 1.35; color: var(--cat-wine); }
+.catalog-quotes__aside { display: flex; flex-direction: column; gap: clamp(1.75rem, 3vw, 2.5rem); }
+/* Geser turun sedikit supaya kolom kanan tidak sejajar rapi dengan kiri. */
+@media (min-width: 900px) { .catalog-quotes__aside { margin-top: 3.5rem; } }
 
 /* --- Footer ------------------------------------------------------------ */
 .catalog-cta {
