@@ -127,7 +127,7 @@ class InvitationComponentHardeningTest extends TestCase
         $page = $this->publishedPage();
         $section = InvitationSection::create([
             'page_id' => $page->id, 'section_type' => 'cover', 'order_index' => 0,
-            'props' => ['background_image' => null], 'is_visible' => true,
+            'props' => ['bg_image' => null], 'is_visible' => true,
         ]);
 
         $response = $this->get("/invitation/{$page->slug}");
@@ -324,6 +324,78 @@ class InvitationComponentHardeningTest extends TestCase
         // aturan, kalau tidak yang belakangan menghapus crossfade-nya.
         $css = file_get_contents(resource_path('css/invitation.css'));
         $this->assertStringContainsString('animation-name: var(--slide-fade), sec-kenburns;', $css);
+    }
+
+    /**
+     * Tombol play besar di tengah adalah chrome YouTube sebelum pemutaran mulai, dan tak
+     * ada parameter yang mematikannya. Satu-satunya jalan: tahan iframe di balik poster
+     * sampai pemutarnya melapor sedang berjalan — status, bukan hitungan waktu.
+     */
+    public function test_youtube_iframe_is_revealed_by_player_state_not_a_timer(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'video',
+                'bg_video' => 'https://youtu.be/dQw4w9WgXcQ', 'bg_poster' => 'templates/poster.jpg',
+            ],
+            'is_visible' => true,
+        ]);
+
+        // Tanpa enablejsapi, iframe tidak pernah membalas status apa pun.
+        $this->get("/invitation/{$page->slug}")->assertSee('enablejsapi=1', false);
+
+        $css = file_get_contents(resource_path('css/invitation.css'));
+        $this->assertStringContainsString('.sec-bg-yt.is-playing', $css);
+
+        $js = file_get_contents(resource_path('js/invitation.js'));
+        // Pesan dari asal lain tidak boleh dipercaya.
+        $this->assertStringContainsString("ORIGINS.indexOf(e.origin) === -1", $js);
+        // playerState 1 = sedang berjalan; hanya itu yang membuka tirainya.
+        $this->assertStringContainsString('data.info.playerState === 1', $js);
+    }
+
+    /**
+     * Iframe baru tampil beberapa detik setelah pemutaran mulai, jadi selama jeda itu
+     * harus selalu ada foto — kalau tidak, yang terlihat kotak kosong.
+     */
+    public function test_youtube_without_a_poster_falls_back_to_the_video_thumbnail(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'video',
+                'bg_video' => 'https://youtu.be/dQw4w9WgXcQ', // tanpa bg_poster
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        // Dua lapis: maxres tidak ada untuk semua video dan gagalnya diam, mq selalu ada.
+        $response->assertSee("url('https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'),url('https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg')", false);
+    }
+
+    public function test_youtube_poster_prop_wins_over_the_thumbnail(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'video',
+                'bg_video' => 'https://youtu.be/dQw4w9WgXcQ', 'bg_poster' => 'templates/poster.jpg',
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee("background-image:url('/storage/templates/poster.jpg')", false);
+        $response->assertDontSee('i.ytimg.com', false);
     }
 
     /**

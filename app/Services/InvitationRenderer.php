@@ -81,14 +81,11 @@ class InvitationRenderer
     public function coverImage($sections): ?string
     {
         $props = $sections->firstWhere('section_type', 'cover')?->props ?? [];
-        $src = $props['background_image'] ?? null;
-        if (! $src) {
-            return null;
-        }
+        // Foto still cover (untuk preload dan OG image): foto tunggal, slide pertama, atau
+        // poster video. Sumbernya sama dengan yang digambar komponen cover.
+        $media = BackgroundMedia::resolve($props);
 
-        return \Illuminate\Support\Str::startsWith($src, ['http://', 'https://', '/'])
-            ? $src
-            : '/storage/'.ltrim($src, '/');
+        return $media['image'] ?: ($media['slides'][0] ?? null) ?: $media['poster'];
     }
 
     public function toArray(InvitationPage $page): array

@@ -397,15 +397,16 @@
                     <template x-if="field.type === 'video'">
                         <div class="space-y-2">
                             <video x-show="val(field)" controls :src="mediaUrl(val(field))" class="w-full rounded border border-[var(--ui-line-2)]"></video>
+                            @php($vuExt = array_keys(config('invitation.video_upload.formats')))
                             <label class="block text-center text-xs border border-[var(--ui-line-2)] rounded-lg px-2 py-1.5 cursor-pointer hover:border-[var(--ui-accent)]">
                                 Upload video
-                                <input type="file" accept="video/webm,.webm" class="hidden" @change="uploadToProp(field, $event)">
+                                <input type="file" accept="{{ collect($vuExt)->map(fn ($e) => '.'.$e)->implode(',') }}" class="hidden" @change="uploadToProp(field, $event)">
                             </label>
                             {{-- Batas sebenarnya ditegakkan server (InvitationAssetController);
                                  ini supaya pemakai tahu sebelum menunggu unggahan gagal. --}}
                             <p class="text-[11px] text-[var(--ui-text-4)] leading-snug">
-                                WEBM, maksimal {{ round(config('invitation.video_upload.max_kb') / 1024) }} MB.
-                                Konversi dan perkecil dulu sebelum mengunggah.
+                                {{ collect($vuExt)->map(fn ($e) => strtoupper($e))->implode('/') }}, maksimal {{ round(config('invitation.video_upload.max_kb') / 1024) }} MB.
+                                Perkecil dulu bila perlu sebelum mengunggah.
                             </p>
                             <input type="text" placeholder="atau path/URL manual (bisa tautan YouTube)…" :value="val(field) ?? ''"
                                 @change="setProp(field, $event.target.value || null)"

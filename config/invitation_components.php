@@ -39,12 +39,15 @@ $animationFields = [
 ];
 
 $components = [
+    // Latar cover memakai field media bersama (bg_media_type/bg_image/bg_images/bg_video)
+    // dan bg_overlay, sama seperti section lain. Field background_image/overlay_enabled
+    // khusus cover dihapus; datanya dipindah oleh migration 2026_07_21_000001.
+    // Perbedaannya diatur di bawah lewat $coverFieldOverrides: cover selalu menggambar
+    // medianya sendiri, jadi tidak punya pilihan "Latar Section" maupun efek latar.
     'cover' => [
         ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['fullscreen', 'split', 'minimal', 'arch'], 'default' => 'fullscreen'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul Kecil', 'group' => 'content', 'default' => 'The Wedding Of'],
-        ['key' => 'background_image', 'type' => 'image', 'label' => 'Foto Sampul', 'group' => 'content', 'default' => null],
         ['key' => 'button_text', 'type' => 'text', 'label' => 'Teks Tombol', 'group' => 'content', 'default' => 'Buka Undangan'],
-        ['key' => 'overlay_enabled', 'type' => 'boolean', 'label' => 'Overlay Gelap', 'group' => 'design', 'default' => true],
     ],
 
     'hero' => [
@@ -375,6 +378,27 @@ foreach ($components as $type => $fields) {
         $components[$type] = array_merge($components[$type], $treatmentFields);
     }
 }
+
+// Cover memakai field media yang sama, tapi dua hal tidak berlaku untuknya:
+// - "Latar Section": cover SELALU menggambar medianya sendiri (gate + layar sticky), tidak
+//   pernah memakai permukaan surface/contrast/dark. Karena pilihannya tidak ada, gerbang
+//   show_if yang menunjuk ke treatment juga harus dilepas — kalau tidak, seluruh field
+//   medianya tidak akan pernah muncul.
+// - Efek latar: pinned dan scroll-zoom dihitung dari posisi scroll section, sedangkan gate
+//   cover position:fixed dan layar stickynya tidak ikut scroll seperti section biasa.
+$components['cover'] = array_values(array_filter(
+    array_map(function (array $field) {
+        if (($field['show_if'] ?? null) === ['treatment', 'image']) {
+            unset($field['show_if']);
+        } elseif (is_array($field['show_if'][0] ?? null)) {
+            $rest = array_values(array_filter($field['show_if'], fn ($c) => $c !== ['treatment', 'image']));
+            $field['show_if'] = count($rest) === 1 ? $rest[0] : $rest;
+        }
+
+        return $field;
+    }, $components['cover']),
+    fn (array $field) => ! in_array($field['key'], ['treatment', 'bg_effect', 'bg_effect_strength'], true)
+));
 
 // Ornamen — hanya section "utama" (bukan blok generic text/image/spacer/divider/kontainer).
 $ornamentFields = [

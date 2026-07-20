@@ -81,15 +81,17 @@ class InvitationAssetController extends Controller
 
         // Video dipakai apa adanya — tidak ada transcode di server. Batas format dan
         // ukuran ditegakkan di sini, bukan cuma lewat atribut accept di form yang bisa
-        // dilewati siapa pun. Ekstensi DAN mime dicek: nama berkas bisa dikarang.
+        // dilewati siapa pun. Mime disniff dari isi berkas, jadi itu yang menentukan
+        // format; nama berkas tidak dipercaya sama sekali.
+        $videoExt = null;
         if ($fileType === 'video') {
             $rules = config('invitation.video_upload');
-            $ext = strtolower($file->getClientOriginalExtension());
             $maxKb = $rules['max_kb'];
 
-            if (!in_array($ext, $rules['extensions'], true) || !in_array($mimeType, $rules['mimes'], true)) {
+            $videoExt = array_search($mimeType, $rules['formats'], true);
+            if ($videoExt === false) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
-                    'file' => ['Video harus berformat '.strtoupper(implode('/', $rules['extensions']))
+                    'file' => ['Video harus berformat '.strtoupper(implode('/', array_keys($rules['formats'])))
                         .'. Konversi dulu sebelum mengunggah.'],
                 ]);
             }
@@ -134,8 +136,11 @@ class InvitationAssetController extends Controller
             $encodedImage = $image->toWebp(85)->toString();
             Storage::disk('public')->put($filePath, $encodedImage);
         } else {
-            // For non-images, store as-is
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            // For non-images, store as-is. Video: ekstensi diturunkan dari mime (di atas),
+            // jadi berkas mp4 yang dinamai .webm tetap tersimpan sebagai .mp4 — tidak
+            // pernah salah ekstensi. Audio/dokumen tetap memakai ekstensi aslinya.
+            $ext = $videoExt ?: $file->getClientOriginalExtension();
+            $fileName = time() . '_' . uniqid() . '.' . $ext;
             $filePath = $file->storeAs('invitations', $fileName, 'public');
             $dimensions = null;
         }

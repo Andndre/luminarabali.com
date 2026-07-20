@@ -25,13 +25,19 @@ return [
     | berkas dipakai apa adanya — pengunggah yang wajib mengecilkan lebih dulu.
     | Batasnya dipaksakan di server; atribut accept di form hanya kenyamanan.
     |
-    | Catatan kompatibilitas: webm tidak sepenuhnya aman di Safari/iOS lama.
-    | Menambahkan 'mp4' ke daftar di bawah cukup untuk melonggarkannya.
+    | mp4/H.264 jalan di semua HP; webm sering lebih kecil tapi bisa gagal di
+    | Safari/iOS lama — jadi keduanya diizinkan, pengunggah pilih yang cocok.
+    |
+    | Peta ekstensi => mime. Mime disniff dari ISI berkas (bukan nama), jadi itu yang
+    | menentukan format; ekstensi simpanan diturunkan dari mime, sehingga berkas mp4
+    | yang dinamai .webm tak bisa tersimpan dengan ekstensi yang salah.
     */
     'video_upload' => [
-        'extensions' => ['webm'],
-        'mimes' => ['video/webm'],
-        'max_kb' => 8192,
+        'formats' => [
+            'webm' => 'video/webm',
+            'mp4' => 'video/mp4',
+        ],
+        'max_kb' => 10240,
     ],
 
     /*

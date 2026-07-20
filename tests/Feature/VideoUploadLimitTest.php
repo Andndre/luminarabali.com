@@ -28,36 +28,40 @@ class VideoUploadLimitTest extends TestCase
         return $this->actingAs($admin)->postJson('/admin/api/assets/upload', ['file' => $file]);
     }
 
-    public function test_webm_within_the_size_limit_is_accepted(): void
+    public function test_webm_and_mp4_within_the_size_limit_are_accepted(): void
     {
         Storage::fake('public');
+        $admin = $this->superAdmin();
 
-        $response = $this->upload($this->superAdmin(), UploadedFile::fake()->create('loop.webm', 512, 'video/webm'));
+        $this->upload($admin, UploadedFile::fake()->create('loop.webm', 512, 'video/webm'))->assertOk();
+        $this->upload($admin, UploadedFile::fake()->create('loop.mp4', 512, 'video/mp4'))->assertOk();
 
-        $response->assertOk();
-        $this->assertSame('video', InvitationAsset::first()->file_type);
+        $this->assertSame(2, InvitationAsset::where('file_type', 'video')->count());
     }
 
     public function test_video_in_another_format_is_rejected(): void
     {
         Storage::fake('public');
 
-        $response = $this->upload($this->superAdmin(), UploadedFile::fake()->create('loop.mp4', 512, 'video/mp4'));
+        // MKV bukan bagian daftar; mime disniff dari isi, jadi ekstensi tak menolong.
+        $response = $this->upload($this->superAdmin(), UploadedFile::fake()->create('loop.mkv', 512, 'video/x-matroska'));
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('file');
         $this->assertSame(0, InvitationAsset::count());
     }
 
-    /** Nama berkas bisa dikarang, jadi mime harus ikut dicek — bukan ekstensinya saja. */
-    public function test_wrong_mime_behind_a_webm_extension_is_rejected(): void
+    /**
+     * Nama berkas tidak dipercaya: berkas mp4 yang dinamai .webm tetap diterima (mime-nya
+     * sah), tapi harus TERSIMPAN sebagai .mp4 — ekstensi dari mime, bukan dari nama.
+     */
+    public function test_mislabeled_video_is_stored_with_the_extension_from_its_mime(): void
     {
         Storage::fake('public');
 
-        $response = $this->upload($this->superAdmin(), UploadedFile::fake()->create('fake.webm', 512, 'video/mp4'));
+        $this->upload($this->superAdmin(), UploadedFile::fake()->create('fake.webm', 512, 'video/mp4'))->assertOk();
 
-        $response->assertStatus(422);
-        $this->assertSame(0, InvitationAsset::count());
+        $this->assertStringEndsWith('.mp4', InvitationAsset::first()->file_path);
     }
 
     public function test_video_over_the_size_limit_is_rejected(): void

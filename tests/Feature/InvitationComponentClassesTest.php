@@ -43,6 +43,17 @@ class InvitationComponentClassesTest extends TestCase
 
         foreach (array_merge($classes['feature'], $classes['container']) as $type) {
             $keys = collect(config("invitation_components.{$type}"))->pluck('key');
+
+            // Cover menggambar medianya sendiri (gate + layar sticky), jadi tidak punya
+            // pilihan "Latar Section" — tapi tetap dapat field media (bg_image dkk).
+            if ($type === 'cover') {
+                $this->assertFalse($keys->contains('treatment'),
+                    "Cover tidak memakai treatment surface/contrast/dark.");
+                $this->assertTrue($keys->contains('bg_image'),
+                    "Cover tetap punya field media latar.");
+                continue;
+            }
+
             $this->assertTrue($keys->contains('treatment'),
                 "Section '{$type}' seharusnya punya field treatment.");
         }

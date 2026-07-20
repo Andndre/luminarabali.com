@@ -78,49 +78,16 @@
     // dikecualikan dari treatment/bg_effect sepenuhnya.
     $ownsVisual = $section->section_type === 'cover';
 
-    $bgImage = $ownsVisual ? null : $resolveOrnament($props['bg_image'] ?? null); // reuse resolver path
-
-    // Latar boleh foto tunggal, slideshow, atau video — masing-masing punya kolomnya
-    // sendiri. bg_poster jatuh ke bg_image supaya section yang sudah menaruh posternya
-    // di sana sebelum kolom ini ada tetap tampil seperti semula.
-    $mediaType = in_array($props['bg_media_type'] ?? null, ['image', 'slideshow', 'video'], true)
-        ? $props['bg_media_type'] : 'image';
-    $bgPoster = $ownsVisual ? null : ($resolveOrnament($props['bg_poster'] ?? null) ?: $bgImage);
-    $bgSlides = [];
-    $bgVideo = null;
-    $bgYoutube = null;
-    if (! $ownsVisual && $mediaType === 'slideshow') {
-        foreach (is_array($props['bg_images'] ?? null) ? $props['bg_images'] : [] as $item) {
-            $src = $resolveOrnament(is_array($item) ? ($item['url'] ?? null) : $item);
-            if ($src) $bgSlides[] = $src;
-        }
-        // Satu foto bukan slideshow; jadikan foto tunggal supaya tidak ada animasi sia-sia.
-        if (count($bgSlides) === 1) {
-            $bgImage = $bgImage ?: $bgSlides[0];
-            $bgSlides = [];
-            $mediaType = 'image';
-        }
-    } elseif (! $ownsVisual && $mediaType === 'video') {
-        // Satu kolom, dua sumber. Tautan YouTube dikenali dari isinya — dan harus dicek
-        // lebih dulu: URL apa pun lolos $resolveOrnament apa adanya, jadi tanpa cek ini
-        // tautan YouTube akan berakhir sebagai src <video> yang tidak bisa diputar.
-        // Hanya ID-nya yang dipakai; sisa URL milik pengguna tak pernah ikut ke src.
-        $bgYoutube = \App\Services\InvitationRenderer::youtubeId($props['bg_video'] ?? null);
-        if (! $bgYoutube) {
-            // Selain YouTube, hanya berkas video yang diterima. Tautan halaman (Vimeo dan
-            // sejenisnya) bukan berkas: kalau diteruskan ke <video> ia gagal tanpa pesan,
-            // jadi lebih baik jatuh ke foto yang memang terlihat.
-            $candidate = $resolveOrnament($props['bg_video'] ?? null);
-            $ext = $candidate ? strtolower(pathinfo(parse_url($candidate, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION)) : '';
-            $bgVideo = in_array($ext, ['mp4', 'webm', 'ogv', 'ogg', 'mov', 'm4v'], true) ? $candidate : null;
-        }
-        if (! $bgVideo && ! $bgYoutube) {
-            // Video belum diisi → posternya yang jadi foto latar biasa.
-            $bgImage = $bgPoster;
-            $mediaType = 'image';
-        }
-    }
-    $hasBgMedia = (bool) ($bgImage || $bgSlides || $bgVideo || $bgYoutube);
+    // Pilihan medianya milik BackgroundMedia — komponen cover memakai keputusan yang sama
+    // dengan markup yang berbeda, jadi logikanya tidak boleh hidup di salah satu view.
+    $media = $ownsVisual ? null : \App\Services\BackgroundMedia::resolve($props);
+    $bgImage = $media['image'] ?? null;
+    $bgPoster = $media['poster'] ?? null;
+    $bgSlides = $media['slides'] ?? [];
+    $bgVideo = $media['video'] ?? null;
+    $bgYoutube = $media['youtube'] ?? null;
+    $mediaType = $media['type'] ?? 'image';
+    $hasBgMedia = (bool) ($media['has'] ?? false);
 
     $treatment = $ownsVisual ? 'surface' : ($props['treatment'] ?? 'surface');
     // image tanpa media = teks terang di atas latar terang (tak terbaca) → jatuhkan ke surface.
@@ -133,20 +100,8 @@
     // tinggi section — lihat .sec-treat--pinned .sec-bg-ytwrap di invitation.css.
     $bgEffect = $ownsVisual || $treatment !== 'image' ? 'none' : ($props['bg_effect'] ?? 'none');
     $bgStrength = max(100, min(200, (int) ($props['bg_effect_strength'] ?? 130)));
-    $slideSeconds = max(2, min(30, (int) ($props['bg_slide_seconds'] ?? 5)));
-
-    // Keyframe crossfade dihitung di sini, bukan di badan view. Blade menyimpan blok PHP
-    // dengan regex non-greedy, jadi blok kedua di berkas ini akan menelan bentuk sebaris
-    // yang dipakai di bawah (Log::warning dan $resolveOrnament) menjadi satu blok mentah.
-    $slideKeyframes = '';
-    if ($bgSlides) {
-        $fade = 6; // persen siklus untuk satu transisi
-        $hold = 100 / count($bgSlides);
-        $pct = fn (float $v) => rtrim(rtrim(number_format($v, 2, '.', ''), '0'), '.');
-        $slideKeyframes = '@keyframes sec-bgslide-'.count($bgSlides)
-            .'{0%{opacity:0}'.$pct($fade).'%{opacity:1}'.$pct($hold).'%{opacity:1}'
-            .$pct($hold + $fade).'%{opacity:0}100%{opacity:0}}';
-    }
+    $slideSeconds = $media['slideSeconds'] ?? 5;
+    $slideKeyframes = $media['keyframes'] ?? '';
     $hasTreatment = $treatment !== 'surface' || $hasBgMedia;
 
     $needsShell = $hasOrnaments || $animation !== 'none' || $customCss !== '' || $hasTreatment;
@@ -179,7 +134,12 @@
             <div class="sec-bg{{ $bgSlides ? ' sec-bg--slideshow' : '' }}{{ $bgYoutube ? ' sec-bg--youtube' : '' }}" aria-hidden="true"
                 @if ($bgEffect !== 'none') data-effect="{{ $bgEffect }}" data-strength="{{ $bgStrength }}" @endif
                 @if ($bgSlides) style="background-image:url('{{ $bgSlides[0] }}');--slide-dur:{{ $slideSeconds }}s;--slide-n:{{ count($bgSlides) }};--slide-fade:sec-bgslide-{{ count($bgSlides) }}"
-                @elseif ($bgYoutube && $bgPoster) style="background-image:url('{{ $bgPoster }}')" @endif>
+                {{-- Latar YouTube selalu punya foto di depannya: iframe baru ditampilkan
+                     beberapa detik setelah pemutaran mulai, dan tanpa foto jeda itu jadi
+                     kotak kosong. Kalau poster belum diisi, pakai thumbnail video itu
+                     sendiri — dua lapis, karena maxres tidak tersedia untuk semua video
+                     dan kegagalannya diam; lapis di bawahnya selalu ada. --}}
+                @elseif ($bgYoutube) style="background-image:@if ($bgPoster)url('{{ $bgPoster }}')@else {!! \App\Services\BackgroundMedia::youtubePosterCss($bgYoutube, null) !!}@endif" @endif>
                 @if ($bgYoutube)
                     {{-- Pembungkus yang diukur dan diberi efek; iframe di dalamnya cuma
                          mengisi. Dipisah karena keduanya butuh slot animation sendiri —
@@ -192,7 +152,7 @@
                          membuka undangan. loop butuh playlist berisi ID yang sama. --}}
                     <div class="sec-bg-ytwrap">
                         <iframe class="sec-bg-yt" title="" tabindex="-1" frameborder="0" allow="autoplay"
-                            src="https://www.youtube-nocookie.com/embed/{{ $bgYoutube }}?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist={{ $bgYoutube }}&amp;controls=0&amp;disablekb=1&amp;fs=0&amp;modestbranding=1&amp;rel=0&amp;iv_load_policy=3&amp;playsinline=1"></iframe>
+                            src="https://www.youtube-nocookie.com/embed/{{ $bgYoutube }}?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist={{ $bgYoutube }}&amp;controls=0&amp;disablekb=1&amp;fs=0&amp;modestbranding=1&amp;rel=0&amp;iv_load_policy=3&amp;playsinline=1&amp;enablejsapi=1"></iframe>
                     </div>
                 @elseif ($bgVideo)
                     {{-- muted+playsinline wajib supaya autoplay tidak diblokir browser mobile.

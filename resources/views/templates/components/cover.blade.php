@@ -6,11 +6,22 @@ $groomName = $page->groom_name ?? 'Groom';
 $brideName = $page->bride_name ?? 'Bride';
 $eventDate = $page->event_date ?? null;
 $buttonText = $props['button_text'] ?? 'Buka Undangan';
-$overlayEnabled = filter_var($props['overlay_enabled'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
-$bgValue = $props['background_image'] ?? null;
-$bgUrl = $bgValue
-    ? (\Illuminate\Support\Str::startsWith($bgValue, ['http://', 'https://', '/']) ? $bgValue : \Illuminate\Support\Facades\Storage::url($bgValue))
-    : null;
+// Media latar memakai keputusan yang sama dengan section lain (BackgroundMedia), hanya
+// markupnya yang beda: cover punya gate position:fixed, layar sticky, lapisan blur, dan
+// jendela arch — semuanya di luar sistem treatment.
+$media = \App\Services\BackgroundMedia::resolve($props);
+$bgOverlay = max(0, min(100, (int) ($props['bg_overlay'] ?? 45)));
+// Scrim cover memakai gradien tetap (0.22..0.66); opasitasnya diskalakan bg_overlay
+// dengan 45 (bawaan) = 1.0, jadi nilai bawaan tampil persis seperti sebelum overlay
+// bisa diatur. Di atas 45 memang tak bertambah gelap — gradiennya sudah penuh.
+$scrimOpacity = rtrim(rtrim(number_format(min(1, $bgOverlay / 45), 2, '.', ''), '0'), '.');
+
+// Lapisan blur dan jendela arch sengaja memakai SATU foto diam, bukan ikut slideshow atau
+// video: keduanya hanya dekorasi di belakang/di dalam panel, dan menggandakan pemutaran
+// video di sana memakan baterai tanpa terlihat jelas.
+$stillUrl = $media['image']
+    ?: ($media['slides'][0] ?? null)
+    ?: $media['poster'];
 $targetName = request()->query('to');
 $dateText = $eventDate ? \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($eventDate)->translatedFormat('d F Y')) : null;
 $sid = $section->id ?? 'default';
@@ -23,9 +34,10 @@ $variant = in_array($props['variant'] ?? null, ['fullscreen', 'split', 'minimal'
      .invite-gate-blur), jadi kelas ini bisa dipakai ulang di window arch tanpa ikut gelap. */
   .cover-photo-{{ $sid }} {
     background-color: var(--color-ink, #20302a);
-    @if($bgUrl) background-image: url('{{ $bgUrl }}'); @endif
+    @if($stillUrl) background-image: url('{{ $stillUrl }}'); @endif
     background-size: cover; background-position: center;
   }
+  @if($media['keyframes']) {!! $media['keyframes'] !!} @endif
 </style>
 
 {{-- 1. Gate full-viewport (sebelum dibuka) --}}
@@ -34,9 +46,9 @@ $variant = in_array($props['variant'] ?? null, ['fullscreen', 'split', 'minimal'
      x-transition:leave-start="opacity-100"
      x-transition:leave-end="opacity-0 -translate-y-6"
      class="invite-gate cover--{{ $variant }}">
-  <div class="invite-gate-bg cover-photo-{{ $sid }}" aria-hidden="true"></div>
+  @include('templates._cover-media', ['media' => $media, 'sid' => $sid])
   <div class="invite-gate-blur cover-photo-{{ $sid }}" aria-hidden="true"></div>
-  @if($overlayEnabled)<div class="invite-gate-scrim" aria-hidden="true"></div>@endif
+  @if($bgOverlay > 0)<div class="invite-gate-scrim" style="opacity:{{ $scrimOpacity }}" aria-hidden="true"></div>@endif
   <div class="cover-panel invite-gate-content">
     <div class="invite-gate-window cover-photo-{{ $sid }}" aria-hidden="true">
       <span class="invite-gate-window-cap">{{ $title }}</span>
@@ -62,9 +74,9 @@ $variant = in_array($props['variant'] ?? null, ['fullscreen', 'split', 'minimal'
 
 {{-- 2. Layar sticky di dalam card (tertutup konten saat scroll) --}}
 <div class="invite-cover-sticky cover--{{ $variant }}">
-  <div class="invite-gate-bg cover-photo-{{ $sid }}" aria-hidden="true"></div>
+  @include('templates._cover-media', ['media' => $media, 'sid' => $sid])
   <div class="invite-gate-blur cover-photo-{{ $sid }}" aria-hidden="true"></div>
-  @if($overlayEnabled)<div class="invite-gate-scrim" aria-hidden="true"></div>@endif
+  @if($bgOverlay > 0)<div class="invite-gate-scrim" style="opacity:{{ $scrimOpacity }}" aria-hidden="true"></div>@endif
   <div class="cover-panel invite-cover-sticky-content">
     <div class="invite-gate-window cover-photo-{{ $sid }}" aria-hidden="true">
       <span class="invite-gate-window-cap">{{ $title }}</span>

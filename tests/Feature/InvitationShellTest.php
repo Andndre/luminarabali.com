@@ -49,11 +49,19 @@ class InvitationShellTest extends TestCase
     public function test_cover_image_resolves_storage_path(): void
     {
         $renderer = new \App\Services\InvitationRenderer();
+        // Cover kini memakai bg_image (field media bersama), bukan background_image.
         $sections = collect([new \App\Models\InvitationSection([
-            'section_type' => 'cover', 'props' => ['background_image' => 'invitations/x.webp'],
+            'section_type' => 'cover', 'props' => ['bg_image' => 'invitations/x.webp'],
         ])]);
         $this->assertSame('/storage/invitations/x.webp', $renderer->coverImage($sections));
         $this->assertNull($renderer->coverImage(collect()));
+
+        // Tanpa foto tunggal, still-nya jatuh ke slide pertama slideshow.
+        $slideshow = collect([new \App\Models\InvitationSection([
+            'section_type' => 'cover',
+            'props' => ['bg_media_type' => 'slideshow', 'bg_images' => [['url' => '/storage/a.webp'], ['url' => '/storage/b.webp']]],
+        ])]);
+        $this->assertSame('/storage/a.webp', $renderer->coverImage($slideshow));
     }
 
     public function test_cover_renders_gate_and_sticky_screen(): void
@@ -80,6 +88,41 @@ class InvitationShellTest extends TestCase
         $this->assertStringContainsString('invite-gate', $html);
         $this->assertStringContainsString('invite-cover-sticky', $html);
         $this->assertStringNotContainsString('cover-active', $html);
+    }
+
+    public function test_cover_renders_slideshow_and_video_backgrounds(): void
+    {
+        $user = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'T', 'slug' => 't-'.uniqid(), 'status' => 'published', 'created_by' => $user->id,
+        ]);
+        $page = InvitationPage::create([
+            'title' => 'P', 'slug' => 'p-'.uniqid(), 'published_status' => 'published',
+            'template_id' => $template->id, 'created_by' => $user->id,
+            'groom_name' => 'Romeo', 'bride_name' => 'Juliet', 'event_date' => now()->addMonth(),
+        ]);
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'cover', 'order_index' => 0, 'is_visible' => true,
+            'props' => [
+                'bg_media_type' => 'slideshow',
+                'bg_images' => [['url' => '/storage/a.webp'], ['url' => '/storage/b.webp'], ['url' => '/storage/c.webp']],
+            ],
+        ]);
+
+        $html = $this->get('/invitation/'.$page->slug)->getContent();
+
+        // Gate DAN layar sticky masing-masing punya lapisan slide-nya sendiri: 3 slide × 2.
+        $this->assertSame(6, substr_count($html, 'sec-bg-img sec-bg-slide'));
+        $this->assertStringContainsString('@keyframes sec-bgslide-3', $html);
+
+        // Ganti ke video YouTube pada section yang sama.
+        $page->sections()->where('section_type', 'cover')->update(['props' => json_encode([
+            'bg_media_type' => 'video', 'bg_video' => 'https://youtu.be/dQw4w9WgXcQ',
+        ])]);
+
+        $html = $this->get('/invitation/'.$page->slug)->getContent();
+        $this->assertStringContainsString('youtube-nocookie.com/embed/dQw4w9WgXcQ', $html);
+        $this->assertStringContainsString('i.ytimg.com/vi/dQw4w9WgXcQ', $html); // poster thumbnail
     }
 
     public function test_page_without_cover_renders_card_without_gate(): void

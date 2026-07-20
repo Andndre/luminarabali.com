@@ -27,10 +27,9 @@ class FlagshipTemplateSeeder extends Seeder
         ], [
             ['section_type' => 'cover', 'props' => [
                 'title' => 'The Wedding Of', 'button_text' => 'Buka Undangan',
-                'overlay_enabled' => true,
-                // Cover memakai visual sendiri (gate + sticky reveal), bukan treatment
-                // shell — fotonya lewat background_image, bukan bg_image.
-                'background_image' => 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2000&auto=format&fit=crop',
+                // Cover menggambar visual sendiri (gate + sticky reveal), tapi memakai field
+                // media bersama: bg_image untuk foto, bg_media_type untuk slideshow/video.
+                'bg_image' => 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2000&auto=format&fit=crop',
             ]],
             ['section_type' => 'hero', 'props' => [
                 // Hero memakai sistem treatment: fotonya bg_image, gelapnya bg_overlay.
@@ -80,7 +79,6 @@ class FlagshipTemplateSeeder extends Seeder
         ], [
             ['section_type' => 'cover', 'props' => [
                 'title' => 'Undangan Pernikahan', 'button_text' => 'Buka Undangan',
-                'overlay_enabled' => true,
             ]],
             ['section_type' => 'hero', 'props' => [
                 'title' => 'Undangan Pernikahan', 'bg_overlay' => 35,
@@ -125,10 +123,7 @@ class FlagshipTemplateSeeder extends Seeder
         ], [
             ['section_type' => 'cover', 'props' => [
                 'title' => 'The Wedding Of', 'button_text' => 'Buka Undangan',
-                'overlay_enabled' => true,
-                'treatment' => 'image',
                 'bg_image' => 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=2000&auto=format&fit=crop',
-                'bg_effect' => 'scroll-zoom-in',
             ]],
             ['section_type' => 'hero', 'props' => [
                 'variant' => 'split',

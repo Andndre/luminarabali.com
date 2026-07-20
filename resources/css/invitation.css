@@ -71,6 +71,13 @@
 /* Lapisan latar terpisah: foto tajam (bg), foto blur (arch), dan scrim gelap. */
 .invite-gate-bg, .invite-gate-blur, .invite-gate-scrim { position: absolute; inset: 0; z-index: 0; }
 .invite-gate-blur { display: none; }
+/* Media latar cover memakai kelas yang sama dengan .sec-bg (slide, video, iframe YouTube),
+   tapi pembungkusnya .invite-gate-bg, bukan .sec-bg — jadi container-query dan clip-nya
+   diberikan di sini. Slide dan video mengisi penuh; iframe YouTube diukur dari tinggi
+   pembungkus, sama seperti di section biasa. */
+.invite-gate-bg { overflow: clip; }
+.invite-gate-bg.sec-bg--youtube { container-type: size; }
+.invite-gate-bg.cover-media-slides { background-size: cover; background-position: center; }
 .invite-gate-scrim { background: linear-gradient(to bottom, rgba(0,0,0,.22) 0%, rgba(0,0,0,.42) 45%, rgba(0,0,0,.66) 100%); }
 
 .cover-panel {
@@ -220,13 +227,14 @@
 }
 .sec-bg-yt {
   position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
-  /* Detik-detik pertama justru saat judul dan logo paling mungkin muncul. Tahan dulu di
-     balik foto poster, baru muncul setelah pemutaran mapan. Slot animation di sini
-     dipakai penuh oleh tunda-tampil; efek latar dipasang di pembungkusnya. */
+  /* Sebelum pemutaran mulai, YouTube menampilkan tombol play besar di tengah dan
+     judulnya di atas — tak ada parameter yang mematikannya. Jadi iframe ditahan di
+     balik foto poster sampai pemutarnya melapor benar-benar sedang berjalan; kelas
+     is-playing dipasang invitation.js dari status pemutar, bukan dari hitungan waktu. */
   opacity: 0;
-  animation: sec-yt-in .7s ease 2s forwards;
+  transition: opacity .7s ease;
 }
-@keyframes sec-yt-in { to { opacity: 1; } }
+.sec-bg-yt.is-playing { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   /* Iframe pihak ketiga tak bisa dijeda tanpa API-nya. Yang tersisa: sembunyikan, dan
      biarkan foto poster di latar .sec-bg--youtube yang terlihat. */

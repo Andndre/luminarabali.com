@@ -63,7 +63,7 @@ class WahDemoSeeder extends Seeder
         $gold = '#c9a24b';
 
         // Foto Unsplash (http; cover memakai asset lokal yang sudah ada).
-        $coverImage = $page->sections()->where('section_type', 'cover')->value('props')['background_image']
+        $coverImage = $page->sections()->where('section_type', 'cover')->value('props')['bg_image']
             ?? 'invitations/1783028804_6a46dc44d25ae.webp';
         $heroImage = 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2000&auto=format&fit=crop';
         $groomPhoto = 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop';
@@ -86,9 +86,8 @@ class WahDemoSeeder extends Seeder
         $sections = [
             ['cover', [
                 'title' => 'The Wedding Of',
-                'background_image' => $coverImage,
+                'bg_image' => $coverImage,
                 'button_text' => 'Buka Undangan',
-                'overlay_enabled' => true,
             ]],
             ['hero', [
                 // Hero memakai sistem treatment: fotonya bg_image, gelapnya bg_overlay.

@@ -3,6 +3,65 @@ import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 Alpine.start();
 
+// Latar YouTube: tampilkan iframe hanya setelah pemutarnya melapor sedang berjalan.
+// Sebelum itu yang terlihat tombol play besar dan judul video — chrome yang tak bisa
+// dimatikan lewat parameter. Statusnya didengar lewat postMessage ke iframe
+// (enablejsapi=1), bukan dengan memuat skrip API YouTube: tidak ada berkas pihak ketiga
+// tambahan, dan tidak ada tebakan berbasis lamanya waktu.
+(function () {
+    var ORIGINS = ['https://www.youtube-nocookie.com', 'https://www.youtube.com'];
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function frames() { return document.querySelectorAll('iframe.sec-bg-yt'); }
+
+    function post(frame, msg) {
+        try { frame.contentWindow.postMessage(JSON.stringify(msg), '*'); } catch (e) { /* belum siap */ }
+    }
+
+    function handshake() {
+        frames().forEach(function (f) {
+            post(f, { event: 'listening', id: 1, channel: 'widget' });
+            // Hemat CPU dan data: yang minta gerakan dikurangi tidak melihatnya sama
+            // sekali (CSS menyembunyikannya), jadi jangan biarkan tetap diputar.
+            if (reduce) post(f, { event: 'command', func: 'pauseVideo', args: [] });
+        });
+    }
+
+    window.addEventListener('message', function (e) {
+        if (ORIGINS.indexOf(e.origin) === -1) return;
+        var data;
+        try { data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (err) { return; }
+        if (!data || !data.info) return;
+
+        frames().forEach(function (f) {
+            if (f.contentWindow !== e.source) return;
+            f.dataset.ytAlive = '1';
+            // playerState 1 = sedang berjalan. Saat itu YouTube masih memajang kelompok
+            // tombol di tengah — UI mode sentuh yang TIDAK dihormati controls=0 dan tidak
+            // bisa dipotong zoom karena letaknya persis di tengah. Ia menghilang sendiri
+            // sekitar 3 detik kemudian (diukur: masih ada di 3,6 detik sejak muat, bersih
+            // di 4,8), jadi tirainya baru dibuka setelah itu. Yang terlihat selama jeda
+            // ini foto poster; latar YouTube selalu punya satu (lihat _section-shell).
+            if (data.info.playerState === 1 && !f.dataset.ytReveal) {
+                f.dataset.ytReveal = '1';
+                setTimeout(function () { f.classList.add('is-playing'); }, 4000);
+            }
+        });
+    });
+
+    // Iframe baru menerima pesan setelah dokumennya termuat, dan Studio menukar section
+    // kapan saja — jadi salamnya diulang beberapa kali, bukan sekali di awal.
+    var tries = 0;
+    var timer = setInterval(function () { handshake(); if (++tries > 10) clearInterval(timer); }, 500);
+    handshake();
+
+    // Kalau saluran pesannya mati (diblokir ekstensi, versi browser aneh), statusnya tak
+    // akan pernah sampai. Diam selamanya lebih buruk daripada chrome yang sekilas.
+    setTimeout(function () {
+        frames().forEach(function (f) { if (!f.dataset.ytAlive) f.classList.add('is-playing'); });
+    }, 8000);
+})();
+
 // Video latar itu gerak terus-menerus. CSS tidak bisa menghentikannya, jadi di sini:
 // yang minta gerakan dikurangi dapat frame pertama saja (poster tetap terlihat).
 (function () {
