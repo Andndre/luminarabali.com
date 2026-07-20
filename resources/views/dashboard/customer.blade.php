@@ -32,11 +32,11 @@
             <div class="dash-rows">
                 @foreach ($recentOrders as $order)
                     <a href="{{ route('orders.show', $order) }}" class="dash-row">
-                        <div>
+                        <div class="dash-row__main">
                             <div class="dash-row__name">{{ $order->template?->name ?? 'Desain' }}</div>
                             <div class="dash-row__meta">{{ $order->order_number }}</div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 1rem">
+                        <div class="dash-row__side">
                             <x-dash.status-pill :status="$order->status" :label="$order->statusLabel()" />
                             <span class="dash-row__price">{{ $order->priceLabel() }}</span>
                         </div>

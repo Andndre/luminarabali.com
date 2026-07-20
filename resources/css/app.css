@@ -587,15 +587,24 @@
 
 /* Baris daftar pesanan. */
 .dash-rows { display: flex; flex-direction: column; gap: .6rem; }
+/* flex-wrap wajib: di layar sempit nama panjang + pill + harga tak muat satu
+   baris, dan tanpa wrap sisi kanan mendorong keluar viewport (harga terpotong).
+   Dibiarkan membungkus ke baris kedua alih-alih meluber. */
 .dash-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: .5rem 1rem;
     background: var(--dash-surface); border: 1px solid var(--dash-hair);
     border-radius: var(--dash-radius); padding: .9rem 1rem;
     transition: border-color .2s ease, transform .2s ease;
 }
 .dash-row:hover { border-color: var(--dash-gold); transform: translateY(-1px); }
+/* min-width:0 supaya teks panjang (nomor order) boleh menyusut, bukan memaksa
+   lebar baris melewati wadahnya. */
+.dash-row__main { min-width: 0; flex: 1 1 12rem; }
+/* Sisi kanan tetap rapat ke kanan saat muat, turun utuh saat tidak. */
+.dash-row__side { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
 .dash-row__name { font-weight: 600; }
-.dash-row__meta { color: var(--dash-muted); font-size: .78rem; margin-top: .15rem; }
+.dash-row__meta { color: var(--dash-muted); font-size: .78rem; margin-top: .15rem; overflow-wrap: anywhere; }
 .dash-row__price { font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .dash-empty {
