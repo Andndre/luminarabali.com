@@ -14,13 +14,15 @@
         const span = card ? card.scrollHeight - card.clientHeight : 0;
         if (span < 80) { iframe.classList.add('is-autoscroll'); return; }
 
-        // JANGAN gulir sampai habis — dulu ini menyeret preview sampai form
-        // RSVP. Batasi ke sepertiga awal undangan, dan tak lebih dari ~1,2
-        // layar, supaya yang terlihat tetap cover dan section persis di
-        // bawahnya. Selalu MULAI dari 0 (cover) lalu bolak-balik.
-        const reach = Math.min(span * 0.3, card.clientHeight * 1.2);
+        // Gulir sampai akhir undangan, lalu balik arah. Selalu MULAI dari 0
+        // (cover) supaya kesan pertama tetap sampul.
+        const reach = span;
 
-        const leg = 30000; // ms untuk sekali jalan, lalu balik arah — pelan
+        // Kecepatan konstan (px/detik), bukan durasi tetap: undangan panjang
+        // dan pendek jadi terasa sama lajunya. Dikunci minimal 8 detik supaya
+        // undangan pendek tak berkedip.
+        const SPEED = 110;
+        const leg = Math.max(8000, (reach / SPEED) * 1000);
         const t0 = performance.now();
         card.scrollTop = 0;
         const tick = (now) => {

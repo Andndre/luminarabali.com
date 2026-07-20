@@ -144,7 +144,7 @@
 /* Pengapit BUKAN ponsel: cukup kartu ber-radius + bayangan lembut, diputar
    ringan. Bezel ponsel hanya milik device tengah. */
 .catalog-fan__flank .catalog-liveframe__device {
-    border-radius: 1rem; aspect-ratio: 9 / 17;
+    --lf-radius: 1rem; aspect-ratio: 9 / 17;
     box-shadow: 0 18px 34px -18px rgba(26, 20, 18, .45), 0 0 0 1px rgba(26, 20, 18, .06);
 }
 @media (min-width: 900px) {
@@ -194,7 +194,8 @@
         0 0 0 1px rgba(255, 255, 255, .09) inset;
 }
 .catalog-device .catalog-liveframe__device {
-    border-radius: calc(var(--frame-radius) - var(--bezel));
+    /* radius dalam = radius luar − tebal bezel, jadi sudutnya konsentris */
+    --lf-radius: calc(var(--frame-radius) - var(--bezel));
     aspect-ratio: 9 / 19.5;   /* proporsi ponsel modern */
     box-shadow: none;         /* bayangan sudah dipegang bingkainya */
 }
@@ -353,8 +354,20 @@
    viewport hasil hitungan harus tetap di bawah itu supaya preview terbaca
    sebagai ponsel, bukan halaman desktop. */
 .catalog-liveframe { --lf-zoom: .5; }
+/* `overflow: hidden` TIDAK memotong anak yang di-transform mengikuti sudut
+   membulat — iframe di dalam sini di-scale, jadi sudutnya tetap siku dan
+   menyembul di keempat pojok bingkai. `clip-path` memotong descendant
+   ter-transform dengan benar, jadi radius dipegang satu variabel supaya
+   border-radius dan clip-path mustahil beda. */
 .catalog-liveframe__device {
-    position: relative; overflow: hidden; border-radius: 1.75rem;
+    --lf-radius: 1.75rem;
+    position: relative; overflow: hidden;
+    border-radius: var(--lf-radius);
+    clip-path: inset(0 round var(--lf-radius));
+    /* iframe adalah layer komposit tersendiri; tanpa memaksa elemen ini jadi
+       layer juga, klip membulatnya diabaikan dan isi undangan (embed video,
+       tombol melayang) menembus pojok. */
+    transform: translateZ(0);
     aspect-ratio: 9 / 16; width: 100%; background: #efe9df;
     box-shadow: 0 30px 60px -20px rgba(26, 20, 18, .45);
 }
@@ -368,6 +381,12 @@
     width: calc(100% / var(--lf-zoom)); height: calc(100% / var(--lf-zoom));
     transform: scale(var(--lf-zoom)); transform-origin: top left;
     border: 0; pointer-events: none;        /* preview, bukan interaktif */
+    /* Firefox TIDAK mengklip iframe mengikuti radius leluhurnya — overflow
+       maupun clip-path induk diabaikan, jadi sudut isi undangan menembus
+       pojok bingkai (Chrome menghormatinya, makanya bug ini hanya tampak di
+       Firefox). Radius harus ada di iframe itu sendiri, dibagi zoom karena
+       kotak ini di-scale: setelah diperkecil, radiusnya kembali pas. */
+    border-radius: calc(var(--lf-radius) / var(--lf-zoom));
 }
 
 /* Mode cover-only (kartu katalog): frame mengisi wadahnya, iframe terkunci di
@@ -377,7 +396,7 @@
 .catalog-liveframe--cover { --lf-zoom: .62; position: absolute; inset: 0; }
 .catalog-liveframe--cover .catalog-liveframe__device {
     position: absolute; inset: 0; width: 100%; height: 100%;
-    aspect-ratio: auto; border-radius: 0; box-shadow: none; background: transparent;
+    aspect-ratio: auto; --lf-radius: 0; box-shadow: none; background: transparent;
 }
 /* Placeholder teks disembunyikan: di kartu, backdrop nama template yang jadi
    fallback bila tak ada thumbnail (lihat _partials/card.blade.php). */
@@ -385,12 +404,11 @@
 
 /* kelas is-autoscroll hanya dipasang script bila prefers-reduced-motion tidak
    aktif DAN isi iframe tak bisa digulir langsung (fallback cross-origin).
-   Jangkauannya sengaja pendek — mulai dari cover, turun sedikit, lalu balik
-   (alternate) — supaya tak pernah menyeret sampai form RSVP. */
+   Mulai dari cover, turun sampai ujung bawah, lalu balik (alternate). */
 .catalog-liveframe__iframe.is-autoscroll {
-    animation: catalog-scroll 42s ease-in-out infinite alternate;
+    animation: catalog-scroll 48s ease-in-out infinite alternate;
 }
-@keyframes catalog-scroll { from { top: 0; } to { top: -22%; } }
+@keyframes catalog-scroll { from { top: 0; } to { top: -72%; } }
 @media (prefers-reduced-motion: reduce) {
     .catalog-liveframe__iframe.is-autoscroll { animation: none; }
 }
