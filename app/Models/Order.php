@@ -9,7 +9,7 @@ class Order extends Model
 {
     protected $fillable = [
         'order_number', 'user_id', 'invitation_template_id', 'price', 'status',
-        'payment_method', 'payment_proof_path', 'paid_at', 'confirmed_by', 'created_by', 'notes',
+        'payment_method', 'payment_proof_path', 'paid_at', 'confirmed_by', 'invitation_page_id', 'created_by', 'notes',
     ];
 
     protected function casts(): array
@@ -69,5 +69,10 @@ class Order extends Model
     public function confirmedBy()
     {
         return $this->belongsTo(User::class, 'confirmed_by');
+    }
+
+    public function invitationPage()
+    {
+        return $this->belongsTo(InvitationPage::class);
     }
 }
