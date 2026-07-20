@@ -133,7 +133,7 @@ class InvitationComponentHardeningTest extends TestCase
         $response = $this->get("/invitation/{$page->slug}");
 
         $response->assertOk();
-        $response->assertSee(".cover-visual-{$section->id} {", false);
+        $response->assertSee(".cover-photo-{$section->id} {", false);
         $response->assertSee('background-color: var(--color-ink, #20302a);', false);
     }
 
@@ -361,8 +361,11 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertOk();
         $response->assertDontSee('#123456', false);
         $response->assertDontSee('#654321', false);
-        $response->assertSee('background: var(--color-accent, #b5654d);', false);
-        $response->assertSee('color: var(--color-on_dark, #f5f1e8);', false);
+        // Warna kini datang dari kelas ber-token (invitation.css), bukan style inline —
+        // tombol pakai .invite-gate-button (aksen) dan teks .cover-panel (on_dark).
+        // Yang penting: prop warna usang di atas tak pernah muncul di HTML.
+        $response->assertSee('class="invite-gate-button"', false);
+        $response->assertSee('cover-panel', false);
     }
 
     public function test_couple_heading_has_no_hardcoded_accent_color(): void

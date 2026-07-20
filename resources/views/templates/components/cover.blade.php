@@ -6,7 +6,6 @@ $groomName = $page->groom_name ?? 'Groom';
 $brideName = $page->bride_name ?? 'Bride';
 $eventDate = $page->event_date ?? null;
 $buttonText = $props['button_text'] ?? 'Buka Undangan';
-$fontFamily = 'var(--font-heading, serif)';
 $overlayEnabled = filter_var($props['overlay_enabled'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
 $bgValue = $props['background_image'] ?? null;
 $bgUrl = $bgValue
@@ -15,21 +14,18 @@ $bgUrl = $bgValue
 $targetName = request()->query('to');
 $dateText = $eventDate ? \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($eventDate)->translatedFormat('d F Y')) : null;
 $sid = $section->id ?? 'default';
-$variant = $props['variant'] ?? 'fullscreen';
+$variant = in_array($props['variant'] ?? null, ['fullscreen', 'split', 'minimal', 'arch'], true)
+    ? $props['variant'] : 'fullscreen';
 @endphp
 
 <style>
-  .cover-visual-{{ $sid }} {
+  /* Hanya foto — overlay & blur ditangani lapisan CSS terpisah (.invite-gate-scrim /
+     .invite-gate-blur), jadi kelas ini bisa dipakai ulang di window arch tanpa ikut gelap. */
+  .cover-photo-{{ $sid }} {
     background-color: var(--color-ink, #20302a);
     @if($bgUrl) background-image: url('{{ $bgUrl }}'); @endif
     background-size: cover; background-position: center;
   }
-  .cover-visual-{{ $sid }}::before {
-    content: ''; position: absolute; inset: 0;
-    /* Gradien (bukan flat): bagian atas foto tetap terbaca, teks di bawah dapat kontras penuh. */
-    @if($overlayEnabled) background: linear-gradient(to bottom, rgba(0,0,0,.25) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.65) 100%); @endif
-  }
-  .cover-text-{{ $sid }} { font-family: {{ $fontFamily }}; color: var(--color-on_dark, #f5f1e8); }
 </style>
 
 {{-- 1. Gate full-viewport (sebelum dibuka) --}}
@@ -37,19 +33,27 @@ $variant = $props['variant'] ?? 'fullscreen';
      x-transition:leave="transition ease-in-out duration-1000"
      x-transition:leave-start="opacity-100"
      x-transition:leave-end="opacity-0 -translate-y-6"
-     class="invite-gate cover--{{ $variant }} cover-visual-{{ $sid }}">
-  <div class="invite-gate-content cover-text-{{ $sid }}">
+     class="invite-gate cover--{{ $variant }}">
+  <div class="invite-gate-bg cover-photo-{{ $sid }}" aria-hidden="true"></div>
+  <div class="invite-gate-blur cover-photo-{{ $sid }}" aria-hidden="true"></div>
+  @if($overlayEnabled)<div class="invite-gate-scrim" aria-hidden="true"></div>@endif
+  <div class="cover-panel invite-gate-content">
+    <div class="invite-gate-window cover-photo-{{ $sid }}" aria-hidden="true">
+      <span class="invite-gate-window-cap">{{ $title }}</span>
+    </div>
     <p class="invite-gate-kicker" data-editable="title">{{ $title }}</p>
-    <h1 class="invite-gate-names">{{ $groomName }} &amp; {{ $brideName }}</h1>
-    <div class="invite-gate-rule" aria-hidden="true"></div>
+    <h1 class="invite-gate-names">{{ $groomName }} <span class="invite-gate-amp">&amp;</span> {{ $brideName }}</h1>
+    <div class="invite-gate-flourish" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3c0 4-3 6-3 9a3 3 0 006 0c0-3-3-5-3-9z" fill="currentColor" fill-opacity=".18"/><path d="M12 12c-2.5 0-4.5 1.5-5.5 3.5M12 12c2.5 0 4.5 1.5 5.5 3.5M12 12v8" stroke-linecap="round"/></svg>
+    </div>
     @if($dateText)<p class="invite-gate-date">{{ $dateText }}</p>@endif
     @if($targetName)
       <div class="invite-gate-guest">
-        <p>Kepada Yth.</p>
+        <p class="invite-gate-guest-label">Kepada Yth.</p>
         <p class="invite-gate-guest-name">{{ $targetName }}</p>
       </div>
     @endif
-    <button @click="openInvitation()" class="invite-gate-button" style="background: var(--color-accent, #b5654d);">
+    <button @click="openInvitation()" class="invite-gate-button">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" /></svg>
       {{ $buttonText }}
     </button>
@@ -57,11 +61,19 @@ $variant = $props['variant'] ?? 'fullscreen';
 </div>
 
 {{-- 2. Layar sticky di dalam card (tertutup konten saat scroll) --}}
-<div class="invite-cover-sticky cover--{{ $variant }} cover-visual-{{ $sid }}">
-  <div class="invite-cover-sticky-content cover-text-{{ $sid }}">
+<div class="invite-cover-sticky cover--{{ $variant }}">
+  <div class="invite-gate-bg cover-photo-{{ $sid }}" aria-hidden="true"></div>
+  <div class="invite-gate-blur cover-photo-{{ $sid }}" aria-hidden="true"></div>
+  @if($overlayEnabled)<div class="invite-gate-scrim" aria-hidden="true"></div>@endif
+  <div class="cover-panel invite-cover-sticky-content">
+    <div class="invite-gate-window cover-photo-{{ $sid }}" aria-hidden="true">
+      <span class="invite-gate-window-cap">{{ $title }}</span>
+    </div>
     <p class="invite-gate-kicker">{{ $title }}</p>
-    <h2 class="invite-gate-names">{{ $groomName }} &amp; {{ $brideName }}</h2>
-    <div class="invite-gate-rule" aria-hidden="true"></div>
+    <h2 class="invite-gate-names">{{ $groomName }} <span class="invite-gate-amp">&amp;</span> {{ $brideName }}</h2>
+    <div class="invite-gate-flourish" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3c0 4-3 6-3 9a3 3 0 006 0c0-3-3-5-3-9z" fill="currentColor" fill-opacity=".18"/><path d="M12 12c-2.5 0-4.5 1.5-5.5 3.5M12 12c2.5 0 4.5 1.5 5.5 3.5M12 12v8" stroke-linecap="round"/></svg>
+    </div>
     @if($dateText)<p class="invite-gate-date">{{ $dateText }}</p>@endif
   </div>
 </div>

@@ -33,7 +33,7 @@ class InvitationRendererTemplatePreviewTest extends TestCase
         $this->assertStringContainsString('Romeo', $html);
         $this->assertStringContainsString('Juliet', $html);
         // The hidden hero section must not render.
-        // Note: the cover partial emits the "cover-visual-{id}" class name multiple
+        // Note: the cover partial emits the "cover-photo-{id}" class name multiple
         // times (once on each of the gate/sticky elements, plus several times in
         // scoped inline CSS selectors), so counting raw substring occurrences would
         // overcount. We instead count how many gate elements carry the class
