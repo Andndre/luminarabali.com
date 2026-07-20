@@ -1,38 +1,35 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pesanan Saya — Luminara</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { font-family: system-ui, sans-serif; }</style>
-</head>
-<body class="bg-gray-100 min-h-screen p-6 md:p-10">
-<div class="max-w-3xl mx-auto">
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Pesanan Saya</h1>
-        <a href="{{ route('catalog.index') }}" class="text-sm text-gray-600 hover:text-black">Jelajah katalog</a>
+@extends('layouts.dashboard')
+
+@section('title', 'Pesanan Saya')
+
+@section('content')
+    <div class="dash-section-head">
+        <div>
+            <h1 class="dash-title">Pesanan Saya</h1>
+            <p class="dash-muted" style="margin-top: .35rem">Semua pesanan undangan Anda.</p>
+        </div>
+        <a href="{{ route('catalog.index') }}" class="dash-btn dash-btn--ghost">Jelajah katalog</a>
     </div>
 
-    @forelse ($orders as $order)
-        <a href="{{ route('orders.show', $order) }}"
-           class="block bg-white rounded-xl border p-4 mb-3 hover:border-gray-400 transition">
-            <div class="flex items-center justify-between gap-4">
-                <div>
-                    <p class="font-semibold text-gray-900">{{ $order->template?->name ?? 'Desain' }}</p>
-                    <p class="text-xs text-gray-500 mt-1">{{ $order->order_number }}</p>
-                </div>
-                <div class="text-right">
-                    <p class="font-semibold text-gray-900">{{ $order->priceLabel() }}</p>
-                    <p class="text-xs text-gray-500 mt-1">{{ $order->statusLabel() }}</p>
-                </div>
-            </div>
-        </a>
-    @empty
-        <div class="bg-white rounded-xl border p-8 text-center text-gray-500">
-            Belum ada pesanan. <a href="{{ route('catalog.index') }}" class="text-black underline">Pilih desain</a>.
+    @if ($orders->isNotEmpty())
+        <div class="dash-rows">
+            @foreach ($orders as $order)
+                <a href="{{ route('orders.show', $order) }}" class="dash-row">
+                    <div>
+                        <div class="dash-row__name">{{ $order->template?->name ?? 'Desain' }}</div>
+                        <div class="dash-row__meta">{{ $order->order_number }}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem">
+                        <x-dash.status-pill :status="$order->status" :label="$order->statusLabel()" />
+                        <span class="dash-row__price">{{ $order->priceLabel() }}</span>
+                    </div>
+                </a>
+            @endforeach
         </div>
-    @endforelse
-</div>
-</body>
-</html>
+    @else
+        <div class="dash-empty">
+            <p>Belum ada pesanan.</p>
+            <a href="{{ route('catalog.index') }}" class="dash-btn dash-btn--solid">Pilih desain undangan</a>
+        </div>
+    @endif
+@endsection
