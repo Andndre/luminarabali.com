@@ -1617,8 +1617,18 @@ function studioApp() {
         // di panel kiri tak menggerakkan kanvas sama sekali.
         scrollPreviewTo(id) {
             const doc = this.previewFrame()?.contentWindow?.document;
-            doc?.querySelector(`[data-section-id="${id}"]`)
-                ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            let el = doc?.querySelector(`[data-section-id="${id}"]`);
+            if (!el) return;
+
+            // _section-shell membungkus section yang tak butuh treatment/ornamen/animasi
+            // dengan display:contents. Elemen begitu TIDAK punya kotak, jadi
+            // scrollIntoView() di atasnya diam saja — inilah kenapa sebagian section
+            // ikut tergulir dan sebagian tidak. Turun ke anak pertama yang punya kotak.
+            if (!el.getClientRects().length) {
+                el = [...el.children].find(c => c.getClientRects().length) ?? el;
+            }
+
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
 
         // Satu drag bisa memindahkan baris ANTAR daftar (top-level <-> kolom), jadi

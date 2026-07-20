@@ -283,6 +283,11 @@ class InvitationComponentsSchemaTest extends TestCase
         // Memilih section di panel kiri harus membawa kanvas ke sana — kecuali
         // pilihannya justru datang dari klik di kanvas.
         $this->assertStringContainsString('scrollPreviewTo(', $blade, 'Preview tidak digulirkan ke section terpilih.');
+
+        // _section-shell membungkus section polos dengan display:contents. Elemen itu
+        // tak punya kotak, jadi scrollIntoView() di atasnya diam saja.
+        $this->assertStringContainsString('getClientRects().length', $blade,
+            'Pembungkus display:contents tidak ditangani — section polos tak akan tergulir.');
         $this->assertStringContainsString('this.scrollOnSelect = false', $blade,
             'Klik dari kanvas harus menekan auto-scroll, kalau tidak tampilannya menyentak.');
     }
