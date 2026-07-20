@@ -32,6 +32,15 @@ Route::post('/register', [AuthController::class, 'register'])->middleware('throt
 // Stub dashboard customer — isi nyata di Fase 7F.
 Route::get('/dashboard', fn () => view('dashboard.customer'))->middleware('auth')->name('dashboard');
 
+// Pesanan undangan customer (Fase 7C)
+Route::middleware('auth')->group(function () {
+    Route::post('/undangan/{slug}/pesan', [\App\Http\Controllers\OrderController::class, 'store'])->name('orders.store');
+    Route::get('/pesanan', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/pesanan/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/pesanan/{order}/bukti', [\App\Http\Controllers\OrderController::class, 'uploadProof'])->name('orders.proof.upload');
+    Route::get('/pesanan/{order}/bukti', [\App\Http\Controllers\OrderController::class, 'showProof'])->name('orders.proof.show');
+});
+
 // Admin Routes (Protected)
 Route::middleware(['auth', 'staff'])->prefix('admin')->group(function () {
     Route::get('/', [BookingController::class, 'dashboard'])->name('admin.dashboard');

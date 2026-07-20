@@ -67,7 +67,17 @@
             </ul>
 
             <div class="catalog-hero__actions">
-                <a href="{{ route('register') }}" class="catalog-btn catalog-btn--solid">Pesan desain ini</a>
+                @if ($template->price === null)
+                    <a href="{{ route('login') }}" class="catalog-btn catalog-btn--solid">Hubungi kami</a>
+                @elseif (auth()->check())
+                    <form method="POST" action="{{ route('orders.store', $template->slug) }}">
+                        @csrf
+                        <button type="submit" class="catalog-btn catalog-btn--solid">Pesan desain ini</button>
+                    </form>
+                @else
+                    {{-- Tamu: login dulu, lalu tombol jadi form POST saat kembali ke halaman ini. --}}
+                    <a href="{{ route('login') }}" class="catalog-btn catalog-btn--solid">Masuk untuk memesan</a>
+                @endif
                 <a href="{{ route('catalog.index') }}#katalog" class="catalog-btn catalog-btn--ghost">Lihat desain lain</a>
             </div>
         </div>
