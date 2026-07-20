@@ -13,11 +13,12 @@ class InvitationPagePolicyTest extends TestCase
 
     private function page(int $createdBy, ?int $ownerId): InvitationPage
     {
-        return InvitationPage::create([
+        $page = InvitationPage::create([
             'title' => 'A & B', 'slug' => 'pol-'.uniqid(),
             'groom_name' => 'A', 'bride_name' => 'B', 'event_date' => now()->addMonth(),
             'published_status' => 'draft', 'created_by' => $createdBy, 'owner_id' => $ownerId,
         ]);
+        return $page->refresh();
     }
 
     public function test_owner_customer_can_view_and_update(): void

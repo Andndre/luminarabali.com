@@ -43,6 +43,7 @@
         </form>
         
         <div class="mt-6 text-center text-sm">
+            <p class="mb-2"><span class="text-gray-500">Belum punya akun?</span> <a href="{{ route('register') }}" class="text-black font-medium hover:underline">Daftar</a></p>
             <a href="/" class="text-gray-500 hover:text-black">&larr; Kembali ke Beranda</a>
         </div>
     </div>
