@@ -14,19 +14,6 @@ use Illuminate\Validation\ValidationException;
 
 class InvitationEditorController extends Controller
 {
-    public function editor($id)
-    {
-        $currentUserId = Auth::id();
-        $currentUser = \App\Models\User::find($currentUserId);
-
-        if ($currentUser->division !== 'super_admin') {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $page = InvitationPage::with(['sections', 'template'])->findOrFail($id);
-        return view('admin.templates.editor-native', compact('page'));
-    }
-
     public function load($id)
     {
         $page = InvitationPage::with(['sections' => function ($query) {

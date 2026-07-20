@@ -8,7 +8,9 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/editor/app.js'
+                'resources/css/invitation.css',
+                'resources/js/invitation.js',
+                'resources/js/studio.js',
             ],
             refresh: false,
         }),

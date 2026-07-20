@@ -1,4 +1,4 @@
-@props(['skipCover' => false])
+@props(['skipCover' => false, 'page' => null, 'coverImage' => null])
 <style>
 /* Global Reveal Animations Utility */
 [data-reveal] {
@@ -21,15 +21,13 @@
 }
 </style>
 
-<div x-data="{ 
+<div x-data="{
         ...(typeof window.invitationData !== 'undefined' ? window.invitationData : {}),
-        isOpen: {{ $skipCover ? 'true' : 'false' }}, 
-        isPlaying: false,
+        isOpen: {{ $skipCover ? 'true' : 'false' }},
         init() {
-            if (!this.isOpen) {
-                document.body.classList.add('no-scroll');
-            }
-            
+            // Tanpa gate (page tanpa section cover) tidak ada yang membuka kunci scroll — buka langsung.
+            if (!this.isOpen && !document.querySelector('.invite-gate')) this.isOpen = true;
+
             // Setup Intersection Observer for global reveal animations
             let observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -38,7 +36,7 @@
                     }
                 });
             }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-            
+
             // Tunggu sedikit agar DOM siap
             setTimeout(() => {
                 document.querySelectorAll('[data-reveal]').forEach((el) => {
@@ -46,53 +44,76 @@
                 });
             }, 100);
         },
-        openInvitation() { 
-            // Skip in editor context — allow inspecting the button instead
-            if (document.getElementById('visual-canvas')) return;
-            this.isOpen = true; 
-            document.body.classList.remove('no-scroll');
-            
-            // Play Audio if ref exists
-            let audio = this.$refs.bgAudio;
-            if(audio) {
-                audio.play().then(() => {
-                    this.isPlaying = true;
-                }).catch(err => {
-                    console.error('Audio play failed:', err);
-                    this.isPlaying = false;
-                });
-            }
+        openInvitation() {
+            this.isOpen = true;
+
+            // Komponen musik menyimak event ini. Dulu layout mencari elemen audionya
+            // sendiri lewat selector — putus begitu komponen mengubah id-nya.
+            window.dispatchEvent(new CustomEvent('invitation-opened'));
         },
-        toggleAudio() {
-            let audio = this.$refs.bgAudio;
-            if(!audio) return;
-            if(this.isPlaying) {
-                audio.pause();
-                this.isPlaying = false;
-            } else {
-                audio.play().then(() => {
-                    this.isPlaying = true;
-                }).catch(err => console.error('Audio play failed:', err));
-            }
-        }
-    }" 
-    class="relative min-h-screen {{ $attributes->get('class', 'font-light selection:bg-[#C5A059] selection:text-white') }}"
->
-    {{ $slot }}
+    }"
+    class="invite-shell {{ $attributes->get('class', '') }}">
+
+    {{-- Pane kiri: hanya desktop, tampil di belakang gate --}}
+    <aside class="invite-hero" aria-hidden="true"
+        @if($coverImage) style="background-image: url('{{ $coverImage }}')" @endif>
+        <div class="invite-hero-overlay"></div>
+        <div class="invite-hero-text">
+            <p class="invite-hero-kicker">The Wedding Of</p>
+            <h2 class="invite-hero-names">{{ $page->groom_name ?? 'Romeo' }} &amp; {{ $page->bride_name ?? 'Juliet' }}</h2>
+            @if($page?->event_date)
+                <p class="invite-hero-date">{{ \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($page->event_date)->translatedFormat('d F Y')) }}</p>
+            @endif
+        </div>
+    </aside>
+
+    {{-- Kartu kanan: SATU-SATUNYA scroll container --}}
+    <main class="invite-card" :class="{ 'is-locked': !isOpen }" x-ref="card">
+        {{ $slot }}
+    </main>
+
+    {{-- Preloader (skip di studio) --}}
+    @if (!$skipCover)
+        <div class="invite-preloader" id="invite-preloader">
+            <p class="invite-preloader-names">{{ $page->groom_name ?? '' }} &amp; {{ $page->bride_name ?? '' }}</p>
+            <div class="invite-preloader-spinner"></div>
+        </div>
+        <script>
+            (function () {
+                var img = new Promise(function (resolve) {
+                    @if($coverImage)
+                    var i = new Image();
+                    i.onload = i.onerror = resolve;
+                    i.src = @json($coverImage);
+                    @else
+                    resolve();
+                    @endif
+                });
+                var fonts = (document.fonts && document.fonts.ready) || Promise.resolve();
+                var timeout = new Promise(function (r) { setTimeout(r, 2500); });
+                Promise.race([Promise.all([img, fonts]), timeout]).then(function () {
+                    var el = document.getElementById('invite-preloader');
+                    if (!el) return;
+                    el.classList.add('is-done');
+                    setTimeout(function () { el.remove(); }, 600);
+                });
+            })();
+        </script>
+    @endif
 
     <!-- Global Lightbox -->
-    <div x-data="{ lightboxOpen: false, lightboxImage: '' }" 
+    <div x-data="{ lightboxOpen: false, lightboxImage: '' }"
          @open-lightbox.window="lightboxImage = $event.detail; lightboxOpen = true"
-         x-show="lightboxOpen" 
-         style="display: none;" 
+         x-show="lightboxOpen"
+         style="display: none;"
          x-transition.opacity.duration.300ms
          class="fixed inset-0 z-[100] flex items-center justify-center bg-[#2C1E16]/95 backdrop-blur-md p-4"
          @keydown.escape.window="lightboxOpen = false">
-        
+
         <button @click="lightboxOpen = false" class="absolute top-6 right-6 text-white/50 hover:text-white transition bg-black/20 p-2 rounded-full backdrop-blur-sm z-50">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
-        
+
         <img :src="lightboxImage" @click.away="lightboxOpen = false" class="max-w-full max-h-[90vh] object-contain rounded-sm shadow-2xl border-4 border-white/10" x-transition.scale.origin.center>
     </div>
 </div>
@@ -101,15 +122,9 @@
 document.addEventListener('alpine:init', () => {
     // Custom Directive for Lightbox
     Alpine.directive('lightbox', (el) => {
-        // Only apply zoom-in cursor if we are NOT inside the Visual Editor
-        if (!document.getElementById('visual-canvas')) {
-            el.style.cursor = 'zoom-in';
-        }
-        
+        el.style.cursor = 'zoom-in';
+
         el.addEventListener('click', (event) => {
-            // Prevent opening lightbox if inside the Visual Editor so it can be selected/edited
-            if (document.getElementById('visual-canvas')) return;
-            
             window.dispatchEvent(new CustomEvent('open-lightbox', { detail: el.src }));
         });
     });

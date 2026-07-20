@@ -1,0 +1,1414 @@
+@import 'tailwindcss';
+
+@source '../views/templates/**/*.blade.php';
+@source '../views/invitations/**/*.blade.php';
+@source '../views/components/invitation/**/*.blade.php';
+@source inline("text-left text-center text-right");
+
+/* Elemen x-show yang mulai tersembunyi: tanpa ini ia berkedip tampil sebelum Alpine jalan. */
+[x-cloak] { display: none !important; }
+
+/* ===== Invitation shell ===== */
+.invite-shell { position: relative; }
+
+.invite-hero { display: none; }
+
+.invite-card {
+    position: relative;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--color-surface, #fff);
+    -webkit-overflow-scrolling: touch;
+}
+.invite-card.is-locked { overflow: hidden; }
+
+.invite-content {
+    position: relative;
+    z-index: 1;
+    background: var(--color-surface, #fff);
+    /* Kontrak guideline §3.1.1: komponen tidak menentukan warna teks sendiri.
+       Konteks (section-shell / permukaan milik-sendiri) yang menyetel --fg-*. */
+    --fg-heading: var(--color-primary, #3b2f2f);
+    --fg-body: var(--color-text, #2b2b2b);
+    color: var(--fg-body);
+    /* Container query untuk grid section (@md:grid-cols-2) — jangan di .invite-card:
+       containment akan menjebak .invite-gate yang position:fixed. */
+    container-type: inline-size;
+}
+/* SEMUA judul komponen mengikuti konteks — tidak ada logika terang/gelap di komponen. */
+.invite-content :is(h1, h2, h3, h4, h5, h6) { color: var(--fg-heading); }
+
+@media (min-width: 1024px) {
+    .invite-shell { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
+    .invite-hero {
+        display: flex; flex: 1; align-items: center; justify-content: center;
+        position: relative; background-size: cover; background-position: center;
+        background-color: var(--color-primary, #1a1a1a);
+    }
+    .invite-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.15)); }
+    .invite-hero-text { position: relative; text-align: center; color: var(--color-on_dark, #fff); padding: 2rem; }
+    .invite-hero-kicker { letter-spacing: .3em; font-size: .75rem; opacity: .85; }
+    .invite-hero-names { font-family: var(--font-heading, 'Playfair Display'), serif; font-size: clamp(2.5rem, 4vw, 4rem); margin: 1rem 0; }
+    .invite-hero-date { letter-spacing: .2em; font-size: .85rem; opacity: .85; }
+    .invite-card { width: min(430px, 100vw); flex-shrink: 0; box-shadow: -18px 0 50px rgba(0,0,0,.25); }
+}
+
+/* ===== Cover gate & sticky ===== */
+.invite-gate {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.invite-cover-sticky {
+    position: sticky; top: 0; z-index: 0;
+    height: 100vh; height: 100dvh;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+/* Cover di tengah daftar (di dalam .invite-content) tidak boleh pin — hanya cover pertama (di luar) yang sticky. */
+.invite-content .invite-cover-sticky { position: static; }
+
+/* Lapisan latar terpisah: foto tajam (bg), foto blur (arch), dan scrim gelap. */
+.invite-gate-bg, .invite-gate-blur, .invite-gate-scrim { position: absolute; inset: 0; z-index: 0; }
+.invite-gate-blur { display: none; }
+/* Media latar cover memakai kelas yang sama dengan .sec-bg (slide, video, iframe YouTube),
+   tapi pembungkusnya .invite-gate-bg, bukan .sec-bg — jadi container-query dan clip-nya
+   diberikan di sini. Slide dan video mengisi penuh; iframe YouTube diukur dari tinggi
+   pembungkus, sama seperti di section biasa. */
+.invite-gate-bg { overflow: clip; }
+.invite-gate-bg.sec-bg--youtube { container-type: size; }
+.invite-gate-bg.cover-media-slides { background-size: cover; background-position: center; }
+.invite-gate-scrim { background: linear-gradient(to bottom, rgba(0,0,0,.22) 0%, rgba(0,0,0,.42) 45%, rgba(0,0,0,.66) 100%); }
+
+.cover-panel {
+    position: relative; z-index: 1; width: 100%;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    padding: 2.5rem 2rem; color: var(--color-on_dark, #f5f1e8);
+}
+.invite-gate-kicker { font-size: var(--step-sm, .8rem); letter-spacing: .32em; text-transform: uppercase; opacity: .88; margin: 0; }
+/* Serif display: berat 500 + spasi huruf longgar. 700 bikin nama terlihat menggumpal di ukuran besar. */
+.invite-gate-names { font-family: var(--font-heading, serif); font-size: clamp(2.5rem, 8vw, 4.25rem); font-weight: 500; letter-spacing: .01em; line-height: 1.06; margin: .7rem 0 0; text-wrap: balance; }
+.invite-gate-amp { font-style: italic; font-weight: 400; color: var(--color-accent, #b5654d); }
+/* Ornamen cover honor token tema --heading-rule persis seperti .section-heading: satu
+   pilihan ornamen mengubah judul DAN cover sekaligus. Tanpa ornamen tema, motif bawaan
+   (garis kembar mengapit daun) dipakai lewat mask data-URI — bentuknya putih agar tampil
+   sama di mask alpha maupun luminance, warnanya tetap dari token aksen. Lebar reuse
+   --heading-rule-w (persen judul) tapi dibatasi 12rem supaya tak melebar mengikuti panel. */
+.invite-gate-flourish {
+    display: block;
+    width: min(12rem, var(--heading-rule-w, 62%));
+    aspect-ratio: var(--heading-rule-ar, 140 / 18);
+    margin: 1.15rem auto .9rem;
+    background: var(--color-accent, #b5654d);
+    opacity: .9;
+    -webkit-mask: var(--heading-rule, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 18'%3E%3Crect x='8' y='8.2' width='46' height='1.6' rx='.8' fill='%23fff'/%3E%3Crect x='86' y='8.2' width='46' height='1.6' rx='.8' fill='%23fff'/%3E%3Cpath d='M70 3C76 8 76 10 70 15C64 10 64 8 70 3Z' fill='%23fff'/%3E%3C/svg%3E")) center / contain no-repeat;
+    mask: var(--heading-rule, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 18'%3E%3Crect x='8' y='8.2' width='46' height='1.6' rx='.8' fill='%23fff'/%3E%3Crect x='86' y='8.2' width='46' height='1.6' rx='.8' fill='%23fff'/%3E%3Cpath d='M70 3C76 8 76 10 70 15C64 10 64 8 70 3Z' fill='%23fff'/%3E%3C/svg%3E")) center / contain no-repeat;
+}
+.invite-gate-date { font-size: var(--step-sm, .85rem); letter-spacing: .16em; text-transform: uppercase; opacity: .9; margin: 0; }
+.invite-gate-guest {
+    margin: 1.6rem 0 1.3rem; padding: .8rem 1.6rem; border-radius: var(--radius, 12px);
+    background: rgba(245,241,232,.09); border: 1px solid rgba(245,241,232,.18); backdrop-filter: blur(3px);
+}
+.invite-gate-guest-label { font-size: var(--step-sm, .72rem); letter-spacing: .2em; text-transform: uppercase; opacity: .7; margin: 0 0 .2rem; }
+.invite-gate-guest-name { font-family: var(--font-heading, serif); font-size: 1.25rem; font-weight: 500; margin: 0; }
+.invite-gate-button {
+    display: inline-flex; align-items: center; gap: .5rem; margin: .4rem auto 0;
+    padding: .85rem 2.1rem; border-radius: 9999px; border: 0; cursor: pointer;
+    background: var(--color-accent, #b5654d); color: var(--color-on_dark, #fff);
+    font-size: var(--step-sm, .9rem); font-weight: 600; letter-spacing: .04em;
+    box-shadow: 0 12px 30px -8px rgba(0,0,0,.5); transition: transform .2s ease, box-shadow .2s ease;
+}
+.invite-gate-button:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -10px rgba(0,0,0,.6); }
+
+/* Window arch (foto dalam bingkai lengkung) — hanya varian arch yang memakainya. */
+.invite-gate-window { display: none; }
+
+/* ---- fullscreen (klasik terpusat): konten menempel bawah ---- */
+.invite-gate.cover--fullscreen, .invite-cover-sticky.cover--fullscreen { align-items: flex-end; }
+
+/* ---- minimal: lapang, tipografi kecil, pemisah titik, tombol garis ---- */
+.cover--minimal .invite-gate-kicker { letter-spacing: .42em; font-size: var(--step-sm, .72rem); }
+.cover--minimal .invite-gate-names { font-size: clamp(2rem, 6vw, 3rem); font-weight: 400; letter-spacing: .03em; }
+.cover--minimal .invite-gate-flourish {
+    width: 5px; aspect-ratio: 1; margin: 1.1rem auto; border-radius: 50%; opacity: 1;
+    -webkit-mask: none; mask: none;
+}
+.cover--minimal .invite-gate-button { background: transparent; border: 1px solid rgba(245,241,232,.5); box-shadow: none; }
+
+/* ---- split (editorial terbelah): foto atas, panel surface bawah, teks kiri gelap ---- */
+.invite-gate.cover--split, .invite-cover-sticky.cover--split { align-items: flex-end; }
+.cover--split .invite-gate-scrim { display: none; }
+.cover--split .cover-panel {
+    background: var(--color-surface, #fff); color: var(--color-primary, #3b2f2f);
+    align-items: flex-start; text-align: left;
+    border-radius: var(--radius, 12px) var(--radius, 12px) 0 0; padding: 2rem 1.75rem 2.25rem;
+}
+.cover--split .invite-gate-kicker { color: var(--color-accent, #b5654d); opacity: 1; }
+.cover--split .invite-gate-names { color: var(--color-primary, #3b2f2f); font-size: clamp(1.9rem, 6vw, 2.8rem); }
+.cover--split .invite-gate-flourish {
+    width: 2.2rem; aspect-ratio: auto; height: 2px; margin: .9rem 0; opacity: .85;
+    -webkit-mask: none; mask: none;
+}
+.cover--split .invite-gate-date { opacity: .6; }
+.cover--split .invite-gate-guest {
+    width: 100%; margin: 1rem 0 1.1rem; padding: .8rem 0 0; border-radius: 0; background: none; backdrop-filter: none;
+    border: 0; border-top: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent);
+}
+.cover--split .invite-gate-guest-label { color: var(--color-accent, #b5654d); opacity: 1; }
+.cover--split .invite-gate-guest-name { color: var(--color-primary, #3b2f2f); }
+
+/* ---- arch (bingkai lengkung): latar foto blur, foto tajam dalam window arch ---- */
+.invite-gate.cover--arch .invite-gate-bg, .invite-cover-sticky.cover--arch .invite-gate-bg { display: none; }
+.invite-gate.cover--arch .invite-gate-blur, .invite-cover-sticky.cover--arch .invite-gate-blur {
+    display: block; transform: scale(1.4); filter: blur(22px) brightness(.5) saturate(1.15);
+}
+.cover--arch .invite-gate-scrim { background: linear-gradient(to bottom, rgba(15,18,16,.4), rgba(12,14,12,.62)); }
+.cover--arch .invite-gate-kicker, .cover--arch .invite-gate-flourish { display: none; }
+.cover--arch .invite-gate-window {
+    display: block; position: relative; width: min(78%, 300px); aspect-ratio: 3 / 4; margin: 0 auto 1.4rem;
+    border-radius: 999px 999px var(--radius, 14px) var(--radius, 14px);
+    border: 1px solid rgba(245,241,232,.35); box-shadow: 0 20px 50px -18px rgba(0,0,0,.7); overflow: hidden;
+}
+.cover--arch .invite-gate-window::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 45%, rgba(15,18,16,.7)); }
+.cover--arch .invite-gate-window-cap {
+    position: absolute; left: 0; right: 0; bottom: 1rem; z-index: 1;
+    font-size: var(--step-sm, .72rem); letter-spacing: .3em; text-transform: uppercase; opacity: .9;
+}
+
+/* ===== Preloader ===== */
+.invite-preloader {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+    background: var(--color-surface, #fff);
+    transition: opacity .5s ease;
+}
+.invite-preloader.is-done { opacity: 0; pointer-events: none; }
+.invite-preloader-names { font-family: var(--font-heading, 'Playfair Display'), serif; font-size: 1.5rem; color: var(--color-text, #333); }
+.invite-preloader-spinner {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--color-accent, #b5654d); border-top-color: transparent;
+    animation: invite-spin .8s linear infinite;
+}
+@keyframes invite-spin { to { transform: rotate(360deg); } }
+
+/* --- Section treatment (Lapis 2) --- */
+/* overflow:clip, BUKAN hidden: hidden menjadikan section scroll container terdekat,
+   sehingga position:sticky di dalamnya (efek pinned) menempel ke section yang tidak
+   pernah men-scroll → efek mati. clip mengklip tanpa membuat scroll container. */
+.sec-treat { position: relative; overflow: clip; }
+.sec-treat--contrast { background: var(--color-surface_alt, #f3ece1); }
+/* Konteks gelap: satu-satunya tempat teks "berubah jadi terang" (guideline §3.1.1). */
+.sec-treat--dark, .sec-treat--image {
+    --fg-heading: var(--color-on_dark, #f5f1e8);
+    --fg-body: var(--color-on_dark, #f5f1e8);
+    color: var(--fg-body);
+}
+.sec-treat--dark { background: var(--color-ink, #20302a); }
+
+.sec-bg { position: absolute; inset: 0; z-index: 0; overflow: clip; }
+.sec-bg-img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.sec-bg-overlay { position: absolute; inset: 0; background: color-mix(in srgb, var(--color-ink, #20302a) 60%, black); }
+.sec-treat--image > :not(.sec-bg) { position: relative; z-index: 1; }
+
+/* --- Media latar: slideshow & video --- */
+/* Foto pertama juga jadi latar wadahnya, jadi tidak ada kedipan kosong sebelum slide
+   pertama selesai muncul — dan itu pula yang tersisa saat animasi dimatikan. */
+.sec-bg--slideshow { background-size: cover; background-position: center; }
+.sec-bg-slide {
+  opacity: 0;
+  animation-name: var(--slide-fade);
+  animation-duration: calc(var(--slide-dur, 5s) * var(--slide-n, 3));
+  animation-delay: calc(var(--slide-dur, 5s) * var(--slide-i, 0));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.sec-bg-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* YouTube: iframe selalu 16:9 dan tak punya object-fit, jadi cover-nya dihitung sendiri.
+   Lebarnya diambil yang terbesar antara lebar section dan lebar yang dibutuhkan agar
+   tingginya menutupi section (177.78cqh = 16/9 dari tinggi container), lalu dipusatkan
+   sehingga sisi lebihnya terpotong rata. Butuh container-type di .sec-bg agar cqh terukur. */
+.sec-bg--youtube { container-type: size; background-size: cover; background-position: center; }
+.sec-bg-ytwrap {
+  position: absolute; top: 50%; left: 50%; translate: -50% -50%;
+  /* --yt-zoom membesarkan bingkai melebihi kebutuhan cover supaya judul di atas dan sisa
+     kontrol di bawah jatuh DI LUAR bingkai yang terlihat. Sisi kiri-kanan ikut terpotong;
+     itu harga yang dibayar, dan satu-satunya cara — chrome YouTube tak bisa dimatikan. */
+  width: calc(max(100%, 177.7778cqh) * var(--yt-zoom, 1.45));
+  aspect-ratio: 16 / 9;
+  pointer-events: none;
+}
+.sec-bg-yt {
+  position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+  /* Sebelum pemutaran mulai, YouTube menampilkan tombol play besar di tengah dan
+     judulnya di atas — tak ada parameter yang mematikannya. Jadi iframe ditahan di
+     balik foto poster sampai pemutarnya melapor benar-benar sedang berjalan; kelas
+     is-playing dipasang invitation.js dari status pemutar, bukan dari hitungan waktu. */
+  opacity: 0;
+  transition: opacity .7s ease;
+}
+.sec-bg-yt.is-playing { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  /* Iframe pihak ketiga tak bisa dijeda tanpa API-nya. Yang tersisa: sembunyikan, dan
+     biarkan foto poster di latar .sec-bg--youtube yang terlihat. */
+  .sec-bg-yt { display: none; }
+}
+
+/* --- bg_effect (Lapis 2) --- */
+/* Efek mengenai lapisan media apa pun: foto, tiap slide, video, dan pembungkus iframe
+   YouTube (iframe-nya sendiri sudah memakai slot animation untuk tunda-tampil). */
+.sec-bg-img, .sec-bg-video, .sec-bg-ytwrap { will-change: transform; transform-origin: center center; }
+
+/* pinned: yang sticky adalah GAMBARNYA, bukan .sec-bg. Membuat .sec-bg sticky
+   mengeluarkannya dari absolute → masuk alur normal, memakan 100dvh, dan mendorong
+   konten section ke bawah (regresi: latar tampil full-size menimpa konten). */
+/* Bukan position:sticky — sticky hanya bergeser dalam batas induknya, jadi untuk section
+   yang lebih pendek dari gambar ia diam total (hanya terpotong, terlihat seperti "ke-zoom").
+   JS menyetel --pin-h (= tinggi kartu) dan --pin-y (= -offset section terhadap kartu),
+   sehingga gambar selalu menempati kotak layar: efek background-attachment:fixed.
+   Tanpa JS / reduced-motion: height 100% + translate 0 = latar biasa. */
+.sec-treat--pinned .sec-bg-img,
+.sec-treat--pinned .sec-bg-video {
+  bottom: auto;
+  height: var(--pin-h, 100%);
+  transform: translateY(var(--pin-y, 0px));
+}
+/* YouTube saat pinned: ukurannya TIDAK boleh diturunkan dari tinggi section (cqh) seperti
+   biasanya, karena yang harus ditutupi adalah kotak layar kartu. Lebarnya diambil dari
+   --pin-h, tingginya menyusul lewat aspect-ratio — jadi selalu >= tinggi kartu, dan
+   lebihnya terpotong. Dipusatkan di kotak layar itu: titik tengahnya berada di
+   --pin-y + --pin-h/2 dari atas section. */
+.sec-treat--pinned .sec-bg-ytwrap {
+  top: 0;
+  translate: -50% -50%;
+  width: calc(max(100%, 1.7778 * var(--pin-h, 100%)) * var(--yt-zoom, 1.45));
+  transform: translateY(calc(var(--pin-y, 0px) + var(--pin-h, 0px) / 2));
+}
+.sec-treat--pinned > :not(.sec-bg) { position: relative; z-index: 1; }
+
+/* kenburns */
+.sec-bg[data-effect="kenburns"] .sec-bg-img,
+.sec-bg[data-effect="kenburns"] .sec-bg-video,
+.sec-bg[data-effect="kenburns"] .sec-bg-ytwrap { animation: sec-kenburns 12s ease-in-out infinite alternate; }
+/* Slide sudah memakai slot animation pertama untuk crossfade, jadi kenburns jadi slot
+   kedua — keduanya harus disebut sekaligus, kalau tidak yang belakangan menghapus yang
+   depan. Zoom-nya seumur satu slide supaya tiap foto memulai geraknya dari awal. */
+.sec-bg--slideshow[data-effect="kenburns"] .sec-bg-slide {
+  animation-name: var(--slide-fade), sec-kenburns;
+  animation-duration: calc(var(--slide-dur, 5s) * var(--slide-n, 3)), var(--slide-dur, 5s);
+  animation-delay: calc(var(--slide-dur, 5s) * var(--slide-i, 0)), 0s;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-direction: normal, alternate;
+}
+@keyframes sec-kenburns { from { transform: scale(1.02); } to { transform: scale(1.18) translate(-2%, -2%); } }
+
+/* scroll-zoom: nilai awal; transform diperbarui JS via --sz-scale */
+.sec-bg[data-effect^="scroll-zoom"] .sec-bg-img,
+.sec-bg[data-effect^="scroll-zoom"] .sec-bg-video,
+.sec-bg[data-effect^="scroll-zoom"] .sec-bg-ytwrap { transform: scale(var(--sz-scale, 1)); }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Mengenai .sec-bg-slide juga (ia ber-class .sec-bg-img): slide berhenti di opacity 0
+     dan yang terlihat tinggal foto di wadahnya — satu foto diam, bukan layar kosong. */
+  .sec-bg-img, .sec-bg-video, .sec-bg-ytwrap { animation: none !important; transform: none !important; }
+}
+
+/* Permukaan milik-sendiri: elemen ber-background opaque menetapkan ulang konteks --fg-*
+   (kartu terang di section gelap tetap berteks gelap, overlay foto tetap berteks terang). */
+.countdown--cards .countdown-item,
+.rsvp--elevated .rsvp-card-outer,
+.rsvp--custom-controls .rsvp-card {
+    --fg-heading: var(--color-primary, #3b2f2f);
+    --fg-body: var(--color-text, #2b2b2b);
+    color: var(--fg-body);
+}
+
+/* --- couple --- */
+.couple-inner { max-width: 40rem; margin: 0 auto; text-align: center; }
+.couple-heading { margin-bottom: 2.5rem; }
+/* garis aksen pendek di bawah judul (motif undangan) */
+.couple-eyebrow { font-family: var(--font-heading, serif); font-style: italic; font-size: var(--step-sm, 13px); letter-spacing: .01em; color: var(--color-accent, #b5654d); margin-bottom: .3rem; }
+.couple-name { letter-spacing: .02em; }
+.couple-sub { margin-top: .5rem; font-size: var(--step-sm, 13px); color: inherit; opacity: .7; }
+.couple-ig { display: inline-flex; align-items: center; gap: .35rem; margin-top: .75rem; padding: .3rem .95rem; font-size: var(--step-sm, 13px); color: var(--color-accent, #b5654d); border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 45%, transparent); border-radius: 9999px; text-decoration: none; transition: background .2s ease, color .2s ease; }
+.couple-ig:hover { background: var(--color-accent, #b5654d); color: var(--color-surface, #fff); }
+/* ampersand dekoratif antara dua mempelai */
+.couple-amp { font-size: var(--step-2xl, 2rem); line-height: 1; color: var(--color-accent, #b5654d); opacity: .55; }
+.couple--centered-stacked .couple-grid { display: grid; gap: 1.75rem; justify-items: center; }
+/* Cincin ganda (garis aksen tipis + jarak surface) menggantikan border tebal — lebih
+   halus dan tetap terbaca di treatment mana pun. */
+.couple-photo-round { width: 10rem; height: 10rem; margin: 0 auto 1.1rem; border-radius: 9999px; object-fit: cover; border: 0;
+  box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.08)),
+    0 0 0 1px color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent),
+    0 0 0 6px var(--color-surface, #fff),
+    0 0 0 7px color-mix(in srgb, var(--color-accent, #b5654d) 26%, transparent); }
+.couple--side-alternating .couple-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.couple-row { display: flex; align-items: center; gap: 1rem; text-align: left; }
+.couple-row.is-rev { flex-direction: row-reverse; text-align: right; }
+
+.couple--portrait-overlay .couple-inner { max-width: none; }
+.couple-portraits { display: flex; flex-direction: column; margin: 0 -20px; }
+.couple-portrait { position: relative; aspect-ratio: 3/4; overflow: clip; }
+.couple-portrait-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.couple-portrait-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.78) 0%, rgba(0,0,0,.2) 55%, rgba(0,0,0,0) 78%); }
+.couple-portrait-text { position: absolute; inset: auto 0 0 0; z-index: 1; padding: 1.75rem 1.5rem; --fg-heading: var(--color-on_dark, #f5f1e8); --fg-body: var(--color-on_dark, #f5f1e8); color: var(--fg-body); text-align: left; }
+.couple-portrait--center .couple-portrait-text { text-align: center; }
+.couple-portrait--right .couple-portrait-text { text-align: right; }
+.couple-portrait-eyebrow { font-style: italic; font-size: var(--step-sm, .8125rem); opacity: .9; margin-bottom: .35rem; }
+.couple-portrait-name { font-size: var(--step-2xl, 1.875rem); font-weight: 700; margin-bottom: .4rem; }
+.couple-portrait-sub { font-size: var(--step-sm, .8125rem); opacity: .85; margin-bottom: .9rem; }
+.couple-portrait-ig { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1.1rem; border: 1px solid rgba(255,255,255,.7); border-radius: 9999px; font-size: var(--step-sm, .8125rem); color: inherit; }
+
+/* --- scroll reveal (Lapis 2 util) --- */
+[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+[data-reveal].is-in { opacity: 1; transform: translateY(0); }
+[data-reveal]:nth-child(2) { transition-delay: .08s; }
+[data-reveal]:nth-child(3) { transition-delay: .16s; }
+[data-reveal]:nth-child(4) { transition-delay: .24s; }
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+}
+.couple-photo-rect { width: 40%; aspect-ratio: 3/4; object-fit: cover; border-radius: var(--radius, 12px); flex: 0 0 auto; }
+
+/* centered-portrait: markup sama dgn centered-stacked, foto jadi kapsul memanjang
+   (atas & bawah rounded penuh, sisi lurus) alih-alih lingkaran. */
+.couple--centered-portrait .couple-grid { display: grid; gap: 1.75rem; justify-items: center; }
+.couple--centered-portrait .couple-photo-round { width: 9.5rem; height: auto; aspect-ratio: 3/4; border-radius: 999px; }
+
+/* arch-pair: dua foto lengkung (arch) atas-bawah, nama di bawah tiap foto */
+.couple--arch-pair .couple-arches { display: flex; flex-direction: column; align-items: center; gap: 2.25rem; }
+.couple-arch { max-width: 15rem; }
+.couple-arch-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; margin-bottom: 1rem;
+  border-radius: 999px 999px var(--radius, 14px) var(--radius, 14px); box-shadow: var(--shadow, 0 10px 26px rgba(0,0,0,.12)); }
+
+/* label-vertical: foto penuh + "The Groom/Bride" diputar di sisi, nama/ortu di bawah */
+.couple--label-vertical .couple-inner { max-width: none; }
+.couple-labels { display: flex; flex-direction: column; gap: 2.5rem; margin-top: 1.5rem; }
+.couple-label-photo { position: relative; }
+.couple-label-img { display: block; width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+.couple-label-side { position: absolute; left: .75rem; bottom: 1.25rem; transform-origin: left bottom; transform: rotate(-90deg);
+  white-space: nowrap; font-family: var(--font-heading, serif); line-height: 1;
+  color: var(--color-on_dark, #f5f1e8); text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.couple-label-the { font-style: italic; font-size: var(--step-lg, 1.2rem); margin-right: .25rem; }
+.couple-label-role { font-size: var(--step-xl, 1.6rem); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+.couple-label-info { padding: 1rem 0 .25rem; text-align: left; }
+.couple-label-name { font-style: italic; }
+.couple-label-divide { height: 1px; background: color-mix(in srgb, currentColor 20%, transparent); margin: .7rem 0; }
+
+/* --- event_details --- */
+.events-inner { max-width: 42rem; margin: 0 auto; text-align: center; }
+.events-heading { margin-bottom: 2.5rem; }
+.events-list { display: grid; gap: 1.5rem; }
+.event-line { margin-top: .35rem; font-size: var(--step-sm, 13px); color: inherit; opacity: .7; }
+.event-venue { margin-top: .85rem; font-weight: 600; }
+.event-addr { margin-top: .25rem; font-size: var(--step-sm, 13px); color: inherit; opacity: .7; }
+.event-btn { display: inline-flex; align-items: center; gap: .4rem; margin-top: 1.1rem; padding: .55rem 1.4rem; border-radius: 9999px; font-size: var(--step-sm, 13px); background: var(--color-accent, #b5654d); color: var(--color-on_dark, #fff); text-decoration: none; transition: filter .2s ease; }
+.event-btn:hover { filter: brightness(.92); }
+.events--bordered-cards .event-item { background: color-mix(in srgb, var(--color-surface_alt, #f3ece1) 50%, transparent); border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent); border-radius: var(--radius, 12px); padding: 1.75rem 1.5rem; box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.06)); }
+.events--divider-list .event-item { border-top: 1px solid color-mix(in srgb, var(--color-muted, #7a6f66) 40%, transparent); padding: 1.25rem 0; }
+.events--divider-list .event-item:first-child { border-top: 0; }
+
+/* --- gallery variants --- */
+.gallery-header { max-width: 42rem; margin: 0 auto 2.5rem; text-align: center; }
+.gallery-video { position: relative; padding-bottom: 56.25%; height: 0; margin: 0 auto 2rem; max-width: 48rem; overflow: clip; box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.08)); }
+.gallery-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
+.gallery--grid .gallery-grid { display: grid; gap: 1rem; }
+/* masonry & slider: markup existing (columns/flex) dipertahankan inline, hanya wrapper diberi kelas gallery--{{ layout }} */
+
+/* --- hero: dasar + varian --- */
+.hero-section { position: relative; display: flex; align-items: center; justify-content: center; }
+.hero-section .hero-content { position: relative; z-index: 10; width: 100%; }
+/* Warna/font di sini, BUKAN di <style> komponen — supaya varian bisa menimpanya. */
+.hero-section :is(.hero-title, .hero-names, .hero-date) { font-family: var(--font-heading, serif); color: var(--color-on_dark, #f5f1e8); }
+.hero-section .hero-title { font-size: var(--step-sm, .9rem); letter-spacing: .2em; opacity: .9; }
+.hero-section .hero-names { font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 500; letter-spacing: .01em; line-height: 1.1; }
+.hero-section .hero-date { font-size: var(--step-base, 1rem); letter-spacing: .15em; opacity: .9; }
+
+/* fullscreen: satu layar penuh, teks di tengah */
+.hero--fullscreen { min-height: 100vh; min-height: 100dvh; }
+
+/* split: layar terbelah — foto di atas, panel solid menempel rapat di bawah */
+.hero--split { min-height: 100vh; min-height: 100dvh; align-items: flex-end; }
+.hero--split .hero-content {
+    width: 100%; margin: 0; padding: 2.25rem 1.75rem 2.5rem;
+    background: var(--color-surface, #fff);
+    border-radius: var(--radius, 12px) var(--radius, 12px) 0 0;
+}
+.hero--split .hero-title { color: var(--color-accent, #b5654d); opacity: 1; }
+.hero--split .hero-names { color: var(--fg-heading, #3b2f2f); font-size: clamp(2rem, 6vw, 3.25rem); }
+.hero--split .hero-date { color: inherit; opacity: .7; opacity: 1; }
+
+/* minimal: tanpa tinggi paksa — tipografi kecil, banyak ruang kosong */
+.hero--minimal .hero-content { max-width: 32rem; margin: 0 auto; }
+.hero--minimal .hero-names { font-size: clamp(1.75rem, 5vw, 2.75rem); letter-spacing: .03em; }
+.hero--minimal .hero-title { letter-spacing: .3em; font-size: var(--step-sm, .8rem); }
+
+/* --- judul section: satu tempat, dipakai semua komponen ---
+   Sebelumnya tiap komponen menyalin font-family + font-size yang sama secara inline,
+   jadi tema tidak punya satu titik untuk mengubah gaya judul. Warnanya sudah datang
+   dari --fg-heading lewat aturan .invite-content :is(h1..h6). */
+.section-heading {
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-2xl, 2rem);
+  font-weight: 700;
+  letter-spacing: .04em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+/* Garis aksen dulu hanya dipunyai couple, event_details, dan gallery — tujuh komponen
+   lain tidak, sehingga judul terlihat berbeda-beda antar section pada satu undangan. */
+/* Ornamen tema (opsional) mengambil alih bentuk garis lewat mask: warnanya tetap
+   datang dari token aksen, jadi satu ornamen cocok di semua tema. Tanpa ornamen,
+   --heading-rule tidak ada dan `mask: none` menyisakan batang lurus seperti dulu. */
+.section-heading::after {
+  content: ""; display: block;
+  width: var(--heading-rule-w, 3rem);
+  height: var(--heading-rule-h, 2px);
+  aspect-ratio: var(--heading-rule-ar, auto);
+  margin: var(--heading-rule-gap, .85rem) auto 0;
+  background: var(--color-accent, #b5654d);
+  opacity: .8;
+  -webkit-mask: var(--heading-rule, none) center / contain no-repeat;
+  mask: var(--heading-rule, none) center / contain no-repeat;
+}
+/* Ornamen atas murni opsional: tanpa pilihan tema, display:none dan ::before tidak
+   memakan ruang sama sekali — tidak ada batang lurus bawaan di sisi ini. */
+.section-heading::before {
+  content: ""; display: var(--heading-rule-top-d, none);
+  width: var(--heading-rule-top-w, 5rem);
+  aspect-ratio: 7 / 1;
+  margin: 0 auto var(--heading-rule-gap, .85rem);
+  background: var(--color-accent, #b5654d);
+  opacity: .8;
+  -webkit-mask: var(--heading-rule-top, none) center / contain no-repeat;
+  mask: var(--heading-rule-top, none) center / contain no-repeat;
+}
+/* Ornamen di atas latar gelap/foto: token aksen sering tenggelam. Konteks ini sudah
+   menganggap latarnya gelap (fg jadi on_dark), jadi ornamennya ikut --fg-heading —
+   terang, seperti judulnya. Di treatment terang ornamen tetap aksen (default di atas). */
+.sec-treat--dark .section-heading::before, .sec-treat--dark .section-heading::after,
+.sec-treat--image .section-heading::before, .sec-treat--image .section-heading::after {
+  background: var(--fg-heading, #f5f1e8);
+}
+.section-subheading {
+  font-size: var(--step-sm, .875rem);
+  color: inherit; opacity: .7;
+  margin-top: .5rem;
+}
+
+/* --- button variants (token-driven) ---
+   Semua warna diturunkan dari token tema, jadi satu tombol ikut berubah antar template
+   tanpa disetel ulang. Varian yang memakai currentColor (outline/rule) otomatis terbaca
+   di section bertreatment gelap maupun foto. */
+.btn {
+  display: inline-block;
+  font-family: var(--font-body, sans-serif);
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background-color .2s, color .2s, border-color .2s, box-shadow .2s;
+}
+/* Varian berhuruf kapital dikecilkan relatif (em), bukan dipatok px: kontrol Ukuran
+   small/medium/large harus tetap berpengaruh. */
+.btn-outline, .btn-round, .btn-link, .btn-rule { font-size: .86em; }
+
+.btn-solid {
+  background: var(--color-accent, #b5654d);
+  color: var(--color-surface, #fffaf3);
+  border: 1px solid var(--color-accent, #b5654d);
+  border-radius: var(--radius, 12px);
+}
+.btn-solid:hover { background: color-mix(in srgb, var(--color-accent, #b5654d) 84%, #000); }
+
+.btn-soft {
+  background: color-mix(in srgb, var(--color-accent, #b5654d) 14%, transparent);
+  color: var(--color-accent, #b5654d);
+  border: 1px solid transparent;
+  border-radius: var(--radius, 12px);
+}
+.btn-soft:hover { background: color-mix(in srgb, var(--color-accent, #b5654d) 24%, transparent); }
+
+.btn-outline {
+  background: transparent;
+  color: inherit;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: var(--radius, 12px);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+.btn-outline:hover { border-color: currentColor; }
+
+/* Bentuk round dan rule adalah identitas varian — border_radius manual sengaja tidak
+   menimpanya (lihat button.blade.php). */
+.btn-round {
+  background: var(--color-accent, #b5654d);
+  color: var(--color-surface, #fffaf3);
+  border: 1px solid var(--color-accent, #b5654d);
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+}
+.btn-round:hover { background: color-mix(in srgb, var(--color-accent, #b5654d) 84%, #000); }
+
+.btn-link {
+  position: relative;
+  background: transparent;
+  color: var(--color-accent, #b5654d);
+  border: 0;
+  padding-left: 0;
+  padding-right: 0;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+}
+.btn-link::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: .35em;
+  height: 1px;
+  background: currentColor;
+  opacity: .55;
+  transition: opacity .2s;
+}
+.btn-link:hover::after { opacity: 1; }
+
+.btn-rule {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+}
+.btn-rule:hover { border-color: var(--color-accent, #b5654d); color: var(--color-accent, #b5654d); }
+
+/* Varian lama: tidak lagi ditawarkan di Studio, tapi baris tersimpan masih memakainya. */
+.btn-primary { background: var(--color-accent, #b5654d); color: var(--color-surface, #fffaf3); border-width: 0; border-radius: var(--radius, 12px); }
+.btn-secondary { background: var(--color-surface, #fffaf3); color: var(--color-accent, #b5654d); border: 2px solid var(--color-accent, #b5654d); }
+.btn-ghost { background: transparent; color: var(--color-accent, #b5654d); border-width: 0; }
+
+/* --- countdown variants --- */
+.countdown-title { margin-bottom: 2rem; }
+.countdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(.5rem, 2.5cqi, 1rem); max-width: 28rem; margin: 0 auto; }
+.countdown-item { display: flex; flex-direction: column; align-items: center; }
+.countdown-number {
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-3xl, 2.25rem);
+  font-weight: 700;
+  color: var(--fg-heading, #3b2f2f);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.countdown-label {
+  font-size: var(--step-sm, .8125rem);
+  opacity: .75;
+  margin-top: .5rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+/* cards: tiap angka dalam kartu lembut */
+.countdown--cards .countdown-item {
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: var(--radius, 12px);
+  padding: .85rem .5rem .7rem;
+  box-shadow: var(--shadow, 0 1px 3px rgba(0,0,0,.08));
+}
+
+/* minimal-line: angka besar warna aksen dipisah garis tipis, tanpa bingkai */
+.countdown--minimal-line .countdown-grid { display: flex; justify-content: center; max-width: none; }
+.countdown--minimal-line .countdown-number { font-weight: 400; color: var(--color-accent, #b5654d); }
+.countdown--minimal-line .countdown-item { padding: 0 1rem; position: relative; }
+.countdown--minimal-line .countdown-item + .countdown-item::before {
+  content: ''; position: absolute; left: 0; top: .4rem; bottom: .4rem; width: 1px;
+  background: color-mix(in srgb, var(--color-accent, #b5654d) 45%, transparent);
+}
+
+/* ring: angka dalam lingkaran outline aksen */
+.countdown--ring .countdown-number { font-size: var(--step-xl, 1.5625rem); }
+.countdown-ring {
+  width: 3.6rem; height: 3.6rem; border-radius: 50%;
+  border: 1.5px solid var(--color-accent, #b5654d);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: .4rem;
+}
+
+.countdown-passed {
+  margin-top: 1.5rem;
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-lg, 1.25rem);
+  color: var(--color-accent, #b5654d);
+}
+
+/* --- rsvp variants --- */
+.rsvp-inner { max-width: 28rem; margin: 0 auto; }
+.rsvp-head { text-align: center; margin-bottom: 2rem; }
+.rsvp-heading { margin-bottom: .5rem; }
+.rsvp-subtitle { opacity: .8; margin-top: .75rem; }
+
+.rsvp-label { display: block; font-size: var(--step-sm, .875rem); font-weight: 600; margin-bottom: .25rem; }
+.f-row { margin-bottom: 1rem; }
+
+.rsvp-field {
+  width: 100%;
+  padding: .7rem .9rem;
+  font: inherit;
+  color: var(--color-text, #2b2b2b);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 18%, transparent);
+  border-radius: var(--radius, 12px);
+  transition: border-color .15s, box-shadow .15s;
+}
+.rsvp-field:focus {
+  outline: none;
+  border-color: var(--color-accent, #b5654d);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent, #b5654d) 25%, transparent);
+}
+
+.rsvp-button {
+  display: block;
+  width: 100%;
+  margin-top: .5rem;
+  padding: .85rem;
+  font: inherit;
+  font-weight: 600;
+  background: var(--color-accent, #b5654d);
+  color: var(--color-surface, #ffffff);
+  border: none;
+  border-radius: var(--radius, 12px);
+  transition: filter .15s;
+}
+.rsvp-button:hover { filter: brightness(0.9); }
+
+.rsvp-success {
+  margin-top: 1rem;
+  padding: 1rem;
+  text-align: center;
+  border-radius: var(--radius, 12px);
+  background: color-mix(in srgb, var(--color-accent, #b5654d) 12%, var(--color-surface, #fff));
+  border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent);
+  color: var(--color-text, #2b2b2b);
+}
+
+.rsvp-error {
+  margin-bottom: .75rem;
+  font-size: var(--step-sm, .8125rem);
+  color: #b42318; /* merah galat: sengaja di luar token tema — arti "gagal" tidak boleh ikut warna merek */
+}
+.rsvp-button:disabled { opacity: .6; cursor: progress; }
+
+/* --- live_stream: dasar + empat varian ---
+   Isi pemutarnya iframe YouTube: hitam, tidak ikut tema, tidak bisa digayakan dari luar.
+   Varian karena itu bekerja pada bingkai dan susunan sekitarnya.
+   Padding di kelas, bukan atribut style: marquee membuangnya seluruhnya. */
+.stream { padding: var(--section-y, 64px) 16px; text-align: center; }
+.stream-heading { margin-bottom: .9rem; }
+/* Siaran langsung punya jam, tidak seperti video biasa — jadwalnya dapat gaya sendiri,
+   bukan kalimat abu-abu yang tenggelam di bawah judul. */
+.stream-schedule {
+  font-size: var(--step-sm, .8125rem); line-height: 1.7;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: inherit; opacity: .7;
+  margin-bottom: 1.75rem;
+}
+.stream-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: clip;
+  border-radius: var(--radius, 12px);
+  /* Latar gelap supaya kotaknya tidak berkedip putih sebelum sampul termuat. */
+  background: var(--color-ink, #20302a);
+}
+.stream-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* Sampul + tombol putar. iframe baru dibuat setelah tombol ditekan, jadi tamu yang
+   tidak menonton tidak ikut memuat skrip dan cookie YouTube. */
+.stream-facade {
+  position: absolute; inset: 0;
+  display: block; width: 100%; padding: 0;
+  border: 0; background: none; cursor: pointer;
+}
+.stream-facade img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.stream-play {
+  position: absolute; inset: 0; margin: auto;
+  width: 3.6rem; height: 3.6rem; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 4px 16px rgba(0,0,0,.35);
+  transition: transform .2s;
+}
+.stream-play::after {
+  content: ""; width: 0; height: 0;
+  border-left: .95rem solid #1b2621;
+  border-top: .58rem solid transparent;
+  border-bottom: .58rem solid transparent;
+  margin-left: .22rem;
+}
+.stream-facade:hover .stream-play { transform: scale(1.06); }
+@media (prefers-reduced-motion: reduce) {
+  .stream-play { transition: none; }
+  .stream-facade:hover .stream-play { transform: none; }
+}
+.stream-action { margin-top: 1.5rem; }
+.stream-action a {
+  display: inline-flex;
+  padding: .8rem 1.6rem;
+  font-size: var(--step-sm, .8125rem);
+  font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  border-radius: min(var(--radius, 12px), 999px);
+}
+
+/* player adalah bentuk dasarnya — tanpa aturan tambahan. */
+
+/* wide: pemutar selebar kartu, tanpa sudut membulat. */
+.stream--wide { padding-inline: 0; }
+.stream--wide .stream-heading,
+.stream--wide .stream-schedule,
+.stream--wide .stream-action { padding-inline: 16px; }
+.stream--wide .stream-frame { border-radius: 0; }
+
+/* marquee: judul dan jadwal duduk di atas sampul, bukan di atasnya. Sectionnya
+   berhenti terasa seperti video yang ditempel dan mulai terasa seperti poster acara. */
+.stream--marquee { padding: 0; }
+.stream--marquee .stream-frame { border-radius: 0; aspect-ratio: 3 / 4; }
+.stream--marquee .stream-overlay {
+  position: absolute; inset: auto 0 0 0;
+  padding: 6rem 1.5rem 2.25rem;
+  color: var(--color-on_dark, #f5f1e8);
+  /* Kerudung gelap: sampul YouTube tidak bisa dipilih, jadi gradiennya harus cukup
+     pekat untuk sampul seterang apa pun. */
+  background: linear-gradient(to top,
+    rgba(0,0,0,.88) 0%, rgba(0,0,0,.7) 28%, rgba(0,0,0,.38) 58%, transparent 100%);
+  text-shadow: 0 1px 3px rgba(0,0,0,.55);
+  /* Kalau tidak, overlay menelan klik tombol putar di bawahnya. */
+  pointer-events: none;
+}
+.stream--marquee .stream-heading,
+.stream--marquee .stream-schedule { color: inherit; margin-bottom: .6rem; }
+.stream--marquee .stream-heading::after,
+.stream--marquee .stream-heading::before { background: currentColor; }
+.stream--marquee .stream-schedule { margin-bottom: 0; opacity: .85; }
+.stream--marquee .stream-play { inset: 0 0 auto 0; margin: 0 auto; top: 30%; }
+
+/* card: tanpa pemutar sama sekali — judul, jadwal, satu tombol keluar. Juga bentuk
+   cadangan kalau URL yang dimasukkan bukan YouTube. */
+.stream--card .stream-body {
+  padding: 2.25rem 1.5rem;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: var(--radius, 12px);
+}
+.stream--card .stream-schedule { margin-bottom: 1.5rem; }
+.stream--card .stream-action { margin-top: 0; }
+
+/* --- map: dasar + empat varian ---
+   Isi <iframe> milik Google: tidak bisa disentuh CSS kita dan tidak ikut tema. Varian di
+   sini karena itu bekerja pada bingkai dan susunan sekitarnya, bukan pada petanya.
+   Padding di kelas, bukan atribut style: full-bleed membuang padding samping. */
+.map { padding: var(--section-y, 64px) 16px; text-align: center; }
+.map-heading { margin-bottom: 2rem; }
+.map-frame {
+  overflow: clip;
+  border-radius: var(--radius, 12px);
+  background: var(--color-surface_alt, #f3ece1);
+}
+.map-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.map-address {
+  margin-top: 1.5rem; text-align: center;
+  font-size: var(--step-sm, .8125rem); line-height: 1.7;
+  color: inherit; opacity: .7;
+}
+.map-action { margin-top: 1.5rem; text-align: center; }
+/* Tombolnya dulu memakai kelas ukuran Tailwind plus ikon 20px di samping teks 13px —
+   ikonnya jadi lebih besar daripada tulisannya. Ukuran sekarang ikut skala tema. */
+.map-action a {
+  display: inline-flex;
+  padding: .8rem 1.6rem;
+  font-size: var(--step-sm, .8125rem);
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  /* Radius tema bisa disetel sampai 999px; di tombol selebar ini itu wajar,
+     tapi jangan lebih tumpul daripada tingginya. */
+  border-radius: min(var(--radius, 12px), 999px);
+  transition: opacity .2s;
+}
+.map-action a:hover { opacity: .88; }
+
+/* framed adalah bentuk dasarnya — tanpa aturan tambahan. */
+
+/* bar: alamat dan tombol menempel persis di bawah peta, satu kotak utuh.
+   Panel melayang di atas peta sempat dicoba dan dibuang: pada kartu selebar 430px
+   ia memakan sepertiga bidang peta, tepat di bagian yang biasanya berisi jalan
+   menuju lokasi. Ini menyambung, bukan menumpang. */
+.map--bar .map-frame { border-radius: var(--radius, 12px) var(--radius, 12px) 0 0; }
+.map--bar .map-panel {
+  padding: 1.35rem 1.25rem;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: 0 0 var(--radius, 12px) var(--radius, 12px);
+}
+.map--bar .map-address { margin-top: 0; }
+.map--bar .map-action { margin-top: 1rem; }
+
+/* full-bleed: peta selebar kartu, tanpa sudut membulat. Peta berhenti terasa
+   seperti gambar yang ditempel. */
+.map--full-bleed { padding-inline: 0; }
+.map--full-bleed .map-frame { border-radius: 0; }
+.map--full-bleed .map-address,
+.map--full-bleed .map-action { padding-inline: 16px; }
+
+/* address-first: alamat jadi teks utama, peta pendukung di bawahnya.
+   Untuk gedung yang namanya lebih dikenal daripada petanya. */
+.map--address-first .map-address {
+  margin-top: 0; margin-bottom: 1.75rem;
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-lg, 1.15rem);
+  color: var(--fg-heading);
+}
+/* no-embed: tanpa iframe sama sekali (lihat map.blade.php). Alamatnya yang jadi
+   isi, jadi ia diperlakukan seperti teks utama, bukan keterangan di bawah peta. */
+.map--no-embed .map-address {
+  margin-top: 0;
+  max-width: 32ch; margin-inline: auto;
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-lg, 1.15rem);
+  color: var(--fg-heading);
+}
+.map-venue {
+  display: block;
+  font-family: var(--font-body, sans-serif);
+  font-size: var(--step-sm, .8125rem);
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--color-accent, #b5654d);
+  margin-bottom: .5rem;
+}
+
+/* --- closing: dasar + lima varian ---
+   Section terakhir yang dilihat tamu, jadi tugasnya menutup. Di kelima varian nama
+   mempelai selalu jadi hal terakhir yang terbaca — itu satu-satunya aturan yang tidak
+   boleh diubah varian mana pun.
+   Padding ditaruh di kelas, bukan atribut style: photo-cover dan band membuangnya,
+   dan style inline selalu menang atas kelas mana pun. */
+.closing { padding: var(--section-y, 64px) 16px; text-align: center; }
+.closing-body { max-width: 32rem; margin-inline: auto; }
+.closing-message { font-size: var(--step-base, 1rem); line-height: 1.75; }
+.closing-salutation {
+  margin-top: 2rem;
+  font-size: var(--step-sm, .8125rem);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: inherit; opacity: .7;
+}
+.closing-names { margin-top: .65rem; }
+.closing-photo { margin: 0 auto 2rem; overflow: clip; }
+.closing-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* signature: seperti surat yang ditandatangani — pesan, salam penutup kecil, lalu nama. */
+.closing--signature .closing-photo {
+  max-width: 18rem; aspect-ratio: 4 / 3;
+  border-radius: var(--radius, 12px);
+}
+
+/* arch: foto dipotong bentuk gapura. Bentuk ini milik kartu undangan cetak,
+   bukan bentuk komponen UI mana pun — itu sebabnya ia dipakai di sini. */
+.closing--arch .closing-photo {
+  max-width: 14rem; aspect-ratio: 3 / 4;
+  border-radius: 999px 999px var(--radius, 12px) var(--radius, 12px);
+}
+.closing--arch .closing-message { color: inherit; opacity: .7; }
+
+/* photo-cover: foto satu layar penuh, nama di atasnya. Gulungan berakhir tegas. */
+.closing--photo-cover { padding: 0; position: relative; }
+.closing--photo-cover .closing-photo {
+  margin: 0; max-width: none;
+  aspect-ratio: 3 / 4; border-radius: 0;
+  /* Cadangan kalau foto belum diisi: kotaknya tetap terisi, bukan putih kosong. */
+  background: var(--color-ink, #20302a);
+}
+.closing--photo-cover .closing-body {
+  position: absolute; inset: auto 0 0 0; max-width: none;
+  padding: 7rem 1.5rem 2.75rem;
+  color: var(--color-on_dark, #f5f1e8);
+  /* Kerudung gelap. Pekat di dasar dan panjang naiknya: foto mempelai sering terang
+     justru di bagian bawah (gaun, pasir, lantai), dan gradien tipis gagal tepat di
+     foto-foto itu. */
+  background: linear-gradient(to top,
+    rgba(0,0,0,.88) 0%,
+    rgba(0,0,0,.72) 25%,
+    rgba(0,0,0,.42) 55%,
+    transparent 100%);
+  /* Jaring pengaman terakhir kalau fotonya nyaris putih. */
+  text-shadow: 0 1px 3px rgba(0,0,0,.55);
+}
+.closing--photo-cover .closing-message,
+.closing--photo-cover .closing-salutation,
+.closing--photo-cover .closing-names { color: inherit; }
+.closing--photo-cover .closing-names::before,
+.closing--photo-cover .closing-names::after { background: currentColor; }
+
+/* quiet: tanpa foto, nama seukuran teks. Untuk undangan yang section-section
+   sebelumnya sudah penuh gambar. */
+.closing--quiet .closing-names {
+  font-family: inherit;
+  font-size: var(--step-sm, .8125rem);
+  font-weight: 600; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--fg-body);
+}
+.closing--quiet .closing-names::after { display: none; }
+.closing--quiet .closing-salutation { margin-top: 2.5rem; }
+.closing--quiet .closing-body::after {
+  content: ""; display: block;
+  width: 2rem; height: 1px; margin: 2rem auto 0;
+  background: var(--color-accent, #b5654d); opacity: .6;
+}
+
+/* band: pesan di atas, lalu pita selebar kartu berisi salam dan nama. Berfungsi
+   seperti footer cetak — gulungan punya dasar, bukan berhenti di ruang kosong. */
+.closing--band { padding: 0; }
+.closing--band .closing-body { max-width: none; }
+.closing--band .closing-message {
+  padding: var(--section-y, 64px) 16px 2.5rem;
+  max-width: 30rem; margin-inline: auto;
+}
+.closing--band .closing-sign {
+  padding: 2.5rem 1.5rem;
+  background: var(--color-surface_alt, #f3ece1);
+}
+.closing--band .closing-salutation { margin-top: 0; }
+
+/* --- quote: dasar + lima varian ---
+   Tanda kutip keriting raksasa dan italic sepanjang badan dibuang: keduanya konvensi
+   tipografi Latin yang tidak dipakai saat mengutip ayat, dan di kartu 430px tanda kutip
+   itu mengambil ruang lebih besar daripada kalimatnya. Beda kutipan dari teks sekitarnya
+   sekarang datang dari ukuran, ruang, dan bingkai. */
+.quote-body { max-width: 30rem; margin-inline: auto; }
+.quote-text {
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-lg, 1.15rem);
+  line-height: 1.75;
+  color: var(--fg-heading);
+  text-wrap: pretty;
+  margin: 0;
+}
+.quote-source {
+  margin-top: 1.5rem;
+  font-size: var(--step-sm, .8125rem);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: inherit; opacity: .7;
+  /* Ikut rata teks variannya, bukan selalu tengah. */
+  text-align: inherit;
+}
+
+.quote--plain { text-align: center; }
+
+/* rules: dua garis rambut, atas dan bawah. Membingkai tanpa menggambar kotak,
+   seperti halaman pembuka buku cetak. */
+.quote--rules { text-align: center; }
+.quote--rules .quote-body {
+  padding: 2rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 16%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 16%, transparent);
+}
+
+/* panel: blok terisi, jeda visual saat section sebelum dan sesudahnya sama-sama polos. */
+.quote--panel .quote-body {
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: var(--radius, 12px);
+}
+
+/* initial: huruf pertama diperbesar, teks rata kiri. Satu-satunya varian tak simetris —
+   untuk kutipan panjang, di mana rata tengah membuat mata kehilangan awal baris. */
+.quote--initial .quote-text { text-align: left; }
+.quote--initial .quote-text::first-letter {
+  float: left;
+  font-size: 3.1em;
+  /* .78, bukan 1: menyejajarkan puncak huruf dengan puncak baris pertama,
+     bukan dengan kotak barisnya. */
+  line-height: .78;
+  padding: .06em .12em 0 0;
+  color: var(--color-accent, #b5654d);
+}
+.quote--initial .quote-source { text-align: left; }
+
+/* source-first: rujukan naik ke atas jadi label. Urutan baca dibalik — tamu tahu
+   ini ayat sebelum mulai membaca, bukan setelah selesai. */
+.quote--source-first { text-align: center; }
+.quote--source-first .quote-source {
+  margin: 0 0 1.25rem;
+  color: var(--color-accent, #b5654d);
+}
+.quote--source-first .quote-source::after {
+  content: ""; display: block;
+  width: 2rem; height: 1px;
+  margin: .75rem auto 0;
+  background: currentColor; opacity: .5;
+}
+/* Ukuran teksnya sengaja sama dengan varian lain: yang membedakan source-first
+   adalah urutan baca, bukan besar hurufnya. */
+
+/* --- love_story: dasar + empat varian ---
+   Satu foto untuk seluruh section (opsional), bukan foto per babak: varian di sini
+   membedakan tata letak teks, jadi tidak ada yang bergantung pada ada-tidaknya foto. */
+.story-cover {
+  margin-top: 1.75rem; aspect-ratio: 3 / 2;
+  border-radius: var(--radius, 12px); overflow: clip;
+}
+.story-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.story-list { margin-top: 2.25rem; }
+.story-year {
+  font-size: var(--step-sm, .8rem); letter-spacing: .18em;
+  text-transform: uppercase; color: var(--color-accent, #b5654d);
+}
+.story-title { font-family: var(--font-heading, serif); font-size: var(--step-lg, 1.15rem); margin-top: .2rem; }
+.story-text { font-size: var(--step-sm, .875rem); line-height: 1.65; color: inherit; opacity: .7; margin-top: .4rem; }
+
+/* marginalia: tahun jadi catatan pinggir di margin kiri, sejajar baris pertama judul.
+   Berakar pada halaman cetak — bukan garis-dan-titik khas komponen UI. */
+.story--marginalia .story-item {
+  display: grid;
+  grid-template-columns: 4.25rem 1fr;
+  column-gap: 1.25rem;
+  padding: 1.65rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 10%, transparent);
+}
+.story--marginalia .story-item:first-child { border-top: 0; padding-top: 0; }
+.story--marginalia .story-item:last-child { padding-bottom: 0; }
+.story--marginalia .story-year {
+  grid-column: 1; grid-row: 1 / span 2;
+  text-align: right;
+  font-size: .7rem; letter-spacing: .16em;
+  /* .3rem, bukan 0: menyejajarkan tahun dengan baris pertama judul, bukan puncak kotaknya. */
+  padding-top: .3rem;
+}
+.story--marginalia .story-title { grid-column: 2; grid-row: 1; margin-top: 0; }
+.story--marginalia .story-text { grid-column: 2; grid-row: 2; }
+/* Di bawah 340px margin 4.25rem memakan terlalu banyak — tahun naik ke atas judul. */
+@container (max-width: 340px) {
+  .story--marginalia .story-item { grid-template-columns: 1fr; }
+  .story--marginalia .story-year {
+    grid-column: 1; grid-row: auto;
+    text-align: left; padding-top: 0;
+  }
+  .story--marginalia .story-title,
+  .story--marginalia .story-text { grid-column: 1; grid-row: auto; }
+}
+
+/* center-line: garis di tengah, babak berselang-seling kiri dan kanan */
+.story--center-line .story-list { position: relative; }
+.story--center-line .story-list::before {
+  content: ''; position: absolute; left: 50%; top: .5rem; bottom: .5rem;
+  width: 1px; transform: translateX(-50%);
+  background: color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent);
+}
+.story--center-line .story-item {
+  position: relative; width: 50%;
+  padding: 0 1.5rem 2rem 0; text-align: right;
+}
+.story--center-line .story-item:nth-child(even) {
+  margin-left: 50%; padding: 0 0 2rem 1.5rem; text-align: left;
+}
+.story--center-line .story-item:last-child { padding-bottom: 0; }
+.story--center-line .story-item::before {
+  content: ''; position: absolute; right: -4.5px; top: .45rem;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--color-accent, #b5654d);
+  box-shadow: 0 0 0 4px var(--color-surface, #fffaf3);
+}
+.story--center-line .story-item:nth-child(even)::before { right: auto; left: -4.5px; }
+/* Di kartu sempit dua lajur menyisakan ~150px per sisi — teks jadi lajur satu kata.
+   Runtuh ke bentuk timeline biasa. */
+@container (max-width: 380px) {
+  .story--center-line .story-list { padding-left: 2.5rem; }
+  .story--center-line .story-list::before { left: .5rem; transform: none; }
+  .story--center-line .story-item,
+  .story--center-line .story-item:nth-child(even) {
+    width: auto; margin-left: 0;
+    padding: 0 0 2rem 0; text-align: left;
+  }
+  .story--center-line .story-item::before,
+  .story--center-line .story-item:nth-child(even)::before {
+    right: auto; left: -2rem;
+  }
+}
+
+/* cards: tiap babak satu kartu terisi, tenang dan mudah dipindai */
+.story--cards .story-list { display: grid; gap: 1rem; }
+.story--cards .story-item {
+  padding: 1.15rem 1.25rem;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: var(--radius, 12px);
+}
+
+/* book: tipografi dan ruang kosong yang bercerita */
+.story--book .story-item {
+  padding: 2rem 0; text-align: center;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+.story--book .story-item:last-child { border-bottom: 0; }
+.story--book .story-year {
+  font-family: var(--font-heading, serif); font-size: var(--step-2xl, 2rem);
+  letter-spacing: .02em; text-transform: none; line-height: 1;
+}
+.story--book .story-title {
+  font-family: inherit; font-size: var(--step-sm, .78rem);
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--fg-body); margin-top: .75rem;
+}
+.story--book .story-text { max-width: 26rem; margin-inline: auto; margin-top: .85rem; }
+
+/* --- wishes: dasar + tiga varian ---
+   Tanpa max-height + overflow-y: daftar bersarang yang bisa di-scroll menjebak
+   gulir jari di dalamnya, padahal .invite-card satu-satunya scroll container. */
+.wishes-list { display: grid; gap: .85rem; margin-top: 2rem; }
+.wish-body { min-width: 0; }
+.wish-name { font-size: var(--step-sm, .85rem); font-weight: 600; }
+.wish-message { font-size: var(--step-sm, .875rem); line-height: 1.6; color: inherit; opacity: .7; margin-top: .2rem; }
+.wishes-empty { margin-top: 2rem; text-align: center; font-size: var(--step-sm, .85rem); color: inherit; opacity: .7; }
+
+/* bordered-cards: kartu bergaris tenang */
+.wishes--bordered-cards .wish {
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius, 12px);
+  border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 30%, transparent);
+}
+.wishes--bordered-cards .wish-name { color: var(--color-accent, #b5654d); }
+
+/* bubble: seperti percakapan — inisial di kiri, gelembung di kanan */
+.wishes--bubble .wish { display: flex; gap: .75rem; align-items: flex-start; }
+.wish-avatar {
+  flex-shrink: 0;
+  width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-accent, #b5654d); color: var(--color-surface, #fff);
+  font-size: var(--step-sm, .85rem); font-weight: 600;
+}
+.wishes--bubble .wish-body {
+  flex: 1;
+  padding: .8rem 1rem;
+  background: var(--color-surface_alt, #f3ece1);
+  /* sudut kiri-atas tumpul: mengarah balik ke avatar, seperti ekor gelembung */
+  border-radius: .25rem var(--radius, 12px) var(--radius, 12px) var(--radius, 12px);
+}
+
+/* divider-list: hanya garis rambut antar ucapan */
+.wishes--divider-list .wishes-list { gap: 0; }
+.wishes--divider-list .wish {
+  padding: 1.1rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+.wishes--divider-list .wish:first-child {
+  border-top: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+
+/* --- gift: dasar + tiga varian --- */
+.gift-list { display: grid; gap: 1rem; margin-top: 2rem; text-align: left; }
+.gift-account-info { flex: 1; min-width: 0; }
+.gift-bank {
+  font-size: var(--step-sm, .8rem); letter-spacing: .12em;
+  text-transform: uppercase; color: inherit; opacity: .7;
+}
+/* break-all, bukan truncate: nomor rekening yang terpotong tidak ada gunanya. */
+.gift-number {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--step-lg, 1.15rem); font-weight: 600; letter-spacing: .06em;
+  word-break: break-all; margin-top: .15rem;
+}
+.gift-holder { font-size: var(--step-sm, .85rem); color: inherit; opacity: .7; margin-top: .15rem; }
+.gift-copy {
+  flex-shrink: 0; cursor: pointer; border: 0;
+  padding: .5rem 1.15rem; border-radius: 9999px;
+  background: var(--color-accent, #b5654d); color: var(--color-surface, #fff);
+  font-size: var(--step-sm, .8rem); font-weight: 600;
+  transition: filter .15s;
+}
+.gift-copy:hover { filter: brightness(.92); }
+.gift-address { margin-top: 2rem; font-size: var(--step-sm, .85rem); color: inherit; opacity: .7; }
+.gift-address-value { color: var(--fg-body); font-weight: 500; }
+
+/* bordered-cards: kartu bergaris, nomor kiri dan tombol kanan */
+.gift--bordered-cards .gift-account {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  border-radius: var(--radius, 12px);
+  /* 35%, bukan garis aksen penuh: satu kartu masih tenang, empat kartu tidak berteriak. */
+  border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent);
+}
+
+/* elevated: kartu terisi dan terangkat, nomor jadi tokoh utama */
+.gift--elevated .gift-account {
+  padding: 1.5rem; text-align: center;
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: var(--radius, 12px);
+  box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.08));
+}
+.gift--elevated .gift-number { font-size: var(--step-xl, 1.4rem); margin: .4rem 0 0; }
+.gift--elevated .gift-copy { width: 100%; margin-top: 1.15rem; border-radius: var(--radius, 12px); }
+
+/* divider-list: tanpa kotak sama sekali, hanya garis rambut antar baris */
+.gift--divider-list .gift-list { gap: 0; }
+.gift--divider-list .gift-account {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+.gift--divider-list .gift-account:first-child {
+  border-top: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+}
+.gift--divider-list .gift-copy {
+  background: transparent; color: var(--color-accent, #b5654d);
+  padding: .25rem; border-radius: 0;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.gift--divider-list .gift-copy:hover { filter: none; opacity: .7; }
+
+/* --- music: FAB + tiga varian --- */
+.music-fab { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 40; }
+.music-btn {
+  display: flex; align-items: center; justify-content: center;
+  border: 0; cursor: pointer; padding: 0;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.music-btn:hover { transform: scale(1.06); }
+.music-icon { display: flex; }
+.music-icon svg { width: 1.15rem; height: 1.15rem; }
+
+/* disc: piringan hitam, berputar hanya saat memutar */
+.music-fab--disc .music-btn {
+  position: relative;
+  width: 3.5rem; height: 3.5rem; border-radius: 50%;
+  background: transparent;
+  color: var(--color-on_dark, #f5f1e8);
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+}
+/* Piringan di lapisan sendiri, bukan di tombol, supaya transform hover tetap milik tombol. */
+.music-fab--disc .music-btn::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, var(--color-accent, #b5654d) 0 42%, transparent 42%),
+    repeating-radial-gradient(circle at 50% 50%, #1c1c1c 0 3px, #262626 3px 6px);
+}
+.music-fab--disc .music-icon { position: relative; }
+.music-fab--disc .music-icon svg { width: 1.1rem; height: 1.1rem; }
+
+/* Piringan dan ikon memakai animasi yang sama supaya berputar sepiring. */
+.music-fab--disc .music-btn::before,
+.music-fab--disc .music-icon {
+  animation: music-spin 3s linear infinite;
+  animation-play-state: paused;
+}
+.music-fab--disc .music-btn.is-playing::before,
+.music-fab--disc .music-btn.is-playing .music-icon { animation-play-state: running; }
+@keyframes music-spin { to { transform: rotate(360deg); } }
+/* Putaran itu dekoratif — tanpa ini ia berputar terus di latar bagi yang sensitif gerak. */
+@media (prefers-reduced-motion: reduce) {
+  .music-fab--disc .music-btn::before,
+  .music-fab--disc .music-icon { animation: none; }
+}
+
+/* minimal: lingkaran kecil tenang, nyaris tak terlihat sampai disentuh */
+.music-fab--minimal .music-btn {
+  width: 2.4rem; height: 2.4rem; border-radius: 50%;
+  background: color-mix(in srgb, var(--color-ink, #20302a) 55%, transparent);
+  color: var(--color-on_dark, #f5f1e8);
+  backdrop-filter: blur(6px);
+  opacity: .55;
+}
+.music-fab--minimal .music-btn:hover,
+.music-fab--minimal .music-btn.is-playing { opacity: 1; }
+.music-fab--minimal .music-icon svg { width: .9rem; height: .9rem; }
+
+/* pill: batang ekualiser di samping ikon, memberi tanda musik tanpa teks */
+.music-fab--pill .music-btn {
+  gap: .5rem; height: 2.6rem; padding: 0 .9rem;
+  border-radius: 9999px;
+  background: var(--color-accent, #b5654d);
+  color: var(--color-surface, #fff);
+  box-shadow: 0 8px 24px rgba(0,0,0,.22);
+}
+.music-eq { display: flex; align-items: flex-end; gap: 2px; height: .85rem; }
+.music-eq i {
+  width: 2px; height: 30%;
+  background: currentColor; border-radius: 1px;
+  animation: music-eq 900ms ease-in-out infinite;
+  animation-play-state: paused;
+}
+.music-eq i:nth-child(2) { animation-delay: 150ms; }
+.music-eq i:nth-child(3) { animation-delay: 300ms; }
+.music-eq i:nth-child(4) { animation-delay: 450ms; }
+.music-btn.is-playing .music-eq i { animation-play-state: running; }
+@keyframes music-eq { 0%, 100% { height: 30%; } 50% { height: 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  .music-eq i { animation: none; height: 60%; }
+}
+
+/* elevated: form dibungkus kartu terangkat di atas latar lembut */
+.rsvp--elevated .rsvp-card-outer {
+  background: var(--color-surface_alt, #f3ece1);
+  border-radius: calc(var(--radius, 12px) + 6px);
+  padding: 1rem;
+}
+.rsvp--elevated .rsvp-card {
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--radius, 12px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.10);
+  padding: 1.5rem 1.25rem;
+}
+
+/* custom-controls: field teks tetap standar, tapi status kehadiran & jumlah tamu jadi kontrol custom */
+.rsvp--custom-controls .rsvp-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 12%, transparent);
+  border-radius: var(--radius, 12px);
+  padding: 1.5rem 1.25rem;
+}
+
+.rsvp-segmented { display: flex; border-radius: 9999px; overflow: hidden; border: 1px solid var(--color-accent, #b5654d); }
+.rsvp-segmented input { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
+.rsvp-segmented label {
+  flex: 1; text-align: center; padding: .6rem .4rem;
+  font-size: var(--step-sm, .8125rem); font-weight: 600;
+  color: var(--color-accent, #b5654d); cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.rsvp-segmented input:checked + label { background: var(--color-accent, #b5654d); color: var(--color-surface, #fff); }
+
+.rsvp-stepper { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: .4rem 0; }
+.rsvp-stepper button {
+  width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  border: 1.5px solid var(--color-accent, #b5654d);
+  background: transparent; color: var(--color-accent, #b5654d);
+  font-size: 1.1rem; font-weight: 700; line-height: 1; font-family: inherit;
+  cursor: pointer;
+}
+.rsvp-stepper span { font-size: var(--step-lg, 1.125rem); font-weight: 700; font-variant-numeric: tabular-nums; min-width: 1.4em; text-align: center; }
+
+/* underline: tanpa kotak, hanya garis bawah — paling lapang */
+.rsvp--underline .rsvp-card { background: transparent; padding: 0; }
+.rsvp--underline .f-row { margin-bottom: 1.4rem; }
+.rsvp--underline .rsvp-label {
+  font-size: var(--step-sm, .75rem);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--color-accent, #b5654d);
+  font-weight: 700;
+}
+.rsvp--underline .rsvp-field {
+  padding: .4rem 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #2b2b2b) 25%, transparent);
+  border-radius: 0;
+}
+.rsvp--underline .rsvp-field:focus { box-shadow: none; border-bottom-color: var(--color-accent, #b5654d); }
+.rsvp--underline .rsvp-button {
+  background: transparent;
+  color: var(--color-accent, #b5654d);
+  border: 1.5px solid var(--color-accent, #b5654d);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: var(--step-sm, .8125rem);
+}
+.rsvp--underline .rsvp-button:hover { filter: none; background: color-mix(in srgb, var(--color-accent, #b5654d) 10%, transparent); }

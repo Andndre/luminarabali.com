@@ -12,8 +12,8 @@ class InvitationComponentsSchemaTest extends TestCase
         'countdown', 'gallery', 'map', 'music', 'rsvp', 'video',
     ];
 
-    private const VALID_TYPES = ['text', 'select', 'color', 'number', 'boolean', 'image', 'audio', 'video', 'image_list', 'url'];
-    private const VALID_GROUPS = ['content', 'design'];
+    private const VALID_TYPES = ['text', 'select', 'variant', 'color', 'number', 'boolean', 'image', 'audio', 'video', 'image_list', 'url', 'repeater', 'ornament', 'ornament_list', 'code'];
+    private const VALID_GROUPS = ['content', 'design', 'advanced'];
 
     public function test_schema_has_an_entry_for_every_allowed_section_type(): void
     {
@@ -39,8 +39,8 @@ class InvitationComponentsSchemaTest extends TestCase
                 $this->assertContains($field['type'], self::VALID_TYPES, "{$sectionType}.{$field['key']} has invalid type '{$field['type']}'");
                 $this->assertContains($field['group'], self::VALID_GROUPS, "{$sectionType}.{$field['key']} has invalid group '{$field['group']}'");
 
-                if ($field['type'] === 'select') {
-                    $this->assertArrayHasKey('options', $field, "{$sectionType}.{$field['key']} is type=select but has no 'options'");
+                if (in_array($field['type'], ['select', 'variant'], true)) {
+                    $this->assertArrayHasKey('options', $field, "{$sectionType}.{$field['key']} is type={$field['type']} but has no 'options'");
                     $this->assertNotEmpty($field['options']);
                 }
             }

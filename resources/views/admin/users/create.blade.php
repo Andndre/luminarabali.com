@@ -25,9 +25,14 @@
                 <select name="division" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500">
                     <option value="photobooth">Luminara Photobooth</option>
                     <option value="visual">Luminara Visual</option>
+                    <option value="designer">Desainer (Studio &amp; template)</option>
                     <option value="super_admin">Super Admin (Akses Semua)</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Admin divisi hanya bisa melihat data divisinya sendiri.</p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Admin divisi hanya bisa melihat data divisinya sendiri. Desainer setara
+                    super admin di dalam Studio, termasuk komponen HTML mentah yang ikut
+                    tersalin ke setiap undangan dari template itu.
+                </p>
             </div>
 
             <div>

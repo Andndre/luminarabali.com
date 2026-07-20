@@ -16,7 +16,8 @@ class InvitationPage extends Model
         'published_status',
         'meta_data',
         'theme_overrides',
-        'created_by'
+        'created_by',
+        'owner_id'
     ];
 
     protected $casts = [
@@ -44,11 +45,16 @@ class InvitationPage extends Model
 
     public function rsvpResponses()
     {
-        return $this->hasMany(InvitationRsvpResponse::class);
+        return $this->hasMany(InvitationRsvpResponse::class, 'page_id');
     }
 
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
     }
 }

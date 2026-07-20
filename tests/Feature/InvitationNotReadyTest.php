@@ -12,7 +12,7 @@ class InvitationNotReadyTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_page_without_sections_and_without_blob_shows_not_ready(): void
+    public function test_page_without_sections_shows_not_ready(): void
     {
         $admin = User::factory()->create(['division' => 'super_admin']);
         $template = InvitationTemplate::create([

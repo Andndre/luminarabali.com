@@ -29,18 +29,7 @@ class SectionPropsValidator
 
             $value = $props[$key];
 
-            match ($field['type']) {
-                'color' => $this->validateColor($key, $value, $errors),
-                'number' => $this->validateNumber($key, $value, $errors),
-                'boolean' => $this->validateBoolean($key, $value, $errors),
-                'select' => $this->validateSelect($key, $value, $field['options'] ?? [], $errors),
-                'url' => $this->validateUrl($key, $value, $errors),
-                'text' => str_ends_with($key, '_phone')
-                    ? $this->validatePhone($key, $value, $errors)
-                    : $this->validateText($key, $value, $errors),
-                'image' => $this->validateImage($key, $value, $errors),
-                default => null,
-            };
+            $this->validateField($field, "props.{$key}", $value, $errors);
 
             $validated[$key] = $value;
         }
@@ -52,64 +41,199 @@ class SectionPropsValidator
         return $validated;
     }
 
-    protected function validateColor(string $key, mixed $value, array &$errors): void
+    protected function validateField(array $field, string $errorKey, mixed $value, array &$errors): void
     {
-        if (!is_string($value) || !preg_match('/^#[0-9a-fA-F]{3,8}$/', $value)) {
-            $errors["props.{$key}"] = ["{$key} harus berupa kode warna hex yang valid."];
+        $key = $field['key'];
+
+        match ($field['type']) {
+            'color' => $this->validateColor($errorKey, $value, $errors),
+            'number' => $this->validateNumber($errorKey, $value, $errors),
+            'boolean' => $this->validateBoolean($errorKey, $value, $errors),
+            'select' => $this->validateSelect($errorKey, $value, $field['options'] ?? [], $errors),
+            'variant' => $this->validateSelect($errorKey, $value, $field['options'] ?? [], $errors),
+            'url' => $this->validateUrl($errorKey, $value, $errors),
+            'text' => str_ends_with($key, '_phone')
+                ? $this->validatePhone($errorKey, $value, $errors)
+                : $this->validateText($errorKey, $value, $errors),
+            // video/audio menyimpan path aset seperti image, hanya kontrol formnya beda.
+            'image', 'ornament', 'video', 'audio' => $this->validateImage($errorKey, $value, $errors),
+            'image_list' => $this->validateImageList($errorKey, $value, $errors),
+            'code' => $this->validateCode($errorKey, $value, $errors),
+            'repeater' => $this->validateRepeater($field, $errorKey, $value, $errors),
+            'ornament_list' => $this->validateOrnamentList($errorKey, $value, $errors),
+            default => null,
+        };
+    }
+
+    protected function validateRepeater(array $field, string $errorKey, mixed $value, array &$errors): void
+    {
+        if ($value === null) {
+            return;
+        }
+
+        if (!is_array($value) || !array_is_list($value)) {
+            $errors[$errorKey] = ["{$field['key']} harus berupa daftar item."];
+
+            return;
+        }
+
+        foreach ($value as $i => $item) {
+            if (!is_array($item)) {
+                $errors["{$errorKey}.{$i}"] = ['Item harus berupa objek.'];
+                continue;
+            }
+
+            foreach ($field['fields'] ?? [] as $subField) {
+                if ($subField['type'] === 'repeater') {
+                    throw new \LogicException('Repeater bersarang tidak didukung (kesalahan skema).');
+                }
+
+                $subKey = $subField['key'];
+                if (!array_key_exists($subKey, $item)) {
+                    continue;
+                }
+
+                $this->validateField($subField, "{$errorKey}.{$i}.{$subKey}", $item[$subKey], $errors);
+            }
         }
     }
 
-    protected function validateNumber(string $key, mixed $value, array &$errors): void
+    /** Daftar gambar: item {url, alt}. url masuk ke src/url() saat render, jadi wajib teks. */
+    protected function validateImageList(string $errorKey, mixed $value, array &$errors): void
+    {
+        if ($value === null) {
+            return;
+        }
+        if (!is_array($value) || !array_is_list($value)) {
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa daftar gambar.'];
+
+            return;
+        }
+        foreach ($value as $i => $item) {
+            if (!is_array($item)) {
+                $errors["{$errorKey}.{$i}"] = ['Item harus berupa objek.'];
+                continue;
+            }
+            if (isset($item['url']) && !is_string($item['url'])) {
+                $errors["{$errorKey}.{$i}.url"] = ['url harus berupa teks.'];
+            }
+            if (isset($item['alt']) && $item['alt'] !== null && !is_string($item['alt'])) {
+                $errors["{$errorKey}.{$i}.alt"] = ['alt harus berupa teks.'];
+            }
+        }
+    }
+
+    protected function validateOrnamentList(string $errorKey, mixed $value, array &$errors): void
+    {
+        if ($value === null) {
+            return;
+        }
+        if (!is_array($value) || !array_is_list($value)) {
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa daftar ornamen.'];
+            return;
+        }
+        $positions = ['left', 'right', 'center', 'full-width'];
+        foreach ($value as $i => $item) {
+            if (!is_array($item)) {
+                $errors["{$errorKey}.{$i}"] = ['Item harus berupa objek.'];
+                continue;
+            }
+            if (isset($item['src']) && !is_string($item['src']) && $item['src'] !== null) {
+                $errors["{$errorKey}.{$i}.src"] = ['src harus string.'];
+            }
+            if (isset($item['position']) && !in_array($item['position'], $positions, true)) {
+                $errors["{$errorKey}.{$i}.position"] = ['position tidak valid.'];
+            }
+            if (isset($item['scale']) && $item['scale'] !== null && !is_numeric($item['scale'])) {
+                $errors["{$errorKey}.{$i}.scale"] = ['scale harus angka.'];
+            }
+            foreach (['flip_h', 'flip_v'] as $fk) {
+                if (isset($item[$fk]) && !is_bool($item[$fk])) {
+                    $errors["{$errorKey}.{$i}.{$fk}"] = ["{$fk} harus boolean."];
+                }
+            }
+            if (isset($item['color']) && $item['color'] !== null
+                && (!is_string($item['color']) || !preg_match('/^#[0-9a-fA-F]{3,8}$/', $item['color']))) {
+                $errors["{$errorKey}.{$i}.color"] = ['color harus hex valid atau null.'];
+            }
+        }
+    }
+
+    // $errorKey berbentuk "props.color" atau nested "props.events.0.name";
+    // pesan memakai segmen terakhir supaya identik dengan pesan lama untuk field datar.
+    protected function shortKey(string $errorKey): string
+    {
+        return substr(strrchr($errorKey, '.'), 1);
+    }
+
+    protected function validateColor(string $errorKey, mixed $value, array &$errors): void
+    {
+        if ($value === null) {
+            return; // null = kembali ke default/asli (konsisten dg number/image)
+        }
+        if (!is_string($value) || !preg_match('/^#[0-9a-fA-F]{3,8}$/', $value)) {
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa kode warna hex yang valid.'];
+        }
+    }
+
+    protected function validateNumber(string $errorKey, mixed $value, array &$errors): void
     {
         if ($value !== null && !is_numeric($value)) {
-            $errors["props.{$key}"] = ["{$key} harus berupa angka."];
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa angka.'];
         }
     }
 
-    protected function validateBoolean(string $key, mixed $value, array &$errors): void
+    protected function validateBoolean(string $errorKey, mixed $value, array &$errors): void
     {
         if (!is_bool($value)) {
-            $errors["props.{$key}"] = ["{$key} harus berupa true/false."];
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa true/false.'];
         }
     }
 
-    protected function validateSelect(string $key, mixed $value, array $options, array &$errors): void
+    protected function validateSelect(string $errorKey, mixed $value, array $options, array &$errors): void
     {
         if (!in_array($value, $options, true)) {
-            $errors["props.{$key}"] = ["{$key} harus salah satu dari: ".implode(', ', $options).'.'];
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus salah satu dari: '.implode(', ', $options).'.'];
         }
     }
 
-    protected function validateUrl(string $key, mixed $value, array &$errors): void
+    protected function validateUrl(string $errorKey, mixed $value, array &$errors): void
     {
         if ($value !== null && $value !== '' && $value !== '#'
             && (!is_string($value) || !filter_var($value, FILTER_VALIDATE_URL))) {
-            $errors["props.{$key}"] = ["{$key} harus berupa URL yang valid."];
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa URL yang valid.'];
         }
     }
 
-    protected function validateText(string $key, mixed $value, array &$errors): void
+    protected function validateText(string $errorKey, mixed $value, array &$errors): void
     {
         if ($value !== null && !is_string($value)) {
-            $errors["props.{$key}"] = ["{$key} harus berupa teks."];
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa teks.'];
         }
     }
 
-    protected function validatePhone(string $key, mixed $value, array &$errors): void
+    protected function validatePhone(string $errorKey, mixed $value, array &$errors): void
     {
         if ($value === null || $value === '') {
             return;
         }
 
         if (!is_string($value) || !preg_match('/^[0-9+\-() ]*$/', $value)) {
-            $errors["props.{$key}"] = ["{$key} hanya boleh berisi angka, spasi, +, -, ( dan )."];
+            $errors[$errorKey] = [$this->shortKey($errorKey).' hanya boleh berisi angka, spasi, +, -, ( dan ).'];
         }
     }
 
-    protected function validateImage(string $key, mixed $value, array &$errors): void
+    protected function validateImage(string $errorKey, mixed $value, array &$errors): void
     {
         if ($value !== null && !is_string($value)) {
-            $errors["props.{$key}"] = ["{$key} harus berupa path gambar (teks)."];
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa path gambar (teks).'];
+        }
+    }
+
+    protected function validateCode(string $errorKey, mixed $value, array &$errors): void
+    {
+        if ($value !== null && !is_string($value)) {
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa teks HTML.'];
         }
     }
 }

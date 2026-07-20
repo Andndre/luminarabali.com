@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\InvitationPage;
 use App\Models\InvitationSection;
+use App\Models\InvitationTemplate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -31,14 +32,14 @@ class SectionPropsValidationEndpointTest extends TestCase
             'global_custom_css' => '',
             'sections' => [
                 [
-                    'id' => 'temp-1', 'parent_id' => null, 'section_type' => 'text',
-                    'order_index' => 0, 'props' => ['color' => 'not-a-hex-color'],
+                    'id' => 'temp-1', 'parent_id' => null, 'section_type' => 'section_one_col',
+                    'order_index' => 0, 'props' => ['background_color' => 'not-a-hex-color'],
                 ],
             ],
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['props.color']);
+        $response->assertJsonValidationErrors(['props.background_color']);
     }
 
     public function test_bulk_save_strips_unknown_props_keys(): void
@@ -84,5 +85,28 @@ class SectionPropsValidationEndpointTest extends TestCase
         ]);
 
         $response->assertStatus(422);
+    }
+
+    public function test_explicit_null_removes_a_prop_key_and_other_keys_survive(): void
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'status' => 'draft', 'created_by' => $admin->id,
+        ]);
+        $section = InvitationSection::create([
+            'template_id' => $template->id, 'section_type' => 'text', 'order_index' => 0,
+            'props' => ['content' => 'Halo', 'font_size' => 20], 'is_visible' => true,
+        ]);
+
+        $this->actingAs($admin);
+
+        $this->putJson("/admin/api/templates/sections/{$section->id}", [
+            'props' => ['font_size' => null],
+        ])->assertOk()
+          ->assertJsonMissingPath('section.props.font_size');
+
+        $fresh = $section->fresh();
+        $this->assertArrayNotHasKey('font_size', $fresh->props);
+        $this->assertEquals('Halo', $fresh->props['content']);
     }
 }

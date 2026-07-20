@@ -50,7 +50,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'division' => 'required|in:super_admin,photobooth,visual',
+            'division' => 'required|in:super_admin,designer,photobooth,visual',
         ]);
 
         User::create([
@@ -86,7 +86,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'division' => 'required|in:super_admin,photobooth,visual',
+            'division' => 'required|in:super_admin,designer,photobooth,visual',
             'password' => 'nullable|string|min:8',
         ]);
 

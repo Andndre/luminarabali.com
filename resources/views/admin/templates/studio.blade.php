@@ -1,39 +1,70 @@
-@extends('layouts.admin')
+@extends('layouts.studio')
 
 @section('title', 'Studio — ' . $template->name)
 
 @section('content')
-<style>[x-cloak]{display:none!important}</style>
-<div x-data="studioApp()" x-init="init()" class="h-[calc(100vh-4rem)] flex">
+{{-- studio-chrome discope ke div ini, bukan ke <body>: SweetAlert menempelkan
+     modalnya langsung ke body, dan modal terang dengan input gelap terlihat rusak. --}}
+<div x-data="studioApp()" x-init="init()" class="studio-chrome h-screen flex flex-col">
+    {{-- Toolbar --}}
+    <header class="h-14 shrink-0 flex items-center gap-3 px-4 border-b border-[var(--ui-line-2)] bg-[var(--ui-panel)]">
+        <a href="{{ route('admin.templates.index') }}" class="p-1.5 rounded-lg text-[var(--ui-text-3)] hover:bg-[var(--ui-hover)] hover:text-[var(--ui-text)]" title="Kembali">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+        </a>
+        <h1 class="font-bold text-[var(--ui-text)] truncate max-w-xs" title="{{ $template->name }}">{{ $template->name }}</h1>
+        <span class="text-xs font-semibold rounded-full px-2 py-0.5 capitalize"
+            :class="{ draft: 'bg-[#3a2f12] text-[#e6c96a]', published: 'bg-[#14301f] text-[#86d6a4]', archived: 'bg-[var(--ui-hover)] text-[var(--ui-text-2)]' }[status]"
+            x-text="status"></span>
+
+        <div class="flex-1"></div>
+
+        {{-- Mode Lanjutan: buka container/Basic/CSS mentah (guideline §2.0) --}}
+        <button @click="toggleAdvanced()" type="button" x-show="!asCustomer"
+            :title="advanced ? 'Matikan Mode Lanjutan' : 'Mode Lanjutan: container, blok dasar, CSS/HTML mentah'"
+            class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold border"
+            :class="advanced ? 'border-[var(--ui-accent)] bg-[var(--ui-accent)] text-[var(--ui-panel)]' : 'border-[var(--ui-line-2)] text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Lanjutan
+        </button>
+
+        {{-- Preview sebagai Customer: kunci inspector ke tab Konten (guideline §10.1a) --}}
+        <button @click="toggleAsCustomer()" type="button"
+            :title="asCustomer ? 'Kembali ke tampilan desainer' : 'Lihat editor seperti yang dilihat customer'"
+            class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold border"
+            :class="asCustomer ? 'border-[var(--ui-accent)] bg-[var(--ui-accent)] text-[var(--ui-panel)]' : 'border-[var(--ui-line-2)] text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+            Customer
+        </button>
+
+        {{-- Device toggle (ikon, bukan emoji) --}}
+        <div class="flex rounded-lg bg-[var(--ui-hover)] p-0.5">
+            <button @click="device = 'mobile'" title="Preview mobile" class="p-1.5 rounded-md" :class="device === 'mobile' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
+            </button>
+            <button @click="device = 'desktop'" title="Preview desktop" class="p-1.5 rounded-md" :class="device === 'desktop' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/></svg>
+            </button>
+        </div>
+
+        <button @click="publish()" :disabled="publishing"
+            class="rounded-lg bg-[var(--ui-accent)] px-4 py-1.5 text-xs font-semibold text-[var(--ui-panel)] hover:opacity-90 disabled:opacity-50"
+            x-text="publishing ? '…' : (status === 'published' ? 'Publish Ulang' : 'Publish')"></button>
+    </header>
+
+    <div class="flex-1 flex min-h-0">
 
     {{-- Panel kiri: Struktur --}}
-    <div class="w-72 shrink-0 flex flex-col border-r border-gray-200 bg-white">
-        <div class="p-4 border-b border-gray-200 space-y-2">
-            <div class="flex items-center justify-between">
-                <a href="{{ route('admin.templates.index') }}" class="text-sm text-gray-500 hover:text-gray-900">&larr; Kembali</a>
-                <span class="text-xs font-semibold rounded-full px-2 py-1 capitalize"
-                    :class="{
-                        draft: 'bg-yellow-100 text-yellow-800',
-                        published: 'bg-green-100 text-green-800',
-                        archived: 'bg-gray-100 text-gray-800',
-                    }[status]"
-                    x-text="status"></span>
-            </div>
-            <div class="flex items-center gap-2">
-                <h1 class="flex-1 font-bold text-gray-900 truncate" title="{{ $template->name }}">{{ $template->name }}</h1>
-                <button @click="publish()" :disabled="publishing"
-                    class="shrink-0 rounded-lg bg-black px-3 py-1.5 text-xs font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
-                    x-text="publishing ? '…' : (status === 'published' ? 'Publish Ulang' : 'Publish')"></button>
-            </div>
-            <div class="flex gap-1 pt-1">
+    <div class="w-72 shrink-0 flex flex-col border-r border-[var(--ui-line-2)] bg-[var(--ui-panel)]">
+        <div class="p-3 border-b border-[var(--ui-line-2)]">
+            <div class="flex gap-1 rounded-lg bg-[var(--ui-hover)] p-0.5">
                 <button @click="panel = 'sections'"
-                    class="flex-1 text-xs font-semibold rounded-lg px-2 py-1.5"
-                    :class="panel === 'sections' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    class="flex-1 text-xs font-semibold rounded-md px-2 py-1.5"
+                    :class="panel === 'sections' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
                     Struktur
                 </button>
-                <button @click="panel = 'theme'"
-                    class="flex-1 text-xs font-semibold rounded-lg px-2 py-1.5"
-                    :class="panel === 'theme' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                <button @click="panel = 'theme'" x-show="!asCustomer"
+                    class="flex-1 text-xs font-semibold rounded-md px-2 py-1.5"
+                    :class="panel === 'theme' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
                     Theme
                 </button>
             </div>
@@ -42,61 +73,242 @@
         {{-- Panel Theme (brand kit) --}}
         <div x-show="panel === 'theme'" x-cloak class="flex-1 overflow-y-auto p-4 space-y-6">
             <section>
-                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Warna</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <template x-for="key in Object.keys(theme.colors)" :key="key">
-                        <label class="block">
-                            <span class="text-xs text-gray-600 capitalize" x-text="key"></span>
-                            <input type="color" :value="theme.colors[key]"
-                                @input="setColor(key, $event.target.value)"
-                                class="mt-1 w-full h-9 border rounded cursor-pointer">
-                        </label>
+                <h2 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wide mb-3">Warna</h2>
+                <div class="grid grid-cols-2 gap-x-3 gap-y-2">
+                    <template x-for="(key, ci) in Object.keys(theme.colors)" :key="key">
+                        <div>
+                            <span class="text-xs text-[var(--ui-text-2)] capitalize" x-text="key.replace('_', ' ')"></span>
+                            <div class="mt-1 cpick-anchor" :class="ci % 2 === 1 && 'cpick-open-left'">
+                                <button type="button" class="cpick-trigger" :class="{ open: cp.key === 'theme:' + key }"
+                                    @click="openColorPicker('theme:' + key, theme.colors[key], h => setColor(key, h))">
+                                    <span class="cpick-sw" :style="`background:${theme.colors[key]}`"></span>
+                                    <span class="cpick-val" x-text="theme.colors[key]"></span>
+                                </button>
+                                <template x-if="cp.key === 'theme:' + key">
+                                    @include('admin.templates.studio._color-picker')
+                                </template>
+                            </div>
+                        </div>
                     </template>
                 </div>
             </section>
             <section>
-                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Font</h2>
+                <h2 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wide mb-3">Font</h2>
                 <div class="space-y-3">
+                    {{-- Dua entri terakhir bukan nama font, tapi pintu ke sumber lain:
+                         kolom tambahannya muncul di bawah select yang sama. --}}
                     <template x-for="key in Object.keys(theme.fonts)" :key="key">
-                        <label class="block">
-                            <span class="text-xs text-gray-600 capitalize" x-text="key"></span>
-                            <select :value="theme.fonts[key]" @change="setFont(key, $event.target.value)"
+                        <div>
+                            <span class="text-xs text-[var(--ui-text-2)] capitalize" x-text="key"></span>
+                            <select :value="fontSource(key)" @change="setFontSource(key, $event.target.value)"
                                 class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
                                 <template x-for="font in fonts" :key="font">
                                     <option :value="font" x-text="font"></option>
                                 </template>
+                                <option value="__google">Google Font…</option>
+                                <option value="__upload">Unggah font…</option>
                             </select>
-                        </label>
+
+                            <div x-show="fontSource(key) === '__google'"
+                                class="mt-1.5 rounded-lg border border-[var(--ui-line-2)] bg-[var(--ui-raised)] p-2.5">
+                                <span class="text-[11px] text-[var(--ui-text-4)]">Nama keluarga di Google Fonts</span>
+                                <input type="text" placeholder="Cormorant Garamond"
+                                    :value="theme.fonts[key]?.family ?? ''"
+                                    @change="setFontFamily(key, $event.target.value)"
+                                    class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                                <p class="mt-1.5 text-[11px] text-[var(--ui-text-4)]">
+                                    Huruf, angka, dan spasi saja. Kalau nama salah ketik, font gagal dimuat
+                                    dan tampilan jatuh ke font bawaan.
+                                </p>
+                            </div>
+
+                            <div x-show="fontSource(key) === '__upload'"
+                                class="mt-1.5 rounded-lg border border-[var(--ui-line-2)] bg-[var(--ui-raised)] p-2.5">
+                                <div x-show="theme.fonts[key]?.path"
+                                    class="flex items-center gap-2 rounded-lg border border-[var(--ui-line-3)] bg-[var(--ui-bg)] px-2.5 py-1.5 text-xs text-[var(--ui-text)]">
+                                    <span class="flex-1 min-w-0 truncate" x-text="fontFileName(key)"></span>
+                                    <button type="button" @click="clearFontFile(key)"
+                                        class="text-[var(--ui-text-4)] hover:text-[var(--ui-text)]" aria-label="Hapus berkas">×</button>
+                                </div>
+                                <label class="block mt-1.5 text-center text-xs text-[var(--ui-text-2)] border border-dashed border-[var(--ui-line-3)] rounded-lg px-3 py-2 cursor-pointer hover:border-[var(--ui-accent)] hover:text-[var(--ui-text)]">
+                                    <span x-text="theme.fonts[key]?.path ? 'Ganti berkas…' : 'Pilih berkas font…'"></span>
+                                    <input type="file" accept=".woff2,.woff,.ttf,.otf" class="hidden"
+                                        @change="uploadFontFile(key, $event)">
+                                </label>
+                                <span class="block mt-2 text-[11px] text-[var(--ui-text-4)]">Nama keluarga</span>
+                                <input type="text" placeholder="Gentium Plus"
+                                    :value="theme.fonts[key]?.family ?? ''"
+                                    @change="setFontFamily(key, $event.target.value)"
+                                    class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                            </div>
+                        </div>
                     </template>
                 </div>
             </section>
-            <p class="text-xs text-gray-400">Perubahan tersimpan otomatis dan langsung terlihat di preview.</p>
+            <section>
+                <h2 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wide mb-3">Skala</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="block">
+                        <span class="text-xs text-[var(--ui-text-2)]">Ukuran Teks Dasar (px)</span>
+                        @include('admin.templates.studio._stepper', ['min' => 8, 'max' => 40, 'step' => 1, 'bind' => 'theme.scales.type_base', 'change' => "setScale('type_base', Number(\$event.target.value))"])
+                    </label>
+                    <label class="block">
+                        <span class="text-xs text-[var(--ui-text-2)]">Rasio Skala</span>
+                        @include('admin.templates.studio._stepper', ['min' => 1, 'max' => 2, 'step' => '0.05', 'bind' => 'theme.scales.type_ratio', 'change' => "setScale('type_ratio', Number(\$event.target.value))"])
+                    </label>
+                    <label class="block">
+                        <span class="text-xs text-[var(--ui-text-2)]">Radius (px)</span>
+                        @include('admin.templates.studio._stepper', ['min' => 0, 'max' => 64, 'step' => 1, 'bind' => 'theme.scales.radius', 'change' => "setScale('radius', Number(\$event.target.value))"])
+                    </label>
+                    <label class="block">
+                        <span class="text-xs text-[var(--ui-text-2)]">Jarak Section (px)</span>
+                        @include('admin.templates.studio._stepper', ['min' => 0, 'max' => 200, 'step' => 1, 'bind' => 'theme.scales.section_spacing', 'change' => "setScale('section_spacing', Number(\$event.target.value))"])
+                    </label>
+                    <label class="block col-span-2">
+                        <span class="text-xs text-[var(--ui-text-2)]">Bayangan</span>
+                        <select :value="theme.scales.shadow_level" @change="setScale('shadow_level', $event.target.value)"
+                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                            <template x-for="opt in ['none', 'sm', 'md', 'lg']" :key="opt">
+                                <option :value="opt" x-text="opt"></option>
+                            </template>
+                        </select>
+                    </label>
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-xs font-semibold text-[var(--ui-text-3)] uppercase tracking-wide mb-2">Ornamen</h3>
+                <template x-for="slot in [{ key: 'heading_rule_top', width: 'heading_rule_top_width', label: 'Di Atas Judul' }, { key: 'heading_rule', width: 'heading_rule_width', label: 'Di Bawah Judul' }]" :key="slot.key">
+                    <div class="mb-2">
+                        <span class="text-xs text-[var(--ui-text-2)]" x-text="slot.label"></span>
+                        <div class="mt-1 flex items-center gap-2">
+                            <div class="w-10 h-10 shrink-0 rounded border border-[var(--ui-line-2)] bg-[var(--ui-raised)] flex items-center justify-center overflow-hidden">
+                                <img x-show="theme.ornaments[slot.key]" :src="mediaUrl(theme.ornaments[slot.key])" class="w-full h-full object-contain">
+                            </div>
+                            <button type="button" @click="openOrnamentPickerTheme(slot.key)"
+                                class="flex-1 text-xs border border-[var(--ui-line-2)] rounded-lg px-2 py-1.5 text-left hover:border-[var(--ui-accent)]">
+                                <span x-text="theme.ornaments[slot.key] ? 'Ganti…' : 'Pilih ornamen…'"></span>
+                            </button>
+                            <button type="button" x-show="theme.ornaments[slot.key]" @click="setOrnamentTheme(slot.key, null)"
+                                class="p-1 rounded text-[var(--ui-text-4)] hover:bg-[#2a1618] hover:text-[#e08a8a]">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        <label class="block mt-1.5" x-show="theme.ornaments[slot.key]">
+                            <span class="text-xs text-[var(--ui-text-3)]">Lebar (%)</span>
+                            <div class="mt-1 flex items-center gap-2">
+                                <input type="range" min="10" max="100" step="5" class="flex-1"
+                                    :value="theme.ornaments[slot.width] ?? 80"
+                                    @input="setOrnamentTheme(slot.width, Number($event.target.value))">
+                                <span class="w-8 text-right text-xs tabular-nums text-[var(--ui-text-2)]"
+                                    x-text="theme.ornaments[slot.width] ?? 80"></span>
+                            </div>
+                        </label>
+                    </div>
+                </template>
+
+                <label class="block mt-2">
+                    <span class="text-xs text-[var(--ui-text-2)]">Jarak ke Judul (px)</span>
+                    <div class="mt-1 flex items-center gap-2">
+                        <input type="range" min="0" max="80" step="2" class="flex-1"
+                            :value="theme.ornaments.heading_rule_gap ?? 14"
+                            @input="setOrnamentTheme('heading_rule_gap', Number($event.target.value))">
+                        <span class="w-8 text-right text-xs tabular-nums text-[var(--ui-text-2)]"
+                            x-text="theme.ornaments.heading_rule_gap ?? 14"></span>
+                    </div>
+                </label>
+                <p class="mt-1 text-xs text-[var(--ui-text-4)]">Berlaku untuk judul semua komponen. Warnanya ikut warna Aksen tema.</p>
+            </section>
+
+            <p class="text-xs text-[var(--ui-text-4)]">Perubahan tersimpan otomatis dan langsung terlihat di preview.</p>
         </div>
 
         <div x-show="panel === 'sections'" class="flex-1 overflow-y-auto p-3 space-y-1" x-ref="sectionList">
+            <template x-if="!loaded">
+                <div class="space-y-2 p-1">
+                    <div class="h-9 rounded-lg bg-[var(--ui-hover)] animate-pulse"></div>
+                    <div class="h-9 rounded-lg bg-[var(--ui-hover)] animate-pulse"></div>
+                    <div class="h-9 rounded-lg bg-[var(--ui-hover)] animate-pulse"></div>
+                </div>
+            </template>
             <template x-for="s in sections" :key="s.id">
-                <div :data-id="s.id" @click="selectedId = s.id"
-                    class="group flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer select-none"
-                    :class="selectedId === s.id ? 'border-black bg-gray-50' : 'border-gray-200 hover:bg-gray-50'">
-                    <span class="drag-handle cursor-grab text-gray-300 group-hover:text-gray-400">⠿</span>
-                    <span class="flex-1 text-sm truncate" :class="{ 'opacity-40': !s.is_visible }"
-                        x-text="typeLabel(s.section_type)"></span>
-                    <div class="hidden group-hover:flex items-center gap-1 text-gray-400">
-                        <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'"
-                            class="hover:text-gray-900" x-text="s.is_visible ? '👁' : '🚫'"></button>
-                        <button @click.stop="duplicateSection(s)" title="Duplikat" class="hover:text-gray-900">⧉</button>
-                        <button @click.stop="removeSection(s)" title="Hapus" class="hover:text-red-600">✕</button>
+                <div :data-id="s.id">
+                    <div @click="selectedId = s.id"
+                        class="group flex items-center gap-2 rounded-lg border px-2.5 py-2 cursor-pointer select-none"
+                        :class="selectedId === s.id ? 'border-[var(--ui-accent)] bg-[var(--ui-raised)]' : 'border-[var(--ui-line-2)] hover:bg-[var(--ui-raised)]'">
+                        <span class="drag-handle cursor-grab text-[var(--ui-text-4)] group-hover:text-[var(--ui-text-4)] shrink-0" x-show="!asCustomer">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
+                        </span>
+                        <span class="shrink-0 text-[var(--ui-text-4)]" x-html="typeIcon(s.section_type)"></span>
+                        <span class="flex-1 text-sm truncate" :class="{ 'opacity-40': !s.is_visible }" x-text="typeLabel(s.section_type)"></span>
+                        <span x-show="s.custom_css" title="Section ini punya CSS kustom" class="text-[9px] font-semibold bg-[#2b1f3d] text-[#c4a8ef] rounded px-1">CSS</span>
+                        {{-- Aksi restrukturisasi (visibilitas/duplikat/preset/hapus) disembunyikan di mode
+                             customer (guideline §10.1a) — customer hanya boleh memilih & mengedit konten. --}}
+                        {{-- Tetap terlihat di baris terpilih: aksi yang cuma muncul saat
+                             hover tak punya jejak sama sekali sebelum kursor lewat. --}}
+                        <div class="items-center gap-0.5 text-[var(--ui-text-4)]" x-show="!asCustomer"
+                            :class="selectedId === s.id ? 'flex' : 'hidden group-hover:flex'">
+                            <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'" class="p-1 rounded hover:bg-[var(--ui-line)] hover:text-[var(--ui-text)]">
+                                <svg x-show="s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <svg x-show="!s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                            </button>
+                            <button @click.stop="duplicateSection(s)" title="Duplikat" class="p-1 rounded hover:bg-[var(--ui-line)] hover:text-[var(--ui-text)]">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-8.25A2.25 2.25 0 017.5 18v-7.5a2.25 2.25 0 012.25-2.25h6.75z"/></svg>
+                            </button>
+                            <button @click.stop="savePreset(s)" title="Simpan sebagai preset" class="p-1 rounded hover:bg-[var(--ui-line)] hover:text-[var(--ui-text)]">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                            </button>
+                            <button @click.stop="removeSection(s)" title="Hapus" class="p-1 rounded hover:bg-[#2a1618] hover:text-[#e08a8a]">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    {{-- Mode customer tetap perlu melihat blok anak container agar bisa
+                         memilihnya (guideline §10.1a) — makanya kondisinya "advanced ATAU
+                         asCustomer", bukan cuma "advanced". --}}
+                    <div x-show="(advanced || asCustomer) && classOf(s.section_type) === 'container'" x-cloak
+                        class="mt-1 ml-3 pl-2 border-l border-dashed border-[var(--ui-line-2)] space-y-1.5">
+                        <template x-for="col in columnsOf(s.section_type)" :key="col">
+                            <div>
+                                <p class="text-[10px] font-semibold uppercase tracking-wide text-[var(--ui-text-4)] px-1 py-0.5"
+                                    x-text="'Kolom ' + col"></p>
+                                <div class="space-y-1" :data-column="col - 1" :data-parent="s.id"
+                                    x-ref="col" x-init="$nextTick(() => initColumnSortable($el))">
+                                    <template x-for="c in childrenOf(s.id, col - 1)" :key="c.id">
+                                        <div :data-id="c.id" @click.stop="selectedId = c.id"
+                                            class="group flex items-center gap-2 rounded-lg border px-2 py-1.5 cursor-pointer select-none bg-[var(--ui-panel)]"
+                                            :class="selectedId === c.id ? 'border-[var(--ui-accent)] bg-[var(--ui-raised)]' : 'border-[var(--ui-line-2)] hover:bg-[var(--ui-raised)]'">
+                                            <span class="drag-handle cursor-grab text-[var(--ui-text-4)] shrink-0" x-show="!asCustomer">
+                                                <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
+                                            </span>
+                                            <span class="shrink-0 text-[var(--ui-text-4)]" x-html="typeIcon(c.section_type)"></span>
+                                            <span class="flex-1 text-xs truncate" :class="{ 'opacity-40': !c.is_visible }"
+                                                x-text="typeLabel(c.section_type)"></span>
+                                            <button @click.stop="removeSection(c)" title="Hapus" x-show="!asCustomer"
+                                                class="hidden group-hover:block p-0.5 rounded text-[var(--ui-text-4)] hover:bg-[#2a1618] hover:text-[#e08a8a]">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                                <button @click.stop="openAddChild(s.id, col - 1)" type="button" x-show="!asCustomer"
+                                    class="mt-1 w-full rounded-lg border border-dashed border-[var(--ui-line-2)] px-2 py-1 text-[11px] text-[var(--ui-text-4)] hover:border-[var(--ui-accent)] hover:text-[var(--ui-text)]">
+                                    + Blok
+                                </button>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </template>
-            <p x-show="loaded && sections.length === 0" class="text-sm text-gray-400 px-2 py-4 text-center">
-                Belum ada section.
-            </p>
+            <div x-show="loaded && sections.length === 0" class="flex flex-col items-center gap-2 text-center px-2 py-8 text-[var(--ui-text-4)]">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
+                <p class="text-sm">Belum ada section.</p>
+            </div>
         </div>
 
-        <div x-show="panel === 'sections'" class="p-3 border-t border-gray-200">
-            <button @click="addOpen = true"
-                class="w-full rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-600 hover:border-black hover:text-black">
+        <div x-show="panel === 'sections'" class="p-3 border-t border-[var(--ui-line-2)]">
+            <button @click="addOpen = true" x-show="!asCustomer"
+                class="w-full rounded-lg border border-dashed border-[var(--ui-line-2)] px-3 py-2 text-sm text-[var(--ui-text-2)] hover:border-[var(--ui-accent)] hover:text-[var(--ui-text)]">
                 + Tambah Section
             </button>
         </div>
@@ -105,17 +317,98 @@
     {{-- Modal galeri tipe section --}}
     <div x-show="addOpen" x-cloak
         class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8"
-        @click.self="addOpen = false" @keydown.escape.window="addOpen = false">
-        <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
+        @click.self="addOpen = false; addChildTarget = null" @keydown.escape.window="addOpen = false; addChildTarget = null">
+        <div class="bg-[var(--ui-panel)] rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="font-bold text-gray-900">Tambah Section</h2>
-                <button @click="addOpen = false" class="text-gray-400 hover:text-gray-900">✕</button>
+                <h2 class="font-bold text-[var(--ui-text)]" x-text="addChildTarget ? 'Tambah Blok ke Kolom' : 'Tambah Section'"></h2>
+                <button @click="addOpen = false; addChildTarget = null" class="p-1 rounded-lg text-[var(--ui-text-4)] hover:bg-[var(--ui-hover)] hover:text-[var(--ui-text)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-            <div class="grid grid-cols-3 gap-3">
-                <template x-for="(label, type) in typeLabels" :key="type">
-                    <button @click="addSection(type)"
-                        class="border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
-                        <span class="font-medium" x-text="label"></span>
+            <div class="flex gap-1 mb-4 rounded-lg bg-[var(--ui-hover)] p-0.5 w-fit">
+                <button @click="addTab = 'types'"
+                    class="text-xs font-semibold rounded-md px-3 py-1.5"
+                    :class="addTab === 'types' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
+                    Tipe Section
+                </button>
+                <button @click="addTab = 'presets'"
+                    class="text-xs font-semibold rounded-md px-3 py-1.5"
+                    :class="addTab === 'presets' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
+                    Presets
+                </button>
+            </div>
+            <div x-show="addTab === 'types'" class="space-y-5">
+                <div x-show="!addChildTarget">
+                    <p class="text-[11px] font-semibold uppercase tracking-wide text-[var(--ui-text-4)] mb-2">Section</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <template x-for="(label, type) in curatedTypes" :key="type">
+                            <button @click="addSection(type)" class="flex flex-col items-start gap-2 border border-[var(--ui-line-2)] rounded-xl p-4 text-sm text-left hover:border-[var(--ui-accent)] hover:bg-[var(--ui-raised)]">
+                                <span class="text-[var(--ui-text-4)]" x-html="typeIcon(type)"></span>
+                                <span class="font-medium" x-text="label"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+                <div x-show="advanced || addChildTarget" x-cloak>
+                    <p class="text-[11px] font-semibold uppercase tracking-wide text-[var(--ui-text-4)] mb-2">
+                        Mode Lanjutan — kolom &amp; blok dasar
+                    </p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <template x-for="(label, type) in (addChildTarget ? basicTypes : advancedTypes)" :key="type">
+                            <button @click="addChildTarget ? addSection(type, null, addChildTarget) : addSection(type)" class="flex flex-col items-start gap-2 border border-[var(--ui-line-2)] rounded-xl p-4 text-sm text-left hover:border-[var(--ui-accent)] hover:bg-[var(--ui-raised)]">
+                                <span class="text-[var(--ui-text-4)]" x-html="typeIcon(type)"></span>
+                                <span class="font-medium" x-text="label"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            <div x-show="addTab === 'presets'" x-cloak>
+                <div class="grid grid-cols-3 gap-3" x-show="presets.length > 0">
+                    <template x-for="p in presets" :key="p.id">
+                        <div class="group relative border border-[var(--ui-line-2)] rounded-xl p-4 text-sm hover:border-[var(--ui-accent)] hover:bg-[var(--ui-raised)] cursor-pointer"
+                            @click="addSection(p.section_type, p.props)">
+                            <span class="block font-medium" x-text="p.name"></span>
+                            <span class="block text-xs text-[var(--ui-text-4)] mt-1"
+                                x-text="(p.category ? p.category + ' · ' : '') + typeLabel(p.section_type)"></span>
+                            <button @click.stop="deletePreset(p)" title="Hapus preset"
+                                class="absolute top-2 right-2 hidden group-hover:block p-1 rounded text-[var(--ui-text-4)] hover:bg-[#2a1618] hover:text-[#e08a8a]">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+                <p x-show="presetsLoaded && presets.length === 0" class="text-sm text-[var(--ui-text-4)] text-center py-6">
+                    Belum ada preset. Simpan section sebagai preset lewat tombol simpan di panel struktur.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal pustaka ornamen --}}
+    <div x-show="ornamentPicker.open" x-cloak
+        class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8"
+        @click.self="ornamentPicker.open = false" @keydown.escape.window="ornamentPicker.open = false">
+        <div class="bg-[var(--ui-panel)] rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-bold text-[var(--ui-text)]">Pustaka Ornamen</h2>
+                <button @click="ornamentPicker.open = false" class="p-1 rounded-lg text-[var(--ui-text-4)] hover:bg-[var(--ui-hover)] hover:text-[var(--ui-text)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <label class="block text-center text-sm border border-dashed border-[var(--ui-line-2)] rounded-lg px-3 py-2 mb-4 cursor-pointer hover:border-[var(--ui-accent)]">
+                + Upload ornamen baru
+                <input type="file" accept="image/*,.svg" class="hidden"
+                    @change="uploadOrnamentToItem($event)">
+            </label>
+            <template x-if="ornaments.length === 0">
+                <p class="text-sm text-[var(--ui-text-4)] text-center py-8">Belum ada ornamen. Upload di atas.</p>
+            </template>
+            <div class="grid grid-cols-5 gap-2">
+                <template x-for="o in ornaments" :key="o.id">
+                    <button type="button" @click="pickOrnament(o.file_path)" :title="o.asset_name"
+                        class="border border-[var(--ui-line-2)] rounded-lg p-1 hover:border-[var(--ui-accent)] bg-[var(--ui-raised)]">
+                        <img :src="mediaUrl(o.file_path)" class="w-full h-12 object-contain">
                     </button>
                 </template>
             </div>
@@ -123,39 +416,19 @@
     </div>
 
     {{-- Panel tengah: Preview --}}
-    <div class="flex-1 bg-gray-100 flex flex-col min-w-0">
-        <div class="p-2 flex justify-center gap-1">
-            <button @click="device = 'mobile'"
-                class="text-sm px-3 py-1.5 rounded-lg"
-                :class="device === 'mobile' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200'">📱 Mobile</button>
-            <button @click="device = 'desktop'"
-                class="text-sm px-3 py-1.5 rounded-lg"
-                :class="device === 'desktop' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200'">🖥 Desktop</button>
-        </div>
-        <div class="flex-1 px-4 pb-4 flex justify-center min-h-0">
-            <iframe x-ref="preview" src="{{ route('admin.templates.studio.preview', $template->id) }}"
-                class="h-full rounded-xl border border-gray-300 bg-white transition-all duration-300"
+    <div class="flex-1 bg-[var(--ui-bg)] flex flex-col min-w-0">
+        <div class="flex-1 p-4 flex justify-center min-h-0">
+            <iframe id="studio-preview" x-ref="preview" src="{{ route('admin.templates.studio.preview', $template->id) }}"
+                class="h-full rounded-xl border border-[var(--ui-line-2)] bg-[var(--ui-panel)] shadow-2xl shadow-black/40 transition-all duration-300"
                 :class="device === 'mobile' ? 'w-[375px]' : 'w-full'"></iframe>
         </div>
     </div>
 
-    {{-- Panel kanan: Inspector (placeholder — form skema hadir di Fase A2c) --}}
-    <div class="w-80 shrink-0 border-l border-gray-200 bg-white p-5 overflow-y-auto">
-        <template x-if="!selected">
-            <p class="text-sm text-gray-400">Pilih section di panel kiri untuk mengedit.</p>
-        </template>
-        <template x-if="selected">
-            <div>
-                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide"
-                    x-text="typeLabel(selected.section_type)"></h2>
-                <p class="text-xs text-gray-400 mt-1" x-text="'Section #' + selected.id"></p>
-                <p class="text-sm text-gray-500 mt-4">Form properti section hadir di Fase A2c.</p>
-            </div>
-        </template>
+    @include('admin.templates.studio._inspector')
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
+{{-- Sortable, Swal, dan Alpine datang dari resources/js/studio.js (lihat layouts/studio). --}}
 <script>
 function escapeHtml(s) {
     const div = document.createElement('div');
@@ -168,35 +441,859 @@ function studioApp() {
         status: @json($template->status),
         sections: [],
         selectedId: null,
+        scrollOnSelect: true,
         device: 'mobile',
         loaded: false,
         addOpen: false,
+        addTab: 'types',
+        presets: [],
+        presetsLoaded: false,
+        ornaments: [],
+        ornamentPicker: { open: false, listKey: null, index: null, themeKey: null },
         panel: 'sections',
         theme: @json($themeBase),
         fonts: @json($fonts),
         themeSaveTimer: null,
         fontsDirty: false,
         publishing: false,
+        upload: null, // { current, total, percent } saat upload berlangsung
         typeLabels: @json($sectionTypes),
+        classes: @json($componentClasses),
+        advanced: localStorage.getItem('luminara.studio.advanced') === '1',
+        asCustomer: false,
+        schema: @json($schema),
+        inspectorTab: 'content',
+        fieldErrors: {},
+        hasChildren: {},
+        children: [],
+        addChildTarget: null, // { parentId, columnIndex } saat modal dibuka untuk isi kolom
+        propSaveTimer: null,
+        undoStack: [],
+        redoStack: [],
+        restoring: false,
+        cssSaveTimer: null,
+        cssError: null,
+        rootEl: null, // di-set di init() ke root x-data; jangan pakai this.$el di method lain (lihat persistStructure)
 
         async init() {
-            const res = await fetch(`/admin/api/templates/{{ $template->id }}/load`);
-            const data = await res.json();
-            this.sections = data.sections.filter(s => !s.parent_id);
+            // Simpan root element sekali di sini: init() dipanggil dari x-init di root
+            // x-data, jadi $el di titik ini adalah root studio-app yang sesungguhnya.
+            // Jangan andalkan this.$el di method lain (mis. persistStructure) — di sana
+            // this adalah merge proxy per-elemen milik directive yang memanggilnya, bukan root.
+            this.rootEl = this.$el;
+            await this.loadSections();
             this.loaded = true;
             this.initSortable();
+            this.$watch('selectedId', id => {
+                this.fieldErrors = {};
+                this.cssError = null;
+                // Jangan gulirkan kanvas kalau pilihannya BERASAL dari klik di kanvas —
+                // sectionnya sudah kelihatan, menggulirkannya justru menyentak.
+                if (id && this.scrollOnSelect) this.scrollPreviewTo(id);
+                this.scrollOnSelect = true;
+                // Fallback 'content' (bukan 'design'): availableTabs kosong berarti tab
+                // 'content' pasti juga kosong (lihat getter availableTabs), jadi ini aman
+                // di kedua mode. 'design' dulu bisa bocor field desain ke customer saat
+                // section (mis. divider/spacer) tak punya field content sama sekali.
+                this.inspectorTab = this.availableTabs[0]?.id ?? 'content';
+            });
+            this.$watch('addOpen', open => {
+                if (open && !this.presetsLoaded) this.loadPresets();
+            });
+            // Galeri ornamen untuk kontrol tipe 'ornament' (gagal = kontrol tetap bisa path manual)
+            fetch('/admin/api/assets?collection=ornament', { headers: { 'Accept': 'application/json' } })
+                .then(r => r.json())
+                .then(d => { this.ornaments = d.data ?? []; })
+                .catch(() => {});
+            // Pesan dari iframe preview (mode studio): klik-pilih & inline edit.
+            window.addEventListener('message', e => {
+                if (e.origin !== window.location.origin || !e.data?.type) return;
+                if (e.data.type === 'studio:select') {
+                    this.panel = 'sections';
+                    this.scrollOnSelect = false;
+                    this.selectedId = String(e.data.id);
+                }
+                if (e.data.type === 'studio:edit') {
+                    const s = this.sections.find(x => x.id === String(e.data.id));
+                    if (!s) return;
+                    this.pushUndo();
+                    s.props[e.data.key] = e.data.value;
+                    this.saveProps(s); // blur = final, tanpa debounce
+                }
+            });
+            // Ctrl/Cmd+Z = undo, +Shift = redo (abaikan saat fokus di input)
+            window.addEventListener('keydown', e => {
+                if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z') return;
+                const t = e.target;
+                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+                e.preventDefault();
+                e.shiftKey ? this.redo() : this.undo();
+            });
+
+            // Panah atas/bawah pindah antar section. Diabaikan saat fokus di kontrol
+            // form — di sana panah punya arti sendiri (angka naik-turun, pilih opsi).
+            window.addEventListener('keydown', e => {
+                if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+                if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+                const t = e.target;
+                if (t && (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || t.isContentEditable)) return;
+                // Modal terbuka, atau panel kiri sedang di tab Theme: daftar sectionnya
+                // tak terlihat, jadi memindah pilihan diam-diam cuma membingungkan.
+                if (this.addOpen || this.ornamentPicker.open || this.panel !== 'sections') return;
+                e.preventDefault();
+                this.moveSelection(e.key === 'ArrowDown' ? 1 : -1);
+            });
+        },
+
+        // Urutan yang sama dengan yang terlihat di panel kiri: tiap container diikuti
+        // blok anaknya, kolom demi kolom. Kalau nesting sedang tak ditampilkan, anak
+        // tidak ikut dilewati.
+        navigableIds() {
+            const showChildren = this.advanced || this.asCustomer;
+            const ids = [];
+            for (const s of this.sections) {
+                ids.push(String(s.id));
+                if (!showChildren || this.classOf(s.section_type) !== 'container') continue;
+                for (let col = 0; col < this.columnsOf(s.section_type); col++) {
+                    this.childrenOf(s.id, col).forEach(c => ids.push(String(c.id)));
+                }
+            }
+            return ids;
+        },
+
+        moveSelection(step) {
+            const ids = this.navigableIds();
+            if (!ids.length) return;
+            const at = ids.indexOf(String(this.selectedId));
+            // Belum ada yang terpilih: panah bawah mulai dari atas, panah atas dari bawah.
+            const next = at === -1
+                ? (step > 0 ? 0 : ids.length - 1)
+                : Math.min(ids.length - 1, Math.max(0, at + step));
+            this.selectedId = ids[next];
+            this.scrollRowIntoView(ids[next]);
+        },
+
+        // Baris terpilih harus terlihat di panel kiri juga, bukan cuma di kanvas —
+        // kalau tidak, menahan panah bawah membuat pilihan hilang dari layar.
+        scrollRowIntoView(id) {
+            this.$refs.sectionList
+                ?.querySelector(`[data-id="${id}"]`)
+                ?.scrollIntoView({ block: 'nearest' });
         },
 
         get selected() {
-            return this.sections.find(s => s.id === this.selectedId) ?? null;
+            return this.selectedId ? this.sectionById(this.selectedId) : null;
         },
 
         typeLabel(type) {
             return this.typeLabels[type] ?? type;
         },
 
+        typeIcon(type) {
+            const p = {
+                cover: 'M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25z',
+                hero: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z',
+                text: 'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12',
+                image: 'M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z',
+                countdown: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z',
+                gallery: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z',
+                map: 'M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z',
+                music: 'M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z',
+                video: 'M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z',
+                couple: 'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z',
+                event_details: 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5',
+                gift: 'M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H4.5a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z',
+                quote: 'M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z',
+                love_story: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25',
+                live_stream: 'M9.348 14.651a3.75 3.75 0 010-5.303m5.304 0a3.75 3.75 0 010 5.303m-7.425 2.122a6.75 6.75 0 010-9.546m9.546 0a6.75 6.75 0 010 9.546M5.106 18.894c-3.808-3.808-3.808-9.98 0-13.789m13.788 0c3.808 3.808 3.808 9.981 0 13.79M12 12h.008v.007H12V12z',
+                wishes: 'M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155',
+                rsvp: 'M21.75 9v.906a2.25 2.25 0 01-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 001.183 1.981l6.478 3.488m8.839 2.51l-4.66-2.51m0 0l-1.023-.55a2.25 2.25 0 00-2.134 0l-1.022.55m0 0l-4.661 2.51m16.5 1.615a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V8.844a2.25 2.25 0 011.183-1.98l7.5-4.04a2.25 2.25 0 012.134 0l7.5 4.04a2.25 2.25 0 011.183 1.98V19.5z',
+                closing: 'M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5',
+                code: 'M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5',
+                divider: 'M19.5 12h-15',
+                spacer: 'M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5',
+                button: 'M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5',
+                section_one_col: 'M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z',
+            };
+            p.section_two_col = p.section_one_col;
+            p.section_three_col = p.section_one_col;
+            const d = p[type] ?? p.gallery;
+            return `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${d}"/></svg>`;
+        },
+
+        get availableTabs() {
+            if (!this.selected) return [];
+            // Preview sebagai Customer: hanya tab Konten (guideline §10.1a).
+            if (this.asCustomer) {
+                return this.fieldsFor(this.selected.section_type, 'content').length > 0
+                    ? [{ id: 'content', label: 'Konten' }]
+                    : [];
+            }
+            return [
+                { id: 'content', label: 'Konten' },
+                { id: 'design', label: 'Desain' },
+                { id: 'advanced', label: 'Lanjutan' },
+            ].filter(t => t.id === 'advanced'
+                // CSS/HTML mentah = perkakas Mode Lanjutan (guideline §2.0)
+                ? this.advanced
+                : this.fieldsFor(this.selected.section_type, t.id).length > 0);
+        },
+
+        toggleAdvanced() {
+            this.advanced = !this.advanced;
+            localStorage.setItem('luminara.studio.advanced', this.advanced ? '1' : '0');
+            // Section yang sedang dipilih bisa jadi tak lagi punya tab aktif yang sah.
+            this.inspectorTab = this.availableTabs[0]?.id ?? 'content';
+        },
+
+        toggleAsCustomer() {
+            this.asCustomer = !this.asCustomer;
+            // Mode Lanjutan & Preview-as-Customer saling meniadakan: customer tak pernah
+            // melihat perkakas desainer. Nilai advanced TIDAK ditulis ke localStorage di
+            // sini — ini cuma dipaksa off sementara, preferensi asli desainer tetap utuh
+            // (dibaca balik dari localStorage saat keluar mode customer, bukan ditulis).
+            if (this.asCustomer) {
+                this.advanced = false;
+            } else {
+                this.advanced = localStorage.getItem('luminara.studio.advanced') === '1';
+            }
+            this.panel = 'sections';
+            this.inspectorTab = this.availableTabs[0]?.id ?? 'content';
+        },
+
+        classOf(type) {
+            if (this.classes.container.includes(type)) return 'container';
+            if (this.classes.basic.includes(type)) return 'basic';
+            return 'feature';
+        },
+
+        columnsOf(type) {
+            return this.classes.container_columns[type] ?? 0;
+        },
+
+        // WAJIB kembalikan salinan hasil filter (bukan array live) — konsisten dengan
+        // helper list lain; mutasi di tempat merusak snapshot undo.
+        childrenOf(parentId, columnIndex) {
+            return this.children
+                .filter(c => String(c.parent_id) === String(parentId)
+                    && Number(c.props?.column_index ?? 0) === columnIndex)
+                .sort((a, b) => a.order_index - b.order_index);
+        },
+
+        // Section (top-level atau anak) berdasarkan id — dipakai inspector & aksi baris.
+        sectionById(id) {
+            return this.sections.find(s => String(s.id) === String(id))
+                ?? this.children.find(c => String(c.id) === String(id));
+        },
+
+        get curatedTypes() {
+            return Object.fromEntries(Object.entries(this.typeLabels)
+                .filter(([type]) => this.classOf(type) === 'feature'));
+        },
+
+        get advancedTypes() {
+            return Object.fromEntries(Object.entries(this.typeLabels)
+                .filter(([type]) => this.classOf(type) !== 'feature'));
+        },
+
+        get basicTypes() {
+            return Object.fromEntries(Object.entries(this.typeLabels)
+                .filter(([type]) => this.classOf(type) === 'basic'));
+        },
+
+        fieldsFor(type, group) {
+            const schema = this.schema[type] ?? [];
+            const variantField = schema.find(f => f.type === 'variant');
+            const activeVariant = this.selected?.props?.variant ?? variantField?.default;
+            return schema.filter(f => f.group === group && !f.hidden
+                && !(this.asCustomer && this.isLocked(f.key))
+                && (!f.variant || (activeVariant && f.variant.includes(activeVariant))));
+        },
+
+        isLocked(key) {
+            return (this.selected?.props?._locked ?? []).includes(key);
+        },
+
+        async toggleLock(key) {
+            const s = this.selected;
+            if (!s) return;
+            const current = [...(s.props._locked ?? [])];
+            const next = current.includes(key) ? current.filter(k => k !== key) : [...current, key];
+            const previous = current;
+            s.props = { ...s.props, _locked: next };
+            try {
+                await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { locked: next });
+            } catch {
+                s.props = { ...s.props, _locked: previous }; // kembalikan optimistic flip
+                this.toastError('Gagal mengubah kunci field');
+            }
+        },
+
+        // Panel colaps di inspector. Urutan di sini = urutan tampil; field yang panel-nya
+        // tak terdaftar tetap muncul (di akhir, berlabel apa adanya) supaya menambah blok
+        // bersama baru di config tidak diam-diam menyembunyikan field.
+        panelOrder: ['spacing', 'radius', 'treatment', 'ornament', 'animation'],
+
+        panelsFor(type, group) {
+            const seen = this.fieldsFor(type, group)
+                .filter(f => f.panel && this.showField(f))
+                .map(f => f.panel);
+            const unique = [...new Set(seen)];
+            return unique.sort((a, b) => {
+                const ia = this.panelOrder.indexOf(a), ib = this.panelOrder.indexOf(b);
+                return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+            });
+        },
+
+        panelLabel(p) {
+            return {
+                spacing: 'Spacing & Kotak',
+                radius: 'Sudut',
+                treatment: 'Latar & Treatment',
+                ornament: 'Ornamen',
+                animation: 'Animasi',
+            }[p] ?? this.variantLabel(p);
+        },
+
+        variantLabel(v) {
+            return String(v ?? '').split('-')
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        },
+
+        variantSchematic(v) {
+            // Skematik layout mini (viewBox 0 0 40 28), stroke currentColor. Fallback saat
+            // thumbnail asli belum ada. Tiap varian = gambaran kasar bentuknya.
+            const S = {
+                'fullscreen': '<rect x="2" y="2" width="36" height="24" rx="2"/><rect x="12" y="12" width="16" height="2" fill="currentColor" stroke="none"/>',
+                'split': '<rect x="2" y="2" width="36" height="24" rx="2"/><line x1="20" y1="2" x2="20" y2="26"/>',
+                'minimal': '<rect x="2" y="2" width="36" height="24" rx="2" opacity=".3"/><rect x="13" y="13" width="14" height="2" fill="currentColor" stroke="none"/>',
+                'centered-stacked': '<circle cx="20" cy="8" r="4"/><rect x="13" y="15" width="14" height="2" fill="currentColor" stroke="none"/><rect x="15" y="20" width="10" height="1.5" fill="currentColor" stroke="none"/>',
+                'side-alternating': '<rect x="3" y="4" width="10" height="8" rx="1"/><line x1="16" y1="6" x2="30" y2="6"/><line x1="16" y1="9" x2="26" y2="9"/><rect x="27" y="16" width="10" height="8" rx="1"/><line x1="10" y1="18" x2="24" y2="18"/><line x1="14" y1="21" x2="24" y2="21"/>',
+                'portrait-overlay': '<rect x="4" y="3" width="14" height="22" rx="1"/><rect x="22" y="3" width="14" height="22" rx="1"/><rect x="6" y="19" width="10" height="2" fill="currentColor" stroke="none"/><rect x="24" y="19" width="10" height="2" fill="currentColor" stroke="none"/>',
+                'centered-portrait': '<rect x="16" y="3" width="8" height="14" rx="4"/><rect x="13" y="19" width="14" height="1.8" fill="currentColor" stroke="none"/><rect x="15" y="23" width="10" height="1.4" fill="currentColor" stroke="none"/>',
+                'arch-pair': '<path d="M14 3a6 6 0 0 1 12 0v5H14z"/><path d="M14 15a6 6 0 0 1 12 0v5H14z"/>',
+                'label-vertical': '<rect x="9" y="2" width="22" height="17" rx="1"/><line x1="12" y1="16" x2="12" y2="7"/><line x1="12" y1="23" x2="28" y2="23" stroke-width="2"/>',
+                'cards': '<rect x="3" y="9" width="7" height="10" rx="1"/><rect x="12" y="9" width="7" height="10" rx="1"/><rect x="21" y="9" width="7" height="10" rx="1"/><rect x="30" y="9" width="7" height="10" rx="1"/>',
+                'minimal-line': '<rect x="4" y="12" width="4" height="4" fill="currentColor" stroke="none"/><line x1="12" y1="9" x2="12" y2="19"/><rect x="16" y="12" width="4" height="4" fill="currentColor" stroke="none"/><line x1="24" y1="9" x2="24" y2="19"/><rect x="28" y="12" width="4" height="4" fill="currentColor" stroke="none"/>',
+                'ring': '<circle cx="9" cy="14" r="5"/><circle cx="20" cy="14" r="5"/><circle cx="31" cy="14" r="5"/>',
+                'grid': '<rect x="3" y="4" width="10" height="8" rx="1"/><rect x="15" y="4" width="10" height="8" rx="1"/><rect x="27" y="4" width="10" height="8" rx="1"/><rect x="3" y="15" width="10" height="8" rx="1"/><rect x="15" y="15" width="10" height="8" rx="1"/><rect x="27" y="15" width="10" height="8" rx="1"/>',
+                'masonry': '<rect x="3" y="4" width="10" height="12" rx="1"/><rect x="15" y="4" width="10" height="8" rx="1"/><rect x="27" y="4" width="10" height="14" rx="1"/><rect x="15" y="15" width="10" height="9" rx="1"/><rect x="3" y="19" width="10" height="5" rx="1"/>',
+                'slider': '<rect x="9" y="6" width="22" height="16" rx="2"/><path d="M6 14l3-3M6 14l3 3"/><path d="M34 14l-3-3M34 14l-3 3"/>',
+                'elevated': '<rect x="8" y="10" width="28" height="14" rx="2" opacity=".3"/><rect x="5" y="6" width="28" height="14" rx="2"/>',
+                'custom-controls': '<rect x="3" y="3" width="34" height="22" rx="2"/><line x1="7" y1="9" x2="33" y2="9"/><rect x="7" y="16" width="9" height="5" rx="2.5"/><rect x="18" y="16" width="9" height="5" rx="2.5"/>',
+                'underline': '<line x1="6" y1="9" x2="34" y2="9"/><line x1="6" y1="15" x2="34" y2="15"/><line x1="6" y1="21" x2="22" y2="21"/>',
+                'marginalia': '<line x1="3" y1="7" x2="9" y2="7" opacity=".6"/><line x1="14" y1="6" x2="36" y2="6" stroke-width="2"/><line x1="14" y1="10" x2="30" y2="10"/><line x1="3" y1="20" x2="9" y2="20" opacity=".6"/><line x1="14" y1="19" x2="36" y2="19" stroke-width="2"/><line x1="14" y1="23" x2="30" y2="23"/>',
+                'center-line': '<line x1="20" y1="3" x2="20" y2="25"/><circle cx="20" cy="8" r="2.5" fill="currentColor" stroke="none"/><circle cx="20" cy="20" r="2.5" fill="currentColor" stroke="none"/><line x1="4" y1="7" x2="16" y2="7"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="24" y1="19" x2="36" y2="19"/><line x1="24" y1="22" x2="32" y2="22"/>',
+                'book': '<line x1="14" y1="5" x2="26" y2="5" stroke-width="2.5"/><line x1="10" y1="11" x2="30" y2="11"/><line x1="13" y1="15" x2="27" y2="15"/><line x1="3" y1="21" x2="37" y2="21" opacity=".4"/>',
+                'bubble':'<circle cx="8" cy="8" r="4"/><rect x="15" y="4" width="22" height="8" rx="2"/><circle cx="8" cy="20" r="4"/><rect x="15" y="16" width="17" height="8" rx="2"/>',
+                'disc':'<circle cx="20" cy="14" r="11"/><circle cx="20" cy="14" r="7.5" opacity=".4"/><circle cx="20" cy="14" r="4" fill="currentColor" stroke="none"/>',
+                'pill': '<rect x="6" y="9" width="28" height="10" rx="5"/><rect x="11" y="12" width="1.5" height="4" fill="currentColor" stroke="none"/><rect x="14" y="11" width="1.5" height="6" fill="currentColor" stroke="none"/><rect x="17" y="12.5" width="1.5" height="3" fill="currentColor" stroke="none"/><path d="M23 11.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/>',
+                'player': '<line x1="13" y1="4" x2="27" y2="4" opacity=".6"/><rect x="6" y="9" width="28" height="16" rx="2"/><path d="M17.5 13.5l6 3.5-6 3.5z" fill="currentColor" stroke="none"/>',
+                'wide': '<line x1="13" y1="4" x2="27" y2="4" opacity=".6"/><rect x="0" y="9" width="40" height="16"/><path d="M17.5 13.5l6 3.5-6 3.5z" fill="currentColor" stroke="none"/>',
+                'marquee': '<rect x="8" y="1" width="24" height="26" rx="2"/><path d="M8 17h24v8a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z" fill="currentColor" stroke="none" opacity=".28"/><path d="M18 7.5l5 3-5 3z" fill="currentColor" stroke="none"/><line x1="13" y1="22" x2="27" y2="22" stroke-width="2"/>',
+                'card': '<rect x="6" y="5" width="28" height="18" rx="2" fill="currentColor" stroke="none" opacity=".18"/><rect x="6" y="5" width="28" height="18" rx="2"/><line x1="13" y1="10" x2="27" y2="10" stroke-width="2"/><line x1="16" y1="14" x2="24" y2="14" opacity=".6"/><rect x="14" y="17" width="12" height="3" rx="1.5" fill="currentColor" stroke="none"/>',
+                'framed': '<rect x="6" y="3" width="28" height="15" rx="2"/><circle cx="20" cy="10" r="2" fill="currentColor" stroke="none"/><line x1="11" y1="22" x2="29" y2="22"/><rect x="14" y="25" width="12" height="3" rx="1.5" fill="currentColor" stroke="none"/>',
+                'bar': '<path d="M6 12V5a2 2 0 0 1 2-2h24a2 2 0 0 1 2 2v7z"/><circle cx="20" cy="8" r="2" fill="currentColor" stroke="none"/><path d="M6 12h28v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="currentColor" stroke="none" opacity=".18"/><line x1="12" y1="16" x2="28" y2="16"/><rect x="15" y="19" width="10" height="2.5" rx="1.25" fill="currentColor" stroke="none"/>',
+                'full-bleed': '<rect x="0" y="3" width="40" height="15"/><circle cx="20" cy="10" r="2" fill="currentColor" stroke="none"/><line x1="11" y1="22" x2="29" y2="22"/><rect x="14" y="25" width="12" height="3" rx="1.5" fill="currentColor" stroke="none"/>',
+                'address-first': '<line x1="13" y1="4" x2="27" y2="4" opacity=".6"/><line x1="8" y1="9" x2="32" y2="9" stroke-width="2"/><rect x="8" y="14" width="24" height="10" rx="2"/><circle cx="20" cy="19" r="1.8" fill="currentColor" stroke="none"/>',
+                'no-embed': '<path d="M20 4a4.5 4.5 0 0 1 4.5 4.5c0 3.2-4.5 8-4.5 8s-4.5-4.8-4.5-8A4.5 4.5 0 0 1 20 4z"/><circle cx="20" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><line x1="10" y1="20" x2="30" y2="20" stroke-width="2"/><line x1="14" y1="24" x2="26" y2="24" opacity=".6"/><rect x="14" y="27" width="12" height="3" rx="1.5" fill="currentColor" stroke="none"/>',
+                'signature': '<rect x="12" y="3" width="16" height="10" rx="1"/><line x1="14" y1="17" x2="26" y2="17" opacity=".5"/><line x1="10" y1="22" x2="30" y2="22" stroke-width="2"/>',
+                'arch': '<path d="M14 24V13a6 6 0 0 1 12 0v11z"/><line x1="14" y1="24" x2="26" y2="24"/><line x1="10" y1="27" x2="30" y2="27" stroke-width="2"/>',
+                'photo-cover': '<rect x="8" y="2" width="24" height="24" rx="2"/><path d="M8 17h24v7a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z" fill="currentColor" stroke="none" opacity=".28"/><line x1="13" y1="22" x2="27" y2="22" stroke-width="2"/>',
+                'quiet': '<line x1="8" y1="7" x2="32" y2="7"/><line x1="10" y1="12" x2="30" y2="12"/><line x1="18" y1="18" x2="22" y2="18" opacity=".5"/><line x1="13" y1="23" x2="27" y2="23" stroke-width="1.5"/>',
+                'band': '<line x1="8" y1="6" x2="32" y2="6"/><line x1="10" y1="11" x2="30" y2="11"/><rect x="2" y="16" width="36" height="10" fill="currentColor" stroke="none" opacity=".18"/><line x1="13" y1="21" x2="27" y2="21" stroke-width="2"/>',
+                'plain': '<line x1="8" y1="8" x2="32" y2="8"/><line x1="6" y1="13" x2="34" y2="13"/><line x1="11" y1="18" x2="29" y2="18"/><line x1="15" y1="23" x2="25" y2="23" opacity=".5"/>',
+                'rules': '<line x1="4" y1="5" x2="36" y2="5" opacity=".45"/><line x1="8" y1="11" x2="32" y2="11"/><line x1="6" y1="16" x2="34" y2="16"/><line x1="4" y1="23" x2="36" y2="23" opacity=".45"/>',
+                'panel': '<rect x="4" y="4" width="32" height="20" rx="2" fill="currentColor" stroke="none" opacity=".15"/><line x1="10" y1="11" x2="30" y2="11"/><line x1="8" y1="16" x2="32" y2="16"/>',
+                'initial': '<rect x="5" y="6" width="7" height="9" rx="1" fill="currentColor" stroke="none"/><line x1="14" y1="8" x2="35" y2="8"/><line x1="14" y1="13" x2="35" y2="13"/><line x1="5" y1="19" x2="35" y2="19"/><line x1="5" y1="23" x2="22" y2="23" opacity=".5"/>',
+                'source-first': '<line x1="14" y1="5" x2="26" y2="5" opacity=".6"/><line x1="16" y1="9" x2="24" y2="9" opacity=".35"/><line x1="6" y1="15" x2="34" y2="15" stroke-width="2"/><line x1="9" y1="21" x2="31" y2="21" stroke-width="2"/>',
+                'bordered-cards':'<rect x="5" y="4" width="30" height="8" rx="1"/><rect x="5" y="15" width="30" height="8" rx="1"/>',
+                'divider-list': '<line x1="6" y1="6" x2="30" y2="6"/><line x1="3" y1="11" x2="37" y2="11" opacity=".4"/><line x1="6" y1="16" x2="30" y2="16"/><line x1="3" y1="21" x2="37" y2="21" opacity=".4"/>',
+                // Gaya tombol. 'round'/'link' sengaja tidak dinamai pill/underline: kunci peta
+                // ini dipakai bersama semua komponen dan kedua nama itu sudah terpakai.
+                'solid': '<rect x="7" y="9" width="26" height="10" rx="2" fill="currentColor" stroke="none"/>',
+                'soft': '<rect x="7" y="9" width="26" height="10" rx="2" fill="currentColor" stroke="none" opacity=".22"/><line x1="14" y1="14" x2="26" y2="14" stroke-width="2"/>',
+                'outline': '<rect x="7" y="9" width="26" height="10" rx="2"/><line x1="13" y1="14" x2="27" y2="14" opacity=".55"/>',
+                'round': '<rect x="6" y="9" width="28" height="10" rx="5" fill="currentColor" stroke="none"/>',
+                'link': '<line x1="13" y1="12" x2="27" y2="12" stroke-width="2"/><line x1="12" y1="18" x2="28" y2="18" opacity=".6"/>',
+                'rule': '<line x1="8" y1="8" x2="32" y2="8"/><line x1="13" y1="14" x2="27" y2="14" stroke-width="2"/><line x1="8" y1="20" x2="32" y2="20"/>',
+            };
+            const body = S[v] ?? '<rect x="4" y="6" width="32" height="16" rx="2" opacity=".5"/>';
+            return `<svg viewBox="0 0 40 28" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-8">${body}</svg>`;
+        },
+
+        val(field) {
+            return this.selected?.props?.[field.key] ?? field.default;
+        },
+
+        // Pewarnaan sintaks HTML untuk field 'code'. Hasilnya masuk x-html, jadi urutannya
+        // WAJIB: escape dulu, warnai belakangan. Kalau dibalik, `<img onerror=…>` yang
+        // sedang diketik super admin langsung dieksekusi di halaman Studio itu sendiri.
+        // Satu regex sekali jalan, bukan rantai .replace() — rantai akan mewarnai ulang
+        // markup span yang baru saja disisipkannya sendiri.
+        highlightHtml(src) {
+            const esc = String(src)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            return esc.replace(
+                /(&lt;!--[\s\S]*?--&gt;)|(&lt;!DOCTYPE[\s\S]*?&gt;)|(&lt;\/?[a-zA-Z][\w:.-]*)([\s\S]*?)(\/?&gt;)/g,
+                (m, comment, doctype, open, body, close) => {
+                    if (comment) return `<span class="tok-cmt">${comment}</span>`;
+                    if (doctype) return `<span class="tok-doctype">${doctype}</span>`;
+                    // Diketahui: nilai atribut yang memuat '>' memutus tag lebih awal dan
+                    // sisa barisnya tidak berwarna. Murni kosmetik — teksnya tetap utuh.
+                    const inner = body.replace(
+                        /("[^"]*"|'[^']*')|([a-zA-Z_:][\w:.-]*)(?=\s*=)/g,
+                        (b, str, attr) => str
+                            ? `<span class="tok-str">${str}</span>`
+                            : `<span class="tok-attr">${attr}</span>`
+                    );
+                    return `<span class="tok-tag">${open}</span>${inner}<span class="tok-tag">${close}</span>`;
+                }
+            );
+        },
+
+        // Peringatan, BUKAN pengaman. Heuristik teks tidak bisa memutuskan apakah HTML
+        // berbahaya, dan tiap polanya gampang dihindari. Gunanya cuma menyadarkan super
+        // admin saat menempel kode orang lain. Yang benar-benar menjaga endpoint ini
+        // tetap authorizeSuperAdmin() di TemplateEditorController.
+        codeWarnings(src) {
+            const s = String(src);
+            const checks = [
+                [/\bfetch\s*\(|XMLHttpRequest|sendBeacon|\bimport\s*\(/i, 'Melakukan permintaan jaringan — periksa tujuannya.'],
+                [/\beval\s*\(|new\s+Function\s*\(|set(Timeout|Interval)\s*\(\s*["'`]/i, 'Mengeksekusi string sebagai kode.'],
+                [/document\.cookie|localStorage|sessionStorage/i, 'Mengakses cookie atau storage — bisa membocorkan sesi.'],
+                [/\son[a-z]+\s*=/i, 'Ada atribut event inline (onclick, onerror, …).'],
+                [/javascript\s*:/i, 'Ada URL javascript:.'],
+                [/<script\b/i, 'Ada tag <script>.'],
+                [/\.(innerHTML|outerHTML)\s*=/i, 'Menulis innerHTML — jalur XSS yang umum.'],
+                [/(src|href)\s*=\s*["']?\/\/|(src|href)\s*=\s*["']?https?:\/\//i, 'Memuat aset dari domain luar.'],
+            ];
+            return checks.filter(([re]) => re.test(s)).map(([, msg]) => msg);
+        },
+
+        // Tab menyisipkan indentasi, bukan memindah fokus keluar dari editor.
+        insertTab(event, field) {
+            const el = event.target;
+            const start = el.selectionStart;
+            el.value = el.value.slice(0, start) + '  ' + el.value.slice(el.selectionEnd);
+            el.selectionStart = el.selectionEnd = start + 2;
+            this.setProp(field, el.value);
+        },
+
+        // show_if: [key, nilai] — field hanya muncul saat prop lain bernilai itu.
+        // Boleh juga daftar syarat ([[k, v], [k, v]] = semua harus terpenuhi) dan nilai
+        // boleh daftar ([k, ['a', 'b']] = salah satunya). Tetap perbandingan nilai saja;
+        // kalau butuh ekspresi, skemanya yang salah.
+        showField(field) {
+            if (!field.show_if) return true;
+            const conds = Array.isArray(field.show_if[0]) ? field.show_if : [field.show_if];
+            return conds.every(([key, want]) => {
+                // Prop yang belum pernah disimpan bernilai default skemanya, bukan kosong —
+                // kalau tidak, field yang bergantung pada default ikut hilang.
+                const cur = this.selected?.props?.[key] ?? this.schemaDefault(key) ?? false;
+                return Array.isArray(want) ? want.includes(cur) : cur === want;
+            });
+        },
+
+        schemaDefault(key) {
+            return (this.schema[this.selected?.section_type] ?? []).find(f => f.key === key)?.default;
+        },
+
+        hasOverride(key) {
+            const v = this.selected?.props?.[key];
+            return v !== undefined && v !== null;
+        },
+
+        setProp(field, value) {
+            if (!this.propSaveTimer) this.pushUndo(); // snapshot pra-mutasi, sekali per burst
+            this.selected.props[field.key] = value;
+            this.queuePropSave();
+        },
+
+        resetProp(field) {
+            if (!this.propSaveTimer) this.pushUndo();
+            this.selected.props[field.key] = null; // null = unset di server (kembali ke theme/default)
+            this.queuePropSave();
+        },
+
+        mediaUrl(v) {
+            if (!v) return '';
+            return /^(https?:)?\//.test(v) ? v : '/storage/' + v.replace(/^\/+/, '');
+        },
+
+        // XHR (bukan fetch): hanya XHR yang melaporkan progress upload.
+        // onProgress opsional — pemanggil lama tetap jalan tanpa argumen kedua.
+        uploadFile(file, onProgress = null) {
+            return new Promise((resolve, reject) => {
+                const fd = new FormData();
+                fd.append('file', file); // tanpa Content-Type manual — browser set boundary multipart sendiri
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/admin/api/assets/upload');
+                xhr.setRequestHeader('Accept', 'application/json');
+                xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
+
+                if (onProgress) {
+                    xhr.upload.addEventListener('progress', e => {
+                        if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+                    });
+                }
+
+                xhr.onload = () => {
+                    let body = {};
+                    try { body = JSON.parse(xhr.responseText); } catch { /* respons non-JSON (mis. 413) */ }
+                    if (xhr.status >= 200 && xhr.status < 300) resolve(body.asset);
+                    else reject(body);
+                };
+                xhr.onerror = () => reject({});
+                xhr.send(fd);
+            });
+        },
+
+        async uploadToProp(field, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                this.setProp(field, (await this.uploadFile(file)).file_path);
+            } catch (err) {
+                // Penolakan format/ukuran video itu jalur normal, bukan kegagalan misterius —
+                // tampilkan alasannya supaya pengunggah tahu harus mengubah apa.
+                const reason = err?.errors?.file?.[0] ?? err?.message;
+                Swal.fire({
+                    icon: 'error', title: 'Upload gagal', text: reason,
+                    toast: true, position: 'top-end', timer: reason ? 5000 : 2500, showConfirmButton: false,
+                });
+            }
+            event.target.value = '';
+        },
+
+        isSvgPath(v) {
+            return typeof v === 'string' && v.toLowerCase().endsWith('.svg');
+        },
+
+        ornItems(field) {
+            const v = this.selected?.props?.[field.key];
+            return Array.isArray(v) ? [...v] : [];
+        },
+
+        addOrnItem(field) {
+            this.setProp(field, [...this.ornItems(field),
+                { src: null, position: 'left', scale: 100, flip_h: false, flip_v: false, color: null }]);
+        },
+
+        setOrnItem(field, i, subkey, value) {
+            const list = this.ornItems(field);
+            list[i] = { ...list[i], [subkey]: value };
+            this.setProp(field, list);
+        },
+
+        removeOrnItem(field, i) {
+            const list = this.ornItems(field);
+            list.splice(i, 1);
+            this.setProp(field, list);
+        },
+
+        moveOrnItem(field, i, delta) {
+            const list = this.ornItems(field);
+            const [it] = list.splice(i, 1);
+            list.splice(i + delta, 0, it);
+            this.setProp(field, list);
+        },
+
+        openOrnamentPickerItem(listKey, index) {
+            this.ornamentPicker = { open: true, listKey, index, themeKey: null };
+        },
+
+        // themeKey terisi = ornamen milik tema, bukan item di dalam daftar section.
+        openOrnamentPickerTheme(themeKey) {
+            this.ornamentPicker = { open: true, listKey: null, index: null, themeKey };
+        },
+
+        setOrnamentTheme(key, value) {
+            if (!this.themeSaveTimer) this.pushUndo();
+            this.theme.ornaments[key] = value;
+            // Var-nya diturunkan server di buildStyleBlock — reload sekali biar akurat.
+            this.fontsDirty = true;
+            this.queueThemeSave();
+        },
+
+        pickOrnament(path) {
+            const { listKey, index, themeKey } = this.ornamentPicker;
+            if (themeKey) {
+                this.setOrnamentTheme(themeKey, path);
+            } else if (listKey !== null && index !== null) {
+                this.setOrnItem({ key: listKey }, index, 'src', path);
+            }
+            this.ornamentPicker.open = false;
+        },
+
+        async uploadOrnamentToItem(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('collection', 'ornament');
+                const res = await fetch('/admin/api/assets/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: fd,
+                });
+                if (!res.ok) throw await res.json().catch(() => ({}));
+                const asset = (await res.json()).asset;
+                this.ornaments = [asset, ...this.ornaments];
+                this.pickOrnament(asset.file_path);
+            } catch {
+                Swal.fire({ icon: 'error', title: 'Upload ornamen gagal', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
+            }
+            event.target.value = '';
+        },
+
+        listOf(field) {
+            return [...(this.selected.props[field.key] ?? [])];
+        },
+
+        // Upload banyak file ke list (dipakai input file + drag-drop). Berurutan: urutan foto terjaga.
+        async uploadFilesToList(field, fileList) {
+            const files = Array.from(fileList ?? []).filter(f => f.type.startsWith('image/'));
+            if (!files.length) return;
+            const added = [];
+            const failedNames = [];
+            let reason = '';
+            this.upload = { current: 0, total: files.length, percent: 0 };
+            for (const [idx, file] of files.entries()) {
+                this.upload.current = idx + 1;
+                this.upload.percent = 0;
+                try {
+                    const asset = await this.uploadFile(file, p => { this.upload.percent = p; });
+                    added.push({ url: '/storage/' + asset.file_path, alt: asset.asset_name ?? '' });
+                } catch (err) {
+                    failedNames.push(file.name);
+                    // pesan validasi Laravel: { errors: { file: ["..."] } }; 413 = respons kosong
+                    if (!reason) reason = err?.errors?.file?.[0] || err?.message || 'File ditolak server (mungkin terlalu besar).';
+                }
+            }
+            this.upload = null;
+            if (added.length) this.setProp(field, [...this.listOf(field), ...added]);
+            if (failedNames.length) {
+                Swal.fire({
+                    icon: 'error',
+                    title: `${failedNames.length} foto gagal diupload`,
+                    text: `${reason}\n\n${failedNames.join(', ')}`, // text: Swal escape sendiri
+                });
+            }
+        },
+
+        async appendListItem(field, event) {
+            await this.uploadFilesToList(field, event.target.files);
+            event.target.value = '';
+        },
+
+        removeListItem(field, i) {
+            const list = this.listOf(field);
+            list.splice(i, 1);
+            this.setProp(field, list);
+        },
+
+        moveListItem(field, i, delta) {
+            const list = this.listOf(field);
+            const [item] = list.splice(i, 1);
+            list.splice(i + delta, 0, item);
+            this.setProp(field, list);
+        },
+
+        // repeater: item = objek per sub-field (events, accounts, stories, …)
+        repItems(field) {
+            return (this.val(field) ?? []).map(item => ({ ...item }));
+        },
+
+        addRepItem(field) {
+            const item = Object.fromEntries((field.fields ?? []).map(f => [f.key, f.default ?? '']));
+            this.setProp(field, [...this.repItems(field), item]);
+        },
+
+        setRepItem(field, i, subkey, value) {
+            const list = this.repItems(field);
+            list[i] = { ...list[i], [subkey]: value };
+            this.setProp(field, list);
+        },
+
+        removeRepItem(field, i) {
+            const list = this.repItems(field);
+            list.splice(i, 1);
+            this.setProp(field, list);
+        },
+
+        moveRepItem(field, i, delta) {
+            const list = this.repItems(field);
+            const [item] = list.splice(i, 1);
+            list.splice(i + delta, 0, item);
+            this.setProp(field, list);
+        },
+
+        async uploadRepImage(field, i, subkey, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                this.setRepItem(field, i, subkey, (await this.uploadFile(file)).file_path);
+            } catch {
+                this.toastError('Upload gagal');
+            }
+            event.target.value = '';
+        },
+
+        // ===== Undo/redo — scope: props + theme saja (add/delete/reorder tidak masuk stack) =====
+        snapshot() {
+            // props anak (this.children) ikut disimpan — selected sekarang bisa resolve
+            // ke section top-level ATAU anak (lihat sectionById), jadi undo/redo harus
+            // menutupi keduanya, bukan cuma this.sections.
+            return JSON.parse(JSON.stringify({
+                theme: this.theme,
+                props: Object.fromEntries([...this.sections, ...this.children].map(s => [s.id, s.props])),
+            }));
+        },
+
+        pushUndo() {
+            if (this.restoring) return;
+            this.undoStack.push(this.snapshot());
+            if (this.undoStack.length > 50) this.undoStack.shift();
+            this.redoStack = [];
+        },
+
+        undo() {
+            const snap = this.undoStack.pop();
+            if (!snap) return;
+            this.redoStack.push(this.snapshot());
+            this.applySnapshot(snap);
+        },
+
+        redo() {
+            const snap = this.redoStack.pop();
+            if (!snap) return;
+            this.undoStack.push(this.snapshot());
+            this.applySnapshot(snap);
+        },
+
+        async applySnapshot(snap) {
+            this.restoring = true;
+            try {
+                if (JSON.stringify(snap.theme) !== JSON.stringify(this.theme)) {
+                    this.theme = JSON.parse(JSON.stringify(snap.theme));
+                    const doc = this.previewFrame()?.contentWindow?.document?.documentElement;
+                    if (doc) {
+                        Object.entries(this.theme.colors).forEach(([k, v]) => doc.style.setProperty(`--color-${k}`, v));
+                        Object.keys(this.theme.fonts).forEach(k => doc.style.setProperty(`--font-${k}`, `'${this.fontFamilyOf(k)}'`));
+                    }
+                    // scales & font menurunkan --step-*/--radius/link font di server → reload
+                    // sekali biar undo/redo perubahan skala/font terlihat, bukan cuma tersimpan.
+                    this.fontsDirty = true;
+                    this.queueThemeSave();
+                }
+                for (const s of [...this.sections, ...this.children]) {
+                    const snapProps = snap.props[s.id];
+                    if (snapProps === undefined) continue; // section baru pasca-snapshot — biarkan
+                    if (JSON.stringify(snapProps) === JSON.stringify(s.props)) continue;
+                    // payload restore: props snapshot + null untuk key yang harus di-unset
+                    const payload = { ...snapProps };
+                    for (const key of Object.keys(s.props)) {
+                        if (!(key in snapProps)) payload[key] = null;
+                    }
+                    s.props = JSON.parse(JSON.stringify(snapProps));
+                    try {
+                        await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { props: payload });
+                        await this.swapSection(s);
+                    } catch {
+                        this.toastError('Gagal memulihkan section');
+                    }
+                }
+            } finally {
+                this.restoring = false;
+            }
+        },
+
+        queuePropSave() {
+            clearTimeout(this.propSaveTimer);
+            const s = this.selected; // tangkap sekarang — user bisa pindah section saat debounce
+            this.propSaveTimer = setTimeout(() => {
+                this.propSaveTimer = null;
+                this.saveProps(s);
+            }, 300);
+        },
+
+        async saveProps(s) {
+            try {
+                const data = await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { props: s.props });
+                s.props = data.section.props ?? {}; // sinkron kanonik (key null sudah hilang)
+                if (this.selectedId === s.id) this.fieldErrors = {};
+            } catch (err) {
+                if (this.selectedId !== s.id) return; // respons basi — user sudah pindah section
+                if (err.errors) {
+                    this.fieldErrors = Object.fromEntries(
+                        Object.entries(err.errors).map(([k, v]) => [k.replace(/^props\./, ''), v[0]])
+                    );
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal menyimpan', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
+                }
+                return; // simpan gagal — tidak ada yang perlu disinkronkan ke preview
+            }
+
+            // Simpan SUDAH sukses. Kegagalan sinkron preview tidak boleh dilaporkan sebagai
+            // "Gagal menyimpan" — data aman di server, hanya preview yang tertinggal.
+            await this.swapSection(s);
+        },
+
+        setCustomCss(value) {
+            this.selected.custom_css = value;
+            clearTimeout(this.cssSaveTimer);
+            const s = this.selected;
+            this.cssSaveTimer = setTimeout(async () => {
+                try {
+                    await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { custom_css: s.custom_css || null });
+                    if (this.selectedId === s.id) this.cssError = null;
+                } catch (err) {
+                    if (this.selectedId !== s.id) return;
+                    this.cssError = err.errors?.custom_css?.[0] ?? 'Gagal menyimpan CSS';
+                    return; // simpan gagal — jangan sinkronkan preview
+                }
+                await this.swapSection(s); // di luar try: error preview bukan error simpan
+            }, 500);
+        },
+
+        // Iframe diresolusi lewat id DOM, BUKAN $refs. Di Alpine 3, $refs (seperti $el)
+        // diresolusi relatif ke elemen pemicu — saveProps dipanggil dari input inspector
+        // yang bersarang di x-data lain, sehingga $refs.preview undefined di sana.
+        previewFrame() {
+            return document.getElementById('studio-preview');
+        },
+
+        async swapSection(s) {
+            // ponytail: section beranak fallback full reload — render-section me-render elements: []
+            if (this.hasChildren[s.id]) return this.reloadPreview();
+            try {
+                const data = await this.api('POST', '/admin/api/studio/render-section', {
+                    section_type: s.section_type, props: s.props, section_id: s.id,
+                });
+                const wrapper = this.previewFrame()?.contentWindow?.document
+                    ?.querySelector(`[data-section-id="${s.id}"]`);
+                if (!wrapper) return this.reloadPreview(); // mis. section hidden → tidak dirender
+                wrapper.outerHTML = data.html; // respons = wrapper lengkap dari _section-shell
+            } catch {
+                this.reloadPreview();
+            }
+        },
+
         reloadPreview() {
-            this.$refs.preview.contentWindow.location.reload();
+            // contentWindow bisa null saat iframe sedang navigasi — jangan sampai
+            // TypeError-nya lolos ke pemanggil dan tersamar jadi "gagal simpan".
+            this.previewFrame()?.contentWindow?.location.reload();
+        },
+
+        toastError(title = 'Terjadi kesalahan') {
+            Swal.fire({ icon: 'error', title, toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
         },
 
         async api(method, url, body = null) {
@@ -215,87 +1312,654 @@ function studioApp() {
             return res.json();
         },
 
-        async addSection(type) {
-            const data = await this.api('POST', `/admin/api/studio/templates/{{ $template->id }}/sections`, {
-                section_type: type,
+        async addSection(type, props = null, parent = null) {
+            if (type === 'code') {
+                const ok = await Swal.fire({
+                    title: 'Tambah section Kode?',
+                    text: 'Section ini menyisipkan HTML mentah tanpa validasi. Gunakan hanya bila paham risikonya.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Tambah',
+                    cancelButtonText: 'Batal',
+                });
+                if (!ok.isConfirmed) return;
+            }
+            try {
+                const data = await this.api('POST', `/admin/api/studio/templates/{{ $template->id }}/sections`, {
+                    section_type: type,
+                    ...(props ? { props } : {}),
+                    ...(parent ? { parent_id: parent.parentId, column_index: parent.columnIndex } : {}),
+                });
+                const created = { ...data.section, id: String(data.section.id), props: data.section.props ?? {} };
+                if (parent) {
+                    this.children.push(created);
+                    this.hasChildren[String(parent.parentId)] = true;
+                } else {
+                    // Sisipkan tepat setelah section terpilih, bukan selalu di ujung.
+                    // Server tetap membuatnya di urutan terakhir; kalau posisinya
+                    // bergeser kita kirim ulang urutannya sekali.
+                    const at = this.insertAfterIndex();
+                    if (at === -1 || at === this.sections.length - 1) {
+                        this.sections.push(created);
+                    } else {
+                        this.sections.splice(at + 1, 0, created);
+                        await this.saveOrder();
+                    }
+                }
+                this.addOpen = false;
+                this.addChildTarget = null;
+                this.selectedId = created.id;
+                this.reloadPreview();
+            } catch {
+                this.toastError('Gagal menambah section');
+            }
+        },
+
+        openAddChild(parentId, columnIndex) {
+            this.addChildTarget = { parentId, columnIndex };
+            this.addTab = 'types';
+            this.addOpen = true;
+        },
+
+        async loadPresets() {
+            try {
+                this.presets = (await this.api('GET', '/admin/api/studio/presets')).presets;
+                this.presetsLoaded = true;
+            } catch {
+                this.toastError('Gagal memuat presets');
+            }
+        },
+
+        async savePreset(s) {
+            const res = await Swal.fire({
+                title: 'Simpan sebagai preset',
+                html: '<input id="preset-name" class="swal2-input" placeholder="Nama preset">' +
+                    '<input id="preset-category" class="swal2-input" placeholder="Kategori (opsional)">',
+                showCancelButton: true,
+                confirmButtonText: 'Simpan',
+                cancelButtonText: 'Batal',
+                preConfirm: () => {
+                    const name = document.getElementById('preset-name').value.trim();
+                    if (!name) {
+                        Swal.showValidationMessage('Nama wajib diisi');
+                        return false;
+                    }
+                    return { name, category: document.getElementById('preset-category').value.trim() || null };
+                },
             });
-            this.sections.push({ ...data.section, id: String(data.section.id) });
-            this.addOpen = false;
-            this.selectedId = String(data.section.id);
-            this.reloadPreview();
+            if (!res.isConfirmed) return;
+            try {
+                await this.api('POST', '/admin/api/studio/presets', {
+                    ...res.value,
+                    section_type: s.section_type,
+                    props: s.props,
+                });
+                this.presetsLoaded = false; // fetch ulang saat modal dibuka lagi
+                Swal.fire({ icon: 'success', title: 'Preset tersimpan', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
+            } catch {
+                this.toastError('Gagal menyimpan preset');
+            }
+        },
+
+        async deletePreset(p) {
+            try {
+                await this.api('DELETE', `/admin/api/studio/presets/${p.id}`);
+                this.presets = this.presets.filter(x => x.id !== p.id);
+            } catch {
+                this.toastError('Gagal menghapus preset');
+            }
+        },
+
+        // Muat ulang seluruh pohon section dari server dan sinkronkan state lokal
+        // (sections top-level, children, hasChildren). Dipakai init() + duplicateSection.
+        async loadSections() {
+            const res = await fetch(`/admin/api/templates/{{ $template->id }}/load`);
+            const data = await res.json();
+            this.hasChildren = {};
+            data.sections.forEach(s => {
+                if (s.parent_id) this.hasChildren[String(s.parent_id)] = true;
+            });
+            this.children = data.sections
+                .filter(s => s.parent_id)
+                .map(s => ({ ...s, id: String(s.id), props: s.props ?? {} }));
+            this.sections = data.sections
+                .filter(s => !s.parent_id)
+                .map(s => ({ ...s, id: String(s.id), props: s.props ?? {} }));
         },
 
         async duplicateSection(s) {
-            const data = await this.api('POST', `/admin/api/studio/sections/${s.id}/duplicate`);
-            const index = this.sections.findIndex(x => x.id === s.id);
-            this.sections.splice(index + 1, 0, { ...data.section, id: String(data.section.id) });
-            this.reloadPreview();
+            try {
+                // Duplikat server men-replicate container beserta anaknya. Muat ulang
+                // pohon supaya children + hasChildren container baru ikut tersinkron
+                // (splice lokal saja akan meninggalkan kolom kosong sampai reload).
+                await this.api('POST', `/admin/api/studio/sections/${s.id}/duplicate`);
+                await this.loadSections();
+                this.reloadPreview();
+            } catch {
+                this.toastError('Gagal menduplikat section');
+            }
         },
 
         async removeSection(s) {
+            const kids = this.children.filter(c => String(c.parent_id) === String(s.id));
             const confirmed = await Swal.fire({
                 title: 'Hapus section?',
-                text: `Section ${this.typeLabel(s.section_type)} akan dihapus permanen.`,
+                text: kids.length
+                    ? `Section ${this.typeLabel(s.section_type)} beserta ${kids.length} blok di dalamnya akan dihapus.`
+                    : `Section ${this.typeLabel(s.section_type)} akan dihapus permanen.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Hapus',
                 cancelButtonText: 'Batal',
             });
             if (!confirmed.isConfirmed) return;
-            await this.api('DELETE', `/admin/api/templates/sections/${s.id}`);
-            this.sections = this.sections.filter(x => x.id !== s.id);
-            if (this.selectedId === s.id) this.selectedId = null;
-            this.reloadPreview();
+
+            // Rekam sebelum menghapus supaya bisa ditawarkan kembali. Blok anak perlu
+            // induk DAN kolomnya — tanpa itu ia dipulihkan sebagai section top-level.
+            const parentId = s.parent_id ? String(s.parent_id) : null;
+            const columnIndex = Number(s.props?.column_index ?? 0);
+            const backup = {
+                section: this.backupOf(s),
+                parentId,
+                columnIndex,
+                index: parentId
+                    ? this.childrenOf(parentId, columnIndex).findIndex(c => String(c.id) === String(s.id))
+                    : this.sections.findIndex(x => String(x.id) === String(s.id)),
+                children: kids.map(c => this.backupOf(c)),
+            };
+
+            try {
+                await this.api('DELETE', `/admin/api/templates/sections/${s.id}`);
+                this.sections = this.sections.filter(x => x.id !== s.id);
+                this.children = this.children.filter(x => x.id !== s.id && String(x.parent_id) !== String(s.id));
+                // hasChildren turunan dari this.children — derive ulang, kalau tidak
+                // container yang baru saja kehilangan anak terakhirnya tetap dianggap
+                // beranak dan swapSection() terus jatuh ke reloadPreview() penuh.
+                this.hasChildren = {};
+                this.children.forEach(c => { this.hasChildren[String(c.parent_id)] = true; });
+                if (this.selectedId === s.id) this.selectedId = null;
+                this.reloadPreview();
+                this.offerRestore(backup);
+            } catch {
+                this.toastError('Gagal menghapus section');
+            }
+        },
+
+        backupOf(s) {
+            return {
+                section_type: s.section_type,
+                props: JSON.parse(JSON.stringify(s.props ?? {})),
+                custom_css: s.custom_css ?? null,
+                is_visible: s.is_visible,
+                column_index: Number(s.props?.column_index ?? 0),
+            };
+        },
+
+        // Sengaja BUKAN lewat stack Ctrl+Z. Stack itu memulihkan props section yang
+        // masih ada; yang ini membuat baris baru dengan ID baru, jadi menaruhnya di
+        // Ctrl+Z akan berbohong soal apa yang bisa dibatalkan. Konsekuensi ID baru:
+        // custom CSS global yang menyasar [data-section-id] lama tak ikut nyambung.
+        offerRestore(backup) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Section dihapus',
+                toast: true,
+                position: 'top-end',
+                timer: 8000,
+                timerProgressBar: true,
+                showConfirmButton: true,
+                confirmButtonText: 'Urungkan',
+            }).then(r => {
+                if (r.isConfirmed) this.restoreSection(backup);
+            });
+        },
+
+        async restoreSection(backup) {
+            try {
+                const target = backup.parentId
+                    ? { parentId: backup.parentId, columnIndex: backup.columnIndex }
+                    : null;
+                const created = await this.createFrom(backup.section, target);
+                for (const kid of backup.children) {
+                    await this.createFrom(kid, { parentId: created.id, columnIndex: kid.column_index });
+                }
+
+                // Kembalikan ke posisi semula, bukan ke ujung. Dua jalur berbeda:
+                // blok anak diurut di dalam kolomnya, section top-level di daftar utama.
+                if (target) {
+                    const list = this.childrenOf(target.parentId, target.columnIndex)
+                        .filter(c => String(c.id) !== String(created.id));
+                    list.splice(backup.index < 0 ? list.length : backup.index, 0, created);
+                    list.forEach((c, i) => { c.order_index = i; });
+                    await this.saveColumnOrder(target.parentId, target.columnIndex);
+                } else {
+                    this.sections = this.sections.filter(x => String(x.id) !== String(created.id));
+                    this.sections.splice(backup.index < 0 ? this.sections.length : backup.index, 0, created);
+                    await this.saveOrder();
+                }
+
+                this.selectedId = created.id;
+                this.reloadPreview();
+            } catch {
+                this.toastError('Gagal memulihkan section');
+            }
+        },
+
+        // Pasangan saveOrder() untuk isi satu kolom: kirim urutan dari array, bukan
+        // dari DOM seperti persistStructure() yang melayani hasil drag.
+        async saveColumnOrder(parentId, columnIndex) {
+            const rows = this.childrenOf(parentId, columnIndex).map((c, i) => ({
+                id: c.id,
+                order_index: i,
+                parent_id: parentId,
+                column_index: columnIndex,
+            }));
+            if (!rows.length) return;
+            try {
+                await this.api('POST', '/admin/api/templates/sections/reorder', { sections: rows });
+                rows.forEach(r => {
+                    const child = this.children.find(c => String(c.id) === String(r.id));
+                    if (child) child.order_index = r.order_index;
+                });
+            } catch {
+                this.toastError('Gagal menyimpan urutan kolom');
+            }
+        },
+
+        // Buat ulang satu baris dari rekaman. custom_css dan is_visible bukan bagian
+        // dari endpoint create, jadi keduanya disusulkan lewat PUT bila memang diset.
+        async createFrom(backup, parent = null) {
+            const data = await this.api('POST', `/admin/api/studio/templates/{{ $template->id }}/sections`, {
+                section_type: backup.section_type,
+                props: backup.props,
+                ...(parent ? { parent_id: parent.parentId, column_index: parent.columnIndex } : {}),
+            });
+            const created = { ...data.section, id: String(data.section.id), props: data.section.props ?? {} };
+
+            const patch = {};
+            if (backup.custom_css) patch.custom_css = backup.custom_css;
+            if (backup.is_visible === false) patch.is_visible = false;
+            // _locked di-strip dari jalur props generik (dianggap struktural), jadi
+            // gembok per-field ikut hilang kalau tidak dikirim lewat key `locked`.
+            const locked = backup.props?._locked;
+            if (Array.isArray(locked) && locked.length) patch.locked = locked;
+            if (Object.keys(patch).length) {
+                await this.api('PUT', `/admin/api/templates/sections/${created.id}`, patch);
+                Object.assign(created, patch);
+            }
+
+            if (parent) {
+                this.children.push(created);
+                this.hasChildren[String(parent.parentId)] = true;
+            } else {
+                this.sections.push(created);
+            }
+            return created;
         },
 
         async toggleVisible(s) {
             s.is_visible = !s.is_visible;
-            await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { is_visible: s.is_visible });
-            this.reloadPreview();
+            try {
+                await this.api('PUT', `/admin/api/templates/sections/${s.id}`, { is_visible: s.is_visible });
+                this.reloadPreview();
+            } catch {
+                s.is_visible = !s.is_visible; // revert optimistic flip
+                this.toastError('Gagal mengubah visibilitas');
+            }
         },
 
         initSortable() {
             new Sortable(this.$refs.sectionList, {
+                // Satu grup dengan kolom: blok bisa diseret keluar-masuk container.
+                // Naik ke top-level selalu boleh — semua kelas komponen sah di sana.
+                group: { name: 'studio', pull: true, put: true },
                 handle: '.drag-handle',
                 animation: 150,
-                onEnd: () => this.persistOrder(),
+                draggable: '[data-id]', // hanya pembungkus section top-level
+                onEnd: () => this.persistStructure(),
             });
         },
 
-        async persistOrder() {
-            // Read the new order off the DOM, re-sync the Alpine array to it
-            // (keyed x-for then leaves the DOM untouched), persist, re-render.
-            const ids = [...this.$refs.sectionList.querySelectorAll('[data-id]')].map(el => el.dataset.id);
-            this.sections = ids.map(id => this.sections.find(s => s.id === id));
-            await this.api('POST', '/admin/api/templates/sections/reorder', {
-                sections: this.sections.map((s, i) => ({ id: s.id, order_index: i })),
+        initColumnSortable(el) {
+            if (el.dataset.sortableReady) return; // x-init bisa jalan ulang saat list re-render
+            el.dataset.sortableReady = '1';
+            new Sortable(el, {
+                group: {
+                    name: 'studio',
+                    // Hanya blok Basic boleh berada di dalam kolom — server menolak
+                    // container/feature sebagai anak, jadi tolak di sini juga supaya
+                    // penolakannya terasa saat menyeret, bukan sesudah dilepas.
+                    put: (to, from, dragEl) =>
+                        this.classOf(this.sectionById(dragEl.dataset.id)?.section_type) === 'basic',
+                },
+                handle: '.drag-handle',
+                animation: 150,
+                onEnd: () => this.persistStructure(),
             });
-            this.reloadPreview();
+        },
+
+        // Posisi top-level yang jadi acuan sisip. Kalau yang terpilih adalah blok anak
+        // di dalam container, acuannya container itu — bukan ujung daftar.
+        insertAfterIndex() {
+            const id = this.selectedId;
+            if (!id) return -1;
+            const direct = this.sections.findIndex(s => String(s.id) === String(id));
+            if (direct !== -1) return direct;
+            const child = this.children.find(c => String(c.id) === String(id));
+            return child
+                ? this.sections.findIndex(s => String(s.id) === String(child.parent_id))
+                : -1;
+        },
+
+        // Kirim urutan dari array, bukan dari DOM seperti persistStructure(): dipakai untuk
+        // perubahan yang kita lakukan sendiri, di mana DOM belum tentu sudah menyusul.
+        async saveOrder() {
+            try {
+                await this.api('POST', '/admin/api/templates/sections/reorder', {
+                    sections: this.sections.map((s, i) => ({ id: s.id, order_index: i })),
+                });
+            } catch {
+                this.toastError('Gagal menyimpan urutan');
+            }
+        },
+
+        // Bawa preview ke section yang baru dipilih. Tanpa ini, memilih section ke-12
+        // di panel kiri tak menggerakkan kanvas sama sekali.
+        scrollPreviewTo(id) {
+            const doc = this.previewFrame()?.contentWindow?.document;
+            let el = doc?.querySelector(`[data-section-id="${id}"]`);
+            if (!el) return;
+
+            // _section-shell membungkus section yang tak butuh treatment/ornamen/animasi
+            // dengan display:contents. Elemen begitu TIDAK punya kotak, jadi
+            // scrollIntoView() di atasnya diam saja — inilah kenapa sebagian section
+            // ikut tergulir dan sebagian tidak. Turun ke anak pertama yang punya kotak.
+            if (!el.getClientRects().length) {
+                el = [...el.children].find(c => c.getClientRects().length) ?? el;
+            }
+
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        },
+
+        // Satu drag bisa memindahkan baris ANTAR daftar (top-level <-> kolom), jadi
+        // urutan kedua sisi dibaca dan dikirim sekali jalan. Dulu ada dua fungsi
+        // terpisah; masing-masing hanya melihat separuh dan meninggalkan baris yang
+        // pindah dengan induk basi.
+        //
+        // DOM dulu, state menyusul: Sortable sudah memindahkan node, jadi DOM-lah
+        // kebenaran terbaru. Pakai this.rootEl (di-set sekali di init()), BUKAN
+        // this.$el — method ini dipanggil dari closure onEnd milik satu kolom, di mana
+        // this.$el hanya mencakup kolom itu sehingga query selalu kosong.
+        async persistStructure() {
+            const topIds = [...this.$refs.sectionList.children]
+                .map(el => el.dataset.id)
+                .filter(Boolean);
+
+            const rows = topIds.map((id, i) => ({ id, order_index: i, parent_id: null }));
+
+            this.rootEl.querySelectorAll('[data-parent][data-column]').forEach(col => {
+                [...col.querySelectorAll('[data-id]')].forEach((el, i) => {
+                    rows.push({
+                        id: el.dataset.id,
+                        order_index: i,
+                        parent_id: col.dataset.parent,
+                        column_index: Number(col.dataset.column),
+                    });
+                });
+            });
+            if (rows.length === 0) return;
+
+            // Cari di kedua array: baris yang baru saja pindah masih tercatat di
+            // array asalnya.
+            const pool = [...this.sections, ...this.children];
+            const find = id => pool.find(x => String(x.id) === String(id));
+
+            const nextSections = topIds.map(find).filter(Boolean);
+            const nextChildren = [];
+            for (const r of rows) {
+                if (r.parent_id === null) continue;
+                const row = find(r.id);
+                if (!row) continue;
+                row.parent_id = r.parent_id;
+                row.order_index = r.order_index;
+                row.props = { ...row.props, column_index: r.column_index };
+                nextChildren.push(row);
+            }
+            // Naik ke top-level: column_index lama tak bermakna lagi (server juga
+            // membuangnya) — kalau disisakan, blok itu bisa muncul di kolom yang salah
+            // saat kelak diseret masuk lagi.
+            nextSections.forEach(row => {
+                row.parent_id = null;
+                if (row.props?.column_index !== undefined) {
+                    const { column_index, ...rest } = row.props;
+                    row.props = rest;
+                }
+            });
+
+            this.sections = nextSections;
+            this.children = nextChildren;
+            this.hasChildren = {};
+            this.children.forEach(c => { this.hasChildren[String(c.parent_id)] = true; });
+
+            try {
+                await this.api('POST', '/admin/api/templates/sections/reorder', { sections: rows });
+                this.reloadPreview();
+            } catch {
+                // DOM sudah terlanjur berubah dan state sudah menyusulnya, jadi toast
+                // saja meninggalkan panel yang berbohong. Tarik ulang dari server.
+                this.toastError('Gagal menyimpan urutan');
+                await this.loadSections();
+                this.reloadPreview();
+            }
         },
 
         setColor(key, value) {
+            if (!this.themeSaveTimer) this.pushUndo();
             this.theme.colors[key] = value;
-            this.$refs.preview.contentWindow?.document?.documentElement
+            this.previewFrame()?.contentWindow?.document?.documentElement
                 ?.style.setProperty(`--color-${key}`, value);
             this.queueThemeSave();
         },
 
-        setFont(key, value) {
+        // ── Font: nilai theme.fonts[key] boleh string (nama kurasi) atau objek
+        //    { source: 'google'|'upload', family, path }. Select memakai nama kurasi
+        //    sebagai value, dan dua sentinel '__google'/'__upload' untuk sumber lain.
+
+        fontSource(key) {
+            const v = this.theme.fonts[key];
+            return typeof v === 'string' ? v : (v?.source === 'upload' ? '__upload' : '__google');
+        },
+
+        fontFamilyOf(key) {
+            const v = this.theme.fonts[key];
+            return typeof v === 'string' ? v : (v?.family ?? '');
+        },
+
+        fontFileName(key) {
+            return (this.theme.fonts[key]?.path ?? '').split('/').pop();
+        },
+
+        // Server menolak nama di luar pola ini, jadi jangan kirim yang pasti gagal —
+        // nama kosong itu keadaan wajar saat baru pindah sumber, bukan error.
+        fontFamilyValid(name) {
+            return /^[A-Za-z0-9][A-Za-z0-9 ]{0,59}$/.test(name);
+        },
+
+        setFontSource(key, value) {
+            if (value !== '__google' && value !== '__upload') {
+                this.commitFont(key, value);
+                return;
+            }
+            const source = value === '__upload' ? 'upload' : 'google';
+            const family = this.fontFamilyOf(key);
+            const next = { source, family };
+            if (source === 'upload') next.path = this.theme.fonts[key]?.path ?? '';
+            this.commitFont(key, next);
+        },
+
+        setFontFamily(key, name) {
+            const v = this.theme.fonts[key];
+            if (typeof v === 'string') return; // sumber kurasi: namanya dari select
+            this.commitFont(key, { ...v, family: name.trim() });
+        },
+
+        clearFontFile(key) {
+            this.commitFont(key, { ...this.theme.fonts[key], path: '' });
+        },
+
+        async uploadFontFile(key, event) {
+            const file = event.target.files[0];
+            event.target.value = '';
+            if (!file) return;
+            try {
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('collection', 'font');
+                const res = await fetch('/admin/api/assets/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: fd,
+                });
+                if (!res.ok) throw await res.json().catch(() => ({}));
+                const asset = (await res.json()).asset;
+                // Nama berkas jadi tebakan nama keluarga kalau belum diisi; admin bisa perbaiki.
+                const family = this.fontFamilyOf(key)
+                    || asset.asset_name.replace(/[-_]+/g, ' ').replace(/[^A-Za-z0-9 ]/g, '').trim();
+                this.commitFont(key, { source: 'upload', family, path: asset.file_path });
+            } catch {
+                this.toastError('Upload font gagal');
+            }
+        },
+
+        commitFont(key, value) {
+            if (!this.themeSaveTimer) this.pushUndo();
             this.theme.fonts[key] = value;
             this.fontsDirty = true;
-            this.$refs.preview.contentWindow?.document?.documentElement
-                ?.style.setProperty(`--font-${key}`, `'${value}'`);
+
+            const family = typeof value === 'string' ? value : value.family;
+            this.previewFrame()?.contentWindow?.document?.documentElement
+                ?.style.setProperty(`--font-${key}`, `'${family}'`);
+
+            // Font unggahan tanpa berkas belum bisa dirender; simpan setelah berkasnya ada.
+            if (!this.fontFamilyValid(family)) return;
+            if (typeof value !== 'string' && value.source === 'upload' && !value.path) return;
             this.queueThemeSave();
+        },
+
+        setScale(key, value) {
+            if (!this.themeSaveTimer) this.pushUndo();
+            this.theme.scales[key] = value;
+            // type scale (type_base/type_ratio) menurunkan --step-* di server; reload biar akurat.
+            // radius/section_spacing/shadow bisa langsung, tapi demi sederhana reload sekali via fontsDirty.
+            this.fontsDirty = true;
+            this.queueThemeSave();
+        },
+
+        // ── Color picker in-app (ganti dialog OS). State HSV di `cp`; math murni, tanpa lib.
+        //    Satu partial _color-picker dipakai semua field warna; yang cocok cp.key yang tampil.
+        cp: { key: null, h: 0, s: 0, v: 0, commit: null },
+
+        cpClamp(v, a, b) { return Math.min(b, Math.max(a, v)); },
+
+        cpHsv2rgb(h, s, v) {
+            h = ((h % 360) + 360) % 360 / 60;
+            const c = v * s, x = c * (1 - Math.abs(h % 2 - 1)), m = v - c;
+            let r = 0, g = 0, b = 0;
+            if (h < 1) { r = c; g = x; } else if (h < 2) { r = x; g = c; }
+            else if (h < 3) { g = c; b = x; } else if (h < 4) { g = x; b = c; }
+            else if (h < 5) { r = x; b = c; } else { r = c; b = x; }
+            return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+        },
+
+        cpRgb2hsv(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+            let h = 0;
+            if (d) {
+                if (max === r) h = ((g - b) / d) % 6;
+                else if (max === g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h *= 60; if (h < 0) h += 360;
+            }
+            return [h, max ? d / max : 0, max];
+        },
+
+        cpParseHex(str) {
+            let s = String(str ?? '').trim().replace(/^#/, '');
+            if (/^[0-9a-fA-F]{3}$/.test(s)) s = s.split('').map(c => c + c).join('');
+            if (!/^[0-9a-fA-F]{6}$/.test(s)) return null;
+            const n = parseInt(s, 16);
+            return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+        },
+
+        cpRgb2hex(r, g, b) {
+            return '#' + [r, g, b].map(v => this.cpClamp(v | 0, 0, 255).toString(16).padStart(2, '0')).join('').toUpperCase();
+        },
+
+        openColorPicker(key, hex, commit) {
+            if (this.cp.key === key) { this.cp.key = null; return; }  // klik ulang = tutup
+            const [h, s, v] = this.cpRgb2hsv(...(this.cpParseHex(hex) ?? [0, 0, 0]));
+            this.cp = { key, h, s, v, commit };
+        },
+
+        cpHex() { return this.cpRgb2hex(...this.cpHsv2rgb(this.cp.h, this.cp.s, this.cp.v)); },
+        cpRgb() { return this.cpHsv2rgb(this.cp.h, this.cp.s, this.cp.v); },
+        cpSvBg() {
+            const base = this.cpRgb2hex(...this.cpHsv2rgb(this.cp.h, 1, 1));
+            return `background:linear-gradient(to top,#000,transparent),linear-gradient(to right,#fff,transparent),${base}`;
+        },
+        cpApply() { this.cp.commit?.(this.cpHex()); },
+        cpSetHex(str) {
+            const rgb = this.cpParseHex(str); if (!rgb) return false;
+            [this.cp.h, this.cp.s, this.cp.v] = this.cpRgb2hsv(...rgb); this.cpApply(); return true;
+        },
+        cpSetRgb(idx, value) {
+            const rgb = this.cpRgb(); rgb[idx] = this.cpClamp(parseInt(value) || 0, 0, 255);
+            [this.cp.h, this.cp.s, this.cp.v] = this.cpRgb2hsv(...rgb); this.cpApply();
+        },
+        cpDrag(el, onMove, e) {
+            const run = ev => {
+                const r = el.getBoundingClientRect(), p = ev.touches ? ev.touches[0] : ev;
+                onMove(this.cpClamp((p.clientX - r.left) / r.width, 0, 1), this.cpClamp((p.clientY - r.top) / r.height, 0, 1));
+            };
+            run(e);
+            const mv = ev => run(ev);
+            const up = () => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); };
+            document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up);
+        },
+        cpDragSV(e) { this.cpDrag(e.currentTarget, (x, y) => { this.cp.s = x; this.cp.v = 1 - y; this.cpApply(); }, e); },
+        cpDragHue(e) { this.cpDrag(e.currentTarget, x => { this.cp.h = x * 360; this.cpApply(); }, e); },
+
+        // Stepper angka: ganti spinner native. Baca step/min/max dari input, tembak `change`
+        // supaya handler @change yang sudah ada (setScale/setProp) tetap jalan.
+        nudge(e, dir) {
+            const inp = e.currentTarget.closest('.stepper')?.querySelector('input');
+            if (!inp) return;
+            const step = parseFloat(inp.step) || 1;
+            const min = inp.min !== '' ? parseFloat(inp.min) : -Infinity;
+            const max = inp.max !== '' ? parseFloat(inp.max) : Infinity;
+            const dec = String(inp.step).includes('.') ? String(inp.step).split('.')[1].length : 0;
+            const val = this.cpClamp((parseFloat(inp.value) || 0) + dir * step, min, max);
+            inp.value = dec ? val.toFixed(dec) : String(val);
+            inp.dispatchEvent(new Event('change', { bubbles: true }));
         },
 
         queueThemeSave() {
             clearTimeout(this.themeSaveTimer);
             this.themeSaveTimer = setTimeout(async () => {
-                await this.api('PATCH', `/admin/api/studio/templates/{{ $template->id }}/theme`, this.theme);
-                if (this.fontsDirty) {
-                    // Font baru butuh <link> Google Fonts dari templateThemeStyle() — reload sekali.
-                    this.fontsDirty = false;
-                    this.reloadPreview();
+                this.themeSaveTimer = null;
+                try {
+                    await this.api('PATCH', `/admin/api/studio/templates/{{ $template->id }}/theme`, this.theme);
+                    if (this.fontsDirty) {
+                        // Font baru butuh <link> Google Fonts dari templateThemeStyle() — reload sekali.
+                        this.fontsDirty = false;
+                        this.reloadPreview();
+                    }
+                } catch {
+                    this.toastError('Gagal menyimpan theme');
                 }
             }, 600);
         },
@@ -314,10 +1978,32 @@ function studioApp() {
             }
             this.publishing = true;
             try {
-                await this.api('POST', `/admin/templates/{{ $template->id }}/publish`);
+                await this.doPublish(false);
+            } finally {
+                this.publishing = false;
+            }
+        },
+
+        async doPublish(force) {
+            try {
+                await this.api('POST', `/admin/templates/{{ $template->id }}/publish`, force ? { force: true } : null);
                 this.status = 'published';
                 Swal.fire({ icon: 'success', title: 'Template dipublish', timer: 1500, showConfirmButton: false });
             } catch (err) {
+                // 409 → hanya warning: tawarkan publish paksa
+                if (err.warnings) {
+                    const items = err.warnings.map(w => `<li>${escapeHtml(w)}</li>`).join('');
+                    const ok = await Swal.fire({
+                        icon: 'warning',
+                        title: 'Ada peringatan',
+                        html: `<ul class="text-left text-sm list-disc pl-5">${items}</ul>`,
+                        showCancelButton: true,
+                        confirmButtonText: 'Publish Saja',
+                        cancelButtonText: 'Perbaiki Dulu',
+                    });
+                    if (ok.isConfirmed) await this.doPublish(true);
+                    return;
+                }
                 const items = (err.errors ?? ['Gagal mempublish template.'])
                     .map(e => `<li>${escapeHtml(e)}</li>`).join('');
                 Swal.fire({
@@ -325,8 +2011,6 @@ function studioApp() {
                     title: 'Belum bisa dipublish',
                     html: `<ul class="text-left text-sm list-disc pl-5">${items}</ul>`,
                 });
-            } finally {
-                this.publishing = false;
             }
         },
     };

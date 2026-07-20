@@ -2,103 +2,65 @@
 
 @php
 $targetDate = $page && $page->event_date ? $page->event_date->toIso8601String() : null;
+$variant = $props['variant'] ?? 'cards';
 $title = $props['title'] ?? 'Counting Down To';
-$backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
-$textColor = $props['text_color'] ?? 'var(--color-text, #212529)';
-$titleColor = $props['title_color'] ?? 'var(--color-primary, #212529)';
-$accentColor = $props['accent_color'] ?? 'var(--color-accent, #d4af37)';
 $paddingTop = $props['padding_top'] ?? 64;
 $paddingBottom = $props['padding_bottom'] ?? 64;
+$passedText = $props['passed_text'] ?? 'Hari bahagia telah tiba';
+$units = ['d' => 'Hari', 'h' => 'Jam', 'm' => 'Menit', 's' => 'Detik'];
 @endphp
 
-<style>
-  .countdown-section-{{ $section->id }} {
-    background: {{ $backgroundColor }};
-    padding-top: {{ $paddingTop }}px;
-    padding-bottom: {{ $paddingBottom }}px;
-  }
-
-  .countdown-item-{{ $section->id }} {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 80px;
-  }
-
-  .countdown-number-{{ $section->id }} {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: {{ $accentColor }};
-    line-height: 1;
-  }
-
-  .countdown-label-{{ $section->id }} {
-    font-size: 0.875rem;
-    color: {{ $textColor }};
-    margin-top: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-</style>
-
-<section class="countdown-section-{{ $section->id }}">
-  <div class="container mx-auto px-4 text-center">
+<section class="countdown countdown--{{ $variant }}" style="padding: {{ $paddingTop }}px 20px {{ $paddingBottom }}px;">
+  <div class="container mx-auto text-center">
     @if($title)
-      <h2 class="text-2xl md:text-3xl font-bold mb-8" style="color: {{ $titleColor }};">
+      <h2 class="section-heading countdown-title">
         {{ $title }}
       </h2>
     @endif
 
     @if($targetDate)
-      <div id="countdown-{{ $section->id }}" class="flex justify-center gap-6 md:gap-12">
-        <div class="countdown-item-{{ $section->id }}">
-          <span class="countdown-number-{{ $section->id }}" id="days-{{ $section->id }}">00</span>
-          <span class="countdown-label-{{ $section->id }}">Hari</span>
+      {{-- Alpine, bukan @push('scripts'): HTML yang disuntik lewat innerHTML (preview Studio)
+           tidak pernah menjalankan <script>, jadi hitungannya beku di 00. --}}
+      <div x-data="{
+             target: new Date('{{ $targetDate }}').getTime(),
+             passed: false,
+             d: '00', h: '00', m: '00', s: '00',
+             start() {
+               this.tick();
+               this.timer = setInterval(() => this.tick(), 1000);
+             },
+             tick() {
+               // Preview Studio mengganti section lewat outerHTML tanpa memanggil
+               // lifecycle Alpine, jadi interval lama harus berhenti sendiri.
+               if (!this.$el.isConnected) return clearInterval(this.timer);
+               const diff = this.target - Date.now();
+               this.passed = diff <= 0;
+               const left = Math.max(0, diff);
+               const pad = n => String(Math.floor(n)).padStart(2, '0');
+               this.d = pad(left / 86400000);
+               this.h = pad(left / 3600000 % 24);
+               this.m = pad(left / 60000 % 60);
+               this.s = pad(left / 1000 % 60);
+             },
+           }"
+           x-init="start()">
+        <div class="countdown-grid">
+          @foreach($units as $key => $label)
+            <div class="countdown-item">
+              @if($variant === 'ring')
+                <div class="countdown-ring"><span class="countdown-number" x-text="{{ $key }}">00</span></div>
+              @else
+                <span class="countdown-number" x-text="{{ $key }}">00</span>
+              @endif
+              <span class="countdown-label">{{ $label }}</span>
+            </div>
+          @endforeach
         </div>
-        <div class="countdown-item-{{ $section->id }}">
-          <span class="countdown-number-{{ $section->id }}" id="hours-{{ $section->id }}">00</span>
-          <span class="countdown-label-{{ $section->id }}">Jam</span>
-        </div>
-        <div class="countdown-item-{{ $section->id }}">
-          <span class="countdown-number-{{ $section->id }}" id="minutes-{{ $section->id }}">00</span>
-          <span class="countdown-label-{{ $section->id }}">Menit</span>
-        </div>
-        <div class="countdown-item-{{ $section->id }}">
-          <span class="countdown-number-{{ $section->id }}" id="seconds-{{ $section->id }}">00</span>
-          <span class="countdown-label-{{ $section->id }}">Detik</span>
-        </div>
+
+        @if($passedText)
+          <p class="countdown-passed" x-show="passed" x-cloak>{{ $passedText }}</p>
+        @endif
       </div>
     @endif
   </div>
 </section>
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const targetDate = new Date('{{ $targetDate }}').getTime();
-  const sectionId = '{{ $section->id }}';
-
-  setInterval(function() {
-    const now = new Date().getTime();
-    const distance = targetDate - now;
-
-    if (distance > 0) {
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      const daysEl = document.getElementById('days-' + sectionId);
-      const hoursEl = document.getElementById('hours-' + sectionId);
-      const minutesEl = document.getElementById('minutes-' + sectionId);
-      const secondsEl = document.getElementById('seconds-' + sectionId);
-
-      if (daysEl) daysEl.textContent = days;
-      if (hoursEl) hoursEl.textContent = hours;
-      if (minutesEl) minutesEl.textContent = minutes;
-      if (secondsEl) secondsEl.textContent = seconds;
-    }
-  }, 1000);
-});
-</script>
-@endpush

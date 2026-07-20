@@ -54,4 +54,18 @@ class StudioPageTest extends TestCase
             ->assertOk()
             ->assertSee(route('admin.templates.studio', $template->id), false);
     }
+
+    public function test_studio_page_passes_the_component_schema_to_the_view(): void
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $template = InvitationTemplate::create([
+            'name' => 'Rustic', 'slug' => 'rustic-'.uniqid(), 'status' => 'draft', 'created_by' => $admin->id,
+        ]);
+
+        $this->actingAs($admin);
+
+        $this->get("/admin/templates/{$template->id}/studio")
+            ->assertOk()
+            ->assertViewHas('schema', config('invitation_components'));
+    }
 }

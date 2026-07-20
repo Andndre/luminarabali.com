@@ -95,8 +95,8 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Meta Data (JSON Override)</label>
                     <textarea name="meta_data" rows="5"
                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent font-mono text-sm"
-                              placeholder="{'bg_music': '...', 'custom_image': '...'}">{{ old('meta_data', $invitation->meta_data ? json_encode($invitation->meta_data, JSON_PRETTY_PRINT) : '') }}</textarea>
-                    <p class="mt-1 text-xs text-gray-500">Opsional. Gunakan format JSON untuk menimpa properti spesifik halaman ini (misal: bg_music atau image_url).</p>
+                              placeholder="{'custom_image': '...'}">{{ old('meta_data', $invitation->meta_data ? json_encode($invitation->meta_data, JSON_PRETTY_PRINT) : '') }}</textarea>
+                    <p class="mt-1 text-xs text-gray-500">Opsional. Gunakan format JSON untuk menimpa properti spesifik halaman ini (misal: image_url). Musik latar sekarang diatur lewat section Musik di Studio, bukan di sini.</p>
                     @error('meta_data')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror

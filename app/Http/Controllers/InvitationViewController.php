@@ -19,36 +19,22 @@ class InvitationViewController extends Controller
                 ->firstOrFail();
         });
 
-        $usesSections = $page->sections->isNotEmpty();
-
-        if (! $usesSections && empty($page->template?->html_content)) {
+        if ($page->sections->isEmpty()) {
             return response()->view('invitations.not-ready', ['page' => $page]);
         }
 
         $renderer = new InvitationRenderer();
 
-        if ($usesSections) {
-            // Defer the section-tree render: it must execute *nested inside* the
-            // outer `invitations.public` view's own render pass (i.e. while
-            // `{!! $content !!}` is being evaluated), not as its own standalone
-            // top-level render here. Blade's Factory flushes @push/@stack state
-            // whenever a top-level render() call completes; calling
-            // $renderer->render($page) eagerly at this point in the controller
-            // makes it a separate top-level render that finishes (and flushes)
-            // before `invitations.public` (and its @stack('scripts')) even starts,
-            // silently dropping every @push('scripts') block from section partials.
-            $content = fn () => $renderer->render($page);
-            $themeStyle = $renderer->themeStyle($page);
-        } else {
-            $content = fn () => $page->template->html_content ?? '';
-            $themeStyle = '';
-        }
-
         return view('invitations.public', [
             'page' => $page,
-            'content' => $content,
-            'themeStyle' => $themeStyle,
-            'usesSections' => $usesSections,
+            // Deferred closure: must be evaluated nested inside invitations.public's
+            // own render pass (while `{!! $content !!}` is being evaluated), not as a
+            // standalone top-level render here — Blade's Factory flushes @push/@stack
+            // state whenever a top-level render() call completes, so rendering eagerly
+            // here would silently drop every @push('scripts') block from section partials.
+            'content' => fn () => $renderer->render($page),
+            'themeStyle' => $renderer->themeStyle($page),
+            'coverImage' => $renderer->coverImage($page->sections) ?? $page->og_image,
         ]);
     }
 

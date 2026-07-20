@@ -36,23 +36,16 @@
         href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
-    @vite(['resources/css/app.css'])
-
-    <!-- Tailwind CSS (CDN for dynamic DB templates) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/invitation.css', 'resources/js/invitation.js'])
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* Jangan taruh reset universal di sini: blok ini tanpa layer, jadi mengalahkan
+           semua utility Tailwind. Preflight sudah melakukannya di @layer base. */
 
         body {
-            font-family: 'Lato', sans-serif;
+            /* Fallback, bukan patokan: --font-body datang dari theme template ($themeStyle,
+               dirender setelah blok ini) dan harus menang. */
+            font-family: var(--font-body, 'Lato'), sans-serif;
             overflow-x: hidden;
         }
 
@@ -91,11 +84,7 @@
 
 <body class="bg-white">
     @php
-        $music = $page->meta_data['bg_music'] ?? '';
         $rsvpEnabled = $page->meta_data['rsvp_enabled'] ?? true;
-        // Exclude the raw legacy HTML blob from the client-side data dump; it is never
-        // read by Alpine and would otherwise leak into every page's inline script tag.
-        $page->template?->makeHidden('html_content');
         $page->sections->each(fn ($section) => $section->makeHidden('props'));
 
         // $content is passed in as a deferred closure (see InvitationViewController)
@@ -114,29 +103,86 @@
         window.invitationData.guest_name = new URLSearchParams(window.location.search).get('to') || 'Tamu Spesial';
     </script>
 
-    <x-invitation.layout class="bg-gray-50 @container" x-data="window.invitationData">
-        <x-invitation.audio :src="$music" />
-
-        @if ($usesSections ?? false)
-            {!! $content ?? '' !!}
-        @else
-            @if (!empty($page->template->cover_content))
-                {!! $page->template->cover_content !!}
-            @else
-                <x-invitation.cover :groom="$page->groom_name ?? 'Romeo'" :bride="$page->bride_name ?? 'Juliet'" :guest="request()->query('to', 'Tamu Spesial')"
-                    image="{{ $page->og_image ?? 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2000&auto=format&fit=crop' }}" />
-            @endif
-
-            <div x-show="isOpen" style="display: none;" class="w-full">
-                {!! $content ?? '' !!}
-            </div>
-        @endif
+    <x-invitation.layout :page="$page" :cover-image="$coverImage ?? null" :skip-cover="!empty($studioMode)" class="bg-gray-50 @container">
+        {!! $content ?? '' !!}
     </x-invitation.layout>
 
-    <!-- SweetAlert2 for notifications -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     @stack('scripts')
+
+    {{-- Animasi entrance per-section (props animation/animation_delay via _section-shell) --}}
+    <style>
+        [data-animate] { opacity: 0; }
+        [data-animate].anim-in { animation-duration: .8s; animation-timing-function: ease-out; animation-fill-mode: forwards; }
+        [data-animate="fade-up"].anim-in { animation-name: anim-fade-up; }
+        [data-animate="fade-in"].anim-in { animation-name: anim-fade-in; }
+        [data-animate="zoom-in"].anim-in { animation-name: anim-zoom-in; }
+        [data-animate="slide-left"].anim-in { animation-name: anim-slide-left; }
+        [data-animate="slide-right"].anim-in { animation-name: anim-slide-right; }
+        @keyframes anim-fade-up { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: none; } }
+        @keyframes anim-fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes anim-zoom-in { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+        @keyframes anim-slide-left { from { opacity: 0; transform: translateX(48px); } to { opacity: 1; transform: none; } }
+        @keyframes anim-slide-right { from { opacity: 0; transform: translateX(-48px); } to { opacity: 1; transform: none; } }
+    </style>
+    <script>
+        (function () {
+            const observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    const el = entry.target;
+                    el.style.animationDelay = (parseInt(el.dataset.animateDelay, 10) || 0) + 'ms';
+                    el.classList.add('anim-in');
+                    observer.unobserve(el);
+                });
+            }, { threshold: 0.15 });
+            const scan = function () {
+                document.querySelectorAll('[data-animate]:not(.anim-in)').forEach(el => observer.observe(el));
+            };
+            scan();
+            // Fragment swap di Studio menyisipkan node baru — pantau supaya tetap teranimasi.
+            new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>
+
+    @if (!empty($studioMode))
+        {{-- Mode Studio (iframe editor): klik = pilih section, dblclick = edit teks inline --}}
+        <style>
+            [data-section-id] > *:hover { outline: 2px dashed rgba(0, 0, 0, .25); outline-offset: -2px; }
+            [data-editable][contenteditable="true"] { outline: 2px solid #3b82f6; outline-offset: 2px; }
+        </style>
+        <script>
+            (function () {
+                const origin = window.location.origin;
+
+                document.addEventListener('click', function (e) {
+                    const el = e.target.closest('[data-section-id]');
+                    if (!el) return;
+                    window.parent.postMessage({ type: 'studio:select', id: el.dataset.sectionId }, origin);
+                });
+
+                document.addEventListener('dblclick', function (e) {
+                    const el = e.target.closest('[data-editable]');
+                    if (!el) return;
+                    el.contentEditable = true;
+                    el.focus();
+                    el.addEventListener('blur', function () {
+                        el.contentEditable = false;
+                        const wrapper = el.closest('[data-section-id]');
+                        if (!wrapper) return;
+                        window.parent.postMessage({
+                            type: 'studio:edit',
+                            id: wrapper.dataset.sectionId,
+                            key: el.dataset.editable,
+                            value: el.textContent.trim(),
+                        }, origin);
+                    }, { once: true });
+                    el.addEventListener('keydown', function (ev) {
+                        if (ev.key === 'Enter') { ev.preventDefault(); el.blur(); }
+                    });
+                });
+            })();
+        </script>
+    @endif
 </body>
 
 </html>

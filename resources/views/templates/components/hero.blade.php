@@ -2,81 +2,44 @@
 
 @php
 $props = $props ?? [];
-$backgroundValue = $props['background_image'] ?? null;
-$overlayEnabled = $props['overlay_enabled'] ?? false;
-$overlayColor = $props['overlay_color'] ?? '#000000';
-$overlayOpacityPercent = is_numeric($props['overlay_opacity'] ?? null) ? (float) $props['overlay_opacity'] : 40.0;
-$overlayOpacity = max(0, min(1, $overlayOpacityPercent / 100));
-
 $title = $props['title'] ?? 'The Wedding Of';
 $groomName = $page->groom_name ?? 'Groom';
 $brideName = $page->bride_name ?? 'Bride';
 $eventDate = $page->event_date ?? null;
-$fontFamily = isset($props['font_family']) ? "'{$props['font_family']}', serif" : "var(--font-heading, 'Playfair Display'), serif";
-$textColor = $props['text_color'] ?? 'var(--color-surface, #ffffff)';
 $alignment = $props['alignment'] ?? 'center';
 $paddingTop = $props['padding_top'] ?? 120;
 $paddingBottom = $props['padding_bottom'] ?? 120;
+$variant = $props['variant'] ?? 'fullscreen';
 @endphp
 
 <style>
+  /* Hanya padding per-section. Foto latar dan overlay milik sistem treatment
+     (_section-shell: .sec-bg-img + .sec-bg-overlay) — hero tak menggambar latarnya
+     sendiri lagi, jadi satu foto dan satu overlay diatur di satu tempat.
+     Layout (display/tinggi/perataan) milik .hero--{variant} di invitation.css. */
   .hero-section-{{ $section->id ?? 'default' }} {
-    background-image: url('{{ $backgroundValue ? '/storage/' . $backgroundValue : '' }}');
-    background-size: cover;
-    background-position: center;
+@if($variant !== 'split')
+    /* split: panel menempel rapat ke bawah, jadi padding section akan merusaknya —
+       panelnya punya padding sendiri di .hero--split .hero-content. */
     padding-top: {{ $paddingTop }}px;
     padding-bottom: {{ $paddingBottom }}px;
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .hero-section-{{ $section->id ?? 'default' }}::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    @if($overlayEnabled)
-      background: {{ $overlayColor }};
-      opacity: {{ $overlayOpacity }};
-    @endif
-  }
-
-  .hero-section-{{ $section->id ?? 'default' }} .hero-content {
-    position: relative;
-    z-index: 10;
-  }
-
-  .hero-section-{{ $section->id ?? 'default' }} .hero-title {
-    font-family: {{ $fontFamily }};
-    color: {{ $textColor }};
-  }
-
-  .hero-section-{{ $section->id ?? 'default' }} .hero-names {
-    font-family: {{ $fontFamily }};
-    color: {{ $textColor }};
-  }
-
-  .hero-section-{{ $section->id ?? 'default' }} .hero-date {
-    font-family: {{ $fontFamily }};
-    color: {{ $textColor }};
+@endif
   }
 </style>
 
-<section class="hero-section-{{ $section->id ?? 'default' }}">
+<section class="hero-section hero-section-{{ $section->id ?? 'default' }} hero--{{ $variant }}">
   <div class="hero-content text-{{ $alignment }} px-4">
     @if($title)
-      <p class="hero-title text-lg md:text-xl mb-4">{{ $title }}</p>
+      <p class="hero-title mb-4" data-editable="title">{{ $title }}</p>
     @endif
 
-    <h1 class="hero-names text-4xl md:text-6xl lg:text-7xl font-bold mb-4">
-      {{ $groomName }} & {{ $brideName }}
+    <h1 class="hero-names mb-4">
+      {{ $groomName }} &amp; {{ $brideName }}
     </h1>
 
     @if($eventDate)
-      <p class="hero-date text-xl md:text-2xl lg:text-3xl">
-        {!! \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($eventDate)->translatedFormat('d F Y')) !!}
+      <p class="hero-date">
+        {{ \Illuminate\Support\Str::ucfirst(\Carbon\Carbon::parse($eventDate)->translatedFormat('d F Y')) }}
       </p>
     @endif
   </div>

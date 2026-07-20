@@ -1,60 +1,83 @@
 @props(['props' => [], 'section' => null, 'page' => null])
 
 @php
+$title = $props['title'] ?? null;
 $address = $props['address'] ?? '';
+$venueLabel = $props['venue_label'] ?? '';
 $latitude = $props['latitude'] ?? '';
 $longitude = $props['longitude'] ?? '';
 $zoom = $props['zoom'] ?? 15;
 $height = $props['height'] ?? 400;
 $showButton = $props['show_button'] ?? true;
+$variant = $props['variant'] ?? 'framed';
+
+// Koordinat kosong → pakai alamat sebagai query supaya peta zoom ke lokasi,
+// bukan fallback ke peta dunia (q=,).
+$hasCoords = $latitude !== '' && $longitude !== '';
+$mapQuery = $hasCoords ? "{$latitude},{$longitude}" : $address;
+$dirDestination = $hasCoords ? "{$latitude},{$longitude}" : $address;
+
+// Varian bar memberi panel ini latar sendiri — kalau isinya kosong, yang tersisa
+// cuma pita berwarna tanpa isi.
+$showAddressBelow = $variant !== 'address-first' && $address !== '';
+$showAction = $showButton && $dirDestination !== '';
+
+// no-embed sengaja tidak memuat iframe Google sama sekali: tak ada request pihak
+// ketiga, tak ada chrome "Buka di Maps" yang digambar Google di dalam petanya, dan
+// tak ada beban muat di kartu yang isinya cuma satu alamat. Tombol arah tetap
+// membawa tamu ke aplikasi peta mereka sendiri.
+$showEmbed = $variant !== 'no-embed' && $mapQuery !== '';
 @endphp
 
-<section class="map-section py-12" style="background: {{ $props['background_color'] ?? '#f8f9fa' }};">
-    <div class="container mx-auto px-4">
-        @if($props['title'] ?? false)
-            <h2 class="text-2xl md:text-3xl font-bold text-center mb-8" style="color: {{ $props['title_color'] ?? '#333333' }};">
-                {{ $props['title'] }}
-            </h2>
-        @endif
+<section class="map map--{{ $variant }}">
+    @if($title)
+        <h2 class="section-heading map-heading">{{ $title }}</h2>
+    @endif
 
-        <div class="max-w-4xl mx-auto">
-            <!-- Google Maps Embed -->
-            <div class="rounded-lg overflow-hidden shadow-lg" style="height: {{ $height }}px;">
+    {{-- address-first membaca alamat lebih dulu, jadi ia juga harus lebih dulu
+         di DOM — bukan cuma dipindah lewat CSS. --}}
+    @if($variant === 'address-first' && $address)
+        <p class="map-address">
+            @if($venueLabel)<span class="map-venue">{{ $venueLabel }}</span>@endif
+            {{ $address }}
+        </p>
+    @endif
+
+    @if($showEmbed)
+        <div class="map-stage">
+            <div class="map-frame" style="height: {{ (int) $height }}px;">
                 <iframe
                     width="100%"
                     height="100%"
-                    frameborder="0"
-                    style="border:0"
                     loading="lazy"
                     allowfullscreen
                     referrerpolicy="no-referrer-when-downgrade"
-                    src="https://maps.google.com/maps?q={{ $latitude }},{{ $longitude }}&z={{ $zoom }}&output=embed">
+                    title="{{ $address ?: 'Peta lokasi' }}"
+                    src="https://maps.google.com/maps?q={{ urlencode($mapQuery) }}&z={{ (int) $zoom }}&output=embed">
                 </iframe>
             </div>
-
-            <!-- Address -->
-            @if($address)
-                <div class="mt-6 text-center">
-                    <p class="text-gray-700">{{ $address }}</p>
-                </div>
-            @endif
-
-            <!-- Directions Button -->
-            @if($showButton)
-                <div class="mt-6 text-center">
-                    <a
-                        href="https://www.google.com/maps/dir/?api=1&destination={{ $latitude }},{{ $longitude }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                        </svg>
-                        {{ $props['button_text'] ?? 'Petunjuk Arah' }}
-                    </a>
-                </div>
-            @endif
         </div>
+    @endif
+
+    @if($showAddressBelow || $showAction)
+    <div class="map-panel">
+        @if($showAddressBelow)
+            <p class="map-address">
+                @if($venueLabel)<span class="map-venue">{{ $venueLabel }}</span>@endif
+                {{ $address }}
+            </p>
+        @endif
+
+        @if($showAction)
+            <div class="map-action">
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ urlencode($dirDestination) }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn-primary">
+                    {{ $props['button_text'] ?? 'Petunjuk Arah' }}
+                </a>
+            </div>
+        @endif
     </div>
+    @endif
 </section>

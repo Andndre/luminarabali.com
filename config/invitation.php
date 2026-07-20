@@ -19,6 +19,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Unggahan video
+    |--------------------------------------------------------------------------
+    | Server tidak melakukan transcode (tak ada jaminan ffmpeg di produksi), jadi
+    | berkas dipakai apa adanya — pengunggah yang wajib mengecilkan lebih dulu.
+    | Batasnya dipaksakan di server; atribut accept di form hanya kenyamanan.
+    |
+    | mp4/H.264 jalan di semua HP; webm sering lebih kecil tapi bisa gagal di
+    | Safari/iOS lama — jadi keduanya diizinkan, pengunggah pilih yang cocok.
+    |
+    | Peta ekstensi => mime. Mime disniff dari ISI berkas (bukan nama), jadi itu yang
+    | menentukan format; ekstensi simpanan diturunkan dari mime, sehingga berkas mp4
+    | yang dinamai .webm tak bisa tersimpan dengan ekstensi yang salah.
+    */
+    'video_upload' => [
+        'formats' => [
+            'webm' => 'video/webm',
+            'mp4' => 'video/mp4',
+        ],
+        'max_kb' => 10240,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Default theme
     |--------------------------------------------------------------------------
     | Used when a template has no theme set, or a key is missing from it.
@@ -28,11 +51,33 @@ return [
             'primary' => '#3b2f2f',
             'accent' => '#b5654d',
             'surface' => '#fffaf3',
+            'surface_alt' => '#f3ece1',
             'text' => '#2b2b2b',
+            'muted' => '#7a6f66',
+            'ink' => '#20302a',
+            'on_dark' => '#f5f1e8',
         ],
         'fonts' => [
             'heading' => 'Playfair Display',
             'body' => 'Lato',
+        ],
+        'scales' => [
+            'type_base' => 16,
+            'type_ratio' => 1.25,
+            'radius' => 12,
+            'section_spacing' => 64,
+            'shadow_level' => 'sm',
+        ],
+        // Ornamen milik tema, bukan section: satu pilihan mengubah semua judul sekaligus.
+        // null = garis lurus bawaan.
+        'ornaments' => [
+            'heading_rule_top' => null,
+            'heading_rule' => null,
+            // Persen lebar judul; 100 = penuh. Terpisah per sisi.
+            'heading_rule_top_width' => 80,
+            'heading_rule_width' => 80,
+            // Jarak vertikal antara judul dan ornamennya, dalam px.
+            'heading_rule_gap' => 14,
         ],
     ],
 ];

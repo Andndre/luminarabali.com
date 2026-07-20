@@ -3,7 +3,8 @@
 @php
     $type = $props['type'] ?? 'line';
     $height = $props['height'] ?? 1;
-    $color = $props['color'] ?? '#e5e7eb';
+    // Warna tetap: garis pembatas adalah ornamen, bukan konten — derivasi dari token teks.
+    $color = 'color-mix(in srgb, var(--color-text, #2b2b2b) 20%, transparent)';
     $lineStyle = $props['style'] ?? 'solid';
     $width = $props['width'] ?? 100;
     $marginTop = $props['margin_top'] ?? 24;

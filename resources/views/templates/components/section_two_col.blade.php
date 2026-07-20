@@ -1,93 +1,12 @@
 @props(['props' => [], 'section' => null, 'page' => null, 'elements' => []])
 
 @php
-    $paddingTop = $props['padding_top'] ?? 60;
-    $paddingBottom = $props['padding_bottom'] ?? 60;
-    $paddingLeft = $props['padding_left'] ?? 20;
-    $paddingRight = $props['padding_right'] ?? 20;
-    $maxWidth = $props['max_width'] ?? 1200;
-    $columnGap = $props['column_gap'] ?? 20;
-    $columnRatio = $props['column_ratio'] ?? '50-50';
-    $verticalAlign = $props['vertical_align'] ?? 'top';
-    $alignItems = $verticalAlign === 'center' ? 'center' : ($verticalAlign === 'bottom' ? 'flex-end' : 'flex-start');
-    $backgroundColor = $props['background_color'] ?? 'var(--color-surface, #ffffff)';
-    $marginTop = $props['margin_top'] ?? 0;
-    $marginBottom = $props['margin_bottom'] ?? 0;
-    $marginLeft = $props['margin_left'] ?? 0;
-    $marginRight = $props['margin_right'] ?? 0;
-    $marginLeftMode = $props['margin_left_mode'] ?? 'px';
-    $marginRightMode = $props['margin_right_mode'] ?? 'px';
-    $borderWidth = $props['border_width'] ?? 0;
-    $borderColor = $props['border_color'] ?? '#e5e7eb';
-    $borderRadius = $props['border_radius'] ?? 0;
-    $shadow = $props['shadow'] ?? 'none';
-
-    $shadowMap = [
-        'none' => 'none',
-        'sm' => '0 1px 2px rgba(0,0,0,0.08)',
-        'md' => '0 8px 24px rgba(0,0,0,0.12)',
-        'lg' => '0 14px 34px rgba(0,0,0,0.16)',
-    ];
-    $boxShadow = $shadowMap[$shadow] ?? 'none';
-
-    $marginLeftValue = $marginLeftMode === 'auto' ? 'auto' : $marginLeft . 'px';
-    $marginRightValue = $marginRightMode === 'auto' ? 'auto' : $marginRight . 'px';
-
-    // Parse column ratio
-    $ratioParts = explode('-', $columnRatio);
-    $col1Width = $ratioParts[0] ?? 50;
-    $col2Width = $ratioParts[1] ?? 50;
-
-    // Map elements to columns by props.column_index (editor source of truth), fallback to order_index
-    $column1Elements = collect($elements)->filter(function ($element) {
-        return (int) data_get($element->props ?? [], 'column_index', $element->order_index ?? 0) === 0;
-    });
-    $column2Elements = collect($elements)->filter(function ($element) {
-        return (int) data_get($element->props ?? [], 'column_index', $element->order_index ?? 0) === 1;
-    });
+    // Rasio tak dikenal jatuh ke 50-50, bukan ke lebar kosong.
+    $ratio = in_array($props['column_ratio'] ?? null, ['50-50', '60-40', '40-60', '70-30', '30-70'], true)
+        ? $props['column_ratio'] : '50-50';
 @endphp
 
-<div class="section-two-col"
-    style="
-    padding-top: {{ $paddingTop }}px;
-    padding-bottom: {{ $paddingBottom }}px;
-    padding-left: {{ $paddingLeft }}px;
-    padding-right: {{ $paddingRight }}px;
-    max-width: {{ $maxWidth }}px;
-    margin-left: {{ $marginLeftValue }};
-    margin-right: {{ $marginRightValue }};
-    margin-top: {{ $marginTop }}px;
-    margin-bottom: {{ $marginBottom }}px;
-    background-color: {{ $backgroundColor }};
-    border: {{ $borderWidth }}px solid {{ $borderColor }};
-    border-radius: {{ $borderRadius }}px;
-    box-shadow: {{ $boxShadow }};
-">
-    <div class="flex" style="gap: {{ $columnGap }}px; align-items: {{ $alignItems }}">
-        <!-- Column 1 -->
-        <div style="width: {{ $col1Width }}%">
-            @foreach ($column1Elements as $element)
-                @if (file_exists(resource_path("views/templates/components/{$element->section_type}.blade.php")))
-                    @include("templates.components.{$element->section_type}", [
-                        'props' => $element->props ?? [],
-                        'section' => $element,
-                        'page' => $page,
-                    ])
-                @endif
-            @endforeach
-        </div>
-
-        <!-- Column 2 -->
-        <div style="width: {{ $col2Width }}%">
-            @foreach ($column2Elements as $element)
-                @if (file_exists(resource_path("views/templates/components/{$element->section_type}.blade.php")))
-                    @include("templates.components.{$element->section_type}", [
-                        'props' => $element->props ?? [],
-                        'section' => $element,
-                        'page' => $page,
-                    ])
-                @endif
-            @endforeach
-        </div>
-    </div>
-</div>
+@include('templates._container-box', [
+    'props' => $props, 'section' => $section, 'page' => $page, 'elements' => $elements,
+    'widths' => array_map('intval', explode('-', $ratio)),
+])

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\InvitationAsset;
 use App\Models\InvitationSection;
-use App\Models\InvitationTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +17,7 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -30,7 +29,7 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -51,6 +50,11 @@ class InvitationAssetController extends Controller
             $query->where('page_id', $request->page_id);
         }
 
+        // Filter by collection (prefix match, e.g. "ornament" matches "ornament/floral")
+        if ($request->filled('collection')) {
+            $query->where('collection', 'like', $request->input('collection') . '%');
+        }
+
         $assets = $query->latest()->paginate(50);
 
         return response()->json($assets);
@@ -61,28 +65,68 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
         $request->validate([
-            'file' => 'required|file|max:10240', // Max 10MB
+            'file' => 'required|file|max:25600', // Max 25MB (JPG full-res kamera sering >10MB)
             'page_id' => 'nullable|exists:invitation_pages,id',
+            'collection' => 'nullable|string|max:255',
         ]);
 
         $file = $request->file('file');
         $mimeType = $file->getMimeType();
         $fileType = $this->getFileType($mimeType);
 
+        // Video dipakai apa adanya — tidak ada transcode di server. Batas format dan
+        // ukuran ditegakkan di sini, bukan cuma lewat atribut accept di form yang bisa
+        // dilewati siapa pun. Mime disniff dari isi berkas, jadi itu yang menentukan
+        // format; nama berkas tidak dipercaya sama sekali.
+        $videoExt = null;
+        if ($fileType === 'video') {
+            $rules = config('invitation.video_upload');
+            $maxKb = $rules['max_kb'];
+
+            $videoExt = array_search($mimeType, $rules['formats'], true);
+            if ($videoExt === false) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'file' => ['Video harus berformat '.strtoupper(implode('/', array_keys($rules['formats'])))
+                        .'. Konversi dulu sebelum mengunggah.'],
+                ]);
+            }
+
+            if ($file->getSize() > $maxKb * 1024) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'file' => ['Video maksimal '.round($maxKb / 1024).' MB. Perkecil resolusi atau bitrate-nya dulu.'],
+                ]);
+            }
+        }
+
+        // SVG: vektor, GD tidak bisa membacanya — simpan apa adanya tanpa konversi WebP.
+        // TIDAK disanitasi. Dirender lewat <img> sehingga script di dalamnya tidak jalan,
+        // tapi file-nya tetap bisa dibuka langsung di /storage dan di situ script-nya
+        // same-origin. Endpoint ini kini terbuka untuk division 'designer', bukan cuma
+        // super admin — yang sudah punya jalur script jauh lebih lurus lewat komponen
+        // 'code'. Jadi kalau kepercayaan ke designer dipersempit, keduanya harus ditangani
+        // bersama; menyanitasi SVG saja tidak menutup apa pun.
+        if ($mimeType === 'image/svg+xml') {
+            $fileName = time() . '_' . uniqid() . '.svg';
+            $filePath = $file->storeAs('invitations', $fileName, 'public');
+            $dimensions = null;
         // Process image - convert to WebP
-        if ($fileType === 'image' && str_starts_with($mimeType, 'image/')) {
+        } elseif ($fileType === 'image' && str_starts_with($mimeType, 'image/')) {
             $fileName = time() . '_' . uniqid() . '.webp';
             $filePath = 'invitations/' . $fileName;
 
             // Load and optimize image
             $image = Image::read($file);
 
-            // Get dimensions
+            // Downscale: foto kamera full-res (6000px) percuma di undangan yang dibuka di HP.
+            // scaleDown hanya mengecilkan — gambar yang sudah kecil dibiarkan apa adanya.
+            $image->scaleDown(2000, 2000);
+
+            // Dimensi dicatat setelah downscale supaya cocok dengan file tersimpan
             $dimensions = [
                 'width' => $image->width(),
                 'height' => $image->height()
@@ -92,8 +136,11 @@ class InvitationAssetController extends Controller
             $encodedImage = $image->toWebp(85)->toString();
             Storage::disk('public')->put($filePath, $encodedImage);
         } else {
-            // For non-images, store as-is
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            // For non-images, store as-is. Video: ekstensi diturunkan dari mime (di atas),
+            // jadi berkas mp4 yang dinamai .webm tetap tersimpan sebagai .mp4 — tidak
+            // pernah salah ekstensi. Audio/dokumen tetap memakai ekstensi aslinya.
+            $ext = $videoExt ?: $file->getClientOriginalExtension();
+            $fileName = time() . '_' . uniqid() . '.' . $ext;
             $filePath = $file->storeAs('invitations', $fileName, 'public');
             $dimensions = null;
         }
@@ -110,6 +157,11 @@ class InvitationAssetController extends Controller
             'mime_type' => $mimeType,
             'file_size' => $file->getSize(),
             'dimensions' => $dimensions,
+            'uploaded_by' => $currentUserId,
+            // ponytail: satu designer hari ini — semua upload 'team'; enforcement
+            // visibilitas antar-user menunggu role designer (proposal §8).
+            'visibility' => 'team',
+            'collection' => $request->input('collection'),
         ]);
 
         return response()->json(['success' => true, 'asset' => $asset]);
@@ -120,7 +172,7 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -144,12 +196,7 @@ class InvitationAssetController extends Controller
                 'page_title' => $s->page?->title,
             ]);
 
-        $templateUsers = InvitationTemplate::where('html_content', 'like', "%{$path}%")
-            ->orWhere('cover_content', 'like', "%{$path}%")
-            ->get(['id', 'name'])
-            ->map(fn ($t) => ['type' => 'template', 'template_id' => $t->id, 'name' => $t->name]);
-
-        $usedBy = $sectionUsers->concat($templateUsers)->values();
+        $usedBy = $sectionUsers->values();
 
         if ($usedBy->isNotEmpty()) {
             return response()->json([
@@ -173,12 +220,17 @@ class InvitationAssetController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
+        $request->validate([
+            'visibility' => 'sometimes|in:private,team',
+            'collection' => 'sometimes|nullable|string|max:255',
+        ]);
+
         $asset = InvitationAsset::findOrFail($id);
-        $asset->update($request->only(['asset_name', 'alt_text']));
+        $asset->update($request->only(['asset_name', 'alt_text', 'visibility', 'collection']));
 
         return response()->json(['success' => true, 'asset' => $asset]);
     }

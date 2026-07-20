@@ -9,6 +9,12 @@ Route::get('/', [BookingController::class, 'landing'])->name('home');
 Route::get('/photobooth', [BookingController::class, 'photoboothLanding'])->name('photobooth.home');
 Route::get('/visual', [BookingController::class, 'visualLanding'])->name('visual.home');
 
+// Katalog undangan publik (Fase 7B)
+Route::get('/undangan', [\App\Http\Controllers\CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/undangan/{slug}/preview', [\App\Http\Controllers\CatalogController::class, 'preview'])->name('catalog.preview');
+// Harus terdaftar SETELAH catalog.preview supaya {slug} tak menelan "/preview".
+Route::get('/undangan/{slug}', [\App\Http\Controllers\CatalogController::class, 'show'])->name('catalog.show');
+
 Route::get('/pricelist', [BookingController::class, 'pricelistPhotobooth'])->name('pricelist');
 Route::get('/pricelist/visual', [BookingController::class, 'pricelistVisual'])->name('pricelist.visual');
 
@@ -18,11 +24,26 @@ Route::get('/calendar/availability', [BookingController::class, 'availability'])
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1')->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register.post');
+
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware('auth')->name('dashboard');
+
+// Pesanan undangan customer (Fase 7C)
+Route::middleware('auth')->group(function () {
+    Route::post('/undangan/{slug}/pesan', [\App\Http\Controllers\OrderController::class, 'store'])->name('orders.store');
+    Route::get('/pesanan', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/pesanan/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/pesanan/{order}/bukti', [\App\Http\Controllers\OrderController::class, 'uploadProof'])->name('orders.proof.upload');
+    Route::get('/pesanan/{order}/bukti', [\App\Http\Controllers\OrderController::class, 'showProof'])->name('orders.proof.show');
+    Route::get('/undangan-saya', [\App\Http\Controllers\CustomerInvitationController::class, 'index'])->name('invitations.index');
+});
 
 // Admin Routes (Protected)
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'staff'])->prefix('admin')->group(function () {
     Route::get('/', [BookingController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/bookings', [BookingController::class, 'adminIndex'])->name('admin.bookings.index');
     Route::get('/bookings/create', [BookingController::class, 'adminCreate'])->name('admin.bookings.create');
@@ -31,6 +52,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/bookings/{id}', [BookingController::class, 'adminUpdate'])->name('admin.bookings.update');
     Route::delete('/bookings/{id}', [BookingController::class, 'adminDestroy'])->name('admin.bookings.destroy');
     Route::patch('/bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
+
+    // Order Management Routes
+    Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('admin.orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('admin.orders.show');
+    Route::post('/orders/{order}/confirm', [\App\Http\Controllers\Admin\OrderController::class, 'confirm'])->name('admin.orders.confirm');
+    Route::post('/orders/{order}/cancel', [\App\Http\Controllers\Admin\OrderController::class, 'cancel'])->name('admin.orders.cancel');
 
     // Invoice Management Routes
     Route::get('/invoices', [\App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('admin.invoices.index');
@@ -67,11 +94,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Invitation Templates Routes
     Route::resource('templates', \App\Http\Controllers\Admin\TemplateController::class)->names('admin.templates');
     Route::post('/templates/{id}/duplicate', [\App\Http\Controllers\Admin\TemplateController::class, 'duplicate'])->name('admin.templates.duplicate');
-    Route::get('/templates/test', function () {
-        return view('admin.templates.test');
-    })->name('admin.templates.test');
-    Route::get('/templates/{id}/editor', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'editor'])->name('admin.templates.editor');
-    Route::get('/templates/{id}/preview', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'preview'])->name('admin.templates.preview');
     Route::post('/templates/{id}/publish', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'publish'])->name('admin.templates.publish');
     Route::get('/templates/{id}/studio', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'studio'])->name('admin.templates.studio');
     Route::get('/templates/{id}/studio/preview', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'studioPreview'])->name('admin.templates.studio.preview');
@@ -89,6 +111,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Links Management Routes
     Route::resource('links', \App\Http\Controllers\Admin\LinkController::class)->names('admin.links');
     Route::post('links/reorder', [\App\Http\Controllers\Admin\LinkController::class, 'reorder'])->name('admin.links.reorder');
+
+    // Bank Accounts Management Routes
+    Route::resource('bank-accounts', \App\Http\Controllers\Admin\BankAccountController::class)
+        ->except('show')
+        ->names('admin.bank-accounts');
 
     // API Routes for Visual Editor
     Route::prefix('api')->name('api.')->group(function () {
@@ -108,6 +135,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
                 ->name('templates.theme.update');
             Route::post('/sections/{id}/duplicate', [\App\Http\Controllers\Admin\TemplateEditorController::class, 'duplicateSection'])
                 ->name('sections.duplicate');
+            Route::get('/presets', [\App\Http\Controllers\Admin\DesignPresetController::class, 'index'])->name('presets.index');
+            Route::post('/presets', [\App\Http\Controllers\Admin\DesignPresetController::class, 'store'])->name('presets.store');
+            Route::delete('/presets/{id}', [\App\Http\Controllers\Admin\DesignPresetController::class, 'destroy'])->name('presets.destroy');
         });
 
         // Invitations API
@@ -120,6 +150,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::put('/sections/{id}', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'updateSection']);
         Route::delete('/sections/{id}', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'deleteSection']);
         Route::post('/sections/reorder', [\App\Http\Controllers\Admin\InvitationEditorController::class, 'reorderSections']);
+
+        // RSVP moderation (section wishes)
+        Route::patch('/rsvp/{id}/toggle-hidden', [\App\Http\Controllers\Admin\InvitationController::class, 'toggleRsvpHidden'])->name('rsvp.toggle-hidden');
 
         // Assets API
         Route::get('/assets', [\App\Http\Controllers\Admin\InvitationAssetController::class, 'index']);
@@ -146,6 +179,7 @@ Route::get('/linkto/{division}', [\App\Http\Controllers\LinktreeController::clas
 Route::get('/gallery/drive/{folderId}', [\App\Http\Controllers\LinktreeController::class, 'driveGallery'])->name('gallery.drive');
 
 Route::get('/temp-login', function () {
+    abort_unless(app()->environment('local'), 404);
     auth()->login(\App\Models\User::first());
 
     return redirect()->route('admin.dashboard');

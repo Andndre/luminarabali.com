@@ -15,7 +15,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -28,7 +28,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -40,7 +40,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -49,6 +49,10 @@ class TemplateController extends Controller
             'slug' => 'required|string|unique:invitation_templates',
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
             'status' => 'nullable|in:draft,published,archived',
+            // max = batas kolom unsignedInteger MySQL; tanpa ini nilai >4,29 M
+            // lolos validasi lalu 500 saat insert (bug yang sama dengan harga kosong).
+            'price' => 'nullable|integer|min:0|max:4294967295',
+            'hero_slot' => 'nullable|in:'.implode(',', InvitationTemplate::HERO_SLOTS),
         ]);
 
         // Handle thumbnail upload
@@ -65,6 +69,8 @@ class TemplateController extends Controller
             'thumbnail' => $thumbnailPath,
             'description' => $request->description,
             'category' => $request->category,
+            'price' => $request->filled('price') ? (int) $request->price : null,
+            'hero_slot' => $request->filled('hero_slot') ? $request->hero_slot : null,
             'status' => $request->status ?? 'draft',
             'created_by' => $currentUserId,
         ]);
@@ -77,7 +83,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -90,7 +96,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -101,6 +107,8 @@ class TemplateController extends Controller
             'slug' => 'required|string|unique:invitation_templates,slug,' . $id,
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
             'status' => 'nullable|in:draft,published,archived',
+            'price' => 'nullable|integer|min:0|max:4294967295',
+            'hero_slot' => 'nullable|in:'.implode(',', InvitationTemplate::HERO_SLOTS),
         ]);
 
         // Handle thumbnail upload
@@ -122,6 +130,8 @@ class TemplateController extends Controller
             'thumbnail' => $thumbnailPath,
             'description' => $request->description,
             'category' => $request->category,
+            'price' => $request->filled('price') ? (int) $request->price : null,
+            'hero_slot' => $request->filled('hero_slot') ? $request->hero_slot : null,
             'status' => $request->status ?? 'draft',
         ]);
 
@@ -133,7 +143,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -148,7 +158,7 @@ class TemplateController extends Controller
         $currentUserId = Auth::id();
         $currentUser = \App\Models\User::find($currentUserId);
 
-        if ($currentUser->division !== 'super_admin') {
+        if (!$currentUser || !$currentUser->canDesignTemplates()) {
             abort(403, 'Unauthorized action.');
         }
 

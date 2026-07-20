@@ -35,7 +35,7 @@ class InvitationCacheBustTest extends TestCase
 
         $this->actingAs($admin)->postJson('/admin/api/templates/sections', [
             'template_id' => $template->id,
-            'html_content' => '<p>updated</p>',
+            'global_custom_css' => 'body { color: red; }',
         ])->assertOk();
 
         $this->assertFalse(Cache::has("invitation:{$page->slug}"));

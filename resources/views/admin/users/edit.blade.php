@@ -26,8 +26,14 @@
                 <select name="division" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500">
                     <option value="photobooth" {{ $user->division == 'photobooth' ? 'selected' : '' }}>Luminara Photobooth</option>
                     <option value="visual" {{ $user->division == 'visual' ? 'selected' : '' }}>Luminara Visual</option>
+                    <option value="designer" {{ $user->division == 'designer' ? 'selected' : '' }}>Desainer (Studio &amp; template)</option>
                     <option value="super_admin" {{ $user->division == 'super_admin' ? 'selected' : '' }}>Super Admin (Akses Semua)</option>
                 </select>
+                <p class="text-xs text-gray-500 mt-1">
+                    Desainer setara super admin di dalam Studio, termasuk komponen HTML mentah
+                    yang ikut tersalin ke setiap undangan dari template itu. Beri hanya ke orang
+                    yang kamu percaya seperti admin.
+                </p>
             </div>
 
             <div>

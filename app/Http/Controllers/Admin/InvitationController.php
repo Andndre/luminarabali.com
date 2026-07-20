@@ -148,4 +148,18 @@ class InvitationController extends Controller
 
         return redirect()->route('admin.invitations.index')->with('success', 'Undangan berhasil dihapus.');
     }
+
+    // Moderasi ucapan (section wishes): sembunyikan/tampilkan satu respons RSVP.
+    public function toggleRsvpHidden($id)
+    {
+        $currentUser = \App\Models\User::find(Auth::id());
+        if (!$currentUser || $currentUser->division !== 'super_admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $response = \App\Models\InvitationRsvpResponse::findOrFail($id);
+        $response->update(['is_hidden' => !$response->is_hidden]);
+
+        return response()->json(['success' => true, 'is_hidden' => $response->is_hidden]);
+    }
 }

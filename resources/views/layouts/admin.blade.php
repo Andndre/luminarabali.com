@@ -63,6 +63,10 @@
                     Dashboard
                 </a>
 
+                {{-- Menu operasional difilter business_unit, dan 'designer' bukan salah satu
+                     unitnya — buat mereka semua daftar ini pasti kosong. Disembunyikan, bukan
+                     diblokir: kalau nanti ada divisi yang butuh, gate-nya di controller. --}}
+                @unless(auth()->user()->division === 'designer')
                 <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.bookings.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                     Bookings
@@ -97,24 +101,31 @@
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                     Links
                 </a>
+                @endunless
 
-                @if(auth()->user()->division == 'super_admin')
+                {{-- Desainer melihat Templates + Media Library (dua-duanya dipakai Studio),
+                     tapi TIDAK melihat Undangan: itu data pelanggan, tetap super admin. --}}
+                @if(auth()->user()->canDesignTemplates())
                 <div class="pt-4 mt-4 border-t border-gray-800">
                     <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Undangan Digital</p>
                     <a href="{{ route('admin.templates.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.templates.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
                         Templates
                     </a>
+                    @if(auth()->user()->division == 'super_admin')
                     <a href="{{ route('admin.invitations.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.invitations.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         Undangan
                     </a>
+                    @endif
                     <a href="{{ route('admin.assets.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.assets.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         Media Library
                     </a>
                 </div>
+                @endif
 
+                @if(auth()->user()->division == 'super_admin')
                 <div class="pt-4 mt-4 border-t border-gray-800">
                     <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Super Admin</p>
                     <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('admin.users.*') ? $activeClass : 'text-gray-400 hover:bg-gray-800 hover:text-white' }} transition">
