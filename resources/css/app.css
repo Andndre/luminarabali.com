@@ -24,6 +24,177 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+/* ==========================================================================
+   Katalog undangan publik (Fase 7B) — identitas "Editorial Wine + Gold".
+   Semua token discope ke `.catalog` supaya tidak bocor ke admin/Studio yang
+   masih memakai palet Tailwind bawaan.
+   ========================================================================== */
+.catalog {
+    --cat-ground: #F7F3EC;
+    --cat-wine: #5B1A2B;
+    --cat-gold: #B08D3C;
+    --cat-ink: #1A1412;
+    --cat-hair: rgba(176, 141, 60, .35);
+    --cat-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--cat-ground); color: var(--cat-ink);
+}
+@media (prefers-color-scheme: dark) {
+    .catalog {
+        --cat-ground: #1A1210; --cat-wine: #7A2438; --cat-gold: #C79A45;
+        --cat-ink: #F1E7DC; --cat-hair: rgba(199, 154, 69, .28);
+    }
+}
+.catalog-display { font-family: var(--cat-serif); text-wrap: balance; line-height: 1.04; letter-spacing: -.01em; }
+.catalog-eyebrow { letter-spacing: .22em; text-transform: uppercase; font-size: .72rem; color: var(--cat-gold); }
+.catalog-hair { height: 1px; background: var(--cat-hair); border: 0; }
+.catalog-reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+.catalog-reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+    .catalog-reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* Konten lebar (grid katalog, showcase strip) tak boleh memicu scroll horizontal. */
+.catalog { overflow-x: hidden; }
+
+/* --- Kerangka halaman ------------------------------------------------- */
+/* Jarak diatur layout (flex + gap), bukan margin per-elemen. */
+.catalog-shell { display: flex; flex-direction: column; gap: clamp(4.5rem, 9vw, 8.5rem); }
+.catalog-wrap { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: clamp(1.25rem, 5vw, 3rem); }
+.catalog-stack { display: flex; flex-direction: column; gap: 1.25rem; }
+.catalog-stack--tight { gap: .75rem; }
+
+/* --- Nav --------------------------------------------------------------- */
+.catalog-nav {
+    position: sticky; top: 0; z-index: 30;
+    backdrop-filter: blur(12px);
+    background: color-mix(in srgb, var(--cat-ground) 82%, transparent);
+    border-bottom: 1px solid var(--cat-hair);
+}
+.catalog-nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding-block: 1rem; }
+.catalog-nav__logo { font-family: var(--cat-serif); font-size: 1.15rem; letter-spacing: .3em; text-transform: uppercase; }
+.catalog-nav__links { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem); font-size: .85rem; }
+
+/* --- Tombol ------------------------------------------------------------ */
+.catalog-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    padding: .85rem 1.75rem; border-radius: 999px; font-size: .9rem; font-weight: 500;
+    transition: transform .25s ease, background-color .25s ease, color .25s ease, border-color .25s ease;
+}
+.catalog-btn:hover { transform: translateY(-2px); }
+.catalog-btn--solid { background: var(--cat-wine); color: #FBF7F1; }
+.catalog-btn--solid:hover { background: color-mix(in srgb, var(--cat-wine) 82%, var(--cat-gold)); }
+.catalog-btn--ghost { border: 1px solid var(--cat-hair); color: var(--cat-ink); }
+.catalog-btn--ghost:hover { border-color: var(--cat-gold); color: var(--cat-gold); }
+@media (prefers-reduced-motion: reduce) {
+    .catalog-btn, .catalog-btn:hover { transform: none; transition: none; }
+}
+
+/* --- Hero -------------------------------------------------------------- */
+.catalog-hero { display: grid; gap: clamp(2.5rem, 6vw, 4.5rem); align-items: center; padding-top: clamp(3rem, 8vw, 6rem); }
+@media (min-width: 900px) { .catalog-hero { grid-template-columns: 1.05fr .95fr; } }
+.catalog-hero__frame { max-width: 22rem; margin-inline: auto; width: 100%; }
+.catalog-hero h1 { font-size: clamp(2.75rem, 7.5vw, 5rem); }
+.catalog-hero__lede { font-size: clamp(1rem, 1.6vw, 1.15rem); line-height: 1.7; max-width: 34rem; opacity: .82; }
+.catalog-hero__actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.catalog-hero__meta { display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: .82rem; opacity: .7; }
+
+/* --- Judul section ----------------------------------------------------- */
+.catalog-head { display: flex; flex-direction: column; gap: .75rem; max-width: 44rem; }
+.catalog-head h2 { font-size: clamp(2rem, 4.2vw, 3.15rem); }
+.catalog-head p { line-height: 1.7; opacity: .8; }
+
+/* --- Pilar nilai ------------------------------------------------------- */
+.catalog-pillars { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.catalog-pillar {
+    display: flex; flex-direction: column; gap: .6rem;
+    padding: 1.75rem; border: 1px solid var(--cat-hair); border-radius: 1rem;
+    background: color-mix(in srgb, var(--cat-ground) 70%, #ffffff);
+    transition: border-color .3s ease, transform .3s ease;
+}
+@media (prefers-color-scheme: dark) {
+    .catalog-pillar { background: color-mix(in srgb, var(--cat-ground) 70%, #ffffff 6%); }
+}
+.catalog-pillar:hover { border-color: var(--cat-gold); transform: translateY(-3px); }
+.catalog-pillar h3 { font-family: var(--cat-serif); font-size: 1.3rem; }
+.catalog-pillar p { font-size: .9rem; line-height: 1.65; opacity: .78; }
+.catalog-pillar__num { font-family: var(--cat-serif); font-size: .9rem; color: var(--cat-gold); }
+@media (prefers-reduced-motion: reduce) {
+    .catalog-pillar, .catalog-pillar:hover { transform: none; transition: none; }
+}
+
+/* --- Showcase strip ---------------------------------------------------- */
+.catalog-showcase { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.catalog-showcase__item { display: flex; flex-direction: column; gap: .85rem; }
+.catalog-showcase__item .catalog-liveframe { transition: transform .4s ease; }
+.catalog-showcase__item:hover .catalog-liveframe { transform: translateY(-6px); }
+@media (prefers-reduced-motion: reduce) {
+    .catalog-showcase__item:hover .catalog-liveframe { transform: none; }
+}
+
+/* --- Cara pesan -------------------------------------------------------- */
+.catalog-paths { display: grid; gap: 1.5rem; }
+@media (min-width: 820px) { .catalog-paths { grid-template-columns: 1fr 1fr; } }
+.catalog-path {
+    display: flex; flex-direction: column; gap: 1.25rem;
+    padding: clamp(1.75rem, 3vw, 2.5rem); border-radius: 1.25rem; border: 1px solid var(--cat-hair);
+}
+.catalog-path--accent { background: var(--cat-wine); color: #FBF7F1; border-color: transparent; }
+.catalog-path--accent .catalog-eyebrow { color: #E7C97A; }
+.catalog-path h3 { font-family: var(--cat-serif); font-size: 1.7rem; }
+.catalog-steps { display: flex; flex-direction: column; gap: .9rem; counter-reset: step; }
+.catalog-steps li { display: flex; gap: .85rem; font-size: .92rem; line-height: 1.6; }
+.catalog-steps li::before {
+    counter-increment: step; content: counter(step);
+    flex: 0 0 1.65rem; height: 1.65rem; border-radius: 999px;
+    display: grid; place-items: center; font-size: .75rem;
+    border: 1px solid currentColor; opacity: .6;
+}
+
+/* --- Grid katalog & kartu ---------------------------------------------- */
+.catalog-grid { display: grid; gap: clamp(1.25rem, 2.5vw, 2rem); grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+.catalog-card { display: flex; flex-direction: column; gap: .9rem; }
+.catalog-card__thumb {
+    position: relative; overflow: hidden; border-radius: .9rem; aspect-ratio: 3 / 4;
+    background: color-mix(in srgb, var(--cat-ground) 60%, var(--cat-gold) 12%);
+    border: 1px solid var(--cat-hair);
+}
+.catalog-card__thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.catalog-card:hover .catalog-card__thumb img { transform: scale(1.04); }
+.catalog-card__thumb-empty {
+    position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+    padding: 1.5rem; font-family: var(--cat-serif); font-size: 1.1rem; color: var(--cat-wine);
+}
+.catalog-card__body { display: flex; flex-direction: column; }
+.catalog-card:hover .catalog-card__body h3 { color: var(--cat-wine); }
+.catalog-card__body h3 { transition: color .25s ease; }
+@media (prefers-reduced-motion: reduce) {
+    .catalog-card__thumb img, .catalog-card:hover .catalog-card__thumb img { transform: none; transition: none; }
+}
+.catalog-empty {
+    padding: clamp(3rem, 8vw, 5rem) 1.5rem; text-align: center; border: 1px dashed var(--cat-hair);
+    border-radius: 1.25rem; display: flex; flex-direction: column; gap: .75rem; align-items: center;
+}
+
+/* --- Testimoni --------------------------------------------------------- */
+.catalog-quotes { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.catalog-quote { display: flex; flex-direction: column; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--cat-hair); }
+.catalog-quote blockquote { font-family: var(--cat-serif); font-size: 1.2rem; line-height: 1.5; }
+.catalog-quote figcaption { font-size: .82rem; opacity: .7; }
+
+/* --- Footer ------------------------------------------------------------ */
+.catalog-cta {
+    display: flex; flex-direction: column; align-items: center; gap: 1.5rem; text-align: center;
+    padding: clamp(3.5rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+    border-radius: 1.5rem; background: var(--cat-wine); color: #FBF7F1;
+}
+.catalog-cta h2 { font-size: clamp(2rem, 5vw, 3.4rem); }
+.catalog-cta .catalog-btn--solid { background: #FBF7F1; color: var(--cat-wine); }
+.catalog-cta .catalog-btn--solid:hover { background: #E7C97A; }
+.catalog-footer {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+    padding-block: 2rem; border-top: 1px solid var(--cat-hair); font-size: .8rem; opacity: .7;
+}
+
 /* Live-frame katalog: iframe undangan asli di-scale dalam device mockup */
 .catalog-liveframe__device {
     position: relative; overflow: hidden; border-radius: 1.75rem;

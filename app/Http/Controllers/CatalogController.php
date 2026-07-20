@@ -7,6 +7,18 @@ use App\Services\InvitationRenderer;
 
 class CatalogController extends Controller
 {
+    public function index()
+    {
+        $templates = InvitationTemplate::where('status', 'published')
+            ->orderByDesc('id')
+            ->get();
+
+        // Hingga 3 template teratas untuk showcase live-strip.
+        $showcase = $templates->take(3);
+
+        return view('catalog.index', compact('templates', 'showcase'));
+    }
+
     public function preview(string $slug)
     {
         $template = InvitationTemplate::with(['sections' => fn ($q) => $q->orderBy('order_index')])

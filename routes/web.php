@@ -10,7 +10,11 @@ Route::get('/photobooth', [BookingController::class, 'photoboothLanding'])->name
 Route::get('/visual', [BookingController::class, 'visualLanding'])->name('visual.home');
 
 // Katalog undangan publik (Fase 7B)
+Route::get('/undangan', [\App\Http\Controllers\CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/undangan/{slug}/preview', [\App\Http\Controllers\CatalogController::class, 'preview'])->name('catalog.preview');
+// Placeholder halaman detail (Task 4 mengganti closure ini dengan CatalogController@show).
+// Kartu katalog sudah menaut ke sini, jadi namanya harus terdaftar sejak sekarang.
+Route::get('/undangan/{slug}', fn (string $slug) => redirect()->route('catalog.preview', $slug))->name('catalog.show');
 
 Route::get('/pricelist', [BookingController::class, 'pricelistPhotobooth'])->name('pricelist');
 Route::get('/pricelist/visual', [BookingController::class, 'pricelistVisual'])->name('pricelist.visual');
