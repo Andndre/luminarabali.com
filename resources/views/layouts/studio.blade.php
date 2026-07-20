@@ -14,6 +14,61 @@
         [x-cloak] { display: none !important; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
+        /* Palet chrome Studio. Panel gelap dan diam supaya undangan di kanvas jadi
+           satu-satunya benda terang di layar — panel terang di sekelilingnya menipu
+           penilaian warna tema. Semua kelas di Blade menunjuk var ini lewat
+           bg-[var(--ui-…)], jadi menyetel ulang skema cukup di blok ini.
+
+           HANYA chrome editor. Isi iframe preview memakai token temanya sendiri
+           (--color-*) dan tak terpengaruh apa pun di sini. */
+        :root {
+            --ui-bg: #1b1d22;       /* meja kerja: kanvas + body */
+            --ui-panel: #16181d;    /* topbar, panel kiri, inspector */
+            --ui-raised: #22252c;   /* kontrol & permukaan naik di atas panel */
+            --ui-hover: #24272f;    /* baris hover, track pill */
+            --ui-active: #3a3f4a;   /* pill terpilih — duduk di atas track, harus lebih terang */
+            --ui-line: #2a2d35;     /* pemisah antar panel */
+            --ui-line-2: #31353f;   /* garis kontrol */
+            --ui-line-3: #454a56;   /* garis kontrol saat hover */
+            --ui-text: #f2f4f7;
+            --ui-text-2: #cfd3db;
+            --ui-text-3: #9aa0ac;
+            --ui-text-4: #7d838f;
+            --ui-accent: #e8eaef;   /* aksi utama: dulu hitam-di-terang, kini terang-di-gelap */
+        }
+
+        /* Warna teks dasar. Banyak elemen (nama section, ikon berbasis currentColor)
+           tak punya kelas warna sama sekali dan dulu mewarisi hitam bawaan browser —
+           di panel gelap itu jadi teks hitam di atas gelap. Kelas text-* tetap menang
+           karena ini cuma menetapkan warisan, bukan menimpa utility. */
+        .studio-chrome { color: var(--ui-text-2); }
+
+        /* Kontrol form tak punya kelas latar di Blade — tanpa aturan ini semuanya
+           putih dengan teks terang di atas panel gelap. Selektor elemen, bukan
+           utility, supaya tak perlu menyunting ~40 daftar kelas.
+           Catatan: blok <style> ini tanpa layer, jadi ia MENGALAHKAN utility
+           Tailwind. Kelas bg-* pada input tidak akan berpengaruh selama aturan
+           ini ada. */
+        .studio-chrome :is(input, select, textarea) {
+            background-color: var(--ui-raised);
+            color: var(--ui-text);
+        }
+        .studio-chrome :is(input, select, textarea)::placeholder { color: var(--ui-text-4); }
+        .studio-chrome input[type="color"] { background: transparent; padding: 0; }
+        .studio-chrome input[type="checkbox"] { background-color: var(--ui-raised); }
+        .studio-chrome input[type="checkbox"]:checked { background-color: var(--ui-accent); }
+        /* Panah <select> bawaan digambar gelap-di-gelap oleh sebagian browser. */
+        .studio-chrome select { color-scheme: dark; }
+        .studio-chrome summary::marker { color: var(--ui-text-4); }
+
+        .studio-chrome ::-webkit-scrollbar { width: 10px; height: 10px; }
+        .studio-chrome ::-webkit-scrollbar-thumb {
+            background: var(--ui-line-2); border-radius: 6px;
+            border: 3px solid transparent; background-clip: content-box;
+        }
+        .studio-chrome ::-webkit-scrollbar-thumb:hover { background: var(--ui-line-3); background-clip: content-box; }
+        .studio-chrome ::-webkit-scrollbar-track { background: transparent; }
+
         /* Editor kode: textarea transparan menumpuk <pre> berwarna. Setiap properti yang
            memengaruhi posisi glyph harus sama persis di kedua lapis, kalau tidak kursor
            dan teks berwarna saling melenceng makin jauh tiap baris. */
@@ -61,7 +116,7 @@
         .tok-doctype { color: #e0996b; }
     </style>
 </head>
-<body class="bg-gray-50 overflow-hidden">
+<body class="bg-[var(--ui-bg)] overflow-hidden">
     @yield('content')
     @stack('scripts')
 </body>

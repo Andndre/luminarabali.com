@@ -269,6 +269,37 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertStringContainsString('panelLabel(', $blade, 'Helper panelLabel belum ada.');
     }
 
+    public function test_studio_chrome_colors_come_only_from_the_ui_palette(): void
+    {
+        $layout = file_get_contents(resource_path('views/layouts/studio.blade.php'));
+
+        $views = [
+            'views/admin/templates/studio.blade.php',
+            'views/admin/templates/studio/_inspector.blade.php',
+            'views/admin/templates/studio/_field.blade.php',
+        ];
+
+        foreach ($views as $view) {
+            $blade = file_get_contents(resource_path($view));
+
+            // Skala abu Tailwind yang dipatok akan tampil sebagai bercak terang di panel
+            // gelap. Warna chrome harus lewat --ui-*, supaya menyetel ulang skema cukup
+            // satu blok di layouts/studio.blade.php.
+            $this->assertDoesNotMatchRegularExpression(
+                '/\b(?:bg|text|border|ring|divide)-(?:white|gray-\d+)\b/',
+                $blade,
+                "{$view} memakai warna abu/putih yang dipatok, bukan token --ui-*."
+            );
+
+            // Tiap var yang dipakai harus benar-benar ada di palet — typo di nama var
+            // gagal diam-diam jadi transparan.
+            preg_match_all('/--ui-[a-z0-9-]+/', $blade, $m);
+            foreach (array_unique($m[0]) as $var) {
+                $this->assertStringContainsString("{$var}:", $layout, "{$var} dipakai {$view} tapi tak ada di palet.");
+            }
+        }
+    }
+
     public function test_public_page_body_font_follows_the_theme(): void
     {
         $blade = file_get_contents(resource_path('views/invitations/public.blade.php'));

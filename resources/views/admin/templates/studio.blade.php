@@ -3,15 +3,17 @@
 @section('title', 'Studio — ' . $template->name)
 
 @section('content')
-<div x-data="studioApp()" x-init="init()" class="h-screen flex flex-col">
+{{-- studio-chrome discope ke div ini, bukan ke <body>: SweetAlert menempelkan
+     modalnya langsung ke body, dan modal terang dengan input gelap terlihat rusak. --}}
+<div x-data="studioApp()" x-init="init()" class="studio-chrome h-screen flex flex-col">
     {{-- Toolbar --}}
-    <header class="h-14 shrink-0 flex items-center gap-3 px-4 border-b border-gray-200 bg-white">
-        <a href="{{ route('admin.templates.index') }}" class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900" title="Kembali">
+    <header class="h-14 shrink-0 flex items-center gap-3 px-4 border-b border-[var(--ui-line-2)] bg-[var(--ui-panel)]">
+        <a href="{{ route('admin.templates.index') }}" class="p-1.5 rounded-lg text-[var(--ui-text-3)] hover:bg-[var(--ui-hover)] hover:text-[var(--ui-text)]" title="Kembali">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
         </a>
-        <h1 class="font-bold text-gray-900 truncate max-w-xs" title="{{ $template->name }}">{{ $template->name }}</h1>
+        <h1 class="font-bold text-[var(--ui-text)] truncate max-w-xs" title="{{ $template->name }}">{{ $template->name }}</h1>
         <span class="text-xs font-semibold rounded-full px-2 py-0.5 capitalize"
-            :class="{ draft: 'bg-yellow-100 text-yellow-800', published: 'bg-green-100 text-green-800', archived: 'bg-gray-100 text-gray-800' }[status]"
+            :class="{ draft: 'bg-[#3a2f12] text-[#e6c96a]', published: 'bg-[#14301f] text-[#86d6a4]', archived: 'bg-[var(--ui-hover)] text-[var(--ui-text-2)]' }[status]"
             x-text="status"></span>
 
         <div class="flex-1"></div>
@@ -20,7 +22,7 @@
         <button @click="toggleAdvanced()" type="button" x-show="!asCustomer"
             :title="advanced ? 'Matikan Mode Lanjutan' : 'Mode Lanjutan: container, blok dasar, CSS/HTML mentah'"
             class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold border"
-            :class="advanced ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-500 hover:text-gray-900'">
+            :class="advanced ? 'border-[var(--ui-accent)] bg-[var(--ui-accent)] text-[var(--ui-panel)]' : 'border-[var(--ui-line-2)] text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             Lanjutan
         </button>
@@ -29,40 +31,40 @@
         <button @click="toggleAsCustomer()" type="button"
             :title="asCustomer ? 'Kembali ke tampilan desainer' : 'Lihat editor seperti yang dilihat customer'"
             class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold border"
-            :class="asCustomer ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-500 hover:text-gray-900'">
+            :class="asCustomer ? 'border-[var(--ui-accent)] bg-[var(--ui-accent)] text-[var(--ui-panel)]' : 'border-[var(--ui-line-2)] text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
             Customer
         </button>
 
         {{-- Device toggle (ikon, bukan emoji) --}}
-        <div class="flex rounded-lg bg-gray-100 p-0.5">
-            <button @click="device = 'mobile'" title="Preview mobile" class="p-1.5 rounded-md" :class="device === 'mobile' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
+        <div class="flex rounded-lg bg-[var(--ui-hover)] p-0.5">
+            <button @click="device = 'mobile'" title="Preview mobile" class="p-1.5 rounded-md" :class="device === 'mobile' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
             </button>
-            <button @click="device = 'desktop'" title="Preview desktop" class="p-1.5 rounded-md" :class="device === 'desktop' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
+            <button @click="device = 'desktop'" title="Preview desktop" class="p-1.5 rounded-md" :class="device === 'desktop' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/></svg>
             </button>
         </div>
 
         <button @click="publish()" :disabled="publishing"
-            class="rounded-lg bg-black px-4 py-1.5 text-xs font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
+            class="rounded-lg bg-[var(--ui-accent)] px-4 py-1.5 text-xs font-semibold text-[var(--ui-panel)] hover:opacity-90 disabled:opacity-50"
             x-text="publishing ? '…' : (status === 'published' ? 'Publish Ulang' : 'Publish')"></button>
     </header>
 
     <div class="flex-1 flex min-h-0">
 
     {{-- Panel kiri: Struktur --}}
-    <div class="w-72 shrink-0 flex flex-col border-r border-gray-200 bg-white">
-        <div class="p-3 border-b border-gray-200">
-            <div class="flex gap-1 rounded-lg bg-gray-100 p-0.5">
+    <div class="w-72 shrink-0 flex flex-col border-r border-[var(--ui-line-2)] bg-[var(--ui-panel)]">
+        <div class="p-3 border-b border-[var(--ui-line-2)]">
+            <div class="flex gap-1 rounded-lg bg-[var(--ui-hover)] p-0.5">
                 <button @click="panel = 'sections'"
                     class="flex-1 text-xs font-semibold rounded-md px-2 py-1.5"
-                    :class="panel === 'sections' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
+                    :class="panel === 'sections' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
                     Struktur
                 </button>
                 <button @click="panel = 'theme'" x-show="!asCustomer"
                     class="flex-1 text-xs font-semibold rounded-md px-2 py-1.5"
-                    :class="panel === 'theme' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
+                    :class="panel === 'theme' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
                     Theme
                 </button>
             </div>
@@ -71,11 +73,11 @@
         {{-- Panel Theme (brand kit) --}}
         <div x-show="panel === 'theme'" x-cloak class="flex-1 overflow-y-auto p-4 space-y-6">
             <section>
-                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Warna</h2>
+                <h2 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wide mb-3">Warna</h2>
                 <div class="grid grid-cols-2 gap-3">
                     <template x-for="key in Object.keys(theme.colors)" :key="key">
                         <div>
-                            <span class="text-xs text-gray-600 capitalize" x-text="key.replace('_', ' ')"></span>
+                            <span class="text-xs text-[var(--ui-text-2)] capitalize" x-text="key.replace('_', ' ')"></span>
                             <div class="mt-1 flex items-center gap-1.5 border rounded-lg px-1.5 py-1">
                                 <input type="color" :value="theme.colors[key]"
                                     @input="setColor(key, $event.target.value)"
@@ -90,11 +92,11 @@
                 </div>
             </section>
             <section>
-                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Font</h2>
+                <h2 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wide mb-3">Font</h2>
                 <div class="space-y-3">
                     <template x-for="key in Object.keys(theme.fonts)" :key="key">
                         <label class="block">
-                            <span class="text-xs text-gray-600 capitalize" x-text="key"></span>
+                            <span class="text-xs text-[var(--ui-text-2)] capitalize" x-text="key"></span>
                             <select :value="theme.fonts[key]" @change="setFont(key, $event.target.value)"
                                 class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
                                 <template x-for="font in fonts" :key="font">
@@ -106,34 +108,34 @@
                 </div>
             </section>
             <section>
-                <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Skala</h2>
+                <h2 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wide mb-3">Skala</h2>
                 <div class="grid grid-cols-2 gap-3">
                     <label class="block">
-                        <span class="text-xs text-gray-600">Ukuran Teks Dasar (px)</span>
+                        <span class="text-xs text-[var(--ui-text-2)]">Ukuran Teks Dasar (px)</span>
                         <input type="number" min="8" max="40" step="1" :value="theme.scales.type_base"
                             @change="setScale('type_base', Number($event.target.value))"
                             class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
                     </label>
                     <label class="block">
-                        <span class="text-xs text-gray-600">Rasio Skala</span>
+                        <span class="text-xs text-[var(--ui-text-2)]">Rasio Skala</span>
                         <input type="number" min="1" max="2" step="0.05" :value="theme.scales.type_ratio"
                             @change="setScale('type_ratio', Number($event.target.value))"
                             class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
                     </label>
                     <label class="block">
-                        <span class="text-xs text-gray-600">Radius (px)</span>
+                        <span class="text-xs text-[var(--ui-text-2)]">Radius (px)</span>
                         <input type="number" min="0" max="64" step="1" :value="theme.scales.radius"
                             @change="setScale('radius', Number($event.target.value))"
                             class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
                     </label>
                     <label class="block">
-                        <span class="text-xs text-gray-600">Jarak Section (px)</span>
+                        <span class="text-xs text-[var(--ui-text-2)]">Jarak Section (px)</span>
                         <input type="number" min="0" max="200" step="1" :value="theme.scales.section_spacing"
                             @change="setScale('section_spacing', Number($event.target.value))"
                             class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
                     </label>
                     <label class="block col-span-2">
-                        <span class="text-xs text-gray-600">Bayangan</span>
+                        <span class="text-xs text-[var(--ui-text-2)]">Bayangan</span>
                         <select :value="theme.scales.shadow_level" @change="setScale('shadow_level', $event.target.value)"
                             class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
                             <template x-for="opt in ['none', 'sm', 'md', 'lg']" :key="opt">
@@ -145,30 +147,30 @@
             </section>
 
             <section>
-                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Ornamen</h3>
+                <h3 class="text-xs font-semibold text-[var(--ui-text-3)] uppercase tracking-wide mb-2">Ornamen</h3>
                 <template x-for="slot in [{ key: 'heading_rule_top', width: 'heading_rule_top_width', label: 'Di Atas Judul' }, { key: 'heading_rule', width: 'heading_rule_width', label: 'Di Bawah Judul' }]" :key="slot.key">
                     <div class="mb-2">
-                        <span class="text-xs text-gray-600" x-text="slot.label"></span>
+                        <span class="text-xs text-[var(--ui-text-2)]" x-text="slot.label"></span>
                         <div class="mt-1 flex items-center gap-2">
-                            <div class="w-10 h-10 shrink-0 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden">
+                            <div class="w-10 h-10 shrink-0 rounded border border-[var(--ui-line-2)] bg-[var(--ui-raised)] flex items-center justify-center overflow-hidden">
                                 <img x-show="theme.ornaments[slot.key]" :src="mediaUrl(theme.ornaments[slot.key])" class="w-full h-full object-contain">
                             </div>
                             <button type="button" @click="openOrnamentPickerTheme(slot.key)"
-                                class="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-left hover:border-black">
+                                class="flex-1 text-xs border border-[var(--ui-line-2)] rounded-lg px-2 py-1.5 text-left hover:border-[var(--ui-accent)]">
                                 <span x-text="theme.ornaments[slot.key] ? 'Ganti…' : 'Pilih ornamen…'"></span>
                             </button>
                             <button type="button" x-show="theme.ornaments[slot.key]" @click="setOrnamentTheme(slot.key, null)"
-                                class="p-1 rounded text-gray-400 hover:bg-red-50 hover:text-red-600">
+                                class="p-1 rounded text-[var(--ui-text-4)] hover:bg-[#2a1618] hover:text-[#e08a8a]">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
                         <label class="block mt-1.5" x-show="theme.ornaments[slot.key]">
-                            <span class="text-xs text-gray-500">Lebar (%)</span>
+                            <span class="text-xs text-[var(--ui-text-3)]">Lebar (%)</span>
                             <div class="mt-1 flex items-center gap-2">
                                 <input type="range" min="10" max="100" step="5" class="flex-1"
                                     :value="theme.ornaments[slot.width] ?? 80"
                                     @input="setOrnamentTheme(slot.width, Number($event.target.value))">
-                                <span class="w-8 text-right text-xs tabular-nums text-gray-600"
+                                <span class="w-8 text-right text-xs tabular-nums text-[var(--ui-text-2)]"
                                     x-text="theme.ornaments[slot.width] ?? 80"></span>
                             </div>
                         </label>
@@ -176,54 +178,54 @@
                 </template>
 
                 <label class="block mt-2">
-                    <span class="text-xs text-gray-600">Jarak ke Judul (px)</span>
+                    <span class="text-xs text-[var(--ui-text-2)]">Jarak ke Judul (px)</span>
                     <div class="mt-1 flex items-center gap-2">
                         <input type="range" min="0" max="80" step="2" class="flex-1"
                             :value="theme.ornaments.heading_rule_gap ?? 14"
                             @input="setOrnamentTheme('heading_rule_gap', Number($event.target.value))">
-                        <span class="w-8 text-right text-xs tabular-nums text-gray-600"
+                        <span class="w-8 text-right text-xs tabular-nums text-[var(--ui-text-2)]"
                             x-text="theme.ornaments.heading_rule_gap ?? 14"></span>
                     </div>
                 </label>
-                <p class="mt-1 text-xs text-gray-400">Berlaku untuk judul semua komponen. Warnanya ikut warna Aksen tema.</p>
+                <p class="mt-1 text-xs text-[var(--ui-text-4)]">Berlaku untuk judul semua komponen. Warnanya ikut warna Aksen tema.</p>
             </section>
 
-            <p class="text-xs text-gray-400">Perubahan tersimpan otomatis dan langsung terlihat di preview.</p>
+            <p class="text-xs text-[var(--ui-text-4)]">Perubahan tersimpan otomatis dan langsung terlihat di preview.</p>
         </div>
 
         <div x-show="panel === 'sections'" class="flex-1 overflow-y-auto p-3 space-y-1" x-ref="sectionList">
             <template x-if="!loaded">
                 <div class="space-y-2 p-1">
-                    <div class="h-9 rounded-lg bg-gray-100 animate-pulse"></div>
-                    <div class="h-9 rounded-lg bg-gray-100 animate-pulse"></div>
-                    <div class="h-9 rounded-lg bg-gray-100 animate-pulse"></div>
+                    <div class="h-9 rounded-lg bg-[var(--ui-hover)] animate-pulse"></div>
+                    <div class="h-9 rounded-lg bg-[var(--ui-hover)] animate-pulse"></div>
+                    <div class="h-9 rounded-lg bg-[var(--ui-hover)] animate-pulse"></div>
                 </div>
             </template>
             <template x-for="s in sections" :key="s.id">
                 <div :data-id="s.id">
                     <div @click="selectedId = s.id"
                         class="group flex items-center gap-2 rounded-lg border px-2.5 py-2 cursor-pointer select-none"
-                        :class="selectedId === s.id ? 'border-black bg-gray-50' : 'border-gray-200 hover:bg-gray-50'">
-                        <span class="drag-handle cursor-grab text-gray-300 group-hover:text-gray-400 shrink-0" x-show="!asCustomer">
+                        :class="selectedId === s.id ? 'border-[var(--ui-accent)] bg-[var(--ui-raised)]' : 'border-[var(--ui-line-2)] hover:bg-[var(--ui-raised)]'">
+                        <span class="drag-handle cursor-grab text-[var(--ui-text-4)] group-hover:text-[var(--ui-text-4)] shrink-0" x-show="!asCustomer">
                             <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
                         </span>
-                        <span class="shrink-0 text-gray-400" x-html="typeIcon(s.section_type)"></span>
+                        <span class="shrink-0 text-[var(--ui-text-4)]" x-html="typeIcon(s.section_type)"></span>
                         <span class="flex-1 text-sm truncate" :class="{ 'opacity-40': !s.is_visible }" x-text="typeLabel(s.section_type)"></span>
-                        <span x-show="s.custom_css" title="Section ini punya CSS kustom" class="text-[9px] font-semibold bg-purple-100 text-purple-700 rounded px-1">CSS</span>
+                        <span x-show="s.custom_css" title="Section ini punya CSS kustom" class="text-[9px] font-semibold bg-[#2b1f3d] text-[#c4a8ef] rounded px-1">CSS</span>
                         {{-- Aksi restrukturisasi (visibilitas/duplikat/preset/hapus) disembunyikan di mode
                              customer (guideline §10.1a) — customer hanya boleh memilih & mengedit konten. --}}
-                        <div class="hidden group-hover:flex items-center gap-0.5 text-gray-400" x-show="!asCustomer">
-                            <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
+                        <div class="hidden group-hover:flex items-center gap-0.5 text-[var(--ui-text-4)]" x-show="!asCustomer">
+                            <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'" class="p-1 rounded hover:bg-[var(--ui-line)] hover:text-[var(--ui-text)]">
                                 <svg x-show="s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 <svg x-show="!s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
                             </button>
-                            <button @click.stop="duplicateSection(s)" title="Duplikat" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
+                            <button @click.stop="duplicateSection(s)" title="Duplikat" class="p-1 rounded hover:bg-[var(--ui-line)] hover:text-[var(--ui-text)]">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-8.25A2.25 2.25 0 017.5 18v-7.5a2.25 2.25 0 012.25-2.25h6.75z"/></svg>
                             </button>
-                            <button @click.stop="savePreset(s)" title="Simpan sebagai preset" class="p-1 rounded hover:bg-gray-200 hover:text-gray-900">
+                            <button @click.stop="savePreset(s)" title="Simpan sebagai preset" class="p-1 rounded hover:bg-[var(--ui-line)] hover:text-[var(--ui-text)]">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
                             </button>
-                            <button @click.stop="removeSection(s)" title="Hapus" class="p-1 rounded hover:bg-red-50 hover:text-red-600">
+                            <button @click.stop="removeSection(s)" title="Hapus" class="p-1 rounded hover:bg-[#2a1618] hover:text-[#e08a8a]">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                             </button>
                         </div>
@@ -232,32 +234,32 @@
                          memilihnya (guideline §10.1a) — makanya kondisinya "advanced ATAU
                          asCustomer", bukan cuma "advanced". --}}
                     <div x-show="(advanced || asCustomer) && classOf(s.section_type) === 'container'" x-cloak
-                        class="mt-1 ml-3 pl-2 border-l border-dashed border-gray-200 space-y-1.5">
+                        class="mt-1 ml-3 pl-2 border-l border-dashed border-[var(--ui-line-2)] space-y-1.5">
                         <template x-for="col in columnsOf(s.section_type)" :key="col">
                             <div>
-                                <p class="text-[10px] font-semibold uppercase tracking-wide text-gray-400 px-1 py-0.5"
+                                <p class="text-[10px] font-semibold uppercase tracking-wide text-[var(--ui-text-4)] px-1 py-0.5"
                                     x-text="'Kolom ' + col"></p>
                                 <div class="space-y-1" :data-column="col - 1" :data-parent="s.id"
                                     x-ref="col" x-init="$nextTick(() => initColumnSortable($el))">
                                     <template x-for="c in childrenOf(s.id, col - 1)" :key="c.id">
                                         <div :data-id="c.id" @click.stop="selectedId = c.id"
-                                            class="group flex items-center gap-2 rounded-lg border px-2 py-1.5 cursor-pointer select-none bg-white"
-                                            :class="selectedId === c.id ? 'border-black bg-gray-50' : 'border-gray-200 hover:bg-gray-50'">
-                                            <span class="drag-handle cursor-grab text-gray-300 shrink-0" x-show="!asCustomer">
+                                            class="group flex items-center gap-2 rounded-lg border px-2 py-1.5 cursor-pointer select-none bg-[var(--ui-panel)]"
+                                            :class="selectedId === c.id ? 'border-[var(--ui-accent)] bg-[var(--ui-raised)]' : 'border-[var(--ui-line-2)] hover:bg-[var(--ui-raised)]'">
+                                            <span class="drag-handle cursor-grab text-[var(--ui-text-4)] shrink-0" x-show="!asCustomer">
                                                 <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/></svg>
                                             </span>
-                                            <span class="shrink-0 text-gray-400" x-html="typeIcon(c.section_type)"></span>
+                                            <span class="shrink-0 text-[var(--ui-text-4)]" x-html="typeIcon(c.section_type)"></span>
                                             <span class="flex-1 text-xs truncate" :class="{ 'opacity-40': !c.is_visible }"
                                                 x-text="typeLabel(c.section_type)"></span>
                                             <button @click.stop="removeSection(c)" title="Hapus" x-show="!asCustomer"
-                                                class="hidden group-hover:block p-0.5 rounded text-gray-400 hover:bg-red-50 hover:text-red-600">
+                                                class="hidden group-hover:block p-0.5 rounded text-[var(--ui-text-4)] hover:bg-[#2a1618] hover:text-[#e08a8a]">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                             </button>
                                         </div>
                                     </template>
                                 </div>
                                 <button @click.stop="openAddChild(s.id, col - 1)" type="button" x-show="!asCustomer"
-                                    class="mt-1 w-full rounded-lg border border-dashed border-gray-200 px-2 py-1 text-[11px] text-gray-400 hover:border-black hover:text-black">
+                                    class="mt-1 w-full rounded-lg border border-dashed border-[var(--ui-line-2)] px-2 py-1 text-[11px] text-[var(--ui-text-4)] hover:border-[var(--ui-accent)] hover:text-[var(--ui-text)]">
                                     + Blok
                                 </button>
                             </div>
@@ -265,15 +267,15 @@
                     </div>
                 </div>
             </template>
-            <div x-show="loaded && sections.length === 0" class="flex flex-col items-center gap-2 text-center px-2 py-8 text-gray-400">
+            <div x-show="loaded && sections.length === 0" class="flex flex-col items-center gap-2 text-center px-2 py-8 text-[var(--ui-text-4)]">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
                 <p class="text-sm">Belum ada section.</p>
             </div>
         </div>
 
-        <div x-show="panel === 'sections'" class="p-3 border-t border-gray-200">
+        <div x-show="panel === 'sections'" class="p-3 border-t border-[var(--ui-line-2)]">
             <button @click="addOpen = true" x-show="!asCustomer"
-                class="w-full rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-600 hover:border-black hover:text-black">
+                class="w-full rounded-lg border border-dashed border-[var(--ui-line-2)] px-3 py-2 text-sm text-[var(--ui-text-2)] hover:border-[var(--ui-accent)] hover:text-[var(--ui-text)]">
                 + Tambah Section
             </button>
         </div>
@@ -283,45 +285,45 @@
     <div x-show="addOpen" x-cloak
         class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8"
         @click.self="addOpen = false; addChildTarget = null" @keydown.escape.window="addOpen = false; addChildTarget = null">
-        <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
+        <div class="bg-[var(--ui-panel)] rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="font-bold text-gray-900" x-text="addChildTarget ? 'Tambah Blok ke Kolom' : 'Tambah Section'"></h2>
-                <button @click="addOpen = false; addChildTarget = null" class="p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-900">
+                <h2 class="font-bold text-[var(--ui-text)]" x-text="addChildTarget ? 'Tambah Blok ke Kolom' : 'Tambah Section'"></h2>
+                <button @click="addOpen = false; addChildTarget = null" class="p-1 rounded-lg text-[var(--ui-text-4)] hover:bg-[var(--ui-hover)] hover:text-[var(--ui-text)]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div class="flex gap-1 mb-4 rounded-lg bg-gray-100 p-0.5 w-fit">
+            <div class="flex gap-1 mb-4 rounded-lg bg-[var(--ui-hover)] p-0.5 w-fit">
                 <button @click="addTab = 'types'"
                     class="text-xs font-semibold rounded-md px-3 py-1.5"
-                    :class="addTab === 'types' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
+                    :class="addTab === 'types' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
                     Tipe Section
                 </button>
                 <button @click="addTab = 'presets'"
                     class="text-xs font-semibold rounded-md px-3 py-1.5"
-                    :class="addTab === 'presets' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'">
+                    :class="addTab === 'presets' ? 'bg-[var(--ui-active)] shadow text-[var(--ui-text)]' : 'text-[var(--ui-text-3)] hover:text-[var(--ui-text)]'">
                     Presets
                 </button>
             </div>
             <div x-show="addTab === 'types'" class="space-y-5">
                 <div x-show="!addChildTarget">
-                    <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2">Section</p>
+                    <p class="text-[11px] font-semibold uppercase tracking-wide text-[var(--ui-text-4)] mb-2">Section</p>
                     <div class="grid grid-cols-3 gap-3">
                         <template x-for="(label, type) in curatedTypes" :key="type">
-                            <button @click="addSection(type)" class="flex flex-col items-start gap-2 border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
-                                <span class="text-gray-400" x-html="typeIcon(type)"></span>
+                            <button @click="addSection(type)" class="flex flex-col items-start gap-2 border border-[var(--ui-line-2)] rounded-xl p-4 text-sm text-left hover:border-[var(--ui-accent)] hover:bg-[var(--ui-raised)]">
+                                <span class="text-[var(--ui-text-4)]" x-html="typeIcon(type)"></span>
                                 <span class="font-medium" x-text="label"></span>
                             </button>
                         </template>
                     </div>
                 </div>
                 <div x-show="advanced || addChildTarget" x-cloak>
-                    <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2">
+                    <p class="text-[11px] font-semibold uppercase tracking-wide text-[var(--ui-text-4)] mb-2">
                         Mode Lanjutan — kolom &amp; blok dasar
                     </p>
                     <div class="grid grid-cols-3 gap-3">
                         <template x-for="(label, type) in (addChildTarget ? basicTypes : advancedTypes)" :key="type">
-                            <button @click="addChildTarget ? addSection(type, null, addChildTarget) : addSection(type)" class="flex flex-col items-start gap-2 border border-gray-200 rounded-xl p-4 text-sm text-left hover:border-black hover:bg-gray-50">
-                                <span class="text-gray-400" x-html="typeIcon(type)"></span>
+                            <button @click="addChildTarget ? addSection(type, null, addChildTarget) : addSection(type)" class="flex flex-col items-start gap-2 border border-[var(--ui-line-2)] rounded-xl p-4 text-sm text-left hover:border-[var(--ui-accent)] hover:bg-[var(--ui-raised)]">
+                                <span class="text-[var(--ui-text-4)]" x-html="typeIcon(type)"></span>
                                 <span class="font-medium" x-text="label"></span>
                             </button>
                         </template>
@@ -331,19 +333,19 @@
             <div x-show="addTab === 'presets'" x-cloak>
                 <div class="grid grid-cols-3 gap-3" x-show="presets.length > 0">
                     <template x-for="p in presets" :key="p.id">
-                        <div class="group relative border border-gray-200 rounded-xl p-4 text-sm hover:border-black hover:bg-gray-50 cursor-pointer"
+                        <div class="group relative border border-[var(--ui-line-2)] rounded-xl p-4 text-sm hover:border-[var(--ui-accent)] hover:bg-[var(--ui-raised)] cursor-pointer"
                             @click="addSection(p.section_type, p.props)">
                             <span class="block font-medium" x-text="p.name"></span>
-                            <span class="block text-xs text-gray-400 mt-1"
+                            <span class="block text-xs text-[var(--ui-text-4)] mt-1"
                                 x-text="(p.category ? p.category + ' · ' : '') + typeLabel(p.section_type)"></span>
                             <button @click.stop="deletePreset(p)" title="Hapus preset"
-                                class="absolute top-2 right-2 hidden group-hover:block p-1 rounded text-gray-300 hover:bg-red-50 hover:text-red-600">
+                                class="absolute top-2 right-2 hidden group-hover:block p-1 rounded text-[var(--ui-text-4)] hover:bg-[#2a1618] hover:text-[#e08a8a]">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
                     </template>
                 </div>
-                <p x-show="presetsLoaded && presets.length === 0" class="text-sm text-gray-400 text-center py-6">
+                <p x-show="presetsLoaded && presets.length === 0" class="text-sm text-[var(--ui-text-4)] text-center py-6">
                     Belum ada preset. Simpan section sebagai preset lewat tombol simpan di panel struktur.
                 </p>
             </div>
@@ -354,25 +356,25 @@
     <div x-show="ornamentPicker.open" x-cloak
         class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8"
         @click.self="ornamentPicker.open = false" @keydown.escape.window="ornamentPicker.open = false">
-        <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
+        <div class="bg-[var(--ui-panel)] rounded-2xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="font-bold text-gray-900">Pustaka Ornamen</h2>
-                <button @click="ornamentPicker.open = false" class="p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-900">
+                <h2 class="font-bold text-[var(--ui-text)]">Pustaka Ornamen</h2>
+                <button @click="ornamentPicker.open = false" class="p-1 rounded-lg text-[var(--ui-text-4)] hover:bg-[var(--ui-hover)] hover:text-[var(--ui-text)]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <label class="block text-center text-sm border border-dashed border-gray-300 rounded-lg px-3 py-2 mb-4 cursor-pointer hover:border-black">
+            <label class="block text-center text-sm border border-dashed border-[var(--ui-line-2)] rounded-lg px-3 py-2 mb-4 cursor-pointer hover:border-[var(--ui-accent)]">
                 + Upload ornamen baru
                 <input type="file" accept="image/*,.svg" class="hidden"
                     @change="uploadOrnamentToItem($event)">
             </label>
             <template x-if="ornaments.length === 0">
-                <p class="text-sm text-gray-400 text-center py-8">Belum ada ornamen. Upload di atas.</p>
+                <p class="text-sm text-[var(--ui-text-4)] text-center py-8">Belum ada ornamen. Upload di atas.</p>
             </template>
             <div class="grid grid-cols-5 gap-2">
                 <template x-for="o in ornaments" :key="o.id">
                     <button type="button" @click="pickOrnament(o.file_path)" :title="o.asset_name"
-                        class="border border-gray-200 rounded-lg p-1 hover:border-black bg-gray-50">
+                        class="border border-[var(--ui-line-2)] rounded-lg p-1 hover:border-[var(--ui-accent)] bg-[var(--ui-raised)]">
                         <img :src="mediaUrl(o.file_path)" class="w-full h-12 object-contain">
                     </button>
                 </template>
@@ -381,10 +383,10 @@
     </div>
 
     {{-- Panel tengah: Preview --}}
-    <div class="flex-1 bg-gray-100 flex flex-col min-w-0">
+    <div class="flex-1 bg-[var(--ui-bg)] flex flex-col min-w-0">
         <div class="flex-1 p-4 flex justify-center min-h-0">
             <iframe id="studio-preview" x-ref="preview" src="{{ route('admin.templates.studio.preview', $template->id) }}"
-                class="h-full rounded-xl border border-gray-300 bg-white transition-all duration-300"
+                class="h-full rounded-xl border border-[var(--ui-line-2)] bg-[var(--ui-panel)] shadow-2xl shadow-black/40 transition-all duration-300"
                 :class="device === 'mobile' ? 'w-[375px]' : 'w-full'"></iframe>
         </div>
     </div>
