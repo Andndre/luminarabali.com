@@ -638,6 +638,32 @@ function studioApp() {
             }
         },
 
+        // Panel colaps di inspector. Urutan di sini = urutan tampil; field yang panel-nya
+        // tak terdaftar tetap muncul (di akhir, berlabel apa adanya) supaya menambah blok
+        // bersama baru di config tidak diam-diam menyembunyikan field.
+        panelOrder: ['spacing', 'radius', 'treatment', 'ornament', 'animation'],
+
+        panelsFor(type, group) {
+            const seen = this.fieldsFor(type, group)
+                .filter(f => f.panel && this.showField(f))
+                .map(f => f.panel);
+            const unique = [...new Set(seen)];
+            return unique.sort((a, b) => {
+                const ia = this.panelOrder.indexOf(a), ib = this.panelOrder.indexOf(b);
+                return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+            });
+        },
+
+        panelLabel(p) {
+            return {
+                spacing: 'Spacing & Kotak',
+                radius: 'Sudut',
+                treatment: 'Latar & Treatment',
+                ornament: 'Ornamen',
+                animation: 'Animasi',
+            }[p] ?? this.variantLabel(p);
+        },
+
         variantLabel(v) {
             return String(v ?? '').split('-')
                 .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');

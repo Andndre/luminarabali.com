@@ -154,7 +154,7 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertStringContainsString('variantSchematic', $blade, 'Helper variantSchematic belum ada.');
 
         // Picker varian = skematik SVG saja (tak ada jalur thumbnail hasil capture).
-        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_inspector.blade.php'));
+        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_field.blade.php'));
         $this->assertStringContainsString('variantSchematic(opt)', $inspector, 'Picker varian tak memakai skematik.');
         $this->assertStringNotContainsString('variant_thumbnails', $inspector, 'Picker varian masih punya jalur thumbnail.');
 
@@ -189,7 +189,7 @@ class InvitationComponentsSchemaTest extends TestCase
         }
 
         $this->assertStringContainsString('showField(field)',
-            file_get_contents(resource_path('views/admin/templates/studio/_inspector.blade.php')),
+            file_get_contents(resource_path('views/admin/templates/studio/_field.blade.php')),
             'Inspector tidak menghormati show_if.');
     }
 
@@ -228,6 +228,45 @@ class InvitationComponentsSchemaTest extends TestCase
             $blade,
             'Reset universal padding/margin di <style> halaman undangan mematikan semua utility Tailwind.'
         );
+    }
+
+    public function test_bulk_design_fields_are_grouped_into_collapsible_panels(): void
+    {
+        // Field yang di-merge ke banyak komponen sekaligus adalah sumber daftar panjang
+        // di tab Desain (guideline §10). Semuanya wajib punya `panel` supaya masuk
+        // accordion, bukan menumpuk datar di atas.
+        $mustHavePanel = [
+            'treatment', 'bg_image', 'bg_overlay', 'bg_effect', 'bg_effect_strength',
+            'ornaments_top', 'ornaments_bottom',
+            'animation', 'animation_delay',
+            'padding_top', 'padding_bottom', 'margin_top', 'margin_bottom',
+            'radius_per_corner', 'radius_tl',
+        ];
+
+        foreach (config('invitation_components') as $type => $fields) {
+            foreach ($fields as $field) {
+                if (in_array($field['key'], $mustHavePanel, true)) {
+                    $this->assertNotEmpty(
+                        $field['panel'] ?? null,
+                        "{$type}.{$field['key']} tidak punya 'panel' — akan muncul datar di tab Desain."
+                    );
+                }
+            }
+        }
+    }
+
+    public function test_inspector_renders_panels_through_the_shared_field_partial(): void
+    {
+        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_inspector.blade.php'));
+
+        // Dua loop (tanpa panel + per panel) harus memakai partial yang sama; markup
+        // field ~400 baris tak boleh digandakan.
+        $this->assertSame(2, substr_count($inspector, "@include('admin.templates.studio._field')"));
+        $this->assertStringContainsString('<details', $inspector, 'Panel colaps belum memakai <details>.');
+        $this->assertStringContainsString('panelsFor(', $inspector);
+
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $this->assertStringContainsString('panelLabel(', $blade, 'Helper panelLabel belum ada.');
     }
 
     public function test_public_page_body_font_follows_the_theme(): void
@@ -270,7 +309,7 @@ class InvitationComponentsSchemaTest extends TestCase
     public function test_studio_has_ornament_picker_modal_and_svg_color_control(): void
     {
         $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
-        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_inspector.blade.php'));
+        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_field.blade.php'));
         $this->assertStringContainsString('openOrnamentPicker', $blade, 'Method openOrnamentPicker belum ada.');
         $this->assertStringContainsString('ornamentPicker', $blade, 'State modal ornamen belum ada.');
         $this->assertStringContainsString('isSvgPath', $blade, 'Helper isSvgPath belum ada.');
@@ -281,7 +320,7 @@ class InvitationComponentsSchemaTest extends TestCase
     public function test_studio_has_ornament_list_ui_with_flip(): void
     {
         $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
-        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_inspector.blade.php'));
+        $inspector = file_get_contents(resource_path('views/admin/templates/studio/_field.blade.php'));
         $this->assertStringContainsString('openOrnamentPickerItem', $blade, 'Picker per-item belum ada.');
         $this->assertStringContainsString('addOrnItem', $blade, 'Helper addOrnItem belum ada.');
         $this->assertStringContainsString("field.type === 'ornament_list'", $inspector, 'Blok ornament_list belum ada.');

@@ -1,41 +1,41 @@
 <?php
 
 $containerFields = [
-    ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 60],
-    ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 60],
-    ['key' => 'padding_left', 'type' => 'number', 'label' => 'Padding Kiri', 'group' => 'design', 'default' => 20],
-    ['key' => 'padding_right', 'type' => 'number', 'label' => 'Padding Kanan', 'group' => 'design', 'default' => 20],
-    ['key' => 'max_width', 'type' => 'number', 'label' => 'Lebar Maksimum', 'group' => 'design', 'default' => 1200],
+    ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 60],
+    ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 60],
+    ['key' => 'padding_left', 'type' => 'number', 'label' => 'Padding Kiri', 'group' => 'design', 'panel' => 'spacing', 'default' => 20],
+    ['key' => 'padding_right', 'type' => 'number', 'label' => 'Padding Kanan', 'group' => 'design', 'panel' => 'spacing', 'default' => 20],
+    ['key' => 'max_width', 'type' => 'number', 'label' => 'Lebar Maksimum', 'group' => 'design', 'panel' => 'spacing', 'default' => 1200],
     // default null = ikuti tema (partial jatuh ke var(--color-surface)). Pilih warna = override eksplisit.
-    ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'token' => 'surface', 'default' => null],
-    ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
-    ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 0],
-    ['key' => 'margin_left', 'type' => 'number', 'label' => 'Margin Kiri', 'group' => 'design', 'default' => 0],
-    ['key' => 'margin_right', 'type' => 'number', 'label' => 'Margin Kanan', 'group' => 'design', 'default' => 0],
-    ['key' => 'margin_left_mode', 'type' => 'select', 'label' => 'Mode Margin Kiri', 'group' => 'design', 'options' => ['px', 'auto'], 'default' => 'px'],
-    ['key' => 'margin_right_mode', 'type' => 'select', 'label' => 'Mode Margin Kanan', 'group' => 'design', 'options' => ['px', 'auto'], 'default' => 'px'],
-    ['key' => 'border_width', 'type' => 'number', 'label' => 'Border Width', 'group' => 'design', 'default' => 0],
-    ['key' => 'border_color', 'type' => 'color', 'label' => 'Warna Border', 'group' => 'design', 'token' => 'surface_alt', 'default' => null],
-    ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'default' => 0],
-    ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
+    ['key' => 'background_color', 'type' => 'color', 'label' => 'Warna Latar', 'group' => 'design', 'panel' => 'spacing', 'token' => 'surface', 'default' => null],
+    ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
+    ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
+    ['key' => 'margin_left', 'type' => 'number', 'label' => 'Margin Kiri', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
+    ['key' => 'margin_right', 'type' => 'number', 'label' => 'Margin Kanan', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
+    ['key' => 'margin_left_mode', 'type' => 'select', 'label' => 'Mode Margin Kiri', 'group' => 'design', 'panel' => 'spacing', 'options' => ['px', 'auto'], 'default' => 'px'],
+    ['key' => 'margin_right_mode', 'type' => 'select', 'label' => 'Mode Margin Kanan', 'group' => 'design', 'panel' => 'spacing', 'options' => ['px', 'auto'], 'default' => 'px'],
+    ['key' => 'border_width', 'type' => 'number', 'label' => 'Border Width', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
+    ['key' => 'border_color', 'type' => 'color', 'label' => 'Warna Border', 'group' => 'design', 'panel' => 'spacing', 'token' => 'surface_alt', 'default' => null],
+    ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
+    ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'panel' => 'spacing', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
 ];
 
 // Radius sudut — satu angka, atau empat kalau centangnya aktif. show_if menyembunyikan
 // yang tidak relevan di inspector, tapi keempat nilainya tetap tersimpan sehingga
 // mematikan centang tidak menghapus setelan pojok yang sudah dibuat.
 $radiusFields = [
-    ['key' => 'radius_per_corner', 'type' => 'boolean', 'label' => 'Atur Tiap Pojok', 'group' => 'design', 'default' => false],
-    ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', false]],
-    ['key' => 'radius_tl', 'type' => 'number', 'label' => 'Pojok Kiri Atas', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
-    ['key' => 'radius_tr', 'type' => 'number', 'label' => 'Pojok Kanan Atas', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
-    ['key' => 'radius_br', 'type' => 'number', 'label' => 'Pojok Kanan Bawah', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
-    ['key' => 'radius_bl', 'type' => 'number', 'label' => 'Pojok Kiri Bawah', 'group' => 'design', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
+    ['key' => 'radius_per_corner', 'type' => 'boolean', 'label' => 'Atur Tiap Pojok', 'group' => 'design', 'panel' => 'radius', 'default' => false],
+    ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'panel' => 'radius', 'default' => 0, 'show_if' => ['radius_per_corner', false]],
+    ['key' => 'radius_tl', 'type' => 'number', 'label' => 'Pojok Kiri Atas', 'group' => 'design', 'panel' => 'radius', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
+    ['key' => 'radius_tr', 'type' => 'number', 'label' => 'Pojok Kanan Atas', 'group' => 'design', 'panel' => 'radius', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
+    ['key' => 'radius_br', 'type' => 'number', 'label' => 'Pojok Kanan Bawah', 'group' => 'design', 'panel' => 'radius', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
+    ['key' => 'radius_bl', 'type' => 'number', 'label' => 'Pojok Kiri Bawah', 'group' => 'design', 'panel' => 'radius', 'default' => 0, 'show_if' => ['radius_per_corner', true]],
 ];
 
 // Animasi entrance — di-merge ke SEMUA tipe section (dirender _section-shell).
 $animationFields = [
-    ['key' => 'animation', 'type' => 'select', 'label' => 'Animasi Masuk', 'group' => 'design', 'options' => ['none', 'fade-up', 'fade-in', 'zoom-in', 'slide-left', 'slide-right'], 'default' => 'none'],
-    ['key' => 'animation_delay', 'type' => 'number', 'label' => 'Delay Animasi (ms)', 'group' => 'design', 'default' => 0],
+    ['key' => 'animation', 'type' => 'select', 'label' => 'Animasi Masuk', 'group' => 'design', 'panel' => 'animation', 'options' => ['none', 'fade-up', 'fade-in', 'zoom-in', 'slide-left', 'slide-right'], 'default' => 'none'],
+    ['key' => 'animation_delay', 'type' => 'number', 'label' => 'Delay Animasi (ms)', 'group' => 'design', 'panel' => 'animation', 'default' => 0],
 ];
 
 $components = [
@@ -54,8 +54,8 @@ $components = [
         ['key' => 'overlay_enabled', 'type' => 'boolean', 'label' => 'Overlay Gelap', 'group' => 'design', 'default' => false],
         ['key' => 'overlay_opacity', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'default' => 40],
         ['key' => 'alignment', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'center'],
-        ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 120],
-        ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 120],
+        ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 120],
+        ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 120],
     ],
 
     'text' => [
@@ -63,7 +63,7 @@ $components = [
         ['key' => 'tag', 'type' => 'select', 'label' => 'Jenis Elemen', 'group' => 'design', 'options' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'], 'default' => 'p'],
         ['key' => 'align', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'left'],
         ['key' => 'font_size', 'type' => 'number', 'label' => 'Ukuran Font', 'group' => 'design', 'default' => null],
-        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 0],
+        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
         ['key' => 'line_height', 'type' => 'number', 'label' => 'Line Height', 'group' => 'design', 'default' => 1.5],
         ['key' => 'letter_spacing', 'type' => 'number', 'label' => 'Letter Spacing', 'group' => 'design', 'default' => 0],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'advanced', 'default' => null],
@@ -78,8 +78,8 @@ $components = [
         ['key' => 'border_width', 'type' => 'number', 'label' => 'Border Width', 'group' => 'design', 'default' => 0],
         ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
         ['key' => 'align', 'type' => 'select', 'label' => 'Perataan', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'center'],
-        ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
-        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
+        ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
+        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 24],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'advanced', 'default' => null],
         ['key' => 'custom_css', 'type' => 'text', 'label' => 'Custom CSS', 'group' => 'advanced', 'default' => ''],
     ],
@@ -96,8 +96,8 @@ $components = [
         ['key' => 'border_radius', 'type' => 'number', 'label' => 'Border Radius', 'group' => 'design', 'default' => null],
         ['key' => 'border_width', 'type' => 'number', 'label' => 'Border Width', 'group' => 'design', 'default' => 0],
         ['key' => 'shadow', 'type' => 'select', 'label' => 'Bayangan', 'group' => 'design', 'options' => ['none', 'sm', 'md', 'lg'], 'default' => 'none'],
-        ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
-        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
+        ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
+        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 24],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'advanced', 'default' => null],
         ['key' => 'custom_css', 'type' => 'text', 'label' => 'Custom CSS', 'group' => 'advanced', 'default' => ''],
     ],
@@ -107,8 +107,8 @@ $components = [
         ['key' => 'height', 'type' => 'number', 'label' => 'Tinggi', 'group' => 'design', 'default' => 1],
         ['key' => 'style', 'type' => 'select', 'label' => 'Gaya Garis', 'group' => 'design', 'options' => ['solid', 'dashed', 'dotted'], 'default' => 'solid'],
         ['key' => 'width', 'type' => 'number', 'label' => 'Lebar (%)', 'group' => 'design', 'default' => 100],
-        ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 24],
-        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
+        ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 24],
+        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 24],
         ['key' => 'element_id', 'type' => 'text', 'label' => 'Element ID', 'group' => 'advanced', 'default' => null],
         ['key' => 'custom_css', 'type' => 'text', 'label' => 'Custom CSS', 'group' => 'advanced', 'default' => ''],
     ],
@@ -123,8 +123,8 @@ $components = [
         ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['cards', 'minimal-line', 'ring'], 'default' => 'cards'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Counting Down To'],
         ['key' => 'passed_text', 'type' => 'text', 'label' => 'Teks Saat Hari-H Lewat', 'group' => 'content', 'default' => 'Hari bahagia telah tiba'],
-        ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 64],
-        ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 64],
+        ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 64],
+        ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 64],
     ],
 
     'gallery' => [
@@ -179,8 +179,8 @@ $components = [
         ['key' => 'success_message', 'type' => 'text', 'label' => 'Pesan Sukses', 'group' => 'content', 'default' => 'Terima kasih atas konfirmasi Anda!'],
         ['key' => 'whatsapp_phone', 'type' => 'text', 'label' => 'Nomor WhatsApp', 'group' => 'content', 'default' => ''],
         ['key' => 'whatsapp_enabled', 'type' => 'boolean', 'label' => 'Teruskan ke WhatsApp', 'group' => 'design', 'default' => false],
-        ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 80],
-        ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 80],
+        ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 80],
+        ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 80],
     ],
 
     'video' => [
@@ -196,8 +196,8 @@ $components = [
             fn ($f) => $f['key'] === 'border_radius' ? [...$f, 'default' => 8] : $f,
             $radiusFields
         ),
-        ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'default' => 0],
-        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'default' => 24],
+        ['key' => 'margin_top', 'type' => 'number', 'label' => 'Margin Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 0],
+        ['key' => 'margin_bottom', 'type' => 'number', 'label' => 'Margin Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 24],
     ],
 
     'couple' => [
@@ -213,8 +213,8 @@ $components = [
         ['key' => 'bride_instagram', 'type' => 'url', 'label' => 'Instagram Mempelai Wanita', 'group' => 'design', 'default' => null],
         ['key' => 'groom_text_align', 'type' => 'select', 'label' => 'Perataan Teks Mempelai Pria', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'left', 'variant' => ['portrait-overlay']],
         ['key' => 'bride_text_align', 'type' => 'select', 'label' => 'Perataan Teks Mempelai Wanita', 'group' => 'design', 'options' => ['left', 'center', 'right'], 'default' => 'right', 'variant' => ['portrait-overlay']],
-        ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'default' => 64],
-        ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'default' => 64],
+        ['key' => 'padding_top', 'type' => 'number', 'label' => 'Padding Atas', 'group' => 'design', 'panel' => 'spacing', 'default' => 64],
+        ['key' => 'padding_bottom', 'type' => 'number', 'label' => 'Padding Bawah', 'group' => 'design', 'panel' => 'spacing', 'default' => 64],
     ],
 
     'event_details' => [
@@ -321,11 +321,11 @@ $components = [
 
 // Treatment latar — hanya untuk kelas Section (lihat $sectionTypes di bawah).
 $treatmentFields = [
-    ['key' => 'treatment', 'type' => 'select', 'label' => 'Latar Section', 'group' => 'design', 'options' => ['surface', 'contrast', 'dark', 'image'], 'default' => 'surface'],
-    ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'design', 'default' => null],
-    ['key' => 'bg_overlay', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'default' => 45],
-    ['key' => 'bg_effect', 'type' => 'select', 'label' => 'Efek Latar', 'group' => 'design', 'options' => ['none', 'pinned', 'kenburns', 'scroll-zoom-in', 'scroll-zoom-out'], 'default' => 'none'],
-    ['key' => 'bg_effect_strength', 'type' => 'number', 'label' => 'Kekuatan Efek (%)', 'group' => 'design', 'default' => 130],
+    ['key' => 'treatment', 'type' => 'select', 'label' => 'Latar Section', 'group' => 'design', 'panel' => 'treatment', 'options' => ['surface', 'contrast', 'dark', 'image'], 'default' => 'surface'],
+    ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'design', 'panel' => 'treatment', 'default' => null],
+    ['key' => 'bg_overlay', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 45],
+    ['key' => 'bg_effect', 'type' => 'select', 'label' => 'Efek Latar', 'group' => 'design', 'panel' => 'treatment', 'options' => ['none', 'pinned', 'kenburns', 'scroll-zoom-in', 'scroll-zoom-out'], 'default' => 'none'],
+    ['key' => 'bg_effect_strength', 'type' => 'number', 'label' => 'Kekuatan Efek (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 130],
 ];
 
 // Treatment hanya untuk kelas Section (guideline §9) — Basic (text/music/…) tidak
@@ -353,8 +353,8 @@ foreach ($components as $type => $fields) {
 
 // Ornamen — hanya section "utama" (bukan blok generic text/image/spacer/divider/kontainer).
 $ornamentFields = [
-    ['key' => 'ornaments_top', 'type' => 'ornament_list', 'label' => 'Ornamen Atas', 'group' => 'design', 'default' => []],
-    ['key' => 'ornaments_bottom', 'type' => 'ornament_list', 'label' => 'Ornamen Bawah', 'group' => 'design', 'default' => []],
+    ['key' => 'ornaments_top', 'type' => 'ornament_list', 'label' => 'Ornamen Atas', 'group' => 'design', 'panel' => 'ornament', 'default' => []],
+    ['key' => 'ornaments_bottom', 'type' => 'ornament_list', 'label' => 'Ornamen Bawah', 'group' => 'design', 'panel' => 'ornament', 'default' => []],
 ];
 foreach (['cover', 'hero', 'quote', 'couple', 'event_details', 'gift', 'rsvp', 'countdown', 'closing', 'love_story'] as $type) {
     if (isset($components[$type])) {
