@@ -177,8 +177,11 @@ class InvitationComponentHardeningTest extends TestCase
         // Keyframe dibangun dari jumlah slide: 3 slide = tiap slide tampil sepertiga siklus.
         $this->assertStringContainsString('@keyframes sec-bgslide-3', $html);
         $this->assertStringContainsString('33.33%{opacity:1}', $html);
-        $response->assertSee('animation-delay:calc(var(--slide-dur) * 2)', false);
+        $response->assertSee('--slide-i:2', false);
         $response->assertSee('--slide-dur:4s', false);
+        // Nama keyframe lewat variabel, bukan gaya inline: CSS harus bisa menambahkan
+        // animasi kedua (kenburns) tanpa tertimpa.
+        $response->assertSee('--slide-fade:sec-bgslide-3', false);
     }
 
     public function test_single_photo_slideshow_falls_back_to_a_plain_background(): void
@@ -208,7 +211,7 @@ class InvitationComponentHardeningTest extends TestCase
             'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
             'props' => [
                 'treatment' => 'image', 'bg_media_type' => 'video',
-                'bg_video' => 'clips/loop.mp4', 'bg_image' => 'templates/poster.jpg', 'bg_overlay' => 40,
+                'bg_video' => 'clips/loop.mp4', 'bg_poster' => 'templates/poster.jpg', 'bg_overlay' => 40,
             ],
             'is_visible' => true,
         ]);
@@ -236,7 +239,7 @@ class InvitationComponentHardeningTest extends TestCase
                 // Kolom yang sama dipakai unggahan; tautan YouTube dikenali dari isinya.
                 // Query milik pengguna tidak boleh ikut ke src iframe.
                 'bg_video' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=EVIL&t=90',
-                'bg_image' => 'templates/poster.jpg',
+                'bg_poster' => 'templates/poster.jpg',
             ],
             'is_visible' => true,
         ]);
@@ -294,10 +297,11 @@ class InvitationComponentHardeningTest extends TestCase
     }
 
     /**
-     * Efek latar menganimasikan .sec-bg-img lewat properti yang sama dengan crossfade
-     * slideshow. Server yang memutuskan siapa yang menang, bukan urutan aturan CSS.
+     * Efek berlaku untuk ketiga jenis media. Satu-satunya kecuali: pinned pada latar
+     * YouTube — pinned memaksa tinggi elemen sedangkan lebar iframe diturunkan dari
+     * tinggi container agar menutupi 16:9, jadi dipaksakan bersama bingkainya bolong.
      */
-    public function test_background_effects_are_disabled_for_slideshow_and_video(): void
+    public function test_background_effects_apply_to_slideshow_and_video(): void
     {
         $page = $this->publishedPage();
         foreach ([
@@ -314,7 +318,44 @@ class InvitationComponentHardeningTest extends TestCase
         $response = $this->get("/invitation/{$page->slug}");
 
         $response->assertOk();
-        $response->assertDontSee('data-effect="kenburns"', false);
+        $this->assertSame(2, substr_count($response->getContent(), 'data-effect="kenburns"'));
+
+        // Slideshow memakai dua animasi sekaligus; keduanya harus disebut dalam satu
+        // aturan, kalau tidak yang belakangan menghapus crossfade-nya.
+        $css = file_get_contents(resource_path('css/invitation.css'));
+        $this->assertStringContainsString('animation-name: var(--slide-fade), sec-kenburns;', $css);
+    }
+
+    /**
+     * Pinned pada latar YouTube tidak boleh memakai jalur ukuran yang biasa: yang harus
+     * ditutupi kotak layar kartu, bukan tinggi section. Lebarnya diturunkan dari --pin-h.
+     */
+    public function test_pinned_applies_to_youtube_backgrounds(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'video', 'bg_effect' => 'pinned',
+                'bg_video' => 'https://youtu.be/dQw4w9WgXcQ',
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('sec-bg-ytwrap', false);
+        $response->assertSee('data-effect="pinned"', false);
+        $response->assertSee('sec-treat--pinned', false);
+
+        $css = file_get_contents(resource_path('css/invitation.css'));
+        $this->assertStringContainsString('.sec-treat--pinned .sec-bg-ytwrap', $css);
+        $this->assertStringContainsString('1.7778 * var(--pin-h', $css);
+
+        // Tanpa ini JS tidak pernah mengisi --pin-h di pembungkusnya dan ukurannya diam.
+        $this->assertStringContainsString('.sec-treat--pinned .sec-bg-ytwrap',
+            file_get_contents(resource_path('js/invitation.js')));
     }
 
     public function test_hero_component_ignores_stale_overlay_and_text_color_props(): void

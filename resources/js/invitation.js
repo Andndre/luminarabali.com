@@ -32,8 +32,10 @@ Alpine.start();
             var vh = card.clientHeight || window.innerHeight;
             var cardTop = card.getBoundingClientRect().top;
 
-            // pinned: gambar dipaksa menempati kotak layar kartu, apa pun posisi section-nya.
-            document.querySelectorAll('.sec-treat--pinned .sec-bg-img').forEach(function (img) {
+            // pinned: media dipaksa menempati kotak layar kartu, apa pun posisi section-nya.
+            // Pembungkus YouTube ikut, tapi memakai --pin-h untuk menurunkan LEBAR bingkai
+            // 16:9-nya, bukan sebagai tinggi langsung (lihat .sec-treat--pinned .sec-bg-ytwrap).
+            document.querySelectorAll('.sec-treat--pinned .sec-bg-img, .sec-treat--pinned .sec-bg-video, .sec-treat--pinned .sec-bg-ytwrap').forEach(function (img) {
                 var offset = img.parentElement.getBoundingClientRect().top - cardTop;
                 img.style.setProperty('--pin-h', vh + 'px');
                 img.style.setProperty('--pin-y', (-offset).toFixed(1) + 'px');
@@ -41,8 +43,11 @@ Alpine.start();
 
             var layers = document.querySelectorAll('.sec-bg[data-effect^="scroll-zoom"]');
             layers.forEach(function (layer) {
-                var img = layer.querySelector('.sec-bg-img');
+                // Slideshow punya banyak slide; --sz-scale cukup diset di wadahnya sekali,
+                // dan tiap slide mewarisinya lewat var().
+                var img = layer.querySelector('.sec-bg-video, .sec-bg-ytwrap, .sec-bg-img');
                 if (!img) return;
+                if (layer.classList.contains('sec-bg--slideshow')) img = layer;
                 var dir = layer.getAttribute('data-effect') === 'scroll-zoom-in' ? 'in' : 'out';
                 var max = (parseInt(layer.getAttribute('data-strength'), 10) || 130) / 100;
                 var rect = layer.getBoundingClientRect();

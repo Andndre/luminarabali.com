@@ -196,7 +196,9 @@
 .sec-bg--slideshow { background-size: cover; background-position: center; }
 .sec-bg-slide {
   opacity: 0;
+  animation-name: var(--slide-fade);
   animation-duration: calc(var(--slide-dur, 5s) * var(--slide-n, 3));
+  animation-delay: calc(var(--slide-dur, 5s) * var(--slide-i, 0));
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
@@ -207,16 +209,20 @@
    tingginya menutupi section (177.78cqh = 16/9 dari tinggi container), lalu dipusatkan
    sehingga sisi lebihnya terpotong rata. Butuh container-type di .sec-bg agar cqh terukur. */
 .sec-bg--youtube { container-type: size; background-size: cover; background-position: center; }
-.sec-bg-yt {
+.sec-bg-ytwrap {
   position: absolute; top: 50%; left: 50%; translate: -50% -50%;
-  /* --yt-zoom membesarkan iframe melebihi kebutuhan cover supaya judul di atas dan sisa
+  /* --yt-zoom membesarkan bingkai melebihi kebutuhan cover supaya judul di atas dan sisa
      kontrol di bawah jatuh DI LUAR bingkai yang terlihat. Sisi kiri-kanan ikut terpotong;
      itu harga yang dibayar, dan satu-satunya cara — chrome YouTube tak bisa dimatikan. */
   width: calc(max(100%, 177.7778cqh) * var(--yt-zoom, 1.45));
   aspect-ratio: 16 / 9;
-  border: 0; pointer-events: none;
+  pointer-events: none;
+}
+.sec-bg-yt {
+  position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
   /* Detik-detik pertama justru saat judul dan logo paling mungkin muncul. Tahan dulu di
-     balik foto poster, baru muncul setelah pemutaran mapan. */
+     balik foto poster, baru muncul setelah pemutaran mapan. Slot animation di sini
+     dipakai penuh oleh tunda-tampil; efek latar dipasang di pembungkusnya. */
   opacity: 0;
   animation: sec-yt-in .7s ease 2s forwards;
 }
@@ -228,7 +234,9 @@
 }
 
 /* --- bg_effect (Lapis 2) --- */
-.sec-bg-img { will-change: transform; transform-origin: center center; }
+/* Efek mengenai lapisan media apa pun: foto, tiap slide, video, dan pembungkus iframe
+   YouTube (iframe-nya sendiri sudah memakai slot animation untuk tunda-tampil). */
+.sec-bg-img, .sec-bg-video, .sec-bg-ytwrap { will-change: transform; transform-origin: center center; }
 
 /* pinned: yang sticky adalah GAMBARNYA, bukan .sec-bg. Membuat .sec-bg sticky
    mengeluarkannya dari absolute → masuk alur normal, memakan 100dvh, dan mendorong
@@ -238,24 +246,51 @@
    JS menyetel --pin-h (= tinggi kartu) dan --pin-y (= -offset section terhadap kartu),
    sehingga gambar selalu menempati kotak layar: efek background-attachment:fixed.
    Tanpa JS / reduced-motion: height 100% + translate 0 = latar biasa. */
-.sec-treat--pinned .sec-bg-img {
+.sec-treat--pinned .sec-bg-img,
+.sec-treat--pinned .sec-bg-video {
   bottom: auto;
   height: var(--pin-h, 100%);
   transform: translateY(var(--pin-y, 0px));
 }
+/* YouTube saat pinned: ukurannya TIDAK boleh diturunkan dari tinggi section (cqh) seperti
+   biasanya, karena yang harus ditutupi adalah kotak layar kartu. Lebarnya diambil dari
+   --pin-h, tingginya menyusul lewat aspect-ratio — jadi selalu >= tinggi kartu, dan
+   lebihnya terpotong. Dipusatkan di kotak layar itu: titik tengahnya berada di
+   --pin-y + --pin-h/2 dari atas section. */
+.sec-treat--pinned .sec-bg-ytwrap {
+  top: 0;
+  translate: -50% -50%;
+  width: calc(max(100%, 1.7778 * var(--pin-h, 100%)) * var(--yt-zoom, 1.45));
+  transform: translateY(calc(var(--pin-y, 0px) + var(--pin-h, 0px) / 2));
+}
 .sec-treat--pinned > :not(.sec-bg) { position: relative; z-index: 1; }
 
 /* kenburns */
-.sec-bg[data-effect="kenburns"] .sec-bg-img { animation: sec-kenburns 12s ease-in-out infinite alternate; }
+.sec-bg[data-effect="kenburns"] .sec-bg-img,
+.sec-bg[data-effect="kenburns"] .sec-bg-video,
+.sec-bg[data-effect="kenburns"] .sec-bg-ytwrap { animation: sec-kenburns 12s ease-in-out infinite alternate; }
+/* Slide sudah memakai slot animation pertama untuk crossfade, jadi kenburns jadi slot
+   kedua — keduanya harus disebut sekaligus, kalau tidak yang belakangan menghapus yang
+   depan. Zoom-nya seumur satu slide supaya tiap foto memulai geraknya dari awal. */
+.sec-bg--slideshow[data-effect="kenburns"] .sec-bg-slide {
+  animation-name: var(--slide-fade), sec-kenburns;
+  animation-duration: calc(var(--slide-dur, 5s) * var(--slide-n, 3)), var(--slide-dur, 5s);
+  animation-delay: calc(var(--slide-dur, 5s) * var(--slide-i, 0)), 0s;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-direction: normal, alternate;
+}
 @keyframes sec-kenburns { from { transform: scale(1.02); } to { transform: scale(1.18) translate(-2%, -2%); } }
 
 /* scroll-zoom: nilai awal; transform diperbarui JS via --sz-scale */
-.sec-bg[data-effect^="scroll-zoom"] .sec-bg-img { transform: scale(var(--sz-scale, 1)); }
+.sec-bg[data-effect^="scroll-zoom"] .sec-bg-img,
+.sec-bg[data-effect^="scroll-zoom"] .sec-bg-video,
+.sec-bg[data-effect^="scroll-zoom"] .sec-bg-ytwrap { transform: scale(var(--sz-scale, 1)); }
 
 @media (prefers-reduced-motion: reduce) {
   /* Mengenai .sec-bg-slide juga (ia ber-class .sec-bg-img): slide berhenti di opacity 0
      dan yang terlihat tinggal foto di wadahnya — satu foto diam, bukan layar kosong. */
-  .sec-bg-img { animation: none !important; transform: none !important; }
+  .sec-bg-img, .sec-bg-video, .sec-bg-ytwrap { animation: none !important; transform: none !important; }
 }
 
 /* Permukaan milik-sendiri: elemen ber-background opaque menetapkan ulang konteks --fg-*

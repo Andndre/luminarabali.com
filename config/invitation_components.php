@@ -333,18 +333,24 @@ $bgOn = ['treatment', 'image'];
 $treatmentFields = [
     ['key' => 'treatment', 'type' => 'select', 'label' => 'Latar Section', 'group' => 'design', 'panel' => 'treatment', 'options' => ['surface', 'contrast', 'dark', 'image'], 'default' => 'surface'],
     ['key' => 'bg_media_type', 'type' => 'select', 'label' => 'Jenis Media Latar', 'group' => 'design', 'panel' => 'treatment', 'options' => ['image', 'slideshow', 'video'], 'default' => 'image', 'show_if' => $bgOn],
-    ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null, 'show_if' => [$bgOn, ['bg_media_type', ['image', 'video']]]],
+    ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null, 'show_if' => [$bgOn, ['bg_media_type', 'image']]],
     ['key' => 'bg_images', 'type' => 'image_list', 'label' => 'Foto Slideshow', 'group' => 'content', 'default' => [], 'show_if' => [$bgOn, ['bg_media_type', 'slideshow']]],
+    // Poster punya kolom sendiri, bukan menumpang bg_image: perannya beda, dan satu label
+    // "Foto Latar" di mode video tidak menjelaskan bahwa fotonya cuma tampil sebelum
+    // video jalan. Terlihat juga saat autoplay ditolak browser dan saat gerakan dikurangi.
+    ['key' => 'bg_poster', 'type' => 'image', 'label' => 'Foto Poster (sebelum video jalan)', 'group' => 'content', 'default' => null, 'show_if' => [$bgOn, ['bg_media_type', 'video']]],
     // Satu kolom untuk dua sumber: kontrol video sudah punya tombol unggah DAN kotak
     // tempel URL. Tautan YouTube dikenali dari isinya, jadi tidak perlu saklar sumber
     // terpisah yang harus diingat pemakai.
     ['key' => 'bg_video', 'type' => 'video', 'label' => 'Video Latar (unggah atau tautan YouTube)', 'group' => 'content', 'default' => null, 'show_if' => [$bgOn, ['bg_media_type', 'video']]],
     ['key' => 'bg_slide_seconds', 'type' => 'number', 'label' => 'Durasi per Foto (detik)', 'group' => 'design', 'panel' => 'treatment', 'default' => 5, 'show_if' => [$bgOn, ['bg_media_type', 'slideshow']]],
     ['key' => 'bg_overlay', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 45, 'show_if' => $bgOn],
-    // Efek menganimasikan .sec-bg-img; slideshow sudah memakai properti itu untuk crossfade
-    // dan video bukan .sec-bg-img sama sekali (lihat _section-shell).
-    ['key' => 'bg_effect', 'type' => 'select', 'label' => 'Efek Latar', 'group' => 'design', 'panel' => 'treatment', 'options' => ['none', 'pinned', 'kenburns', 'scroll-zoom-in', 'scroll-zoom-out'], 'default' => 'none', 'show_if' => [$bgOn, ['bg_media_type', 'image']]],
-    ['key' => 'bg_effect_strength', 'type' => 'number', 'label' => 'Kekuatan Efek (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 130, 'show_if' => [$bgOn, ['bg_media_type', 'image']]],
+    // Berlaku untuk ketiga jenis media. Satu-satunya kecuali: pinned pada latar YouTube,
+    // yang memaksa tinggi elemen dan merusak perhitungan cover 16:9 iframe — digugurkan
+    // di _section-shell, bukan disembunyikan di sini (pilihannya bergantung isi kolom
+    // video, bukan pada nilai prop yang bisa dibaca show_if).
+    ['key' => 'bg_effect', 'type' => 'select', 'label' => 'Efek Latar', 'group' => 'design', 'panel' => 'treatment', 'options' => ['none', 'pinned', 'kenburns', 'scroll-zoom-in', 'scroll-zoom-out'], 'default' => 'none', 'show_if' => $bgOn],
+    ['key' => 'bg_effect_strength', 'type' => 'number', 'label' => 'Kekuatan Efek (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 130, 'show_if' => $bgOn],
 ];
 
 // Treatment hanya untuk kelas Section (guideline §9) — Basic (text/music/…) tidak

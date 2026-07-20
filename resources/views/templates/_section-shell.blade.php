@@ -80,10 +80,12 @@
 
     $bgImage = $ownsVisual ? null : $resolveOrnament($props['bg_image'] ?? null); // reuse resolver path
 
-    // Latar boleh foto tunggal, slideshow, atau video. bg_image tetap dipakai ketiganya:
-    // foto tunggal, cadangan slideshow saat animasi mati, dan poster video.
+    // Latar boleh foto tunggal, slideshow, atau video — masing-masing punya kolomnya
+    // sendiri. bg_poster jatuh ke bg_image supaya section yang sudah menaruh posternya
+    // di sana sebelum kolom ini ada tetap tampil seperti semula.
     $mediaType = in_array($props['bg_media_type'] ?? null, ['image', 'slideshow', 'video'], true)
         ? $props['bg_media_type'] : 'image';
+    $bgPoster = $ownsVisual ? null : ($resolveOrnament($props['bg_poster'] ?? null) ?: $bgImage);
     $bgSlides = [];
     $bgVideo = null;
     $bgYoutube = null;
@@ -113,7 +115,9 @@
             $bgVideo = in_array($ext, ['mp4', 'webm', 'ogv', 'ogg', 'mov', 'm4v'], true) ? $candidate : null;
         }
         if (! $bgVideo && ! $bgYoutube) {
-            $mediaType = 'image'; // video belum diisi → jatuh ke foto/poster-nya
+            // Video belum diisi → posternya yang jadi foto latar biasa.
+            $bgImage = $bgPoster;
+            $mediaType = 'image';
         }
     }
     $hasBgMedia = (bool) ($bgImage || $bgSlides || $bgVideo || $bgYoutube);
@@ -124,11 +128,10 @@
         $treatment = 'surface';
     }
     $bgOverlay = max(0, min(100, (int) ($props['bg_overlay'] ?? 45)));
-    // Efek latar menganimasikan .sec-bg-img lewat animation/transform — properti yang sama
-    // dipakai crossfade slideshow, dan video bukan .sec-bg-img sama sekali. Daripada dua
-    // aturan saling menimpa diam-diam, efek hanya berlaku untuk foto tunggal.
-    $bgEffect = $ownsVisual || $treatment !== 'image' || $mediaType !== 'image'
-        ? 'none' : ($props['bg_effect'] ?? 'none');
+    // Efek berlaku untuk ketiga jenis media, termasuk pinned pada latar YouTube: saat
+    // pinned, ukuran bingkai iframe diturunkan dari --pin-h (tinggi kartu), bukan dari
+    // tinggi section — lihat .sec-treat--pinned .sec-bg-ytwrap di invitation.css.
+    $bgEffect = $ownsVisual || $treatment !== 'image' ? 'none' : ($props['bg_effect'] ?? 'none');
     $bgStrength = max(100, min(200, (int) ($props['bg_effect_strength'] ?? 130)));
     $slideSeconds = max(2, min(30, (int) ($props['bg_slide_seconds'] ?? 5)));
 
@@ -175,25 +178,33 @@
             @endif
             <div class="sec-bg{{ $bgSlides ? ' sec-bg--slideshow' : '' }}{{ $bgYoutube ? ' sec-bg--youtube' : '' }}" aria-hidden="true"
                 @if ($bgEffect !== 'none') data-effect="{{ $bgEffect }}" data-strength="{{ $bgStrength }}" @endif
-                @if ($bgSlides) style="background-image:url('{{ $bgImage ?: $bgSlides[0] }}');--slide-dur:{{ $slideSeconds }}s;--slide-n:{{ count($bgSlides) }}"
-                @elseif ($bgYoutube && $bgImage) style="background-image:url('{{ $bgImage }}')" @endif>
+                @if ($bgSlides) style="background-image:url('{{ $bgSlides[0] }}');--slide-dur:{{ $slideSeconds }}s;--slide-n:{{ count($bgSlides) }};--slide-fade:sec-bgslide-{{ count($bgSlides) }}"
+                @elseif ($bgYoutube && $bgPoster) style="background-image:url('{{ $bgPoster }}')" @endif>
                 @if ($bgYoutube)
-                    {{-- Iframe berformat 16:9 dipaksa menutupi kotak section lewat unit
-                         container (cqh), lalu dipusatkan — sisi yang berlebih terpotong,
-                         seperti object-fit:cover. pointer-events dimatikan di CSS supaya
-                         iframe tidak menangkap sentuhan tamu.
+                    {{-- Pembungkus yang diukur dan diberi efek; iframe di dalamnya cuma
+                         mengisi. Dipisah karena keduanya butuh slot animation sendiri —
+                         efek latar di pembungkus, tunda-tampil di iframe.
+                         Ukurannya: 16:9 dipaksa menutupi kotak section lewat unit container
+                         (cqh) lalu dipusatkan, sisi berlebih terpotong seperti object-fit
+                         cover. pointer-events dimatikan di CSS supaya iframe tidak
+                         menangkap sentuhan tamu.
                          nocookie: penonton tidak ditandai cookie iklan hanya karena
                          membuka undangan. loop butuh playlist berisi ID yang sama. --}}
-                    <iframe class="sec-bg-yt" title="" tabindex="-1" frameborder="0" allow="autoplay"
-                        src="https://www.youtube-nocookie.com/embed/{{ $bgYoutube }}?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist={{ $bgYoutube }}&amp;controls=0&amp;disablekb=1&amp;fs=0&amp;modestbranding=1&amp;rel=0&amp;iv_load_policy=3&amp;playsinline=1"></iframe>
+                    <div class="sec-bg-ytwrap">
+                        <iframe class="sec-bg-yt" title="" tabindex="-1" frameborder="0" allow="autoplay"
+                            src="https://www.youtube-nocookie.com/embed/{{ $bgYoutube }}?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist={{ $bgYoutube }}&amp;controls=0&amp;disablekb=1&amp;fs=0&amp;modestbranding=1&amp;rel=0&amp;iv_load_policy=3&amp;playsinline=1"></iframe>
+                    </div>
                 @elseif ($bgVideo)
                     {{-- muted+playsinline wajib supaya autoplay tidak diblokir browser mobile.
                          poster menutup jeda sebelum frame pertama termuat. --}}
                     <video class="sec-bg-video" src="{{ $bgVideo }}" autoplay muted loop playsinline
-                        preload="metadata" @if ($bgImage) poster="{{ $bgImage }}" @endif></video>
+                        preload="metadata" @if ($bgPoster) poster="{{ $bgPoster }}" @endif></video>
                 @elseif ($bgSlides)
+                    {{-- Hanya urutan slide yang inline. Nama keyframe dan durasinya lewat
+                         variabel di wadah, supaya CSS bisa menambahkan animasi kedua
+                         (kenburns) tanpa ditimpa gaya inline. --}}
                     @foreach ($bgSlides as $i => $slide)
-                        <div class="sec-bg-img sec-bg-slide" style="background-image:url('{{ $slide }}');animation-name:sec-bgslide-{{ count($bgSlides) }};animation-delay:calc(var(--slide-dur) * {{ $i }})"></div>
+                        <div class="sec-bg-img sec-bg-slide" style="background-image:url('{{ $slide }}');--slide-i:{{ $i }}"></div>
                     @endforeach
                 @else
                     <div class="sec-bg-img" style="background-image:url('{{ $bgImage }}')"></div>

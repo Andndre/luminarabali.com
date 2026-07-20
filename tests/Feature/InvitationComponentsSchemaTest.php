@@ -206,18 +206,20 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertSame($bgOn, $fields['bg_media_type']['show_if'] ?? null);
         $this->assertSame($bgOn, $fields['bg_overlay']['show_if'] ?? null);
 
-        $this->assertSame([$bgOn, ['bg_media_type', ['image', 'video']]], $fields['bg_image']['show_if'] ?? null,
-            'Foto Latar juga jadi poster video, tapi tidak relevan untuk slideshow.');
+        // Tiap jenis media punya kolomnya sendiri — termasuk poster video, yang perannya
+        // beda dari foto latar dan karena itu tidak menumpang bg_image.
+        $this->assertSame([$bgOn, ['bg_media_type', 'image']], $fields['bg_image']['show_if'] ?? null);
         $this->assertSame([$bgOn, ['bg_media_type', 'slideshow']], $fields['bg_images']['show_if'] ?? null);
+        $this->assertSame([$bgOn, ['bg_media_type', 'video']], $fields['bg_poster']['show_if'] ?? null);
         // Satu kolom video untuk dua sumber: unggahan dan tautan YouTube dibedakan dari
         // isinya saat render, bukan lewat saklar yang harus diingat pemakai.
         $this->assertSame([$bgOn, ['bg_media_type', 'video']], $fields['bg_video']['show_if'] ?? null);
         $this->assertArrayNotHasKey('bg_video_source', $fields->all());
         $this->assertArrayNotHasKey('bg_video_url', $fields->all());
 
-        // Efek latar dimatikan server untuk slideshow/video, jadi kontrolnya pun disembunyikan.
+        // Efek berlaku untuk ketiga jenis media, jadi gerbangnya cuma treatment.
         foreach (['bg_effect', 'bg_effect_strength'] as $key) {
-            $this->assertSame([$bgOn, ['bg_media_type', 'image']], $fields[$key]['show_if'] ?? null);
+            $this->assertSame($bgOn, $fields[$key]['show_if'] ?? null);
         }
 
         // Gerbang majemuk dan daftar nilai butuh dukungan di showField, bukan cuma di config.
