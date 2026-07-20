@@ -55,6 +55,12 @@ class User extends Authenticatable
         return in_array($this->division, ['super_admin', 'designer'], true);
     }
 
+    /** Customer: pemilik undangan, bukan staf internal. Dipakai gate area /admin. */
+    public function isCustomer(): bool
+    {
+        return $this->division === 'customer';
+    }
+
     protected function casts(): array
     {
         return [
