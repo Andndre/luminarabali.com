@@ -629,6 +629,9 @@
 .dash-pill--awaiting { background: #DBEAFE; color: #1E40AF; }
 .dash-pill--paid     { background: #DCFCE7; color: #166534; }
 .dash-pill--cancelled{ background: #F1F0EE; color: #6B625C; }
+/* Status yang belum dipetakan: sengaja beda dari keempat di atas (garis putus)
+   supaya terbaca "belum diklasifikasi", bukan diam-diam tampil seperti batal. */
+.dash-pill--unknown { background: transparent; color: var(--dash-muted); border: 1px dashed var(--dash-hair); }
 
 /* --- Flash ------------------------------------------------------------- */
 .dash-flash { border-radius: var(--dash-radius); padding: .8rem 1rem; font-size: .875rem; }

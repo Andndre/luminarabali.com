@@ -93,4 +93,31 @@ class DashboardTest extends TestCase
         $this->actingAs($this->customer())->get('/dashboard')
             ->assertDontSee('cdn.tailwindcss.com');
     }
+
+    public function test_known_statuses_get_their_own_pill_variant(): void
+    {
+        $me = $this->customer();
+        $this->orderFor($me, Order::STATUS_PENDING);
+        $this->orderFor($me, Order::STATUS_PAID);
+
+        $res = $this->actingAs($me)->get('/dashboard');
+
+        $res->assertSee('dash-pill--pending', false);
+        $res->assertSee('dash-pill--paid', false);
+        // Status yang dikenal tak boleh jatuh ke varian "belum diklasifikasi".
+        $res->assertDontSee('dash-pill--unknown', false);
+    }
+
+    public function test_unmapped_status_does_not_masquerade_as_cancelled(): void
+    {
+        $me = $this->customer();
+        $order = $this->orderFor($me, Order::STATUS_PENDING);
+        // Status di luar keempat yang dipetakan (mis. status baru di masa depan).
+        $order->forceFill(['status' => 'refunded'])->save();
+
+        $res = $this->actingAs($me)->get('/dashboard');
+
+        $res->assertSee('dash-pill--unknown', false);
+        $res->assertDontSee('dash-pill--cancelled', false);
+    }
 }

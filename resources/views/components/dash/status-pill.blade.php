@@ -10,7 +10,10 @@
         \App\Models\Order::STATUS_AWAITING => 'awaiting',
         \App\Models\Order::STATUS_PAID => 'paid',
         \App\Models\Order::STATUS_CANCELLED => 'cancelled',
-        default => 'cancelled',
+        // Status baru yang belum punya warna di sini TIDAK boleh menyamar jadi
+        // "batal" — tampil netral bergaris putus supaya kelihatan belum
+        // diklasifikasi, bukan salah diklasifikasi.
+        default => 'unknown',
     };
 @endphp
 
