@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\TemplateInstantiator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -37,13 +40,50 @@ class OrderController extends Controller
             403, 'Order sudah final.'
         );
 
-        $order->update([
-            'status' => Order::STATUS_PAID,
-            'paid_at' => now(),
-            'confirmed_by' => Auth::id(),
-        ]);
+        DB::transaction(function () use ($order) {
+            $order->update([
+                'status' => Order::STATUS_PAID,
+                'paid_at' => now(),
+                'confirmed_by' => Auth::id(),
+            ]);
+
+            $this->instantiateInvitationIfNeeded($order);
+        });
 
         return back()->with('success', 'Order dikonfirmasi lunas.');
+    }
+
+    /**
+     * Buat InvitationPage dari template pesanan. Guard DATA (bukan cuma guard
+     * HTTP status di confirm()) supaya idempoten tetap terjaga meski dipanggil
+     * dari jalur lain di masa depan (mis. jalur mitra).
+     *
+     * Template terhapus TIDAK menggagalkan konfirmasi pembayaran: order tetap
+     * paid, instantiate dilewati, admin menangani manual.
+     */
+    private function instantiateInvitationIfNeeded(Order $order): void
+    {
+        if ($order->invitation_page_id !== null) {
+            return;
+        }
+
+        $template = $order->template;
+        if ($template === null) {
+            return;
+        }
+
+        $page = app(TemplateInstantiator::class)->instantiate($template, [
+            'title' => 'Undangan '.$order->user->name,
+            'slug' => Str::slug($order->order_number),
+            'groom_name' => 'Mempelai Pria',
+            'bride_name' => 'Mempelai Wanita',
+            'event_date' => now()->addMonths(6),
+            'published_status' => 'draft',
+            'owner_id' => $order->user_id,
+            'created_by' => Auth::id(),
+        ]);
+
+        $order->update(['invitation_page_id' => $page->id]);
     }
 
     public function cancel(Request $request, Order $order)
