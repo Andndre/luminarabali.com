@@ -392,12 +392,34 @@ class InvitationComponentsSchemaTest extends TestCase
         );
     }
 
-    public function test_theme_panel_uses_custom_hex_color_control(): void
+    public function test_color_fields_use_the_in_app_picker_not_native_os_dialog(): void
     {
-        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
-        $this->assertStringContainsString('normalizeHex', $blade, 'Helper normalizeHex belum ada.');
-        // Panel Tema warna harus punya input teks hex (maxlength 9), bukan hanya native color.
-        $this->assertStringContainsString('theme-hex-input', $blade, 'Kontrol hex kustom Panel Tema belum ada.');
+        $studio = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $field = file_get_contents(resource_path('views/admin/templates/studio/_field.blade.php'));
+        $picker = file_get_contents(resource_path('views/admin/templates/studio/_color-picker.blade.php'));
+
+        // Picker in-app punya method HSV & pemicunya. Tak boleh ada lagi <input type="color">
+        // (dialog OS) di Studio; Panel Tema & inspector memicu picker yang sama.
+        $this->assertStringContainsString('openColorPicker', $studio, 'Method openColorPicker belum ada.');
+        $this->assertStringContainsString('cpHsv2rgb', $studio, 'Math HSV picker belum ada.');
+        $this->assertStringContainsString('cpick-sv', $picker, 'Area saturasi/nilai picker belum ada.');
+        $this->assertStringContainsString('openColorPicker', $studio, 'Panel Tema belum memicu picker.');
+        $this->assertStringContainsString('openColorPicker', $field, 'Inspector belum memicu picker.');
+        $this->assertStringNotContainsString('type="color"', $studio, 'Panel Tema masih pakai dialog warna OS.');
+        $this->assertStringNotContainsString('type="color"', $field, 'Inspector masih pakai dialog warna OS.');
+    }
+
+    public function test_number_fields_use_a_custom_stepper_not_native_spinner(): void
+    {
+        $studio = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $field = file_get_contents(resource_path('views/admin/templates/studio/_field.blade.php'));
+        $stepper = file_get_contents(resource_path('views/admin/templates/studio/_stepper.blade.php'));
+
+        $this->assertStringContainsString('nudge($event', $stepper, 'Tombol stepper belum wired ke nudge().');
+        $this->assertStringContainsString('nudge(e, dir)', $studio, 'Method nudge() belum ada.');
+        // Panel Tema scales & inspector number memakai partial stepper.
+        $this->assertStringContainsString('_stepper', $studio, 'Panel Tema belum pakai stepper.');
+        $this->assertStringContainsString('_stepper', $field, 'Inspector number belum pakai stepper.');
     }
 
     public function test_theme_panel_has_scales_editor(): void

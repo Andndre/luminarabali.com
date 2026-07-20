@@ -114,6 +114,77 @@
         .tok-str { color: #a9d98a; }
         .tok-cmt { color: #6f6a63; font-style: italic; }
         .tok-doctype { color: #e0996b; }
+
+        /* Color picker in-app (ganti dialog OS). Semua warna dari palet --ui-*. Markup di
+           studio/_color-picker.blade.php, dipicu tombol .cpick-trigger tiap field warna. */
+        .cpick-trigger {
+            display: flex; align-items: center; gap: 8px; width: 100%;
+            border: 1px solid var(--ui-line-2); border-radius: 8px; padding: 5px 8px;
+            background: var(--ui-raised); color: var(--ui-text); cursor: pointer;
+            text-align: left; transition: border-color .12s;
+        }
+        .cpick-trigger:hover { border-color: var(--ui-line-3); }
+        .cpick-trigger.open { border-color: var(--ui-active); }
+        .cpick-sw { width: 24px; height: 24px; border-radius: 6px; flex: 0 0 auto; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+        .cpick-val {
+            flex: 1; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        /* Popup melayang di atas field, bukan mendorongnya. Anchor relatif membatasi
+           picker ke lebar field, jadi tak pernah keluar dari panel. */
+        .cpick-anchor { position: relative; }
+        .cpick {
+            position: absolute; z-index: 40; top: calc(100% + 6px); left: 0;
+            width: 264px; max-width: calc(100vw - 32px);
+            background: var(--ui-raised); border: 1px solid var(--ui-line-3);
+            border-radius: 10px; padding: 10px;
+            box-shadow: 0 18px 40px -12px rgba(0,0,0,.6);
+        }
+        /* Panel Tema 2-kolom: cell kanan buka ke kiri supaya popup lebar (yang melampaui
+           lebar cell) tetap dalam panel — panel overflow-y-auto mengklip yang lewat tepi.
+           Kelas dipasang via indeks Alpine, bukan nth-child (Alpine menyisakan node
+           <template> sebagai anak pertama, menggeser hitungan nth-child). */
+        .cpick-open-left .cpick { left: auto; right: 0; }
+        .cpick-sv { position: relative; height: 168px; border-radius: 7px; cursor: crosshair; touch-action: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+        .cpick-hue {
+            position: relative; height: 12px; border-radius: 6px; margin-top: 10px; cursor: pointer; touch-action: none;
+            background: linear-gradient(to right,#f00 0%,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+        }
+        .cpick-thumb {
+            position: absolute; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff;
+            box-shadow: 0 0 0 1px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.5);
+            transform: translate(-50%,-50%); pointer-events: none;
+        }
+        .cpick-hue-thumb { top: 50%; }
+        .cpick-inputs { margin-top: 10px; }
+        .cpick-hex { display: flex; align-items: center; gap: 6px; border: 1px solid var(--ui-line-2); border-radius: 7px; padding: 4px 8px; background: var(--ui-panel); }
+        .cpick-hex span { color: var(--ui-text-4); font-family: ui-monospace, monospace; font-size: 12px; }
+        .cpick-hex input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ui-text); font-family: ui-monospace, monospace; font-size: 12.5px; text-transform: uppercase; }
+        .cpick-rgb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 7px; }
+        .cpick-rgb label { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+        .cpick-rgb span { font-size: 9px; color: var(--ui-text-4); text-transform: uppercase; letter-spacing: .08em; }
+        .cpick-rgb input { width: 100%; min-width: 0; text-align: center; border: 1px solid var(--ui-line-2); border-radius: 6px; padding: 3px 0; color: var(--ui-text); font-family: ui-monospace, monospace; font-size: 12px; outline: 0; background: var(--ui-panel); }
+        .cpick-tokens { margin-top: 10px; }
+        .cpick-tok-h { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--ui-text-4); }
+        .cpick-tok-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+        .cpick-tok { width: 20px; height: 20px; border-radius: 5px; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); transition: transform .1s; }
+        .cpick-tok:hover { transform: scale(1.14); }
+
+        /* Number stepper (ganti spinner native yang sempit). Markup di studio/_stepper.blade.php. */
+        .stepper { display: flex; align-items: stretch; border: 1px solid var(--ui-line-2); border-radius: 8px; overflow: hidden; background: var(--ui-raised); transition: border-color .12s; }
+        .stepper:focus-within { border-color: var(--ui-active); }
+        .stepper input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ui-text); font-size: 14px; padding: 8px 0 8px 11px; border-radius: 0; -moz-appearance: textfield; }
+        .stepper input::-webkit-outer-spin-button,
+        .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .stepper-btns { display: flex; flex-direction: column; width: 28px; flex: 0 0 auto; border-left: 1px solid var(--ui-line-2); }
+        .stepper-btns button { flex: 1; background: transparent; border: 0; cursor: pointer; color: var(--ui-text-3); display: grid; place-items: center; padding: 0; transition: background .1s, color .1s; }
+        .stepper-btns button:hover { background: var(--ui-hover); color: var(--ui-text); }
+        .stepper-btns button:active { background: var(--ui-active); }
+        .stepper-btns button:first-child { border-bottom: 1px solid var(--ui-line-2); }
+        .stepper-btns svg { width: 11px; height: 11px; }
     </style>
 </head>
 <body class="bg-[var(--ui-bg)] overflow-hidden">

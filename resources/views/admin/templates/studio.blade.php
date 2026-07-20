@@ -74,18 +74,19 @@
         <div x-show="panel === 'theme'" x-cloak class="flex-1 overflow-y-auto p-4 space-y-6">
             <section>
                 <h2 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wide mb-3">Warna</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <template x-for="key in Object.keys(theme.colors)" :key="key">
+                <div class="grid grid-cols-2 gap-x-3 gap-y-2">
+                    <template x-for="(key, ci) in Object.keys(theme.colors)" :key="key">
                         <div>
                             <span class="text-xs text-[var(--ui-text-2)] capitalize" x-text="key.replace('_', ' ')"></span>
-                            <div class="mt-1 flex items-center gap-1.5 border rounded-lg px-1.5 py-1">
-                                <input type="color" :value="theme.colors[key]"
-                                    @input="setColor(key, $event.target.value)"
-                                    class="h-7 w-7 shrink-0 rounded cursor-pointer border-0 bg-transparent p-0"
-                                    title="Pilih warna">
-                                <input type="text" class="theme-hex-input w-full text-xs font-mono uppercase border-0 focus:ring-0 p-0"
-                                    maxlength="9" :value="theme.colors[key]"
-                                    @change="(() => { const h = normalizeHex($event.target.value); if (h) setColor(key, h); else $event.target.value = theme.colors[key]; })()">
+                            <div class="mt-1 cpick-anchor" :class="ci % 2 === 1 && 'cpick-open-left'">
+                                <button type="button" class="cpick-trigger" :class="{ open: cp.key === 'theme:' + key }"
+                                    @click="openColorPicker('theme:' + key, theme.colors[key], h => setColor(key, h))">
+                                    <span class="cpick-sw" :style="`background:${theme.colors[key]}`"></span>
+                                    <span class="cpick-val" x-text="theme.colors[key]"></span>
+                                </button>
+                                <template x-if="cp.key === 'theme:' + key">
+                                    @include('admin.templates.studio._color-picker')
+                                </template>
                             </div>
                         </div>
                     </template>
@@ -112,27 +113,19 @@
                 <div class="grid grid-cols-2 gap-3">
                     <label class="block">
                         <span class="text-xs text-[var(--ui-text-2)]">Ukuran Teks Dasar (px)</span>
-                        <input type="number" min="8" max="40" step="1" :value="theme.scales.type_base"
-                            @change="setScale('type_base', Number($event.target.value))"
-                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                        @include('admin.templates.studio._stepper', ['min' => 8, 'max' => 40, 'step' => 1, 'bind' => 'theme.scales.type_base', 'change' => "setScale('type_base', Number(\$event.target.value))"])
                     </label>
                     <label class="block">
                         <span class="text-xs text-[var(--ui-text-2)]">Rasio Skala</span>
-                        <input type="number" min="1" max="2" step="0.05" :value="theme.scales.type_ratio"
-                            @change="setScale('type_ratio', Number($event.target.value))"
-                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                        @include('admin.templates.studio._stepper', ['min' => 1, 'max' => 2, 'step' => '0.05', 'bind' => 'theme.scales.type_ratio', 'change' => "setScale('type_ratio', Number(\$event.target.value))"])
                     </label>
                     <label class="block">
                         <span class="text-xs text-[var(--ui-text-2)]">Radius (px)</span>
-                        <input type="number" min="0" max="64" step="1" :value="theme.scales.radius"
-                            @change="setScale('radius', Number($event.target.value))"
-                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                        @include('admin.templates.studio._stepper', ['min' => 0, 'max' => 64, 'step' => 1, 'bind' => 'theme.scales.radius', 'change' => "setScale('radius', Number(\$event.target.value))"])
                     </label>
                     <label class="block">
                         <span class="text-xs text-[var(--ui-text-2)]">Jarak Section (px)</span>
-                        <input type="number" min="0" max="200" step="1" :value="theme.scales.section_spacing"
-                            @change="setScale('section_spacing', Number($event.target.value))"
-                            class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                        @include('admin.templates.studio._stepper', ['min' => 0, 'max' => 200, 'step' => 1, 'bind' => 'theme.scales.section_spacing', 'change' => "setScale('section_spacing', Number(\$event.target.value))"])
                     </label>
                     <label class="block col-span-2">
                         <span class="text-xs text-[var(--ui-text-2)]">Bayangan</span>
@@ -1711,12 +1704,6 @@ function studioApp() {
             this.queueThemeSave();
         },
 
-        normalizeHex(v) {
-            let s = String(v ?? '').trim();
-            if (s && s[0] !== '#') s = '#' + s;
-            return /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(s) ? s : null;
-        },
-
         setFont(key, value) {
             if (!this.themeSaveTimer) this.pushUndo();
             this.theme.fonts[key] = value;
@@ -1733,6 +1720,95 @@ function studioApp() {
             // radius/section_spacing/shadow bisa langsung, tapi demi sederhana reload sekali via fontsDirty.
             this.fontsDirty = true;
             this.queueThemeSave();
+        },
+
+        // ── Color picker in-app (ganti dialog OS). State HSV di `cp`; math murni, tanpa lib.
+        //    Satu partial _color-picker dipakai semua field warna; yang cocok cp.key yang tampil.
+        cp: { key: null, h: 0, s: 0, v: 0, commit: null },
+
+        cpClamp(v, a, b) { return Math.min(b, Math.max(a, v)); },
+
+        cpHsv2rgb(h, s, v) {
+            h = ((h % 360) + 360) % 360 / 60;
+            const c = v * s, x = c * (1 - Math.abs(h % 2 - 1)), m = v - c;
+            let r = 0, g = 0, b = 0;
+            if (h < 1) { r = c; g = x; } else if (h < 2) { r = x; g = c; }
+            else if (h < 3) { g = c; b = x; } else if (h < 4) { g = x; b = c; }
+            else if (h < 5) { r = x; b = c; } else { r = c; b = x; }
+            return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+        },
+
+        cpRgb2hsv(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+            let h = 0;
+            if (d) {
+                if (max === r) h = ((g - b) / d) % 6;
+                else if (max === g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h *= 60; if (h < 0) h += 360;
+            }
+            return [h, max ? d / max : 0, max];
+        },
+
+        cpParseHex(str) {
+            let s = String(str ?? '').trim().replace(/^#/, '');
+            if (/^[0-9a-fA-F]{3}$/.test(s)) s = s.split('').map(c => c + c).join('');
+            if (!/^[0-9a-fA-F]{6}$/.test(s)) return null;
+            const n = parseInt(s, 16);
+            return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+        },
+
+        cpRgb2hex(r, g, b) {
+            return '#' + [r, g, b].map(v => this.cpClamp(v | 0, 0, 255).toString(16).padStart(2, '0')).join('').toUpperCase();
+        },
+
+        openColorPicker(key, hex, commit) {
+            if (this.cp.key === key) { this.cp.key = null; return; }  // klik ulang = tutup
+            const [h, s, v] = this.cpRgb2hsv(...(this.cpParseHex(hex) ?? [0, 0, 0]));
+            this.cp = { key, h, s, v, commit };
+        },
+
+        cpHex() { return this.cpRgb2hex(...this.cpHsv2rgb(this.cp.h, this.cp.s, this.cp.v)); },
+        cpRgb() { return this.cpHsv2rgb(this.cp.h, this.cp.s, this.cp.v); },
+        cpSvBg() {
+            const base = this.cpRgb2hex(...this.cpHsv2rgb(this.cp.h, 1, 1));
+            return `background:linear-gradient(to top,#000,transparent),linear-gradient(to right,#fff,transparent),${base}`;
+        },
+        cpApply() { this.cp.commit?.(this.cpHex()); },
+        cpSetHex(str) {
+            const rgb = this.cpParseHex(str); if (!rgb) return false;
+            [this.cp.h, this.cp.s, this.cp.v] = this.cpRgb2hsv(...rgb); this.cpApply(); return true;
+        },
+        cpSetRgb(idx, value) {
+            const rgb = this.cpRgb(); rgb[idx] = this.cpClamp(parseInt(value) || 0, 0, 255);
+            [this.cp.h, this.cp.s, this.cp.v] = this.cpRgb2hsv(...rgb); this.cpApply();
+        },
+        cpDrag(el, onMove, e) {
+            const run = ev => {
+                const r = el.getBoundingClientRect(), p = ev.touches ? ev.touches[0] : ev;
+                onMove(this.cpClamp((p.clientX - r.left) / r.width, 0, 1), this.cpClamp((p.clientY - r.top) / r.height, 0, 1));
+            };
+            run(e);
+            const mv = ev => run(ev);
+            const up = () => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); };
+            document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up);
+        },
+        cpDragSV(e) { this.cpDrag(e.currentTarget, (x, y) => { this.cp.s = x; this.cp.v = 1 - y; this.cpApply(); }, e); },
+        cpDragHue(e) { this.cpDrag(e.currentTarget, x => { this.cp.h = x * 360; this.cpApply(); }, e); },
+
+        // Stepper angka: ganti spinner native. Baca step/min/max dari input, tembak `change`
+        // supaya handler @change yang sudah ada (setScale/setProp) tetap jalan.
+        nudge(e, dir) {
+            const inp = e.currentTarget.closest('.stepper')?.querySelector('input');
+            if (!inp) return;
+            const step = parseFloat(inp.step) || 1;
+            const min = inp.min !== '' ? parseFloat(inp.min) : -Infinity;
+            const max = inp.max !== '' ? parseFloat(inp.max) : Infinity;
+            const dec = String(inp.step).includes('.') ? String(inp.step).split('.')[1].length : 0;
+            const val = this.cpClamp((parseFloat(inp.value) || 0) + dir * step, min, max);
+            inp.value = dec ? val.toFixed(dec) : String(val);
+            inp.dispatchEvent(new Event('change', { bubbles: true }));
         },
 
         queueThemeSave() {

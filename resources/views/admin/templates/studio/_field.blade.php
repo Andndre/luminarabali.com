@@ -28,9 +28,7 @@
                     </template>
 
                     <template x-if="field.type === 'number'">
-                        <input type="number" step="any" :value="val(field) ?? ''"
-                            @input="setProp(field, $event.target.value === '' ? null : Number($event.target.value))"
-                            class="w-full rounded-lg border-[var(--ui-line-2)] text-sm px-3 py-2 focus:border-[var(--ui-accent)] focus:ring-[var(--ui-accent)]">
+                        @include('admin.templates.studio._stepper', ['class' => '', 'bind' => "val(field) ?? ''", 'change' => "setProp(field, \$event.target.value === '' ? null : Number(\$event.target.value))"])
                     </template>
 
                     <template x-if="field.type === 'boolean'">
@@ -85,43 +83,40 @@
                                 </button>
                             </template>
                             <template x-if="hasOverride(field.key)">
-                                <div class="space-y-1.5">
-                                    <div class="flex items-center gap-1.5">
-                                        <div class="flex items-center gap-1.5 border border-[var(--ui-line-2)] rounded-lg px-1.5 py-1 flex-1">
-                                            <input type="color" :value="val(field)"
-                                                @input="setProp(field, $event.target.value)"
-                                                class="h-7 w-7 shrink-0 rounded cursor-pointer border-0 bg-transparent p-0" title="Pilih warna">
-                                            <input type="text" class="w-full text-xs font-mono uppercase border-0 focus:ring-0 p-0"
-                                                maxlength="9" :value="val(field)"
-                                                @change="(() => { const h = normalizeHex($event.target.value); if (h) setProp(field, h); else $event.target.value = val(field); })()">
+                                <div class="cpick-anchor">
+                                    <div class="flex items-start gap-1.5">
+                                        <div class="flex-1 min-w-0">
+                                            <button type="button" class="cpick-trigger" :class="{ open: cp.key === selected.id + ':' + field.key }"
+                                                @click="openColorPicker(selected.id + ':' + field.key, val(field), h => setProp(field, h))">
+                                                <span class="cpick-sw" :style="`background:${val(field)}`"></span>
+                                                <span class="cpick-val" x-text="val(field)"></span>
+                                            </button>
                                         </div>
-                                        <span class="text-[10px] font-semibold uppercase bg-[#3a2f12] text-[#e6c96a] rounded px-1.5 py-0.5">override</span>
+                                        <span class="text-[10px] font-semibold uppercase bg-[#3a2f12] text-[#e6c96a] rounded px-1.5 py-0.5 mt-1.5">override</span>
                                         <button type="button" @click="resetProp(field)" title="Reset ke theme"
                                             class="p-1 rounded text-[#e08a8a] hover:bg-[#2a1618]">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg>
                                         </button>
                                     </div>
-                                    <div class="flex flex-wrap gap-1">
-                                        <template x-for="(hex, tk) in theme.colors" :key="tk">
-                                            <button type="button" @click="setProp(field, hex)" :title="tk"
-                                                class="w-5 h-5 rounded border border-[var(--ui-line-2)] hover:scale-110 transition"
-                                                :style="`background:${hex}`"></button>
-                                        </template>
-                                    </div>
+                                    <template x-if="cp.key === selected.id + ':' + field.key">
+                                        @include('admin.templates.studio._color-picker')
+                                    </template>
                                 </div>
                             </template>
                         </div>
                     </template>
 
-                    {{-- color tanpa token: hex + swatch (bukan native telanjang) --}}
+                    {{-- color tanpa token: picker in-app (bukan dialog OS) --}}
                     <template x-if="field.type === 'color' && !field.token">
-                        <div class="flex items-center gap-1.5 border border-[var(--ui-line-2)] rounded-lg px-1.5 py-1">
-                            <input type="color" :value="val(field) ?? '#000000'"
-                                @input="setProp(field, $event.target.value)"
-                                class="h-7 w-7 shrink-0 rounded cursor-pointer border-0 bg-transparent p-0" title="Pilih warna">
-                            <input type="text" class="w-full text-xs font-mono uppercase border-0 focus:ring-0 p-0"
-                                maxlength="9" :value="val(field) ?? ''"
-                                @change="(() => { const h = normalizeHex($event.target.value); if (h) setProp(field, h); else $event.target.value = val(field) ?? ''; })()">
+                        <div class="cpick-anchor">
+                            <button type="button" class="cpick-trigger" :class="{ open: cp.key === selected.id + ':' + field.key }"
+                                @click="openColorPicker(selected.id + ':' + field.key, val(field) ?? '#000000', h => setProp(field, h))">
+                                <span class="cpick-sw" :style="`background:${val(field) ?? '#000000'}`"></span>
+                                <span class="cpick-val" x-text="val(field) ?? '#000000'"></span>
+                            </button>
+                            <template x-if="cp.key === selected.id + ':' + field.key">
+                                @include('admin.templates.studio._color-picker')
+                            </template>
                         </div>
                     </template>
 
@@ -275,18 +270,24 @@
                                         </button>
                                     </div>
                                     <template x-if="isSvgPath(it.src)">
-                                        <div class="flex items-center gap-1.5 border border-[var(--ui-line-2)] rounded-lg px-1.5 py-1">
-                                            <span class="text-[10px] text-[var(--ui-text-3)] shrink-0">Warna SVG</span>
-                                            <input type="color" :value="it.color || '#000000'"
-                                                @input="setOrnItem(field, i, 'color', $event.target.value)"
-                                                class="h-6 w-6 shrink-0 rounded cursor-pointer border-0 bg-transparent p-0">
-                                            <input type="text" class="w-full text-xs font-mono uppercase border-0 focus:ring-0 p-0"
-                                                maxlength="9" :value="it.color ?? ''" placeholder="asli"
-                                                @change="(() => { const v = $event.target.value.trim(); if (v === '') { setOrnItem(field, i, 'color', null); return; } const h = normalizeHex(v); if (h) setOrnItem(field, i, 'color', h); else $event.target.value = it.color ?? ''; })()">
-                                            <button type="button" x-show="it.color" @click="setOrnItem(field, i, 'color', null)" title="Warna asli"
-                                                class="p-1 rounded text-[var(--ui-text-4)] hover:bg-[var(--ui-hover)] shrink-0">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
+                                        <div class="cpick-anchor">
+                                            <div class="flex items-start gap-1.5">
+                                                <span class="text-[10px] text-[var(--ui-text-3)] shrink-0 mt-2">Warna SVG</span>
+                                                <div class="flex-1 min-w-0">
+                                                    <button type="button" class="cpick-trigger" :class="{ open: cp.key === selected.id + ':orn:' + field.key + ':' + i }"
+                                                        @click="openColorPicker(selected.id + ':orn:' + field.key + ':' + i, it.color || '#000000', h => setOrnItem(field, i, 'color', h))">
+                                                        <span class="cpick-sw" :style="`background:${it.color || '#000000'}`"></span>
+                                                        <span class="cpick-val" x-text="it.color || 'asli'"></span>
+                                                    </button>
+                                                </div>
+                                                <button type="button" x-show="it.color" @click="setOrnItem(field, i, 'color', null)" title="Warna asli"
+                                                    class="p-1 rounded text-[var(--ui-text-4)] hover:bg-[var(--ui-hover)] shrink-0 mt-1">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
+                                            </div>
+                                            <template x-if="cp.key === selected.id + ':orn:' + field.key + ':' + i">
+                                                @include('admin.templates.studio._color-picker')
+                                            </template>
                                         </div>
                                     </template>
                                 </div>
