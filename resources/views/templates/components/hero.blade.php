@@ -7,9 +7,10 @@ $backgroundValue = $props['background_image'] ?? null;
 $heroBg = $backgroundValue
     ? (\Illuminate\Support\Str::startsWith($backgroundValue, ['http://', 'https://', '/']) ? $backgroundValue : '/storage/' . $backgroundValue)
     : '';
-$overlayEnabled = $props['overlay_enabled'] ?? false;
-$overlayOpacityPercent = is_numeric($props['overlay_opacity'] ?? null) ? (float) $props['overlay_opacity'] : 40.0;
-$overlayOpacity = max(0, min(1, $overlayOpacityPercent / 100));
+// Satu kontrol overlay untuk semua section: bg_overlay milik panel Latar & Treatment.
+// Dulu hero punya overlay_enabled/overlay_opacity sendiri — dua kontrol untuk satu hal,
+// dan yang treatment tak berlaku untuk foto milik hero sendiri.
+$bgOverlay = max(0, min(100, (int) ($props['bg_overlay'] ?? 45)));
 
 $title = $props['title'] ?? 'The Wedding Of';
 $groomName = $page->groom_name ?? 'Groom';
@@ -41,10 +42,13 @@ $variant = $props['variant'] ?? 'fullscreen';
     content: '';
     position: absolute;
     inset: 0;
-    @if($overlayEnabled)
-      background: var(--color-ink, #20302a);
-      opacity: {{ $overlayOpacity }};
-    @endif
+@if($heroBg !== '' && $bgOverlay > 0)
+    /* Formula sama persis dengan .sec-bg-overlay milik treatment: ink DICAMPUR hitam,
+       bukan ink mentah. Tema bebas menyetel ink seterang apa pun, jadi mencampurnya
+       dengan hitam menjamin lapisan ini selalu menggelapkan foto. */
+    background: color-mix(in srgb, var(--color-ink, #20302a) 60%, black);
+    opacity: {{ rtrim(rtrim(number_format($bgOverlay / 100, 2, '.', ''), '0'), '.') }};
+@endif
   }
 </style>
 

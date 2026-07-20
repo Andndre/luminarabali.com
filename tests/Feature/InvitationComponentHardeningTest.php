@@ -159,7 +159,9 @@ class InvitationComponentHardeningTest extends TestCase
         $page = $this->publishedPage();
         InvitationSection::create([
             'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
-            'props' => ['overlay_enabled' => true, 'overlay_color' => '#123456', 'text_color' => '#654321'], 'is_visible' => true,
+            // Overlay hero hanya dirender di atas foto, dan opasitasnya datang dari
+            // bg_overlay (panel Latar & Treatment), bukan field khusus hero lagi.
+            'props' => ['background_image' => 'templates/bg.jpg', 'bg_overlay' => 50, 'overlay_color' => '#123456', 'text_color' => '#654321'], 'is_visible' => true,
         ]);
 
         $response = $this->get("/invitation/{$page->slug}");
