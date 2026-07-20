@@ -108,6 +108,29 @@ class TemplateSectionApiAuthorizationTest extends TestCase
         $this->actingAs($admin)->get('/admin')->assertOk();
     }
 
+    public function test_studio_loads_no_assets_from_a_cdn(): void
+    {
+        $admin = User::factory()->create(['division' => 'super_admin']);
+        $template = $this->template($admin);
+
+        $html = $this->actingAs($admin)
+            ->get("/admin/templates/{$template->id}/studio")
+            ->assertOk()
+            ->getContent();
+
+        // Tailwind, Alpine, SweetAlert, dan Sortable kini lewat bundel Vite. CDN berarti
+        // editor internal ikut mati saat jaringan luar mati, dan versinya tak terkunci.
+        foreach (['cdn.tailwindcss.com', 'cdn.jsdelivr.net'] as $host) {
+            $this->assertStringNotContainsString($host, $html, "Studio masih memuat aset dari {$host}.");
+        }
+        // Dua bentuk path: dev server Vite menyajikan sumbernya, build menyajikan hash.
+        $this->assertMatchesRegularExpression(
+            '#(resources/js/studio\.js|build/assets/studio-)#',
+            $html,
+            'Bundel studio.js belum termuat.'
+        );
+    }
+
     public function test_admin_updating_a_section_with_invalid_props_is_rejected(): void
     {
         $admin = User::factory()->create(['division' => 'super_admin']);

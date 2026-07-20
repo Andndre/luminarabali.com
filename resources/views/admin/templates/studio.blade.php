@@ -393,7 +393,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
+{{-- Sortable, Swal, dan Alpine datang dari resources/js/studio.js (lihat layouts/studio). --}}
 <script>
 function escapeHtml(s) {
     const div = document.createElement('div');

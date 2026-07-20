@@ -6,7 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <title>@yield('title', 'Studio') - Luminara</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- app.css sudah memindai seluruh resources/views (@source di file itu), jadi
+         utility Studio ikut terbangun tanpa entry Tailwind tersendiri. --}}
+    @vite(['resources/css/app.css', 'resources/js/studio.js'])
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
     <style>
         [x-cloak] { display: none !important; }
@@ -58,8 +60,6 @@
         .tok-cmt { color: #6f6a63; font-style: italic; }
         .tok-doctype { color: #e0996b; }
     </style>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50 overflow-hidden">
     @yield('content')

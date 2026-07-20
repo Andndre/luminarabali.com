@@ -5,6 +5,20 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* Tailwind v4 mengubah warna border bawaan dari gray-200 menjadi currentColor.
+   Halaman admin dan Studio ditulis saat masih memakai CDN v3 dan banyak memakai
+   `border` polos tanpa kelas warna — tanpa blok ini garisnya berubah jadi segelap
+   teksnya. Di @layer base, jadi kelas border-* tetap menang. */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
