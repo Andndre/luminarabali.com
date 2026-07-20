@@ -21,6 +21,10 @@
             <a href="{{ route('dashboard') }}"
                @if ($onDashboard) aria-current="page" @endif
                class="dash-nav__link {{ $onDashboard ? 'is-active' : '' }}">Ringkasan</a>
+            @php $onInvitations = request()->routeIs('invitations.*'); @endphp
+            <a href="{{ route('invitations.index') }}"
+               @if ($onInvitations) aria-current="page" @endif
+               class="dash-nav__link {{ $onInvitations ? 'is-active' : '' }}">Undangan</a>
             @php $onOrders = request()->routeIs('orders.*'); @endphp
             <a href="{{ route('orders.index') }}"
                @if ($onOrders) aria-current="page" @endif

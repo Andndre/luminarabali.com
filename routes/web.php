@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pesanan/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
     Route::post('/pesanan/{order}/bukti', [\App\Http\Controllers\OrderController::class, 'uploadProof'])->name('orders.proof.upload');
     Route::get('/pesanan/{order}/bukti', [\App\Http\Controllers\OrderController::class, 'showProof'])->name('orders.proof.show');
+    Route::get('/undangan-saya', [\App\Http\Controllers\CustomerInvitationController::class, 'index'])->name('invitations.index');
 });
 
 // Admin Routes (Protected)
