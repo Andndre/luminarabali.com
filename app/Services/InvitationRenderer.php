@@ -7,6 +7,22 @@ use App\Models\InvitationTemplate;
 
 class InvitationRenderer
 {
+    /**
+     * Nama keluarga font masuk mentah ke `font-family` di dalam <style>. Kutip, titik koma,
+     * kurung, dan backslash TIDAK di-escape — pola ini menolaknya, jadi yang lolos pasti
+     * aman dipakai apa adanya. Controller memakai konstanta yang sama supaya validasi
+     * simpan dan validasi render tidak pernah berbeda.
+     */
+    public const FONT_FAMILY_PATTERN = '/^[A-Za-z0-9][A-Za-z0-9 ]{0,59}$/';
+
+    /** Format berkas yang boleh dipakai di @font-face, dipetakan ke nilai format(). */
+    public const FONT_FILE_FORMATS = [
+        'woff2' => 'woff2',
+        'woff' => 'woff',
+        'ttf' => 'truetype',
+        'otf' => 'opentype',
+    ];
+
     protected $page;
     protected $sections;
 
@@ -99,9 +115,85 @@ class InvitationRenderer
         return $this->buildStyleBlock($theme) . $this->buildFontLinks($theme);
     }
 
+    /**
+     * Satu nilai font jadi bentuk baku, atau null kalau tidak lolos saring.
+     *
+     * Tiga sumber yang diterima:
+     * - string        : nama dari daftar kurasi (bentuk lama, masih dipakai tema tersimpan)
+     * - source=google : nama keluarga bebas, URL Google Fonts dibangun di sini
+     * - source=upload : berkas di pustaka aset, dirender jadi @font-face
+     *
+     * Nilai yang gagal dikembalikan null, dan pemanggil melewatkannya — tema jatuh ke
+     * bawaan CSS alih-alih menyuntikkan apa pun ke dalam <style>.
+     *
+     * @return array{family: string, link: ?string, face: ?array{url: string, format: string}}|null
+     */
+    protected function normalizeFont($value): ?array
+    {
+        if (is_string($value)) {
+            $curated = collect(config('invitation.fonts'))->firstWhere('name', $value);
+
+            return $curated ? ['family' => $value, 'link' => $curated['url'], 'face' => null] : null;
+        }
+
+        if (! is_array($value)) {
+            return null;
+        }
+
+        $family = $value['family'] ?? null;
+        if (! is_string($family) || ! preg_match(self::FONT_FAMILY_PATTERN, $family)) {
+            return null;
+        }
+
+        if (($value['source'] ?? null) === 'google') {
+            // Nama sudah lolos pola di atas (huruf, angka, spasi), jadi tidak ada karakter
+            // yang perlu di-encode selain spasi yang jadi '+' sesuai format Google.
+            $url = 'https://fonts.googleapis.com/css2?family='.str_replace(' ', '+', $family)
+                .':wght@300;400;500;600;700&display=swap';
+
+            return ['family' => $family, 'link' => $url, 'face' => null];
+        }
+
+        if (($value['source'] ?? null) === 'upload') {
+            $path = $value['path'] ?? null;
+            // Path masuk ke url() dalam <style>: kutip, kurung, dan backslash ditolak,
+            // sama seperti path ornamen.
+            if (! is_string($path) || ! preg_match('#^[A-Za-z0-9/_.-]+$#', $path)) {
+                return null;
+            }
+            $format = self::FONT_FILE_FORMATS[strtolower(pathinfo($path, PATHINFO_EXTENSION))] ?? null;
+            if (! $format) {
+                return null;
+            }
+
+            return [
+                'family' => $family,
+                'link' => null,
+                'face' => ['url' => asset('storage/'.ltrim($path, '/')), 'format' => $format],
+            ];
+        }
+
+        return null;
+    }
+
+    /** @return array<string, array{family: string, link: ?string, face: ?array}> */
+    protected function normalizedFonts(array $theme): array
+    {
+        $out = [];
+        foreach (($theme['fonts'] ?? []) as $key => $value) {
+            $font = is_string($key) && preg_match('/^[a-zA-Z0-9_-]+$/', $key)
+                ? $this->normalizeFont($value)
+                : null;
+            if ($font) {
+                $out[$key] = $font;
+            }
+        }
+
+        return $out;
+    }
+
     protected function buildStyleBlock(array $theme): string
     {
-        $curatedFontNames = collect(config('invitation.fonts'))->pluck('name')->all();
         $vars = [];
         $safeKey = '/^[a-zA-Z0-9_-]+$/';
 
@@ -112,11 +204,8 @@ class InvitationRenderer
             }
         }
 
-        foreach ($theme['fonts'] as $key => $value) {
-            if (is_string($key) && preg_match($safeKey, $key)
-                && in_array($value, $curatedFontNames, true)) {
-                $vars[] = '--font-'.$key.": '".$value."';";
-            }
+        foreach ($this->normalizedFonts($theme) as $key => $font) {
+            $vars[] = '--font-'.$key.": '".$font['family']."';";
         }
 
         $vars = array_merge($vars, $this->scaleVars($theme['scales'] ?? []));
@@ -125,7 +214,26 @@ class InvitationRenderer
             is_array($theme['ornaments'] ?? null) ? $theme['ornaments'] : []
         ));
 
-        return '<style>:root{'.implode('', $vars).'}</style>';
+        return '<style>'.$this->buildFontFaces($theme).':root{'.implode('', $vars).'}</style>';
+    }
+
+    /** @font-face untuk font yang diunggah sendiri; font kurasi dan Google lewat <link>. */
+    protected function buildFontFaces(array $theme): string
+    {
+        $seen = [];
+        $css = '';
+
+        foreach ($this->normalizedFonts($theme) as $font) {
+            if (! $font['face'] || in_array($font['family'], $seen, true)) {
+                continue;
+            }
+            $seen[] = $font['family'];
+            $css .= "@font-face{font-family:'".$font['family']."';"
+                ."src:url('".$font['face']['url']."') format('".$font['face']['format']."');"
+                .'font-display:swap;}';
+        }
+
+        return $css;
     }
 
     /**
@@ -220,14 +328,15 @@ class InvitationRenderer
 
     protected function buildFontLinks(array $theme): string
     {
-        $curated = collect(config('invitation.fonts'));
+        $seen = [];
         $links = '';
 
-        foreach (array_unique(array_filter($theme['fonts'], 'is_string')) as $fontName) {
-            $font = $curated->firstWhere('name', $fontName);
-            if ($font) {
-                $links .= '<link rel="stylesheet" href="'.e($font['url']).'">';
+        foreach ($this->normalizedFonts($theme) as $font) {
+            if (! $font['link'] || in_array($font['link'], $seen, true)) {
+                continue;
             }
+            $seen[] = $font['link'];
+            $links .= '<link rel="stylesheet" href="'.e($font['link']).'">';
         }
 
         return $links;

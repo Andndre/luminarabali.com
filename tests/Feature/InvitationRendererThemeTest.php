@@ -134,6 +134,60 @@ class InvitationRendererThemeTest extends TestCase
         $this->assertStringNotContainsString('Comic Sans', $style);
     }
 
+    public function test_google_font_builds_its_own_link_from_the_family_name(): void
+    {
+        $page = $this->pageWithTheme([
+            'fonts' => ['heading' => ['source' => 'google', 'family' => 'Cormorant Garamond']],
+        ], null);
+
+        $style = (new InvitationRenderer())->themeStyle($page);
+
+        $this->assertStringContainsString("--font-heading: 'Cormorant Garamond'", $style);
+        $this->assertStringContainsString('family=Cormorant+Garamond', $style);
+    }
+
+    public function test_uploaded_font_emits_a_font_face_instead_of_a_link(): void
+    {
+        $page = $this->pageWithTheme([
+            'fonts' => ['heading' => ['source' => 'upload', 'family' => 'Gentium Plus', 'path' => 'invitations/gentium.woff2']],
+        ], null);
+
+        $style = (new InvitationRenderer())->themeStyle($page);
+
+        $this->assertStringContainsString("@font-face{font-family:'Gentium Plus'", $style);
+        $this->assertStringContainsString("url('".asset('storage/invitations/gentium.woff2')."') format('woff2')", $style);
+        $this->assertStringContainsString("--font-heading: 'Gentium Plus'", $style);
+        $this->assertStringNotContainsString('fonts.googleapis.com/css2?family=Gentium', $style);
+    }
+
+    /**
+     * Nama keluarga dipakai mentah di font-family, jadi yang tidak lolos pola harus
+     * DIBUANG — bukan di-escape, bukan sebagian lolos.
+     */
+    public function test_font_family_that_could_escape_the_css_rule_is_dropped(): void
+    {
+        $page = $this->pageWithTheme([
+            'fonts' => ['heading' => ['source' => 'google', 'family' => "X'; } body { display:none } .y{font-family:'Z"]],
+        ], null);
+
+        $style = (new InvitationRenderer())->themeStyle($page);
+
+        $this->assertStringNotContainsString('display:none', $style);
+        $this->assertStringNotContainsString('--font-heading', $style);
+    }
+
+    public function test_uploaded_font_with_unsupported_extension_is_dropped(): void
+    {
+        $page = $this->pageWithTheme([
+            'fonts' => ['heading' => ['source' => 'upload', 'family' => 'Sneaky', 'path' => 'invitations/font.svg']],
+        ], null);
+
+        $style = (new InvitationRenderer())->themeStyle($page);
+
+        $this->assertStringNotContainsString('@font-face', $style);
+        $this->assertStringNotContainsString('Sneaky', $style);
+    }
+
     public function test_font_links_only_include_curated_fonts_actually_used(): void
     {
         $page = $this->pageWithTheme(['fonts' => ['heading' => 'Lora', 'body' => 'Lora']], null);

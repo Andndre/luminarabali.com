@@ -95,16 +95,53 @@
             <section>
                 <h2 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wide mb-3">Font</h2>
                 <div class="space-y-3">
+                    {{-- Dua entri terakhir bukan nama font, tapi pintu ke sumber lain:
+                         kolom tambahannya muncul di bawah select yang sama. --}}
                     <template x-for="key in Object.keys(theme.fonts)" :key="key">
-                        <label class="block">
+                        <div>
                             <span class="text-xs text-[var(--ui-text-2)] capitalize" x-text="key"></span>
-                            <select :value="theme.fonts[key]" @change="setFont(key, $event.target.value)"
+                            <select :value="fontSource(key)" @change="setFontSource(key, $event.target.value)"
                                 class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
                                 <template x-for="font in fonts" :key="font">
                                     <option :value="font" x-text="font"></option>
                                 </template>
+                                <option value="__google">Google Font…</option>
+                                <option value="__upload">Unggah font…</option>
                             </select>
-                        </label>
+
+                            <div x-show="fontSource(key) === '__google'"
+                                class="mt-1.5 rounded-lg border border-[var(--ui-line-2)] bg-[var(--ui-raised)] p-2.5">
+                                <span class="text-[11px] text-[var(--ui-text-4)]">Nama keluarga di Google Fonts</span>
+                                <input type="text" placeholder="Cormorant Garamond"
+                                    :value="theme.fonts[key]?.family ?? ''"
+                                    @change="setFontFamily(key, $event.target.value)"
+                                    class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                                <p class="mt-1.5 text-[11px] text-[var(--ui-text-4)]">
+                                    Huruf, angka, dan spasi saja. Kalau nama salah ketik, font gagal dimuat
+                                    dan tampilan jatuh ke font bawaan.
+                                </p>
+                            </div>
+
+                            <div x-show="fontSource(key) === '__upload'"
+                                class="mt-1.5 rounded-lg border border-[var(--ui-line-2)] bg-[var(--ui-raised)] p-2.5">
+                                <div x-show="theme.fonts[key]?.path"
+                                    class="flex items-center gap-2 rounded-lg border border-[var(--ui-line-3)] bg-[var(--ui-bg)] px-2.5 py-1.5 text-xs text-[var(--ui-text)]">
+                                    <span class="flex-1 min-w-0 truncate" x-text="fontFileName(key)"></span>
+                                    <button type="button" @click="clearFontFile(key)"
+                                        class="text-[var(--ui-text-4)] hover:text-[var(--ui-text)]" aria-label="Hapus berkas">×</button>
+                                </div>
+                                <label class="block mt-1.5 text-center text-xs text-[var(--ui-text-2)] border border-dashed border-[var(--ui-line-3)] rounded-lg px-3 py-2 cursor-pointer hover:border-[var(--ui-accent)] hover:text-[var(--ui-text)]">
+                                    <span x-text="theme.fonts[key]?.path ? 'Ganti berkas…' : 'Pilih berkas font…'"></span>
+                                    <input type="file" accept=".woff2,.woff,.ttf,.otf" class="hidden"
+                                        @change="uploadFontFile(key, $event)">
+                                </label>
+                                <span class="block mt-2 text-[11px] text-[var(--ui-text-4)]">Nama keluarga</span>
+                                <input type="text" placeholder="Gentium Plus"
+                                    :value="theme.fonts[key]?.family ?? ''"
+                                    @change="setFontFamily(key, $event.target.value)"
+                                    class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+                            </div>
+                        </div>
                     </template>
                 </div>
             </section>
@@ -1132,7 +1169,7 @@ function studioApp() {
                     const doc = this.previewFrame()?.contentWindow?.document?.documentElement;
                     if (doc) {
                         Object.entries(this.theme.colors).forEach(([k, v]) => doc.style.setProperty(`--color-${k}`, v));
-                        Object.entries(this.theme.fonts).forEach(([k, v]) => doc.style.setProperty(`--font-${k}`, `'${v}'`));
+                        Object.keys(this.theme.fonts).forEach(k => doc.style.setProperty(`--font-${k}`, `'${this.fontFamilyOf(k)}'`));
                     }
                     // scales & font menurunkan --step-*/--radius/link font di server → reload
                     // sekali biar undo/redo perubahan skala/font terlihat, bukan cuma tersimpan.
@@ -1707,12 +1744,91 @@ function studioApp() {
             this.queueThemeSave();
         },
 
-        setFont(key, value) {
+        // ── Font: nilai theme.fonts[key] boleh string (nama kurasi) atau objek
+        //    { source: 'google'|'upload', family, path }. Select memakai nama kurasi
+        //    sebagai value, dan dua sentinel '__google'/'__upload' untuk sumber lain.
+
+        fontSource(key) {
+            const v = this.theme.fonts[key];
+            return typeof v === 'string' ? v : (v?.source === 'upload' ? '__upload' : '__google');
+        },
+
+        fontFamilyOf(key) {
+            const v = this.theme.fonts[key];
+            return typeof v === 'string' ? v : (v?.family ?? '');
+        },
+
+        fontFileName(key) {
+            return (this.theme.fonts[key]?.path ?? '').split('/').pop();
+        },
+
+        // Server menolak nama di luar pola ini, jadi jangan kirim yang pasti gagal —
+        // nama kosong itu keadaan wajar saat baru pindah sumber, bukan error.
+        fontFamilyValid(name) {
+            return /^[A-Za-z0-9][A-Za-z0-9 ]{0,59}$/.test(name);
+        },
+
+        setFontSource(key, value) {
+            if (value !== '__google' && value !== '__upload') {
+                this.commitFont(key, value);
+                return;
+            }
+            const source = value === '__upload' ? 'upload' : 'google';
+            const family = this.fontFamilyOf(key);
+            const next = { source, family };
+            if (source === 'upload') next.path = this.theme.fonts[key]?.path ?? '';
+            this.commitFont(key, next);
+        },
+
+        setFontFamily(key, name) {
+            const v = this.theme.fonts[key];
+            if (typeof v === 'string') return; // sumber kurasi: namanya dari select
+            this.commitFont(key, { ...v, family: name.trim() });
+        },
+
+        clearFontFile(key) {
+            this.commitFont(key, { ...this.theme.fonts[key], path: '' });
+        },
+
+        async uploadFontFile(key, event) {
+            const file = event.target.files[0];
+            event.target.value = '';
+            if (!file) return;
+            try {
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('collection', 'font');
+                const res = await fetch('/admin/api/assets/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: fd,
+                });
+                if (!res.ok) throw await res.json().catch(() => ({}));
+                const asset = (await res.json()).asset;
+                // Nama berkas jadi tebakan nama keluarga kalau belum diisi; admin bisa perbaiki.
+                const family = this.fontFamilyOf(key)
+                    || asset.asset_name.replace(/[-_]+/g, ' ').replace(/[^A-Za-z0-9 ]/g, '').trim();
+                this.commitFont(key, { source: 'upload', family, path: asset.file_path });
+            } catch {
+                this.toastError('Upload font gagal');
+            }
+        },
+
+        commitFont(key, value) {
             if (!this.themeSaveTimer) this.pushUndo();
             this.theme.fonts[key] = value;
             this.fontsDirty = true;
+
+            const family = typeof value === 'string' ? value : value.family;
             this.previewFrame()?.contentWindow?.document?.documentElement
-                ?.style.setProperty(`--font-${key}`, `'${value}'`);
+                ?.style.setProperty(`--font-${key}`, `'${family}'`);
+
+            // Font unggahan tanpa berkas belum bisa dirender; simpan setelah berkasnya ada.
+            if (!this.fontFamilyValid(family)) return;
+            if (typeof value !== 'string' && value.source === 'upload' && !value.path) return;
             this.queueThemeSave();
         },
 

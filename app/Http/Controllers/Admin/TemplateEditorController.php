@@ -323,14 +323,58 @@ class TemplateEditorController extends Controller
         $this->authorizeStudio();
 
         $curatedFontNames = collect(config('invitation.fonts'))->pluck('name')->all();
+
+        // Font boleh tiga bentuk: nama kurasi (string, bentuk lama), atau objek dengan
+        // source google/upload. Pola nama keluarga dan daftar ekstensi diambil dari
+        // InvitationRenderer supaya yang divalidasi di sini persis yang aman dirender.
+        $fontRule = function (string $attribute, $value, $fail) use ($curatedFontNames) {
+            if (is_string($value)) {
+                if (! in_array($value, $curatedFontNames, true)) {
+                    $fail('Font kurasi tidak dikenal.');
+                }
+
+                return;
+            }
+
+            if (! is_array($value)) {
+                $fail('Format font tidak valid.');
+
+                return;
+            }
+
+            $family = $value['family'] ?? null;
+            if (! is_string($family) || ! preg_match(\App\Services\InvitationRenderer::FONT_FAMILY_PATTERN, $family)) {
+                $fail('Nama font hanya boleh huruf, angka, dan spasi (maksimal 60 karakter).');
+
+                return;
+            }
+
+            if (($value['source'] ?? null) === 'google') {
+                return;
+            }
+
+            if (($value['source'] ?? null) === 'upload') {
+                $path = $value['path'] ?? null;
+                $ext = is_string($path) ? strtolower(pathinfo($path, PATHINFO_EXTENSION)) : '';
+                if (! is_string($path) || ! preg_match('#^[A-Za-z0-9/_.-]+$#', $path)
+                    || ! isset(\App\Services\InvitationRenderer::FONT_FILE_FORMATS[$ext])) {
+                    $fail('Berkas font harus .woff2, .woff, .ttf, atau .otf dari pustaka aset.');
+                }
+
+                return;
+            }
+
+            $fail('Sumber font tidak dikenal.');
+        };
+
         $hex = 'regex:/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/';
         $colorKeys = ['primary', 'accent', 'surface', 'surface_alt', 'text', 'muted', 'ink', 'on_dark'];
 
         $rules = [
             'colors' => 'required|array',
             'fonts' => 'required|array',
-            'fonts.heading' => ['required', \Illuminate\Validation\Rule::in($curatedFontNames)],
-            'fonts.body' => ['required', \Illuminate\Validation\Rule::in($curatedFontNames)],
+            'fonts.heading' => ['required', $fontRule],
+            'fonts.body' => ['required', $fontRule],
             'scales' => 'required|array',
             'scales.type_base' => 'required|numeric|min:8|max:40',
             'scales.type_ratio' => 'required|numeric|min:1|max:2',
