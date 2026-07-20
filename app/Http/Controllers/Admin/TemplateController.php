@@ -49,6 +49,7 @@ class TemplateController extends Controller
             'slug' => 'required|string|unique:invitation_templates',
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
             'status' => 'nullable|in:draft,published,archived',
+            'price' => 'nullable|integer|min:0',
         ]);
 
         // Handle thumbnail upload
@@ -65,6 +66,7 @@ class TemplateController extends Controller
             'thumbnail' => $thumbnailPath,
             'description' => $request->description,
             'category' => $request->category,
+            'price' => $request->price,
             'status' => $request->status ?? 'draft',
             'created_by' => $currentUserId,
         ]);
@@ -101,6 +103,7 @@ class TemplateController extends Controller
             'slug' => 'required|string|unique:invitation_templates,slug,' . $id,
             'thumbnail' => 'nullable|image|max:5120', // Max 5MB
             'status' => 'nullable|in:draft,published,archived',
+            'price' => 'nullable|integer|min:0',
         ]);
 
         // Handle thumbnail upload
@@ -122,6 +125,7 @@ class TemplateController extends Controller
             'thumbnail' => $thumbnailPath,
             'description' => $request->description,
             'category' => $request->category,
+            'price' => $request->price,
             'status' => $request->status ?? 'draft',
         ]);
 

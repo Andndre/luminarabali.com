@@ -12,6 +12,7 @@ class InvitationTemplate extends Model
         'thumbnail',
         'description',
         'category',
+        'price',
         'global_custom_css',
         'meta_data',
         'theme',
@@ -24,7 +25,15 @@ class InvitationTemplate extends Model
         return [
             'meta_data' => 'array',
             'theme' => 'array',
+            'price' => 'integer',
         ];
+    }
+
+    public function priceLabel(): string
+    {
+        return $this->price === null
+            ? 'Hubungi kami'
+            : 'Rp' . number_format($this->price, 0, ',', '.');
     }
 
     public function pages()
