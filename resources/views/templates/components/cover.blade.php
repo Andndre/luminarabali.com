@@ -55,9 +55,7 @@ $variant = in_array($props['variant'] ?? null, ['fullscreen', 'split', 'minimal'
     </div>
     <p class="invite-gate-kicker" data-editable="title">{{ $title }}</p>
     <h1 class="invite-gate-names">{{ $groomName }} <span class="invite-gate-amp">&amp;</span> {{ $brideName }}</h1>
-    <div class="invite-gate-flourish" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3c0 4-3 6-3 9a3 3 0 006 0c0-3-3-5-3-9z" fill="currentColor" fill-opacity=".18"/><path d="M12 12c-2.5 0-4.5 1.5-5.5 3.5M12 12c2.5 0 4.5 1.5 5.5 3.5M12 12v8" stroke-linecap="round"/></svg>
-    </div>
+    <div class="invite-gate-flourish" aria-hidden="true"></div>
     @if($dateText)<p class="invite-gate-date">{{ $dateText }}</p>@endif
     @if($targetName)
       <div class="invite-gate-guest">
@@ -83,9 +81,7 @@ $variant = in_array($props['variant'] ?? null, ['fullscreen', 'split', 'minimal'
     </div>
     <p class="invite-gate-kicker">{{ $title }}</p>
     <h2 class="invite-gate-names">{{ $groomName }} <span class="invite-gate-amp">&amp;</span> {{ $brideName }}</h2>
-    <div class="invite-gate-flourish" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3c0 4-3 6-3 9a3 3 0 006 0c0-3-3-5-3-9z" fill="currentColor" fill-opacity=".18"/><path d="M12 12c-2.5 0-4.5 1.5-5.5 3.5M12 12c2.5 0 4.5 1.5 5.5 3.5M12 12v8" stroke-linecap="round"/></svg>
-    </div>
+    <div class="invite-gate-flourish" aria-hidden="true"></div>
     @if($dateText)<p class="invite-gate-date">{{ $dateText }}</p>@endif
   </div>
 </div>
