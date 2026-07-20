@@ -21,6 +21,12 @@ $dirDestination = $hasCoords ? "{$latitude},{$longitude}" : $address;
 // cuma pita berwarna tanpa isi.
 $showAddressBelow = $variant !== 'address-first' && $address !== '';
 $showAction = $showButton && $dirDestination !== '';
+
+// no-embed sengaja tidak memuat iframe Google sama sekali: tak ada request pihak
+// ketiga, tak ada chrome "Buka di Maps" yang digambar Google di dalam petanya, dan
+// tak ada beban muat di kartu yang isinya cuma satu alamat. Tombol arah tetap
+// membawa tamu ke aplikasi peta mereka sendiri.
+$showEmbed = $variant !== 'no-embed' && $mapQuery !== '';
 @endphp
 
 <section class="map map--{{ $variant }}">
@@ -37,7 +43,7 @@ $showAction = $showButton && $dirDestination !== '';
         </p>
     @endif
 
-    @if($mapQuery)
+    @if($showEmbed)
         <div class="map-stage">
             <div class="map-frame" style="height: {{ (int) $height }}px;">
                 <iframe

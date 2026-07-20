@@ -140,7 +140,8 @@ $components = [
     ],
 
     'map' => [
-        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Peta', 'group' => 'design', 'options' => ['framed', 'bar', 'full-bleed', 'address-first'], 'default' => 'framed'],
+        // no-embed tidak memuat iframe: field Zoom dan Tinggi Peta tidak berpengaruh di sana.
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Peta', 'group' => 'design', 'options' => ['framed', 'bar', 'full-bleed', 'address-first', 'no-embed'], 'default' => 'framed'],
         ['key' => 'title', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => null],
         ['key' => 'address', 'type' => 'text', 'label' => 'Alamat', 'group' => 'content', 'default' => ''],
         // Label kecil di atas alamat ("Akad", "Resepsi"). Paling terlihat di varian address-first.

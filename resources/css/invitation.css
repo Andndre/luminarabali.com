@@ -672,6 +672,15 @@
   font-size: var(--step-lg, 1.15rem);
   color: var(--fg-heading);
 }
+/* no-embed: tanpa iframe sama sekali (lihat map.blade.php). Alamatnya yang jadi
+   isi, jadi ia diperlakukan seperti teks utama, bukan keterangan di bawah peta. */
+.map--no-embed .map-address {
+  margin-top: 0;
+  max-width: 32ch; margin-inline: auto;
+  font-family: var(--font-heading, serif);
+  font-size: var(--step-lg, 1.15rem);
+  color: var(--fg-heading);
+}
 .map-venue {
   display: block;
   font-family: var(--font-body, sans-serif);

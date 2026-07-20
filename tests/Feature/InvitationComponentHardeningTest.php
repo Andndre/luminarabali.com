@@ -72,6 +72,26 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertSee('q=-8.5%2C115.2', false);
     }
 
+    public function test_map_no_embed_variant_loads_no_google_iframe(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'map', 'order_index' => 0,
+            'props' => ['variant' => 'no-embed', 'address' => 'Ubud, Bali', 'latitude' => '-8.5', 'longitude' => '115.2'],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        // Inti varian ini: nol request ke Google saat undangan dibuka.
+        $response->assertDontSee('<iframe', false);
+        $response->assertDontSee('output=embed', false);
+        // Alamat dan tombol arah tetap ada — tombolnya baru memanggil Maps saat diklik.
+        $response->assertSee('Ubud, Bali', false);
+        $response->assertSee('maps/dir/?api=1&destination=-8.5%2C115.2', false);
+    }
+
     public function test_map_component_ignores_stale_title_color_prop(): void
     {
         $page = $this->publishedPage();
