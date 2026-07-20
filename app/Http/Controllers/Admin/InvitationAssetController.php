@@ -79,6 +79,28 @@ class InvitationAssetController extends Controller
         $mimeType = $file->getMimeType();
         $fileType = $this->getFileType($mimeType);
 
+        // Video dipakai apa adanya — tidak ada transcode di server. Batas format dan
+        // ukuran ditegakkan di sini, bukan cuma lewat atribut accept di form yang bisa
+        // dilewati siapa pun. Ekstensi DAN mime dicek: nama berkas bisa dikarang.
+        if ($fileType === 'video') {
+            $rules = config('invitation.video_upload');
+            $ext = strtolower($file->getClientOriginalExtension());
+            $maxKb = $rules['max_kb'];
+
+            if (!in_array($ext, $rules['extensions'], true) || !in_array($mimeType, $rules['mimes'], true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'file' => ['Video harus berformat '.strtoupper(implode('/', $rules['extensions']))
+                        .'. Konversi dulu sebelum mengunggah.'],
+                ]);
+            }
+
+            if ($file->getSize() > $maxKb * 1024) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'file' => ['Video maksimal '.round($maxKb / 1024).' MB. Perkecil resolusi atau bitrate-nya dulu.'],
+                ]);
+            }
+        }
+
         // SVG: vektor, GD tidak bisa membacanya — simpan apa adanya tanpa konversi WebP.
         // TIDAK disanitasi. Dirender lewat <img> sehingga script di dalamnya tidak jalan,
         // tapi file-nya tetap bisa dibuka langsung di /storage dan di situ script-nya

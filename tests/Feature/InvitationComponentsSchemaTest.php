@@ -193,6 +193,41 @@ class InvitationComponentsSchemaTest extends TestCase
             'Inspector tidak menghormati show_if.');
     }
 
+    /**
+     * Field latar tidak berpengaruh apa-apa saat treatment bukan image, dan tiap jenis
+     * media hanya memakai field miliknya sendiri. Tanpa gerbang ini inspector memajang
+     * "Foto Latar" di samping "Foto Slideshow" dan tak ada yang tahu mana yang berlaku.
+     */
+    public function test_background_media_fields_are_gated_by_treatment_and_media_type(): void
+    {
+        $fields = collect(config('invitation_components.hero'))->keyBy('key');
+        $bgOn = ['treatment', 'image'];
+
+        $this->assertSame($bgOn, $fields['bg_media_type']['show_if'] ?? null);
+        $this->assertSame($bgOn, $fields['bg_overlay']['show_if'] ?? null);
+
+        $this->assertSame([$bgOn, ['bg_media_type', ['image', 'video']]], $fields['bg_image']['show_if'] ?? null,
+            'Foto Latar juga jadi poster video, tapi tidak relevan untuk slideshow.');
+        $this->assertSame([$bgOn, ['bg_media_type', 'slideshow']], $fields['bg_images']['show_if'] ?? null);
+        // Satu kolom video untuk dua sumber: unggahan dan tautan YouTube dibedakan dari
+        // isinya saat render, bukan lewat saklar yang harus diingat pemakai.
+        $this->assertSame([$bgOn, ['bg_media_type', 'video']], $fields['bg_video']['show_if'] ?? null);
+        $this->assertArrayNotHasKey('bg_video_source', $fields->all());
+        $this->assertArrayNotHasKey('bg_video_url', $fields->all());
+
+        // Efek latar dimatikan server untuk slideshow/video, jadi kontrolnya pun disembunyikan.
+        foreach (['bg_effect', 'bg_effect_strength'] as $key) {
+            $this->assertSame([$bgOn, ['bg_media_type', 'image']], $fields[$key]['show_if'] ?? null);
+        }
+
+        // Gerbang majemuk dan daftar nilai butuh dukungan di showField, bukan cuma di config.
+        $studio = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+        $this->assertStringContainsString('Array.isArray(field.show_if[0])', $studio);
+        $this->assertStringContainsString('want.includes(cur)', $studio);
+        // Prop yang belum tersimpan harus dibaca sebagai default skemanya.
+        $this->assertStringContainsString('schemaDefault(key)', $studio);
+    }
+
     public function test_code_editor_escapes_before_highlighting(): void
     {
         $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));

@@ -19,6 +19,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Unggahan video
+    |--------------------------------------------------------------------------
+    | Server tidak melakukan transcode (tak ada jaminan ffmpeg di produksi), jadi
+    | berkas dipakai apa adanya — pengunggah yang wajib mengecilkan lebih dulu.
+    | Batasnya dipaksakan di server; atribut accept di form hanya kenyamanan.
+    |
+    | Catatan kompatibilitas: webm tidak sepenuhnya aman di Safari/iOS lama.
+    | Menambahkan 'mp4' ke daftar di bawah cukup untuk melonggarkannya.
+    */
+    'video_upload' => [
+        'extensions' => ['webm'],
+        'mimes' => ['video/webm'],
+        'max_kb' => 8192,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Default theme
     |--------------------------------------------------------------------------
     | Used when a template has no theme set, or a key is missing from it.

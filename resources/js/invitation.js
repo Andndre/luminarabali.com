@@ -3,6 +3,21 @@ import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 Alpine.start();
 
+// Video latar itu gerak terus-menerus. CSS tidak bisa menghentikannya, jadi di sini:
+// yang minta gerakan dikurangi dapat frame pertama saja (poster tetap terlihat).
+(function () {
+    if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    function pauseAll() {
+        document.querySelectorAll('video.sec-bg-video').forEach(function (v) {
+            v.autoplay = false;
+            v.pause();
+        });
+    }
+    pauseAll();
+    document.addEventListener('DOMContentLoaded', pauseAll);
+})();
+
 // Efek latar scroll-linked (zoom & pinned) — semua relatif kartu .invite-card,
 // karena kartu itulah scroll container-nya, bukan window.
 (function () {

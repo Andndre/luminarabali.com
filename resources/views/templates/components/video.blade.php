@@ -18,12 +18,10 @@ $borderRadius = ($props['radius_per_corner'] ?? false)
 @endphp
 
 @php
-$youtubeVideoId = null;
-if($videoType === 'youtube' && $youtubeUrl) {
-  if(preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $youtubeUrl, $matches)) {
-    $youtubeVideoId = $matches[1];
-  }
-}
+// Satu tempat ekstraksi ID untuk komponen ini dan latar YouTube di _section-shell.
+$youtubeVideoId = $videoType === 'youtube'
+  ? \App\Services\InvitationRenderer::youtubeId($youtubeUrl)
+  : null;
 @endphp
 
 <section class="video-section-{{ $section->id }}" style="margin-top: {{ $marginTop }}px; margin-bottom: {{ $marginBottom }}px;">

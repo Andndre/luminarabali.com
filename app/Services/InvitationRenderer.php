@@ -26,6 +26,22 @@ class InvitationRenderer
     protected $page;
     protected $sections;
 
+    /**
+     * ID video dari berbagai bentuk URL YouTube, atau null kalau bukan URL YouTube.
+     * ID-nya masuk ke src iframe, jadi hanya 11 karakter aman yang boleh lolos —
+     * sisa URL (termasuk query milik pengguna) tidak pernah ikut.
+     */
+    public static function youtubeId(?string $url): ?string
+    {
+        if (! is_string($url) || $url === '') {
+            return null;
+        }
+
+        $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([A-Za-z0-9_-]{11})/i';
+
+        return preg_match($pattern, $url, $m) ? $m[1] : null;
+    }
+
     public function render(InvitationPage $page): string
     {
         $this->page = $page;

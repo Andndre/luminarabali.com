@@ -881,12 +881,23 @@ function studioApp() {
             this.setProp(field, el.value);
         },
 
-        // show_if: [key, nilai] — field hanya muncul saat prop lain bernilai itu. Sengaja
-        // cuma gate boolean sederhana; kalau butuh ekspresi, skemanya yang salah.
+        // show_if: [key, nilai] — field hanya muncul saat prop lain bernilai itu.
+        // Boleh juga daftar syarat ([[k, v], [k, v]] = semua harus terpenuhi) dan nilai
+        // boleh daftar ([k, ['a', 'b']] = salah satunya). Tetap perbandingan nilai saja;
+        // kalau butuh ekspresi, skemanya yang salah.
         showField(field) {
             if (!field.show_if) return true;
-            const [key, want] = field.show_if;
-            return (this.selected?.props?.[key] ?? false) === want;
+            const conds = Array.isArray(field.show_if[0]) ? field.show_if : [field.show_if];
+            return conds.every(([key, want]) => {
+                // Prop yang belum pernah disimpan bernilai default skemanya, bukan kosong —
+                // kalau tidak, field yang bergantung pada default ikut hilang.
+                const cur = this.selected?.props?.[key] ?? this.schemaDefault(key) ?? false;
+                return Array.isArray(want) ? want.includes(cur) : cur === want;
+            });
+        },
+
+        schemaDefault(key) {
+            return (this.schema[this.selected?.section_type] ?? []).find(f => f.key === key)?.default;
         },
 
         hasOverride(key) {
@@ -945,8 +956,14 @@ function studioApp() {
             if (!file) return;
             try {
                 this.setProp(field, (await this.uploadFile(file)).file_path);
-            } catch {
-                Swal.fire({ icon: 'error', title: 'Upload gagal', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
+            } catch (err) {
+                // Penolakan format/ukuran video itu jalur normal, bukan kegagalan misterius —
+                // tampilkan alasannya supaya pengunggah tahu harus mengubah apa.
+                const reason = err?.errors?.file?.[0] ?? err?.message;
+                Swal.fire({
+                    icon: 'error', title: 'Upload gagal', text: reason,
+                    toast: true, position: 'top-end', timer: reason ? 5000 : 2500, showConfirmButton: false,
+                });
             }
             event.target.value = '';
         },

@@ -55,7 +55,9 @@ class SectionPropsValidator
             'text' => str_ends_with($key, '_phone')
                 ? $this->validatePhone($errorKey, $value, $errors)
                 : $this->validateText($errorKey, $value, $errors),
-            'image', 'ornament' => $this->validateImage($errorKey, $value, $errors),
+            // video/audio menyimpan path aset seperti image, hanya kontrol formnya beda.
+            'image', 'ornament', 'video', 'audio' => $this->validateImage($errorKey, $value, $errors),
+            'image_list' => $this->validateImageList($errorKey, $value, $errors),
             'code' => $this->validateCode($errorKey, $value, $errors),
             'repeater' => $this->validateRepeater($field, $errorKey, $value, $errors),
             'ornament_list' => $this->validateOrnamentList($errorKey, $value, $errors),
@@ -92,6 +94,31 @@ class SectionPropsValidator
                 }
 
                 $this->validateField($subField, "{$errorKey}.{$i}.{$subKey}", $item[$subKey], $errors);
+            }
+        }
+    }
+
+    /** Daftar gambar: item {url, alt}. url masuk ke src/url() saat render, jadi wajib teks. */
+    protected function validateImageList(string $errorKey, mixed $value, array &$errors): void
+    {
+        if ($value === null) {
+            return;
+        }
+        if (!is_array($value) || !array_is_list($value)) {
+            $errors[$errorKey] = [$this->shortKey($errorKey).' harus berupa daftar gambar.'];
+
+            return;
+        }
+        foreach ($value as $i => $item) {
+            if (!is_array($item)) {
+                $errors["{$errorKey}.{$i}"] = ['Item harus berupa objek.'];
+                continue;
+            }
+            if (isset($item['url']) && !is_string($item['url'])) {
+                $errors["{$errorKey}.{$i}.url"] = ['url harus berupa teks.'];
+            }
+            if (isset($item['alt']) && $item['alt'] !== null && !is_string($item['alt'])) {
+                $errors["{$errorKey}.{$i}.alt"] = ['alt harus berupa teks.'];
             }
         }
     }

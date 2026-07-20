@@ -155,6 +155,168 @@ class InvitationComponentHardeningTest extends TestCase
         $response->assertSee('templates/bg.jpg', false);
     }
 
+    public function test_background_slideshow_renders_one_layer_per_photo_with_staggered_delay(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'slideshow', 'bg_slide_seconds' => 4,
+                'bg_images' => [
+                    ['url' => '/storage/a.jpg'], ['url' => '/storage/b.jpg'], ['url' => '/storage/c.jpg'],
+                ],
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $html = $response->getContent();
+        $this->assertSame(3, substr_count($html, 'sec-bg-img sec-bg-slide'));
+        // Keyframe dibangun dari jumlah slide: 3 slide = tiap slide tampil sepertiga siklus.
+        $this->assertStringContainsString('@keyframes sec-bgslide-3', $html);
+        $this->assertStringContainsString('33.33%{opacity:1}', $html);
+        $response->assertSee('animation-delay:calc(var(--slide-dur) * 2)', false);
+        $response->assertSee('--slide-dur:4s', false);
+    }
+
+    public function test_single_photo_slideshow_falls_back_to_a_plain_background(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'slideshow',
+                'bg_images' => [['url' => '/storage/only.jpg']],
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertDontSee('sec-bg-slide', false);
+        $response->assertDontSee('@keyframes sec-bgslide', false);
+        $response->assertSee('/storage/only.jpg', false);
+    }
+
+    public function test_background_video_renders_muted_looping_and_uses_bg_image_as_poster(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'video',
+                'bg_video' => 'clips/loop.mp4', 'bg_image' => 'templates/poster.jpg', 'bg_overlay' => 40,
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $html = $response->getContent();
+        $this->assertStringContainsString('class="sec-bg-video"', $html);
+        // muted + playsinline wajib, tanpanya autoplay diblokir di mobile.
+        foreach (['autoplay', 'muted', 'loop', 'playsinline'] as $attr) {
+            $this->assertStringContainsString($attr, $html);
+        }
+        $response->assertSee('poster="/storage/templates/poster.jpg"', false);
+        $response->assertSee('class="sec-bg-overlay" style="opacity:0.4"', false);
+    }
+
+    public function test_youtube_background_embeds_only_the_video_id_muted_and_looping(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'video',
+                // Kolom yang sama dipakai unggahan; tautan YouTube dikenali dari isinya.
+                // Query milik pengguna tidak boleh ikut ke src iframe.
+                'bg_video' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=EVIL&t=90',
+                'bg_image' => 'templates/poster.jpg',
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertSee('youtube-nocookie.com/embed/dQw4w9WgXcQ?', false);
+        $response->assertDontSee('EVIL', false);
+        $response->assertSee('mute=1', false);
+        // loop hanya jalan kalau playlist berisi ID yang sama.
+        $response->assertSee('playlist=dQw4w9WgXcQ', false);
+        $response->assertSee('controls=0', false);
+        // Poster tetap terlihat saat gerakan dikurangi (iframe disembunyikan CSS).
+        $response->assertSee("background-image:url('/storage/templates/poster.jpg')", false);
+    }
+
+    public function test_invalid_youtube_link_falls_back_to_the_photo(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'video',
+                'bg_video' => 'https://vimeo.com/12345', 'bg_image' => 'templates/bg.jpg',
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertDontSee('sec-bg-yt', false);
+        $response->assertDontSee('vimeo', false);
+        $response->assertSee('templates/bg.jpg', false);
+    }
+
+    public function test_background_video_without_a_file_falls_back_to_the_photo(): void
+    {
+        $page = $this->publishedPage();
+        InvitationSection::create([
+            'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => 0,
+            'props' => [
+                'treatment' => 'image', 'bg_media_type' => 'video',
+                'bg_video' => null, 'bg_image' => 'templates/bg.jpg',
+            ],
+            'is_visible' => true,
+        ]);
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertDontSee('sec-bg-video', false);
+        $response->assertSee('templates/bg.jpg', false);
+    }
+
+    /**
+     * Efek latar menganimasikan .sec-bg-img lewat properti yang sama dengan crossfade
+     * slideshow. Server yang memutuskan siapa yang menang, bukan urutan aturan CSS.
+     */
+    public function test_background_effects_are_disabled_for_slideshow_and_video(): void
+    {
+        $page = $this->publishedPage();
+        foreach ([
+            ['bg_media_type' => 'slideshow', 'bg_images' => [['url' => '/storage/a.jpg'], ['url' => '/storage/b.jpg']]],
+            ['bg_media_type' => 'video', 'bg_video' => 'clips/loop.mp4'],
+        ] as $i => $media) {
+            InvitationSection::create([
+                'page_id' => $page->id, 'section_type' => 'hero', 'order_index' => $i,
+                'props' => array_merge(['treatment' => 'image', 'bg_effect' => 'kenburns'], $media),
+                'is_visible' => true,
+            ]);
+        }
+
+        $response = $this->get("/invitation/{$page->slug}");
+
+        $response->assertOk();
+        $response->assertDontSee('data-effect="kenburns"', false);
+    }
+
     public function test_hero_component_ignores_stale_overlay_and_text_color_props(): void
     {
         $page = $this->publishedPage();

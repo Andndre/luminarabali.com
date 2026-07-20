@@ -190,6 +190,43 @@
 .sec-bg-overlay { position: absolute; inset: 0; background: color-mix(in srgb, var(--color-ink, #20302a) 60%, black); }
 .sec-treat--image > :not(.sec-bg) { position: relative; z-index: 1; }
 
+/* --- Media latar: slideshow & video --- */
+/* Foto pertama juga jadi latar wadahnya, jadi tidak ada kedipan kosong sebelum slide
+   pertama selesai muncul — dan itu pula yang tersisa saat animasi dimatikan. */
+.sec-bg--slideshow { background-size: cover; background-position: center; }
+.sec-bg-slide {
+  opacity: 0;
+  animation-duration: calc(var(--slide-dur, 5s) * var(--slide-n, 3));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.sec-bg-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* YouTube: iframe selalu 16:9 dan tak punya object-fit, jadi cover-nya dihitung sendiri.
+   Lebarnya diambil yang terbesar antara lebar section dan lebar yang dibutuhkan agar
+   tingginya menutupi section (177.78cqh = 16/9 dari tinggi container), lalu dipusatkan
+   sehingga sisi lebihnya terpotong rata. Butuh container-type di .sec-bg agar cqh terukur. */
+.sec-bg--youtube { container-type: size; background-size: cover; background-position: center; }
+.sec-bg-yt {
+  position: absolute; top: 50%; left: 50%; translate: -50% -50%;
+  /* --yt-zoom membesarkan iframe melebihi kebutuhan cover supaya judul di atas dan sisa
+     kontrol di bawah jatuh DI LUAR bingkai yang terlihat. Sisi kiri-kanan ikut terpotong;
+     itu harga yang dibayar, dan satu-satunya cara — chrome YouTube tak bisa dimatikan. */
+  width: calc(max(100%, 177.7778cqh) * var(--yt-zoom, 1.45));
+  aspect-ratio: 16 / 9;
+  border: 0; pointer-events: none;
+  /* Detik-detik pertama justru saat judul dan logo paling mungkin muncul. Tahan dulu di
+     balik foto poster, baru muncul setelah pemutaran mapan. */
+  opacity: 0;
+  animation: sec-yt-in .7s ease 2s forwards;
+}
+@keyframes sec-yt-in { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  /* Iframe pihak ketiga tak bisa dijeda tanpa API-nya. Yang tersisa: sembunyikan, dan
+     biarkan foto poster di latar .sec-bg--youtube yang terlihat. */
+  .sec-bg-yt { display: none; }
+}
+
 /* --- bg_effect (Lapis 2) --- */
 .sec-bg-img { will-change: transform; transform-origin: center center; }
 
@@ -216,6 +253,8 @@
 .sec-bg[data-effect^="scroll-zoom"] .sec-bg-img { transform: scale(var(--sz-scale, 1)); }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Mengenai .sec-bg-slide juga (ia ber-class .sec-bg-img): slide berhenti di opacity 0
+     dan yang terlihat tinggal foto di wadahnya — satu foto diam, bukan layar kosong. */
   .sec-bg-img { animation: none !important; transform: none !important; }
 }
 

@@ -321,14 +321,30 @@ $components = [
 ];
 
 // Treatment latar — hanya untuk kelas Section (lihat $sectionTypes di bawah).
+//
+// Selain "Latar Section" sendiri, semua field di sini hanya berpengaruh saat latarnya
+// image: surface/contrast/dark tidak menggambar media apa pun. Jadi semuanya digerbangi
+// $bgOn, dan tiap jenis media cuma memunculkan field miliknya sendiri — foto tunggal,
+// daftar slideshow, atau video. Untuk video, bg_image berperan sebagai poster.
+//
+// Jenis media milik tab Desain sedangkan medianya di tab Konten: treatment, overlay, dan
+// efek adalah keputusan desain template, foto/videonya isi yang sering diganti pemilik.
+$bgOn = ['treatment', 'image'];
 $treatmentFields = [
     ['key' => 'treatment', 'type' => 'select', 'label' => 'Latar Section', 'group' => 'design', 'panel' => 'treatment', 'options' => ['surface', 'contrast', 'dark', 'image'], 'default' => 'surface'],
-    // Fotonya di tab Konten, bukan Desain: treatment/overlay/efek adalah keputusan desain
-    // template, sedangkan fotonya isi yang sering diganti pemilik undangan.
-    ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null],
-    ['key' => 'bg_overlay', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 45],
-    ['key' => 'bg_effect', 'type' => 'select', 'label' => 'Efek Latar', 'group' => 'design', 'panel' => 'treatment', 'options' => ['none', 'pinned', 'kenburns', 'scroll-zoom-in', 'scroll-zoom-out'], 'default' => 'none'],
-    ['key' => 'bg_effect_strength', 'type' => 'number', 'label' => 'Kekuatan Efek (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 130],
+    ['key' => 'bg_media_type', 'type' => 'select', 'label' => 'Jenis Media Latar', 'group' => 'design', 'panel' => 'treatment', 'options' => ['image', 'slideshow', 'video'], 'default' => 'image', 'show_if' => $bgOn],
+    ['key' => 'bg_image', 'type' => 'image', 'label' => 'Foto Latar', 'group' => 'content', 'default' => null, 'show_if' => [$bgOn, ['bg_media_type', ['image', 'video']]]],
+    ['key' => 'bg_images', 'type' => 'image_list', 'label' => 'Foto Slideshow', 'group' => 'content', 'default' => [], 'show_if' => [$bgOn, ['bg_media_type', 'slideshow']]],
+    // Satu kolom untuk dua sumber: kontrol video sudah punya tombol unggah DAN kotak
+    // tempel URL. Tautan YouTube dikenali dari isinya, jadi tidak perlu saklar sumber
+    // terpisah yang harus diingat pemakai.
+    ['key' => 'bg_video', 'type' => 'video', 'label' => 'Video Latar (unggah atau tautan YouTube)', 'group' => 'content', 'default' => null, 'show_if' => [$bgOn, ['bg_media_type', 'video']]],
+    ['key' => 'bg_slide_seconds', 'type' => 'number', 'label' => 'Durasi per Foto (detik)', 'group' => 'design', 'panel' => 'treatment', 'default' => 5, 'show_if' => [$bgOn, ['bg_media_type', 'slideshow']]],
+    ['key' => 'bg_overlay', 'type' => 'number', 'label' => 'Opasitas Overlay (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 45, 'show_if' => $bgOn],
+    // Efek menganimasikan .sec-bg-img; slideshow sudah memakai properti itu untuk crossfade
+    // dan video bukan .sec-bg-img sama sekali (lihat _section-shell).
+    ['key' => 'bg_effect', 'type' => 'select', 'label' => 'Efek Latar', 'group' => 'design', 'panel' => 'treatment', 'options' => ['none', 'pinned', 'kenburns', 'scroll-zoom-in', 'scroll-zoom-out'], 'default' => 'none', 'show_if' => [$bgOn, ['bg_media_type', 'image']]],
+    ['key' => 'bg_effect_strength', 'type' => 'number', 'label' => 'Kekuatan Efek (%)', 'group' => 'design', 'panel' => 'treatment', 'default' => 130, 'show_if' => [$bgOn, ['bg_media_type', 'image']]],
 ];
 
 // Treatment hanya untuk kelas Section (guideline §9) — Basic (text/music/…) tidak

@@ -399,9 +399,15 @@
                             <video x-show="val(field)" controls :src="mediaUrl(val(field))" class="w-full rounded border border-[var(--ui-line-2)]"></video>
                             <label class="block text-center text-xs border border-[var(--ui-line-2)] rounded-lg px-2 py-1.5 cursor-pointer hover:border-[var(--ui-accent)]">
                                 Upload video
-                                <input type="file" accept="video/*" class="hidden" @change="uploadToProp(field, $event)">
+                                <input type="file" accept="video/webm,.webm" class="hidden" @change="uploadToProp(field, $event)">
                             </label>
-                            <input type="text" placeholder="atau path/URL manual…" :value="val(field) ?? ''"
+                            {{-- Batas sebenarnya ditegakkan server (InvitationAssetController);
+                                 ini supaya pemakai tahu sebelum menunggu unggahan gagal. --}}
+                            <p class="text-[11px] text-[var(--ui-text-4)] leading-snug">
+                                WEBM, maksimal {{ round(config('invitation.video_upload.max_kb') / 1024) }} MB.
+                                Konversi dan perkecil dulu sebelum mengunggah.
+                            </p>
+                            <input type="text" placeholder="atau path/URL manual (bisa tautan YouTube)…" :value="val(field) ?? ''"
                                 @change="setProp(field, $event.target.value || null)"
                                 class="w-full rounded-lg border-[var(--ui-line-2)] text-xs px-2 py-1.5 focus:border-[var(--ui-accent)] focus:ring-[var(--ui-accent)]">
                         </div>
