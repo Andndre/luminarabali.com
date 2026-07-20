@@ -111,6 +111,11 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->group(function () {
     Route::resource('links', \App\Http\Controllers\Admin\LinkController::class)->names('admin.links');
     Route::post('links/reorder', [\App\Http\Controllers\Admin\LinkController::class, 'reorder'])->name('admin.links.reorder');
 
+    // Bank Accounts Management Routes
+    Route::resource('bank-accounts', \App\Http\Controllers\Admin\BankAccountController::class)
+        ->except('show')
+        ->names('admin.bank-accounts');
+
     // API Routes for Visual Editor
     Route::prefix('api')->name('api.')->group(function () {
         // Templates API
