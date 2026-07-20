@@ -94,6 +94,15 @@ class DashboardTest extends TestCase
             ->assertDontSee('cdn.tailwindcss.com');
     }
 
+    public function test_active_nav_item_is_marked_for_screen_readers(): void
+    {
+        // Kelas is-active hanya visual; aria-current yang menyampaikannya ke
+        // pembaca layar. Layout ini jadi cetakan admin, jadi dikunci di sini.
+        $this->actingAs($this->customer())->get('/dashboard')
+            ->assertOk()
+            ->assertSee('aria-current="page"', false);
+    }
+
     public function test_known_statuses_get_their_own_pill_variant(): void
     {
         $me = $this->customer();

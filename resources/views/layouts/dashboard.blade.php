@@ -11,13 +11,20 @@
 <div class="dash-shell">
     <div class="dash-scrim" data-dash-scrim></div>
 
-    <aside class="dash-sidebar" data-dash-sidebar>
+    {{-- id dipakai aria-controls tombol hamburger. --}}
+    <aside class="dash-sidebar" id="dash-sidebar" data-dash-sidebar>
         <div class="dash-brand">Luminara</div>
-        <nav class="dash-nav">
+        {{-- aria-current="page" menandai halaman aktif ke pembaca layar; kelas
+             is-active hanya menyampaikannya secara visual. --}}
+        <nav class="dash-nav" aria-label="Menu utama">
+            @php $onDashboard = request()->routeIs('dashboard'); @endphp
             <a href="{{ route('dashboard') }}"
-               class="dash-nav__link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">Ringkasan</a>
+               @if ($onDashboard) aria-current="page" @endif
+               class="dash-nav__link {{ $onDashboard ? 'is-active' : '' }}">Ringkasan</a>
+            @php $onOrders = request()->routeIs('orders.*'); @endphp
             <a href="{{ route('orders.index') }}"
-               class="dash-nav__link {{ request()->routeIs('orders.*') ? 'is-active' : '' }}">Pesanan</a>
+               @if ($onOrders) aria-current="page" @endif
+               class="dash-nav__link {{ $onOrders ? 'is-active' : '' }}">Pesanan</a>
         </nav>
         <div class="dash-sidebar__foot">
             <form action="{{ route('logout') }}" method="POST">
@@ -29,7 +36,8 @@
 
     <main class="dash-main">
         <div class="dash-topbar">
-            <button type="button" class="dash-burger" data-dash-burger aria-label="Buka menu">
+            <button type="button" class="dash-burger" data-dash-burger
+                    aria-label="Buka menu" aria-controls="dash-sidebar" aria-expanded="false">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/>
                 </svg>
@@ -59,9 +67,15 @@
     const toggle = (open) => {
         sidebar.classList.toggle('is-open', open);
         scrim.classList.toggle('is-open', open);
+        // Status harus ikut berubah, bukan cuma atribut statis di markup.
+        burger?.setAttribute('aria-expanded', open ? 'true' : 'false');
     };
     burger?.addEventListener('click', () => toggle(true));
     scrim?.addEventListener('click', () => toggle(false));
+    // Esc menutup drawer: keyboard tak boleh terjebak di menu yang terbuka.
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar?.classList.contains('is-open')) toggle(false);
+    });
 })();
 </script>
 </body>
