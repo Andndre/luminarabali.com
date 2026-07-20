@@ -174,6 +174,51 @@ class StudioNestingApiTest extends TestCase
         $this->assertSame(0, $child->props['column_index']);
     }
 
+    public function test_one_payload_can_move_a_block_out_of_a_column_and_reorder_the_rest(): void
+    {
+        // Bentuk yang dikirim satu drag lintas daftar: baris top-level (parent_id null)
+        // dan baris kolom dalam satu request. Dua request terpisah akan menyisakan
+        // jendela di mana blok yang pindah masih tercatat di kolom lamanya.
+        $hero = $this->section('hero');
+        $parent = $this->section('section_two_col');
+        $stay = $this->section('image', $parent->id, ['column_index' => 0]);
+        $moving = $this->section('text', $parent->id, ['column_index' => 0]);
+
+        $this->postJson('/admin/api/templates/sections/reorder', [
+            'sections' => [
+                ['id' => $moving->id, 'order_index' => 0, 'parent_id' => null],
+                ['id' => $hero->id, 'order_index' => 1, 'parent_id' => null],
+                ['id' => $parent->id, 'order_index' => 2, 'parent_id' => null],
+                ['id' => $stay->id, 'order_index' => 0, 'parent_id' => $parent->id, 'column_index' => 0],
+            ],
+        ])->assertOk();
+
+        $moving->refresh();
+        $this->assertNull($moving->parent_id, 'Blok tidak keluar dari kolom.');
+        $this->assertArrayNotHasKey('column_index', $moving->props);
+        $this->assertSame(0, $moving->order_index);
+
+        $this->assertSame(1, $hero->refresh()->order_index);
+        $this->assertSame($parent->id, $stay->refresh()->parent_id, 'Blok yang tinggal ikut terlempar.');
+    }
+
+    public function test_one_payload_can_move_a_top_level_block_into_a_column(): void
+    {
+        $parent = $this->section('section_two_col');
+        $moving = $this->section('text');
+
+        $this->postJson('/admin/api/templates/sections/reorder', [
+            'sections' => [
+                ['id' => $parent->id, 'order_index' => 0, 'parent_id' => null],
+                ['id' => $moving->id, 'order_index' => 0, 'parent_id' => $parent->id, 'column_index' => 1],
+            ],
+        ])->assertOk();
+
+        $moving->refresh();
+        $this->assertSame($parent->id, $moving->parent_id);
+        $this->assertSame(1, $moving->props['column_index']);
+    }
+
     public function test_promoting_a_child_to_top_level_drops_its_column_index(): void
     {
         $parent = $this->section('section_two_col');

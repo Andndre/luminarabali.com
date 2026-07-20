@@ -269,6 +269,80 @@ class InvitationComponentsSchemaTest extends TestCase
         $this->assertStringContainsString('panelLabel(', $blade, 'Helper panelLabel belum ada.');
     }
 
+    public function test_studio_inserts_new_sections_next_to_the_selected_one(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+
+        // Menambah section dulu selalu menempel di ujung daftar; di template belasan
+        // section itu berarti tambah lalu seret belasan baris ke atas.
+        $this->assertStringContainsString('insertAfterIndex()', $blade, 'Helper posisi sisip belum ada.');
+        $this->assertStringContainsString('this.sections.splice(at + 1, 0, created)', $blade,
+            'Section baru tidak disisipkan setelah yang terpilih.');
+        $this->assertStringContainsString('saveOrder()', $blade, 'Urutan hasil sisip tidak dipersist.');
+
+        // Memilih section di panel kiri harus membawa kanvas ke sana — kecuali
+        // pilihannya justru datang dari klik di kanvas.
+        $this->assertStringContainsString('scrollPreviewTo(', $blade, 'Preview tidak digulirkan ke section terpilih.');
+        $this->assertStringContainsString('this.scrollOnSelect = false', $blade,
+            'Klik dari kanvas harus menekan auto-scroll, kalau tidak tampilannya menyentak.');
+    }
+
+    public function test_studio_offers_to_restore_a_deleted_section(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+
+        $this->assertStringContainsString('offerRestore(', $blade, 'Tawaran urungkan belum ada.');
+        $this->assertStringContainsString('restoreSection(', $blade);
+
+        // Menghapus container ikut menghapus anaknya — pemulihan harus membawa
+        // mereka kembali, bukan hanya kotak kosongnya.
+        $this->assertStringContainsString('for (const kid of backup.children)', $blade,
+            'Blok anak tidak ikut dipulihkan.');
+
+        // custom_css, is_visible, dan _locked tidak lewat endpoint create.
+        $this->assertStringContainsString('patch.custom_css', $blade);
+        $this->assertStringContainsString('patch.locked = locked', $blade,
+            'Gembok per-field hilang saat restore — _locked di-strip dari jalur props.');
+
+        // Blok anak harus kembali ke kolom asalnya. Tanpa induk+kolom di backup, ia
+        // dipulihkan sebagai section top-level di ujung daftar.
+        $this->assertStringContainsString('backup.parentId', $blade, 'Induk tidak direkam saat hapus.');
+        $this->assertStringContainsString('saveColumnOrder(', $blade,
+            'Posisi blok anak di dalam kolom tidak dipulihkan.');
+    }
+
+    public function test_studio_drag_crosses_between_top_level_and_columns(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+
+        // Satu grup Sortable = daftar atas dan kolom saling menerima.
+        $this->assertSame(2, substr_count($blade, "name: 'studio'"),
+            'Kedua daftar harus berada di grup Sortable yang sama.');
+
+        // Server menolak container/feature sebagai anak; tolak juga saat menyeret supaya
+        // penolakannya terasa sebelum dilepas, bukan sesudahnya.
+        $this->assertStringContainsString("=== 'basic'", $blade, 'Aturan siapa boleh masuk kolom belum ada.');
+
+        // Satu drag mengubah kedua sisi, jadi urutannya dikirim sekali jalan.
+        $this->assertStringContainsString('persistStructure()', $blade);
+        $this->assertStringNotContainsString('this.persistColumnOrder()', $blade,
+            'Masih ada jalur persist terpisah — separuh struktur akan tertinggal.');
+    }
+
+    public function test_studio_moves_selection_with_arrow_keys(): void
+    {
+        $blade = file_get_contents(resource_path('views/admin/templates/studio.blade.php'));
+
+        $this->assertStringContainsString('moveSelection(', $blade);
+        $this->assertStringContainsString('navigableIds()', $blade);
+
+        // Panah punya arti sendiri di kontrol form; jangan dibajak di sana.
+        $this->assertStringContainsString("['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName)", $blade,
+            'Navigasi panah harus mundur saat fokus di kontrol form.');
+        $this->assertStringContainsString('scrollRowIntoView(', $blade,
+            'Baris terpilih harus ikut terlihat di panel kiri.');
+    }
+
     public function test_studio_chrome_colors_come_only_from_the_ui_palette(): void
     {
         $layout = file_get_contents(resource_path('views/layouts/studio.blade.php'));

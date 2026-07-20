@@ -214,7 +214,10 @@
                         <span x-show="s.custom_css" title="Section ini punya CSS kustom" class="text-[9px] font-semibold bg-[#2b1f3d] text-[#c4a8ef] rounded px-1">CSS</span>
                         {{-- Aksi restrukturisasi (visibilitas/duplikat/preset/hapus) disembunyikan di mode
                              customer (guideline §10.1a) — customer hanya boleh memilih & mengedit konten. --}}
-                        <div class="hidden group-hover:flex items-center gap-0.5 text-[var(--ui-text-4)]" x-show="!asCustomer">
+                        {{-- Tetap terlihat di baris terpilih: aksi yang cuma muncul saat
+                             hover tak punya jejak sama sekali sebelum kursor lewat. --}}
+                        <div class="items-center gap-0.5 text-[var(--ui-text-4)]" x-show="!asCustomer"
+                            :class="selectedId === s.id ? 'flex' : 'hidden group-hover:flex'">
                             <button @click.stop="toggleVisible(s)" :title="s.is_visible ? 'Sembunyikan' : 'Tampilkan'" class="p-1 rounded hover:bg-[var(--ui-line)] hover:text-[var(--ui-text)]">
                                 <svg x-show="s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 <svg x-show="!s.is_visible" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
@@ -408,6 +411,7 @@ function studioApp() {
         status: @json($template->status),
         sections: [],
         selectedId: null,
+        scrollOnSelect: true,
         device: 'mobile',
         loaded: false,
         addOpen: false,
@@ -439,20 +443,24 @@ function studioApp() {
         restoring: false,
         cssSaveTimer: null,
         cssError: null,
-        rootEl: null, // di-set di init() ke root x-data; jangan pakai this.$el di method lain (lihat persistColumnOrder)
+        rootEl: null, // di-set di init() ke root x-data; jangan pakai this.$el di method lain (lihat persistStructure)
 
         async init() {
             // Simpan root element sekali di sini: init() dipanggil dari x-init di root
             // x-data, jadi $el di titik ini adalah root studio-app yang sesungguhnya.
-            // Jangan andalkan this.$el di method lain (mis. persistColumnOrder) — di sana
+            // Jangan andalkan this.$el di method lain (mis. persistStructure) — di sana
             // this adalah merge proxy per-elemen milik directive yang memanggilnya, bukan root.
             this.rootEl = this.$el;
             await this.loadSections();
             this.loaded = true;
             this.initSortable();
-            this.$watch('selectedId', () => {
+            this.$watch('selectedId', id => {
                 this.fieldErrors = {};
                 this.cssError = null;
+                // Jangan gulirkan kanvas kalau pilihannya BERASAL dari klik di kanvas —
+                // sectionnya sudah kelihatan, menggulirkannya justru menyentak.
+                if (id && this.scrollOnSelect) this.scrollPreviewTo(id);
+                this.scrollOnSelect = true;
                 // Fallback 'content' (bukan 'design'): availableTabs kosong berarti tab
                 // 'content' pasti juga kosong (lihat getter availableTabs), jadi ini aman
                 // di kedua mode. 'design' dulu bisa bocor field desain ke customer saat
@@ -472,6 +480,7 @@ function studioApp() {
                 if (e.origin !== window.location.origin || !e.data?.type) return;
                 if (e.data.type === 'studio:select') {
                     this.panel = 'sections';
+                    this.scrollOnSelect = false;
                     this.selectedId = String(e.data.id);
                 }
                 if (e.data.type === 'studio:edit') {
@@ -490,6 +499,56 @@ function studioApp() {
                 e.preventDefault();
                 e.shiftKey ? this.redo() : this.undo();
             });
+
+            // Panah atas/bawah pindah antar section. Diabaikan saat fokus di kontrol
+            // form — di sana panah punya arti sendiri (angka naik-turun, pilih opsi).
+            window.addEventListener('keydown', e => {
+                if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+                if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+                const t = e.target;
+                if (t && (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || t.isContentEditable)) return;
+                // Modal terbuka, atau panel kiri sedang di tab Theme: daftar sectionnya
+                // tak terlihat, jadi memindah pilihan diam-diam cuma membingungkan.
+                if (this.addOpen || this.ornamentPicker.open || this.panel !== 'sections') return;
+                e.preventDefault();
+                this.moveSelection(e.key === 'ArrowDown' ? 1 : -1);
+            });
+        },
+
+        // Urutan yang sama dengan yang terlihat di panel kiri: tiap container diikuti
+        // blok anaknya, kolom demi kolom. Kalau nesting sedang tak ditampilkan, anak
+        // tidak ikut dilewati.
+        navigableIds() {
+            const showChildren = this.advanced || this.asCustomer;
+            const ids = [];
+            for (const s of this.sections) {
+                ids.push(String(s.id));
+                if (!showChildren || this.classOf(s.section_type) !== 'container') continue;
+                for (let col = 0; col < this.columnsOf(s.section_type); col++) {
+                    this.childrenOf(s.id, col).forEach(c => ids.push(String(c.id)));
+                }
+            }
+            return ids;
+        },
+
+        moveSelection(step) {
+            const ids = this.navigableIds();
+            if (!ids.length) return;
+            const at = ids.indexOf(String(this.selectedId));
+            // Belum ada yang terpilih: panah bawah mulai dari atas, panah atas dari bawah.
+            const next = at === -1
+                ? (step > 0 ? 0 : ids.length - 1)
+                : Math.min(ids.length - 1, Math.max(0, at + step));
+            this.selectedId = ids[next];
+            this.scrollRowIntoView(ids[next]);
+        },
+
+        // Baris terpilih harus terlihat di panel kiri juga, bukan cuma di kanvas —
+        // kalau tidak, menahan panah bawah membuat pilihan hilang dari layar.
+        scrollRowIntoView(id) {
+            this.$refs.sectionList
+                ?.querySelector(`[data-id="${id}"]`)
+                ?.scrollIntoView({ block: 'nearest' });
         },
 
         get selected() {
@@ -1226,7 +1285,16 @@ function studioApp() {
                     this.children.push(created);
                     this.hasChildren[String(parent.parentId)] = true;
                 } else {
-                    this.sections.push(created);
+                    // Sisipkan tepat setelah section terpilih, bukan selalu di ujung.
+                    // Server tetap membuatnya di urutan terakhir; kalau posisinya
+                    // bergeser kita kirim ulang urutannya sekali.
+                    const at = this.insertAfterIndex();
+                    if (at === -1 || at === this.sections.length - 1) {
+                        this.sections.push(created);
+                    } else {
+                        this.sections.splice(at + 1, 0, created);
+                        await this.saveOrder();
+                    }
                 }
                 this.addOpen = false;
                 this.addChildTarget = null;
@@ -1323,15 +1391,33 @@ function studioApp() {
         },
 
         async removeSection(s) {
+            const kids = this.children.filter(c => String(c.parent_id) === String(s.id));
             const confirmed = await Swal.fire({
                 title: 'Hapus section?',
-                text: `Section ${this.typeLabel(s.section_type)} akan dihapus permanen.`,
+                text: kids.length
+                    ? `Section ${this.typeLabel(s.section_type)} beserta ${kids.length} blok di dalamnya akan dihapus.`
+                    : `Section ${this.typeLabel(s.section_type)} akan dihapus permanen.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Hapus',
                 cancelButtonText: 'Batal',
             });
             if (!confirmed.isConfirmed) return;
+
+            // Rekam sebelum menghapus supaya bisa ditawarkan kembali. Blok anak perlu
+            // induk DAN kolomnya — tanpa itu ia dipulihkan sebagai section top-level.
+            const parentId = s.parent_id ? String(s.parent_id) : null;
+            const columnIndex = Number(s.props?.column_index ?? 0);
+            const backup = {
+                section: this.backupOf(s),
+                parentId,
+                columnIndex,
+                index: parentId
+                    ? this.childrenOf(parentId, columnIndex).findIndex(c => String(c.id) === String(s.id))
+                    : this.sections.findIndex(x => String(x.id) === String(s.id)),
+                children: kids.map(c => this.backupOf(c)),
+            };
+
             try {
                 await this.api('DELETE', `/admin/api/templates/sections/${s.id}`);
                 this.sections = this.sections.filter(x => x.id !== s.id);
@@ -1343,9 +1429,122 @@ function studioApp() {
                 this.children.forEach(c => { this.hasChildren[String(c.parent_id)] = true; });
                 if (this.selectedId === s.id) this.selectedId = null;
                 this.reloadPreview();
+                this.offerRestore(backup);
             } catch {
                 this.toastError('Gagal menghapus section');
             }
+        },
+
+        backupOf(s) {
+            return {
+                section_type: s.section_type,
+                props: JSON.parse(JSON.stringify(s.props ?? {})),
+                custom_css: s.custom_css ?? null,
+                is_visible: s.is_visible,
+                column_index: Number(s.props?.column_index ?? 0),
+            };
+        },
+
+        // Sengaja BUKAN lewat stack Ctrl+Z. Stack itu memulihkan props section yang
+        // masih ada; yang ini membuat baris baru dengan ID baru, jadi menaruhnya di
+        // Ctrl+Z akan berbohong soal apa yang bisa dibatalkan. Konsekuensi ID baru:
+        // custom CSS global yang menyasar [data-section-id] lama tak ikut nyambung.
+        offerRestore(backup) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Section dihapus',
+                toast: true,
+                position: 'top-end',
+                timer: 8000,
+                timerProgressBar: true,
+                showConfirmButton: true,
+                confirmButtonText: 'Urungkan',
+            }).then(r => {
+                if (r.isConfirmed) this.restoreSection(backup);
+            });
+        },
+
+        async restoreSection(backup) {
+            try {
+                const target = backup.parentId
+                    ? { parentId: backup.parentId, columnIndex: backup.columnIndex }
+                    : null;
+                const created = await this.createFrom(backup.section, target);
+                for (const kid of backup.children) {
+                    await this.createFrom(kid, { parentId: created.id, columnIndex: kid.column_index });
+                }
+
+                // Kembalikan ke posisi semula, bukan ke ujung. Dua jalur berbeda:
+                // blok anak diurut di dalam kolomnya, section top-level di daftar utama.
+                if (target) {
+                    const list = this.childrenOf(target.parentId, target.columnIndex)
+                        .filter(c => String(c.id) !== String(created.id));
+                    list.splice(backup.index < 0 ? list.length : backup.index, 0, created);
+                    list.forEach((c, i) => { c.order_index = i; });
+                    await this.saveColumnOrder(target.parentId, target.columnIndex);
+                } else {
+                    this.sections = this.sections.filter(x => String(x.id) !== String(created.id));
+                    this.sections.splice(backup.index < 0 ? this.sections.length : backup.index, 0, created);
+                    await this.saveOrder();
+                }
+
+                this.selectedId = created.id;
+                this.reloadPreview();
+            } catch {
+                this.toastError('Gagal memulihkan section');
+            }
+        },
+
+        // Pasangan saveOrder() untuk isi satu kolom: kirim urutan dari array, bukan
+        // dari DOM seperti persistStructure() yang melayani hasil drag.
+        async saveColumnOrder(parentId, columnIndex) {
+            const rows = this.childrenOf(parentId, columnIndex).map((c, i) => ({
+                id: c.id,
+                order_index: i,
+                parent_id: parentId,
+                column_index: columnIndex,
+            }));
+            if (!rows.length) return;
+            try {
+                await this.api('POST', '/admin/api/templates/sections/reorder', { sections: rows });
+                rows.forEach(r => {
+                    const child = this.children.find(c => String(c.id) === String(r.id));
+                    if (child) child.order_index = r.order_index;
+                });
+            } catch {
+                this.toastError('Gagal menyimpan urutan kolom');
+            }
+        },
+
+        // Buat ulang satu baris dari rekaman. custom_css dan is_visible bukan bagian
+        // dari endpoint create, jadi keduanya disusulkan lewat PUT bila memang diset.
+        async createFrom(backup, parent = null) {
+            const data = await this.api('POST', `/admin/api/studio/templates/{{ $template->id }}/sections`, {
+                section_type: backup.section_type,
+                props: backup.props,
+                ...(parent ? { parent_id: parent.parentId, column_index: parent.columnIndex } : {}),
+            });
+            const created = { ...data.section, id: String(data.section.id), props: data.section.props ?? {} };
+
+            const patch = {};
+            if (backup.custom_css) patch.custom_css = backup.custom_css;
+            if (backup.is_visible === false) patch.is_visible = false;
+            // _locked di-strip dari jalur props generik (dianggap struktural), jadi
+            // gembok per-field ikut hilang kalau tidak dikirim lewat key `locked`.
+            const locked = backup.props?._locked;
+            if (Array.isArray(locked) && locked.length) patch.locked = locked;
+            if (Object.keys(patch).length) {
+                await this.api('PUT', `/admin/api/templates/sections/${created.id}`, patch);
+                Object.assign(created, patch);
+            }
+
+            if (parent) {
+                this.children.push(created);
+                this.hasChildren[String(parent.parentId)] = true;
+            } else {
+                this.sections.push(created);
+            }
+            return created;
         },
 
         async toggleVisible(s) {
@@ -1361,10 +1560,13 @@ function studioApp() {
 
         initSortable() {
             new Sortable(this.$refs.sectionList, {
+                // Satu grup dengan kolom: blok bisa diseret keluar-masuk container.
+                // Naik ke top-level selalu boleh — semua kelas komponen sah di sana.
+                group: { name: 'studio', pull: true, put: true },
                 handle: '.drag-handle',
                 animation: 150,
                 draggable: '[data-id]', // hanya pembungkus section top-level
-                onEnd: () => this.persistOrder(),
+                onEnd: () => this.persistStructure(),
             });
         },
 
@@ -1372,37 +1574,69 @@ function studioApp() {
             if (el.dataset.sortableReady) return; // x-init bisa jalan ulang saat list re-render
             el.dataset.sortableReady = '1';
             new Sortable(el, {
-                group: 'studio-columns', // satu grup = boleh seret antar kolom & antar container
+                group: {
+                    name: 'studio',
+                    // Hanya blok Basic boleh berada di dalam kolom — server menolak
+                    // container/feature sebagai anak, jadi tolak di sini juga supaya
+                    // penolakannya terasa saat menyeret, bukan sesudah dilepas.
+                    put: (to, from, dragEl) =>
+                        this.classOf(this.sectionById(dragEl.dataset.id)?.section_type) === 'basic',
+                },
                 handle: '.drag-handle',
                 animation: 150,
-                onEnd: () => this.persistColumnOrder(),
+                onEnd: () => this.persistStructure(),
             });
         },
 
-        async persistOrder() {
-            // Read the new order off the DOM, re-sync the Alpine array to it
-            // (keyed x-for then leaves the DOM untouched), persist, re-render.
-            const ids = [...this.$refs.sectionList.children]
-                .map(el => el.dataset.id)
-                .filter(Boolean);
-            this.sections = ids.map(id => this.sections.find(s => s.id === id));
+        // Posisi top-level yang jadi acuan sisip. Kalau yang terpilih adalah blok anak
+        // di dalam container, acuannya container itu — bukan ujung daftar.
+        insertAfterIndex() {
+            const id = this.selectedId;
+            if (!id) return -1;
+            const direct = this.sections.findIndex(s => String(s.id) === String(id));
+            if (direct !== -1) return direct;
+            const child = this.children.find(c => String(c.id) === String(id));
+            return child
+                ? this.sections.findIndex(s => String(s.id) === String(child.parent_id))
+                : -1;
+        },
+
+        // Kirim urutan dari array, bukan dari DOM seperti persistStructure(): dipakai untuk
+        // perubahan yang kita lakukan sendiri, di mana DOM belum tentu sudah menyusul.
+        async saveOrder() {
             try {
                 await this.api('POST', '/admin/api/templates/sections/reorder', {
                     sections: this.sections.map((s, i) => ({ id: s.id, order_index: i })),
                 });
-                this.reloadPreview();
             } catch {
                 this.toastError('Gagal menyimpan urutan');
             }
         },
 
-        async persistColumnOrder() {
-            // Baca ulang seluruh kolom dari DOM: satu drag bisa mengubah dua kolom sekaligus.
-            // Pakai this.rootEl (di-set sekali di init()), BUKAN this.$el: method ini dipanggil
-            // dari closure onEnd yang dibuat di initColumnSortable(), di mana this adalah
-            // merge proxy milik satu kolom saja — this.$el di situ hanya mencakup kolom itu
-            // sehingga query selalu kosong.
-            const rows = [];
+        // Bawa preview ke section yang baru dipilih. Tanpa ini, memilih section ke-12
+        // di panel kiri tak menggerakkan kanvas sama sekali.
+        scrollPreviewTo(id) {
+            const doc = this.previewFrame()?.contentWindow?.document;
+            doc?.querySelector(`[data-section-id="${id}"]`)
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        },
+
+        // Satu drag bisa memindahkan baris ANTAR daftar (top-level <-> kolom), jadi
+        // urutan kedua sisi dibaca dan dikirim sekali jalan. Dulu ada dua fungsi
+        // terpisah; masing-masing hanya melihat separuh dan meninggalkan baris yang
+        // pindah dengan induk basi.
+        //
+        // DOM dulu, state menyusul: Sortable sudah memindahkan node, jadi DOM-lah
+        // kebenaran terbaru. Pakai this.rootEl (di-set sekali di init()), BUKAN
+        // this.$el — method ini dipanggil dari closure onEnd milik satu kolom, di mana
+        // this.$el hanya mencakup kolom itu sehingga query selalu kosong.
+        async persistStructure() {
+            const topIds = [...this.$refs.sectionList.children]
+                .map(el => el.dataset.id)
+                .filter(Boolean);
+
+            const rows = topIds.map((id, i) => ({ id, order_index: i, parent_id: null }));
+
             this.rootEl.querySelectorAll('[data-parent][data-column]').forEach(col => {
                 [...col.querySelectorAll('[data-id]')].forEach((el, i) => {
                     rows.push({
@@ -1415,18 +1649,47 @@ function studioApp() {
             });
             if (rows.length === 0) return;
 
+            // Cari di kedua array: baris yang baru saja pindah masih tercatat di
+            // array asalnya.
+            const pool = [...this.sections, ...this.children];
+            const find = id => pool.find(x => String(x.id) === String(id));
+
+            const nextSections = topIds.map(find).filter(Boolean);
+            const nextChildren = [];
+            for (const r of rows) {
+                if (r.parent_id === null) continue;
+                const row = find(r.id);
+                if (!row) continue;
+                row.parent_id = r.parent_id;
+                row.order_index = r.order_index;
+                row.props = { ...row.props, column_index: r.column_index };
+                nextChildren.push(row);
+            }
+            // Naik ke top-level: column_index lama tak bermakna lagi (server juga
+            // membuangnya) — kalau disisakan, blok itu bisa muncul di kolom yang salah
+            // saat kelak diseret masuk lagi.
+            nextSections.forEach(row => {
+                row.parent_id = null;
+                if (row.props?.column_index !== undefined) {
+                    const { column_index, ...rest } = row.props;
+                    row.props = rest;
+                }
+            });
+
+            this.sections = nextSections;
+            this.children = nextChildren;
+            this.hasChildren = {};
+            this.children.forEach(c => { this.hasChildren[String(c.parent_id)] = true; });
+
             try {
                 await this.api('POST', '/admin/api/templates/sections/reorder', { sections: rows });
-                rows.forEach(r => {
-                    const child = this.children.find(c => String(c.id) === String(r.id));
-                    if (!child) return;
-                    child.parent_id = r.parent_id;
-                    child.order_index = r.order_index;
-                    child.props = { ...child.props, column_index: r.column_index };
-                });
                 this.reloadPreview();
             } catch {
-                this.toastError('Gagal menyimpan urutan kolom');
+                // DOM sudah terlanjur berubah dan state sudah menyusulnya, jadi toast
+                // saja meninggalkan panel yang berbohong. Tarik ulang dari server.
+                this.toastError('Gagal menyimpan urutan');
+                await this.loadSections();
+                this.reloadPreview();
             }
         },
 
