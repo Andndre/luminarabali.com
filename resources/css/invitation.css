@@ -233,7 +233,7 @@
 .couple-inner { max-width: 40rem; margin: 0 auto; text-align: center; }
 .couple-heading { margin-bottom: 2.5rem; }
 /* garis aksen pendek di bawah judul (motif undangan) */
-.couple-eyebrow { font-size: var(--step-sm, 13px); letter-spacing: .18em; text-transform: uppercase; color: var(--color-accent, #b5654d); margin-bottom: .35rem; }
+.couple-eyebrow { font-family: var(--font-heading, serif); font-style: italic; font-size: var(--step-sm, 13px); letter-spacing: .01em; color: var(--color-accent, #b5654d); margin-bottom: .3rem; }
 .couple-name { letter-spacing: .02em; }
 .couple-sub { margin-top: .5rem; font-size: var(--step-sm, 13px); color: inherit; opacity: .7; }
 .couple-ig { display: inline-flex; align-items: center; gap: .35rem; margin-top: .75rem; padding: .3rem .95rem; font-size: var(--step-sm, 13px); color: var(--color-accent, #b5654d); border: 1px solid color-mix(in srgb, var(--color-accent, #b5654d) 45%, transparent); border-radius: 9999px; text-decoration: none; transition: background .2s ease, color .2s ease; }
@@ -241,7 +241,13 @@
 /* ampersand dekoratif antara dua mempelai */
 .couple-amp { font-size: var(--step-2xl, 2rem); line-height: 1; color: var(--color-accent, #b5654d); opacity: .55; }
 .couple--centered-stacked .couple-grid { display: grid; gap: 1.75rem; justify-items: center; }
-.couple-photo-round { width: 10rem; height: 10rem; margin: 0 auto 1.1rem; border-radius: 9999px; object-fit: cover; border: 3px solid var(--color-accent, #b5654d); box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.08)); }
+/* Cincin ganda (garis aksen tipis + jarak surface) menggantikan border tebal — lebih
+   halus dan tetap terbaca di treatment mana pun. */
+.couple-photo-round { width: 10rem; height: 10rem; margin: 0 auto 1.1rem; border-radius: 9999px; object-fit: cover; border: 0;
+  box-shadow: var(--shadow, 0 4px 14px rgba(0,0,0,.08)),
+    0 0 0 1px color-mix(in srgb, var(--color-accent, #b5654d) 35%, transparent),
+    0 0 0 6px var(--color-surface, #fff),
+    0 0 0 7px color-mix(in srgb, var(--color-accent, #b5654d) 26%, transparent); }
 .couple--side-alternating .couple-list { display: flex; flex-direction: column; gap: 1.5rem; }
 .couple-row { display: flex; align-items: center; gap: 1rem; text-align: left; }
 .couple-row.is-rev { flex-direction: row-reverse; text-align: right; }
@@ -269,6 +275,31 @@
   [data-reveal] { opacity: 1; transform: none; transition: none; }
 }
 .couple-photo-rect { width: 40%; aspect-ratio: 3/4; object-fit: cover; border-radius: var(--radius, 12px); flex: 0 0 auto; }
+
+/* centered-portrait: markup sama dgn centered-stacked, foto jadi kapsul memanjang
+   (atas & bawah rounded penuh, sisi lurus) alih-alih lingkaran. */
+.couple--centered-portrait .couple-grid { display: grid; gap: 1.75rem; justify-items: center; }
+.couple--centered-portrait .couple-photo-round { width: 9.5rem; height: auto; aspect-ratio: 3/4; border-radius: 999px; }
+
+/* arch-pair: dua foto lengkung (arch) atas-bawah, nama di bawah tiap foto */
+.couple--arch-pair .couple-arches { display: flex; flex-direction: column; align-items: center; gap: 2.25rem; }
+.couple-arch { max-width: 15rem; }
+.couple-arch-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; margin-bottom: 1rem;
+  border-radius: 999px 999px var(--radius, 14px) var(--radius, 14px); box-shadow: var(--shadow, 0 10px 26px rgba(0,0,0,.12)); }
+
+/* label-vertical: foto penuh + "The Groom/Bride" diputar di sisi, nama/ortu di bawah */
+.couple--label-vertical .couple-inner { max-width: none; }
+.couple-labels { display: flex; flex-direction: column; gap: 2.5rem; margin-top: 1.5rem; }
+.couple-label-photo { position: relative; }
+.couple-label-img { display: block; width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+.couple-label-side { position: absolute; left: .75rem; bottom: 1.25rem; transform-origin: left bottom; transform: rotate(-90deg);
+  white-space: nowrap; font-family: var(--font-heading, serif); line-height: 1;
+  color: var(--color-on_dark, #f5f1e8); text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.couple-label-the { font-style: italic; font-size: var(--step-lg, 1.2rem); margin-right: .25rem; }
+.couple-label-role { font-size: var(--step-xl, 1.6rem); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+.couple-label-info { padding: 1rem 0 .25rem; text-align: left; }
+.couple-label-name { font-style: italic; }
+.couple-label-divide { height: 1px; background: color-mix(in srgb, currentColor 20%, transparent); margin: .7rem 0; }
 
 /* --- event_details --- */
 .events-inner { max-width: 42rem; margin: 0 auto; text-align: center; }

@@ -201,7 +201,7 @@ $components = [
     ],
 
     'couple' => [
-        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['centered-stacked', 'side-alternating', 'portrait-overlay'], 'default' => 'centered-stacked'],
+        ['key' => 'variant', 'type' => 'variant', 'label' => 'Varian Layout', 'group' => 'design', 'options' => ['centered-stacked', 'centered-portrait', 'side-alternating', 'arch-pair', 'portrait-overlay', 'label-vertical'], 'default' => 'centered-stacked'],
         ['key' => 'heading', 'type' => 'text', 'label' => 'Judul', 'group' => 'content', 'default' => 'Mempelai'],
         ['key' => 'groom_label', 'type' => 'text', 'label' => 'Label Mempelai Pria', 'group' => 'content', 'default' => 'Mempelai Pria'],
         ['key' => 'bride_label', 'type' => 'text', 'label' => 'Label Mempelai Wanita', 'group' => 'content', 'default' => 'Mempelai Wanita'],
