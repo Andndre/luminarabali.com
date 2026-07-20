@@ -66,4 +66,35 @@ class TemplatePriceTest extends TestCase
             'id' => $t->id, 'price' => 300000,
         ]);
     }
+
+    public function test_admin_can_store_blank_price_as_null(): void
+    {
+        $this->actingAs($this->designer())
+            ->post(route('admin.templates.store'), [
+                'name' => 'Tanpa Harga', 'slug' => 'tanpa-harga', 'status' => 'draft',
+                'price' => '',
+            ])->assertRedirect();
+
+        $this->assertDatabaseHas('invitation_templates', [
+            'slug' => 'tanpa-harga', 'price' => null,
+        ]);
+    }
+
+    public function test_admin_can_clear_price_on_update(): void
+    {
+        $t = InvitationTemplate::create([
+            'name' => 'Bunga', 'slug' => 'bunga', 'status' => 'draft',
+            'price' => 500000, 'created_by' => $this->designer()->id,
+        ]);
+
+        $this->actingAs($this->designer())
+            ->put(route('admin.templates.update', $t->id), [
+                'name' => 'Bunga', 'slug' => 'bunga', 'status' => 'draft',
+                'price' => '',
+            ])->assertRedirect();
+
+        $this->assertDatabaseHas('invitation_templates', [
+            'id' => $t->id, 'price' => null,
+        ]);
+    }
 }

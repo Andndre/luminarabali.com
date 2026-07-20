@@ -66,7 +66,7 @@ class TemplateController extends Controller
             'thumbnail' => $thumbnailPath,
             'description' => $request->description,
             'category' => $request->category,
-            'price' => $request->price,
+            'price' => $request->filled('price') ? (int) $request->price : null,
             'status' => $request->status ?? 'draft',
             'created_by' => $currentUserId,
         ]);
@@ -125,7 +125,7 @@ class TemplateController extends Controller
             'thumbnail' => $thumbnailPath,
             'description' => $request->description,
             'category' => $request->category,
-            'price' => $request->price,
+            'price' => $request->filled('price') ? (int) $request->price : null,
             'status' => $request->status ?? 'draft',
         ]);
 
