@@ -23,14 +23,19 @@
 
 <main class="catalog-shell">
 
-    {{-- 2. Hero — komposisi kipas (device gallery) --------------------- --}}
+    {{--
+        2. Hero — dua kolom: teks di KIRI, komposisi kipas di KANAN, keduanya
+        di atas lipatan (lihat .catalog-hero min-height + align-items:center).
+        Di bawah 900px grid runtuh jadi satu kolom: teks dulu, lalu device
+        tengah saja (pengapit display:none).
+    --}}
     <section class="catalog-hero">
-        <div class="catalog-wrap">
+        <div class="catalog-wrap catalog-hero__grid">
         <div class="catalog-stack catalog-hero__copy">
             <span class="catalog-eyebrow">Undangan Digital</span>
             <h1 class="catalog-display">Undangan yang dibuka, dibaca, lalu diingat.</h1>
             <p class="catalog-hero__lede">
-                Yang bergulir di bawah ini undangan sungguhan — bukan gambar contoh. Lihat sendiri
+                Yang bergulir di samping ini undangan sungguhan — bukan gambar contoh. Lihat sendiri
                 bagaimana tamu Anda akan membacanya sebelum memutuskan. Warna, huruf, dan urutan
                 halamannya masih bisa Anda ubah setelahnya.
             </p>
@@ -44,7 +49,6 @@
                 <span>Dibuka di HP tanpa aplikasi</span>
                 <span>Revisi teks tanpa biaya tambahan</span>
             </div>
-        </div>
         </div>
 
         {{--
@@ -102,6 +106,7 @@
                     </div>
                 @endif
             </div>
+        </div>
         </div>
     </section>
 

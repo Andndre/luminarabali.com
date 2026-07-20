@@ -97,74 +97,113 @@
 }
 
 /* --- Hero -------------------------------------------------------------- */
-.catalog-hero { display: flex; flex-direction: column; gap: clamp(2.75rem, 6vw, 4.25rem); padding-top: clamp(2.5rem, 7vw, 5rem); }
+/* Dua kolom di atas lipatan: min-height mendekati viewport (svh supaya bar
+   browser mobile tak memicu lompatan) dan konten di-center vertikal, jadi
+   kipas di kanan terlihat TANPA scroll. Di bawah 900px grid runtuh jadi satu
+   kolom — teks dulu, kipas menyusul — dan min-height dilepas supaya halaman
+   pendek tak jadi kosong melompong. */
+.catalog-hero { padding-top: clamp(1.5rem, 4vw, 2.5rem); }
+.catalog-hero__grid {
+    display: grid; align-items: center;
+    gap: clamp(2.25rem, 5vw, 3.5rem);
+}
+/* min-width:0 wajib: tanpa ini kolom grid menolak menyusut di bawah lebar
+   intrinsik anaknya dan kipas bisa mendorong body jadi scroll horizontal. */
+.catalog-hero__grid > * { min-width: 0; }
 .catalog-hero__copy { max-width: 46rem; }
-.catalog-hero h1 { font-size: clamp(2.75rem, 7.5vw, 5rem); }
-.catalog-hero__lede { font-size: clamp(1rem, 1.6vw, 1.15rem); line-height: 1.7; max-width: 34rem; opacity: .82; }
+.catalog-hero h1 { font-size: clamp(2.5rem, 6vw, 4.15rem); }
+.catalog-hero__lede { font-size: clamp(1rem, 1.6vw, 1.1rem); line-height: 1.7; max-width: 34rem; opacity: .82; }
 .catalog-hero__actions { display: flex; flex-wrap: wrap; gap: .75rem; }
 .catalog-hero__meta { display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: .82rem; opacity: .7; }
+@media (min-width: 900px) {
+    .catalog-hero { display: flex; align-items: center; min-height: min(92svh, 52rem); padding-top: 0; }
+    .catalog-hero__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); }
+    .catalog-hero__copy { max-width: 34rem; }
+}
 
 /* --- Hero: komposisi kipas (device gallery) ---------------------------- */
-/* Wadah full-bleed: dirender DI LUAR .catalog-wrap (lihat index.blade.php),
-   jadi lebarnya persis lebar konten body — tanpa 100vw yang ikut menghitung
-   scrollbar dan justru memicu overflow. `overflow: hidden` (dua sumbu, bukan
-   hanya sumbu-x) mengurung kartu terluar yang sengaja ter-crop, sekaligus
-   memastikan tak lahir scroll-container baru. Padding-block memberi ruang
-   untuk drop-shadow device yang kalau tidak ikut terpotong. */
+/* Sekarang menempati KOLOM KANAN hero, bukan lagi pita full-bleed di bawahnya.
+   `overflow: hidden` (dua sumbu) mengurung kartu terluar yang sengaja ter-crop
+   sekaligus menjamin lebarnya tak pernah melampaui kolomnya — inilah yang
+   mencegah scroll horizontal meski rail-nya sengaja dibuat lebih lebar dari
+   wadah. Padding-block memberi ruang untuk drop-shadow device. */
 .catalog-fan {
     position: relative; overflow: hidden;
-    padding-block: clamp(1.5rem, 4vw, 3rem);
+    padding-block: clamp(1.25rem, 3vw, 2.25rem);
 }
 .catalog-fan__rail { display: flex; align-items: center; justify-content: center; }
-/* Lebar dalam persen (relatif viewport) supaya komposisi ikut melebar bersama
-   layar — kalau memakai rem tetap, di layar lebar kipasnya menyusut ke tengah
-   dan kartu terluar tak pernah menyentuh tepi. Device tengah tetap diberi
-   batas rem supaya tak tumbuh jadi tablet di monitor besar. */
-.catalog-fan__center { position: relative; z-index: 4; flex: none; width: min(17rem, 62vw); }
+/* Device tengah: lebar persen supaya ikut melebar bersama kolomnya, dengan
+   batas rem agar tak tumbuh jadi tablet di monitor besar. */
+.catalog-fan__center { position: relative; z-index: 4; flex: none; width: min(15.5rem, 68%); }
 
 /* Pengapit: WAJIB display:none di bawah md. IntersectionObserver tidak pernah
    melaporkan elemen display:none sebagai intersecting, jadi iframe-nya tak
    pernah ter-mount di HP. Jangan ganti ke visibility/opacity — itu akan
    membuat kelima iframe tetap dimuat di perangkat paling lemah. */
 .catalog-fan__flank { display: none; flex: none; }
-.catalog-fan__flank .catalog-liveframe__device { border-radius: 1.1rem; }
-@media (min-width: 768px) {
-    .catalog-fan__flank--near { display: block; }
-    .catalog-fan__center { width: min(19rem, 30%); }
-    .catalog-fan__flank { width: 26%; }
+/* Pengapit BUKAN ponsel: cukup kartu ber-radius + bayangan lembut, diputar
+   ringan. Bezel ponsel hanya milik device tengah. */
+.catalog-fan__flank .catalog-liveframe__device {
+    border-radius: 1rem; aspect-ratio: 9 / 17;
+    box-shadow: 0 18px 34px -18px rgba(26, 20, 18, .45), 0 0 0 1px rgba(26, 20, 18, .06);
 }
-@media (min-width: 1080px) {
+@media (min-width: 900px) {
+    .catalog-fan__flank--near { display: block; }
+    .catalog-fan__center { width: 56%; }
+    .catalog-fan__flank { width: 40%; }
+    /* Rail sengaja lebih lebar dari kolomnya (40+56+40−2×9 = 118%), jadi kedua
+       pengapit jatuh melewati tepi dan ter-crop oleh overflow:hidden di atas. */
+    .catalog-fan__flank--l1 { margin-right: -9%; }
+    .catalog-fan__flank--r1 { margin-left: -9%; }
+}
+@media (min-width: 1280px) {
     .catalog-fan__flank--far { display: block; }
-    /* Lima kartu dengan lebar persen + margin negatif persen: baris layout-nya
-       sengaja sedikit LEBIH LEBAR dari viewport, jadi kartu terluar jatuh di
-       luar tepi dan ter-crop dengan sendirinya di lebar layar mana pun. */
-    .catalog-fan__center { width: 24%; }
-    .catalog-fan__flank { width: 26%; }
-    .catalog-fan__flank--l1, .catalog-fan__flank--l2 { margin-right: -6%; }
-    .catalog-fan__flank--r1, .catalog-fan__flank--r2 { margin-left: -6%; }
+    .catalog-fan__center { width: 46%; }
+    .catalog-fan__flank { width: 34%; }
+    .catalog-fan__flank--l1, .catalog-fan__flank--l2 { margin-right: -8%; }
+    .catalog-fan__flank--r1, .catalog-fan__flank--r2 { margin-left: -8%; }
 }
 
 /* Makin ke tepi: makin kecil, makin miring, makin turun, makin meredup.
    `translate`/`rotate`/`scale` dipakai sebagai properti terpisah supaya bisa
    disetel sendiri-sendiri tanpa saling menimpa lewat satu shorthand transform. */
-.catalog-fan__flank--near { scale: .86; opacity: .8; filter: saturate(.82); z-index: 3; }
-.catalog-fan__flank--far  { scale: .72; opacity: .55; filter: saturate(.62); z-index: 2; }
-.catalog-fan__flank--l1 { rotate: -5deg; translate: 0 2.5rem; margin-right: -2.5rem; }
-.catalog-fan__flank--r1 { rotate:  5deg; translate: 0 2.5rem; margin-left: -2.5rem; }
-/* Sedikit dorongan ke luar supaya tepi kartu terluar pasti melewati tepi layar
+.catalog-fan__flank--near { scale: .88; opacity: .82; filter: saturate(.85); z-index: 3; }
+.catalog-fan__flank--far  { scale: .74; opacity: .5;  filter: saturate(.6);  z-index: 2; }
+.catalog-fan__flank--l1 { rotate: -5deg; translate: 0 1.75rem; }
+.catalog-fan__flank--r1 { rotate:  5deg; translate: 0 1.75rem; }
+/* Sedikit dorongan ke luar supaya tepi kartu terluar pasti melewati tepi kolom
    dan ter-crop oleh `overflow: hidden` milik .catalog-fan. */
-.catalog-fan__flank--l2 { rotate: -9deg; translate: -8% 4.5rem; margin-right: -2.5rem; }
-.catalog-fan__flank--r2 { rotate:  9deg; translate:  8% 4.5rem; margin-left: -2.5rem; }
+.catalog-fan__flank--l2 { rotate: -9deg; translate: -10% 3.25rem; }
+.catalog-fan__flank--r2 { rotate:  9deg; translate:  10% 3.25rem; }
 
-/* Bingkai ponsel untuk device tengah: bezel gelap + pill kecil di atas. */
+/* --- Bingkai ponsel (device tengah) ------------------------------------
+   Bezel tipis MERATA di keempat sisi lewat satu padding, jadi radius dalam
+   bisa diturunkan langsung dari radius luar: dalam = luar − tebal bezel.
+   Itu yang bikin sudutnya terbaca konsentris, bukan "aneh". */
 .catalog-device {
-    position: relative; padding: .5rem; border-radius: 2.1rem; background: #17110F;
-    box-shadow: 0 40px 70px -25px rgba(26, 20, 18, .55), 0 0 0 1px rgba(255, 255, 255, .06) inset;
+    --bezel: .34rem;
+    --frame-radius: 2.3rem;
+    position: relative; padding: var(--bezel); border-radius: var(--frame-radius);
+    background: linear-gradient(160deg, #2A211D 0%, #17110F 42%, #221A17 100%);
+    /* Bayangan berlapis: kontak tipis, ambient sedang, drop jauh yang lembut,
+       plus hairline terang di dalam sebagai kilau tepi logam. */
+    box-shadow:
+        0 1px 2px rgba(26, 20, 18, .35),
+        0 10px 22px -12px rgba(26, 20, 18, .45),
+        0 44px 70px -32px rgba(26, 20, 18, .6),
+        0 0 0 1px rgba(255, 255, 255, .09) inset;
 }
-.catalog-device .catalog-liveframe__device { border-radius: 1.7rem; }
+.catalog-device .catalog-liveframe__device {
+    border-radius: calc(var(--frame-radius) - var(--bezel));
+    aspect-ratio: 9 / 19.5;   /* proporsi ponsel modern */
+    box-shadow: none;         /* bayangan sudah dipegang bingkainya */
+}
+/* Satu pill speaker halus di atas layar (bukan notch kotak). */
 .catalog-device__pill {
-    position: absolute; z-index: 3; top: 1.05rem; left: 50%; translate: -50% 0;
-    width: 3.5rem; height: .4rem; border-radius: 999px; background: #17110F;
+    position: absolute; z-index: 3; left: 50%; translate: -50% 0;
+    top: calc(var(--bezel) + .45rem);
+    width: 20%; max-width: 3.25rem; height: .34rem; border-radius: 999px;
+    background: rgba(23, 17, 15, .55);
 }
 
 /* --- Judul section ----------------------------------------------------- */
@@ -246,8 +285,17 @@
     background: color-mix(in srgb, var(--cat-ground) 60%, var(--cat-gold) 12%);
     border: 1px solid var(--cat-hair);
 }
-.catalog-card__thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-.catalog-card:hover .catalog-card__thumb img { transform: scale(1.04); }
+.catalog-card__thumb img { width: 100%; height: 100%; object-fit: cover; }
+/* Kartu kini berisi preview hidup, jadi hover-nya mengangkat kartu (bayangan +
+   tepi emas) alih-alih men-zoom gambar — men-zoom iframe hanya akan mengaburkan
+   teks undangan di dalamnya. */
+.catalog-card__thumb {
+    transition: box-shadow .35s ease, border-color .35s ease, transform .35s ease;
+}
+.catalog-card:hover .catalog-card__thumb {
+    transform: translateY(-4px); border-color: var(--cat-gold);
+    box-shadow: 0 22px 40px -22px rgba(26, 20, 18, .4);
+}
 .catalog-card__thumb-empty {
     position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
     padding: 1.5rem; font-family: var(--cat-serif); font-size: 1.1rem; color: var(--cat-wine);
@@ -256,7 +304,7 @@
 .catalog-card:hover .catalog-card__body h3 { color: var(--cat-wine); }
 .catalog-card__body h3 { transition: color .25s ease; }
 @media (prefers-reduced-motion: reduce) {
-    .catalog-card__thumb img, .catalog-card:hover .catalog-card__thumb img { transform: none; transition: none; }
+    .catalog-card__thumb, .catalog-card:hover .catalog-card__thumb { transform: none; transition: none; }
 }
 .catalog-empty {
     padding: clamp(3rem, 8vw, 5rem) 1.5rem; text-align: center; border: 1px dashed var(--cat-hair);
@@ -298,7 +346,13 @@
     padding-block: 2rem; border-top: 1px solid var(--cat-hair); font-size: .8rem; opacity: .7;
 }
 
-/* Live-frame katalog: iframe undangan asli di-scale dalam device mockup */
+/* Live-frame katalog: iframe undangan asli di-scale dalam device mockup.
+   --lf-zoom = faktor perkecilan. Iframe dirender selebar (100% / zoom) lalu
+   di-scale balik, jadi viewport DI DALAM iframe = lebar wadah / zoom. Angkanya
+   penting: undangan berpindah ke layout split-pane desktop pada 1024px, jadi
+   viewport hasil hitungan harus tetap di bawah itu supaya preview terbaca
+   sebagai ponsel, bukan halaman desktop. */
+.catalog-liveframe { --lf-zoom: .5; }
 .catalog-liveframe__device {
     position: relative; overflow: hidden; border-radius: 1.75rem;
     aspect-ratio: 9 / 16; width: 100%; background: #efe9df;
@@ -311,15 +365,32 @@
 .catalog-liveframe__poster img { width: 100%; height: 100%; object-fit: cover; }
 .catalog-liveframe__iframe {
     position: absolute; top: 0; left: 0;
-    width: 250%; height: 250%;              /* render lebar penuh… */
-    transform: scale(.4); transform-origin: top left; /* …lalu diperkecil */
+    width: calc(100% / var(--lf-zoom)); height: calc(100% / var(--lf-zoom));
+    transform: scale(var(--lf-zoom)); transform-origin: top left;
     border: 0; pointer-events: none;        /* preview, bukan interaktif */
 }
-/* kelas is-autoscroll hanya dipasang script bila prefers-reduced-motion tidak aktif */
-.catalog-liveframe__iframe.is-autoscroll {
-    animation: catalog-scroll 28s linear infinite alternate;
+
+/* Mode cover-only (kartu katalog): frame mengisi wadahnya, iframe terkunci di
+   posisi atas, tak pernah dapat kelas is-autoscroll (script menolaknya karena
+   data-autoscroll tak pernah dipasang untuk mode ini). Wadah kartu yang
+   overflow:hidden + aspect-ratio 3/4 yang memotong tepat di area cover. */
+.catalog-liveframe--cover { --lf-zoom: .62; position: absolute; inset: 0; }
+.catalog-liveframe--cover .catalog-liveframe__device {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    aspect-ratio: auto; border-radius: 0; box-shadow: none; background: transparent;
 }
-@keyframes catalog-scroll { from { top: 0; } to { top: -60%; } }
+/* Placeholder teks disembunyikan: di kartu, backdrop nama template yang jadi
+   fallback bila tak ada thumbnail (lihat _partials/card.blade.php). */
+.catalog-liveframe--cover .catalog-liveframe__poster span { display: none; }
+
+/* kelas is-autoscroll hanya dipasang script bila prefers-reduced-motion tidak
+   aktif DAN isi iframe tak bisa digulir langsung (fallback cross-origin).
+   Jangkauannya sengaja pendek — mulai dari cover, turun sedikit, lalu balik
+   (alternate) — supaya tak pernah menyeret sampai form RSVP. */
+.catalog-liveframe__iframe.is-autoscroll {
+    animation: catalog-scroll 42s ease-in-out infinite alternate;
+}
+@keyframes catalog-scroll { from { top: 0; } to { top: -22%; } }
 @media (prefers-reduced-motion: reduce) {
     .catalog-liveframe__iframe.is-autoscroll { animation: none; }
 }

@@ -38,4 +38,30 @@ class CatalogIndexTest extends TestCase
     {
         $this->get('/undangan')->assertOk()->assertSee('Belum ada desain');
     }
+
+    public function test_catalog_card_points_to_live_preview(): void
+    {
+        $t = $this->make('Kartu Hidup', 'kartu-hidup', 'published', 100000);
+
+        $this->get('/undangan')->assertOk()
+            ->assertSee(route('catalog.preview', $t->slug), false);
+    }
+
+    /**
+     * Test di atas lolos walau kartu masih statis, karena satu-satunya template
+     * juga terpakai sebagai device tengah hero. Di sini template lama dijamin
+     * TIDAK masuk hero (hero center = published terbaru, tanpa hero_slot),
+     * jadi route preview-nya hanya bisa datang dari kartu katalog.
+     */
+    public function test_non_hero_card_still_renders_live_preview(): void
+    {
+        $old = $this->make('Kartu Lama', 'kartu-lama', 'published', 100000);
+        $this->make('Kartu Baru', 'kartu-baru', 'published', 200000);
+
+        $this->get('/undangan')->assertOk()
+            ->assertSee(route('catalog.preview', $old->slug), false)
+            // Kartu wajib mode cover-only: tanpa modifier ini frame-nya
+            // menampilkan seluruh undangan, bukan tampilan depan saja.
+            ->assertSee('catalog-liveframe--cover', false);
+    }
 }

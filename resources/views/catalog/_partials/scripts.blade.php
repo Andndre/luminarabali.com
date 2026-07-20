@@ -14,13 +14,20 @@
         const span = card ? card.scrollHeight - card.clientHeight : 0;
         if (span < 80) { iframe.classList.add('is-autoscroll'); return; }
 
-        const leg = 34000; // ms untuk sekali jalan, lalu balik arah
+        // JANGAN gulir sampai habis — dulu ini menyeret preview sampai form
+        // RSVP. Batasi ke sepertiga awal undangan, dan tak lebih dari ~1,2
+        // layar, supaya yang terlihat tetap cover dan section persis di
+        // bawahnya. Selalu MULAI dari 0 (cover) lalu bolak-balik.
+        const reach = Math.min(span * 0.3, card.clientHeight * 1.2);
+
+        const leg = 30000; // ms untuk sekali jalan, lalu balik arah — pelan
         const t0 = performance.now();
+        card.scrollTop = 0;
         const tick = (now) => {
             if (!card.isConnected) return;
             const phase = ((now - t0) % (leg * 2)) / leg;
             const p = phase <= 1 ? phase : 2 - phase;   // bolak-balik 0→1→0
-            card.scrollTop = span * (p * p * (3 - 2 * p)) * 0.9; // smoothstep, sisakan ujung
+            card.scrollTop = reach * (p * p * (3 - 2 * p)); // smoothstep
             requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
