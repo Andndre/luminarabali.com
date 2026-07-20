@@ -78,6 +78,26 @@ class InvitationRenderer
         ])->render();
     }
 
+    /**
+     * Bangun stub InvitationPage (tak persist) untuk render preview template —
+     * dipakai studio & katalog publik. Nama statis; tak ada data user.
+     */
+    public function previewStub(InvitationTemplate $template): InvitationPage
+    {
+        $page = new InvitationPage([
+            'title' => 'Preview: '.$template->name,
+            'slug' => 'preview',
+            'groom_name' => 'Romeo',
+            'bride_name' => 'Juliet',
+            'event_date' => now()->addMonths(6),
+            'meta_data' => [],
+        ]);
+        $page->setRelation('template', $template);
+        $page->setRelation('sections', $template->sections);
+
+        return $page;
+    }
+
     public function coverImage($sections): ?string
     {
         $props = $sections->firstWhere('section_type', 'cover')?->props ?? [];

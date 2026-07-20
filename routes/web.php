@@ -9,6 +9,9 @@ Route::get('/', [BookingController::class, 'landing'])->name('home');
 Route::get('/photobooth', [BookingController::class, 'photoboothLanding'])->name('photobooth.home');
 Route::get('/visual', [BookingController::class, 'visualLanding'])->name('visual.home');
 
+// Katalog undangan publik (Fase 7B)
+Route::get('/undangan/{slug}/preview', [\App\Http\Controllers\CatalogController::class, 'preview'])->name('catalog.preview');
+
 Route::get('/pricelist', [BookingController::class, 'pricelistPhotobooth'])->name('pricelist');
 Route::get('/pricelist/visual', [BookingController::class, 'pricelistVisual'])->name('pricelist.visual');
 

@@ -669,16 +669,7 @@ class TemplateEditorController extends Controller
 
         // Stub page (never persisted): invitations.public reads title/names/slug/
         // meta_data off $page, and the rsvp partial reads $page->slug ?? ''.
-        $page = new InvitationPage([
-            'title' => 'Studio Preview: '.$template->name,
-            'slug' => 'studio-preview',
-            'groom_name' => 'Romeo',
-            'bride_name' => 'Juliet',
-            'event_date' => now()->addMonths(6),
-            'meta_data' => [],
-        ]);
-        $page->setRelation('template', $template);
-        $page->setRelation('sections', $template->sections);
+        $page = $renderer->previewStub($template);
 
         return response()
             ->view('invitations.public', [

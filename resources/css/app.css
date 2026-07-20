@@ -23,3 +23,29 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Live-frame katalog: iframe undangan asli di-scale dalam device mockup */
+.catalog-liveframe__device {
+    position: relative; overflow: hidden; border-radius: 1.75rem;
+    aspect-ratio: 9 / 16; width: 100%; background: #efe9df;
+    box-shadow: 0 30px 60px -20px rgba(26, 20, 18, .45);
+}
+.catalog-liveframe__poster {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    color: #8a7a55; font-size: .8rem;
+}
+.catalog-liveframe__poster img { width: 100%; height: 100%; object-fit: cover; }
+.catalog-liveframe__iframe {
+    position: absolute; top: 0; left: 0;
+    width: 250%; height: 250%;              /* render lebar penuh… */
+    transform: scale(.4); transform-origin: top left; /* …lalu diperkecil */
+    border: 0; pointer-events: none;        /* preview, bukan interaktif */
+}
+/* kelas is-autoscroll hanya dipasang script bila prefers-reduced-motion tidak aktif */
+.catalog-liveframe__iframe.is-autoscroll {
+    animation: catalog-scroll 28s linear infinite alternate;
+}
+@keyframes catalog-scroll { from { top: 0; } to { top: -60%; } }
+@media (prefers-reduced-motion: reduce) {
+    .catalog-liveframe__iframe.is-autoscroll { animation: none; }
+}
