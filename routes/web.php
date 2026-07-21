@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/undangan-saya/{id}/tamu', [\App\Http\Controllers\CustomerInvitationController::class, 'guests'])->name('invitations.guests');
     Route::patch('/undangan-saya/{id}/tamu/{rsvpId}/toggle-hidden', [\App\Http\Controllers\CustomerInvitationController::class, 'toggleRsvpHidden'])->name('invitations.guests.toggle-hidden');
+    Route::get('/undangan-saya/{id}/bagikan', [\App\Http\Controllers\CustomerInvitationController::class, 'share'])->name('invitations.share');
 });
 
 // Admin Routes (Protected)

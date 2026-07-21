@@ -38,4 +38,12 @@ class CustomerInvitationController extends Controller
 
         return response()->json(['success' => true, 'is_hidden' => $response->is_hidden]);
     }
+
+    public function share($id)
+    {
+        $page = InvitationPage::findOrFail($id);
+        Gate::authorize('update', $page);
+
+        return view('invitations-customer.share', compact('page'));
+    }
 }
