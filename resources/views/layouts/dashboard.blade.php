@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Dashboard') | Luminara</title>
     @vite(['resources/css/app.css'])
+    @stack('scripts')
 </head>
 <body class="dash">
 

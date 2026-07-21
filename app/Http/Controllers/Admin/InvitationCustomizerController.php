@@ -25,7 +25,11 @@ class InvitationCustomizerController extends Controller
         $page = InvitationPage::findOrFail($id);
         Gate::authorize('update', $page);
 
-        return view('admin.invitations.customizer', compact('page'));
+        $view = request()->routeIs('invitations.customizer.show')
+            ? 'invitations-customer.customizer'
+            : 'admin.invitations.customizer';
+
+        return view($view, compact('page'));
     }
 
     public function load($id)
