@@ -19,9 +19,21 @@
     </div>
 
     @if ($order->status === \App\Models\Order::STATUS_PAID)
-        <div class="dash-flash dash-flash--success">
-            Pembayaran terkonfirmasi. Undangan Anda akan disiapkan.
-        </div>
+        <div class="dash-flash dash-flash--success">Pembayaran terkonfirmasi.</div>
+
+        @if ($order->invitationPage)
+            <div class="dash-card">
+                <h2 style="font-size: 1.05rem; font-weight: 600">Undangan Anda Siap</h2>
+                <p class="dash-muted" style="margin-top: .35rem">Lanjut isi konten, kelola tamu, atau bagikan ke undangan.</p>
+                <div style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: .5rem">
+                    <a href="{{ route('invitations.customizer.show', $order->invitationPage->id) }}" class="dash-btn dash-btn--solid">Isi Undangan</a>
+                    <a href="{{ route('invitations.guests', $order->invitationPage->id) }}" class="dash-btn dash-btn--ghost">Daftar Tamu</a>
+                    <a href="{{ route('invitations.share', $order->invitationPage->id) }}" class="dash-btn dash-btn--ghost">Bagikan</a>
+                </div>
+            </div>
+        @else
+            <div class="dash-flash">Undangan Anda sedang disiapkan.</div>
+        @endif
     @elseif ($order->status === \App\Models\Order::STATUS_CANCELLED)
         <div class="dash-flash dash-flash--error">Pesanan dibatalkan.</div>
     @else
