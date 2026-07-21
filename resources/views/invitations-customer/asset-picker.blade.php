@@ -1,9 +1,16 @@
-@extends('layouts.dashboard')
-
-@section('title', 'Pilih Foto')
-
-@section('content')
-<div id="picker" class="dash-content" style="padding: 0">
+{{-- Bukan halaman dashboard biasa — ini dibuka di iframe modal picker Customizer,
+     jadi TANPA layouts.dashboard (sidebar/topbar bikin iframe kecil kejejelan). --}}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Pilih Foto | Luminara</title>
+    @vite(['resources/css/app.css'])
+</head>
+<body class="dash">
+<div id="picker" class="dash-content" style="padding: 1.25rem; max-width: none">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem">
         <h1 class="dash-title" style="font-size: 1.1rem">Pilih Foto</h1>
         <label class="dash-btn dash-btn--solid" style="cursor: pointer">
@@ -62,4 +69,5 @@
     load();
 })();
 </script>
-@endsection
+</body>
+</html>
