@@ -239,4 +239,42 @@ class CustomizerApiTest extends TestCase
             ->putJson("/admin/api/invitations/{$this->page->id}/customizer", $this->validPayload())
             ->assertForbidden();
     }
+
+    public function test_owner_customer_can_load_and_save(): void
+    {
+        $owner = User::factory()->create(['division' => 'customer']);
+        $this->page->update(['owner_id' => $owner->id]);
+
+        $this->actingAs($owner)
+            ->getJson("/admin/api/invitations/{$this->page->id}/customizer")
+            ->assertOk();
+
+        $this->actingAs($owner)
+            ->putJson("/admin/api/invitations/{$this->page->id}/customizer", $this->validPayload())
+            ->assertOk();
+    }
+
+    public function test_non_owner_customer_forbidden(): void
+    {
+        $owner = User::factory()->create(['division' => 'customer']);
+        $stranger = User::factory()->create(['division' => 'customer']);
+        $this->page->update(['owner_id' => $owner->id]);
+
+        $this->actingAs($stranger)
+            ->getJson("/admin/api/invitations/{$this->page->id}/customizer")
+            ->assertForbidden();
+    }
+
+    public function test_save_strips_locked_field(): void
+    {
+        $this->section->update(['props' => ['title' => 'Old title', 'alignment' => 'center', '_locked' => ['title']]]);
+
+        $this->actingAs($this->admin)
+            ->putJson("/admin/api/invitations/{$this->page->id}/customizer", $this->validPayload([
+                'sections' => [['id' => $this->section->id, 'props' => ['title' => 'Hacked title']]],
+            ]))
+            ->assertOk();
+
+        $this->assertSame('Old title', $this->section->refresh()->props['title']);
+    }
 }
