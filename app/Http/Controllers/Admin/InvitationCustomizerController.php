@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 class InvitationCustomizerController extends Controller
@@ -18,30 +19,19 @@ class InvitationCustomizerController extends Controller
     /** Tipe field content yang boleh diedit buyer di MVP (spec §8: teks + foto). */
     private const BUYER_FIELD_TYPES = ['text', 'image'];
 
-    protected function authorizeSuperAdmin(): void
-    {
-        $currentUser = \App\Models\User::find(Auth::id());
-
-        if (! $currentUser || $currentUser->division !== 'super_admin') {
-            abort(403, 'Unauthorized action.');
-        }
-    }
-
     public function show($id)
     {
-        $this->authorizeSuperAdmin();
-
         $page = InvitationPage::findOrFail($id);
+        Gate::authorize('update', $page);
 
         return view('admin.invitations.customizer', compact('page'));
     }
 
     public function load($id)
     {
-        $this->authorizeSuperAdmin();
-
         $page = InvitationPage::with(['sections' => fn ($q) => $q->orderBy('order_index')])
             ->findOrFail($id);
+        Gate::authorize('update', $page);
 
         $default = config('invitation.default_theme');
         $templateTheme = is_array($page->template?->theme) ? $page->template->theme : [];
@@ -92,9 +82,8 @@ class InvitationCustomizerController extends Controller
 
     public function save(Request $request, $id)
     {
-        $this->authorizeSuperAdmin();
-
         $page = InvitationPage::findOrFail($id);
+        Gate::authorize('update', $page);
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -124,6 +113,12 @@ class InvitationCustomizerController extends Controller
                 ->filter(fn ($f) => ($f['group'] ?? null) === 'content'
                     && in_array($f['type'], self::BUYER_FIELD_TYPES, true))
                 ->pluck('key')->all();
+
+            // Field yang dikunci mitra/admin di Studio (guideline §10.1b) tidak
+            // boleh ditulis dari Customizer siapa pun — diperlakukan sama seperti
+            // field design: diam-diam diabaikan, bukan error.
+            $locked = $section->props['_locked'] ?? [];
+            $allowedKeys = array_diff($allowedKeys, $locked);
 
             $incoming = array_intersect_key($payload['props'], array_flip($allowedKeys));
             $validated = app(SectionPropsValidator::class)
@@ -198,10 +193,9 @@ class InvitationCustomizerController extends Controller
 
     public function preview($id)
     {
-        $this->authorizeSuperAdmin();
-
         $page = InvitationPage::with(['assets', 'template', 'sections' => fn ($q) => $q->orderBy('order_index')])
             ->findOrFail($id);
+        Gate::authorize('update', $page);
 
         if ($page->sections->isEmpty()) {
             return response()->view('invitations.not-ready', ['page' => $page]);
