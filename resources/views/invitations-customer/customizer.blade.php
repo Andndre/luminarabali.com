@@ -14,6 +14,6 @@
         'loadUrl' => route('invitations.customizer.load', $page->id),
         'saveUrl' => route('invitations.customizer.save', $page->id),
         'previewUrl' => route('invitations.customizer.preview', $page->id),
-        'pickerUrl' => '',
+        'pickerUrl' => route('invitations.assets.index', $page->id),
     ])
 @endsection
