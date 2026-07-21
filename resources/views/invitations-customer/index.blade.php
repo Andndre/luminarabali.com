@@ -16,13 +16,13 @@
                         <div class="dash-row__name">{{ $page->title }}</div>
                         <div class="dash-row__meta">{{ $page->template?->name ?? 'Desain' }}</div>
                     </div>
-                    <div class="dash-row__side">
+                    <div class="dash-row__side" style="flex-wrap: wrap; gap: .4rem">
                         <x-dash.status-pill
                             :status="$page->published_status"
                             :label="$page->published_status === 'published' ? 'Terbit' : 'Draf'" />
-                        @if ($page->published_status === 'published')
-                            <a href="{{ route('invitation.show', $page->slug) }}" class="dash-btn dash-btn--ghost">Buka</a>
-                        @endif
+                        <a href="{{ route('invitations.customizer.show', $page->id) }}" class="dash-btn dash-btn--solid">Isi Undangan</a>
+                        <a href="{{ route('invitations.guests', $page->id) }}" class="dash-btn dash-btn--ghost">Daftar Tamu</a>
+                        <a href="{{ route('invitations.share', $page->id) }}" class="dash-btn dash-btn--ghost">Bagikan</a>
                     </div>
                 </div>
             @endforeach

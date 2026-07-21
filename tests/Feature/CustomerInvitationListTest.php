@@ -68,14 +68,16 @@ class CustomerInvitationListTest extends TestCase
             ->assertDontSee("/invitation/{$page->slug}", false);
     }
 
-    public function test_published_invitation_shows_public_link(): void
+    public function test_published_invitation_shows_action_buttons(): void
     {
         $me = $this->customer();
         $page = $this->pageFor($me, 'published');
 
         $this->actingAs($me)->get('/undangan-saya')
             ->assertOk()
-            ->assertSee("/invitation/{$page->slug}", false);
+            ->assertSee(route('invitations.customizer.show', $page->id), false)
+            ->assertSee(route('invitations.guests', $page->id), false)
+            ->assertSee(route('invitations.share', $page->id), false);
     }
 
     public function test_empty_state_points_to_catalog(): void
