@@ -40,6 +40,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/pesanan/{order}/bukti', [\App\Http\Controllers\OrderController::class, 'uploadProof'])->name('orders.proof.upload');
     Route::get('/pesanan/{order}/bukti', [\App\Http\Controllers\OrderController::class, 'showProof'])->name('orders.proof.show');
     Route::get('/undangan-saya', [\App\Http\Controllers\CustomerInvitationController::class, 'index'])->name('invitations.index');
+
+    Route::get('/undangan-saya/{id}/customizer', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'show'])->name('invitations.customizer.show');
+    Route::get('/undangan-saya/{id}/customizer/data', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'load'])->name('invitations.customizer.load');
+    Route::put('/undangan-saya/{id}/customizer', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'save'])->name('invitations.customizer.save');
+    Route::get('/undangan-saya/{id}/customizer/preview', [\App\Http\Controllers\Admin\InvitationCustomizerController::class, 'preview'])->name('invitations.customizer.preview');
 });
 
 // Admin Routes (Protected)
