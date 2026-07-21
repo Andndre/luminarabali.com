@@ -36,7 +36,7 @@ class CustomizerApiTest extends TestCase
     private function validPayload(array $overrides = []): array
     {
         return array_merge([
-            'title' => 'A & B', 'groom_name' => 'A', 'bride_name' => 'B',
+            'title' => 'A & B', 'slug' => 'customizer-page', 'groom_name' => 'A', 'bride_name' => 'B',
             'event_date' => now()->addMonth()->toDateString(),
         ], $overrides);
     }
@@ -276,5 +276,27 @@ class CustomizerApiTest extends TestCase
             ->assertOk();
 
         $this->assertSame('Old title', $this->section->refresh()->props['title']);
+    }
+
+    public function test_save_rejects_duplicate_slug(): void
+    {
+        InvitationPage::create([
+            'title' => 'Lain', 'slug' => 'sudah-dipakai',
+            'groom_name' => 'X', 'bride_name' => 'Y', 'event_date' => now()->addMonth(),
+            'published_status' => 'draft', 'created_by' => $this->admin->id,
+        ]);
+
+        $this->actingAs($this->admin)
+            ->putJson("/admin/api/invitations/{$this->page->id}/customizer", $this->validPayload(['slug' => 'sudah-dipakai']))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['slug']);
+    }
+
+    public function test_load_returns_slug(): void
+    {
+        $this->actingAs($this->admin)
+            ->getJson("/admin/api/invitations/{$this->page->id}/customizer")
+            ->assertOk()
+            ->assertJsonPath('page.slug', 'customizer-page');
     }
 }
