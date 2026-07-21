@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class InvitationCustomizerController extends Controller
@@ -69,6 +70,7 @@ class InvitationCustomizerController extends Controller
             'page' => [
                 'id' => $page->id,
                 'title' => $page->title,
+                'slug' => $page->slug,
                 'groom_name' => $page->groom_name,
                 'bride_name' => $page->bride_name,
                 'event_date' => optional($page->event_date)->toDateString(),
@@ -87,6 +89,7 @@ class InvitationCustomizerController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => ['required', 'string', 'max:255', 'alpha_dash', Rule::unique('invitation_pages', 'slug')->ignore($page->id)],
             'groom_name' => 'required|string|max:255',
             'bride_name' => 'required|string|max:255',
             'event_date' => 'required|date',
@@ -142,6 +145,7 @@ class InvitationCustomizerController extends Controller
         DB::transaction(function () use ($page, $request, $overrides, $sectionWrites) {
             $page->update([
                 'title' => $request->title,
+                'slug' => $request->slug,
                 'groom_name' => $request->groom_name,
                 'bride_name' => $request->bride_name,
                 'event_date' => $request->event_date,
