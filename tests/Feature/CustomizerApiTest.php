@@ -240,25 +240,25 @@ class CustomizerApiTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_owner_customer_can_load_and_save(): void
+    public function test_mitra_creator_can_load_and_save(): void
     {
-        $owner = User::factory()->create(['division' => 'customer']);
-        $this->page->update(['owner_id' => $owner->id]);
+        $creator = User::factory()->create(['division' => 'designer']);
+        $this->page->update(['created_by' => $creator->id]);
 
-        $this->actingAs($owner)
+        $this->actingAs($creator)
             ->getJson("/admin/api/invitations/{$this->page->id}/customizer")
             ->assertOk();
 
-        $this->actingAs($owner)
+        $this->actingAs($creator)
             ->putJson("/admin/api/invitations/{$this->page->id}/customizer", $this->validPayload())
             ->assertOk();
     }
 
-    public function test_non_owner_customer_forbidden(): void
+    public function test_designer_not_the_creator_forbidden(): void
     {
-        $owner = User::factory()->create(['division' => 'customer']);
-        $stranger = User::factory()->create(['division' => 'customer']);
-        $this->page->update(['owner_id' => $owner->id]);
+        $creator = User::factory()->create(['division' => 'designer']);
+        $stranger = User::factory()->create(['division' => 'designer']);
+        $this->page->update(['created_by' => $creator->id]);
 
         $this->actingAs($stranger)
             ->getJson("/admin/api/invitations/{$this->page->id}/customizer")
