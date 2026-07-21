@@ -49,6 +49,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/undangan-saya/{id}/aset', [\App\Http\Controllers\CustomerAssetController::class, 'index'])->name('invitations.assets.index');
     Route::get('/undangan-saya/{id}/aset/data', [\App\Http\Controllers\CustomerAssetController::class, 'data'])->name('invitations.assets.data');
     Route::post('/undangan-saya/{id}/aset', [\App\Http\Controllers\CustomerAssetController::class, 'upload'])->name('invitations.assets.upload');
+
+    Route::get('/undangan-saya/{id}/tamu', [\App\Http\Controllers\CustomerInvitationController::class, 'guests'])->name('invitations.guests');
+    Route::patch('/undangan-saya/{id}/tamu/{rsvpId}/toggle-hidden', [\App\Http\Controllers\CustomerInvitationController::class, 'toggleRsvpHidden'])->name('invitations.guests.toggle-hidden');
 });
 
 // Admin Routes (Protected)
